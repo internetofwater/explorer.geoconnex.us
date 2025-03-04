@@ -9,18 +9,17 @@ import {
     GeoJsonProperties,
     Geometry,
 } from 'geojson';
-import { GeoJSONFeature, LngLatLike } from 'mapbox-gl';
 import { Summary } from '@/lib/state/main/slice';
-
-export const defaultGeoJson: FeatureCollection<Geometry, GeoJsonProperties> = {
-    type: 'FeatureCollection',
-    features: [],
-};
+import { defaultGeoJson } from '@/lib/state/consts';
 
 export const transformDatasets = (
-    feature: Feature<Geometry, GeoJsonProperties & { datasets: Dataset[] }>
+    feature: Feature<Geometry, GeoJsonProperties & { datasets?: Dataset[] }>
 ): FeatureCollection<Geometry, Dataset> => {
-    if (feature.properties && (feature.properties?.datasets ?? []).length > 0) {
+    if (
+        feature.properties &&
+        feature.properties?.datasets &&
+        (feature.properties?.datasets ?? []).length > 0
+    ) {
         const features = feature.properties.datasets
             .map((dataset: Dataset) => {
                 const { lat, lng } = extractLatLng(dataset.wkt);

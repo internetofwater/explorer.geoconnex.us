@@ -1,10 +1,12 @@
-import {
-    transformDatasets,
-    extractLatLng,
-    defaultGeoJson,
-} from '@/lib/state/utils';
+import { transformDatasets, extractLatLng } from '@/lib/state/utils';
 import { Dataset } from '@/app/types';
-import { Feature, FeatureCollection, Geometry } from 'geojson';
+import {
+    Feature,
+    FeatureCollection,
+    GeoJsonProperties,
+    Geometry,
+} from 'geojson';
+import { defaultGeoJson } from '@/lib/state/consts';
 
 describe('utils', () => {
     describe('extractLatLng', () => {
@@ -25,7 +27,10 @@ describe('utils', () => {
 
     describe('transformDatasets', () => {
         test('should transform datasets correctly', () => {
-            const feature: Feature = {
+            const feature: Feature<
+                Geometry,
+                GeoJsonProperties & { datasets: Dataset[] }
+            > = {
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
@@ -85,7 +90,10 @@ describe('utils', () => {
         });
 
         test('should return defaultGeoJson if no datasets are present', () => {
-            const feature: Feature = {
+            const feature: Feature<
+                Geometry,
+                GeoJsonProperties & { datasets?: Dataset[] }
+            > = {
                 type: 'Feature',
                 geometry: {
                     type: 'Point',

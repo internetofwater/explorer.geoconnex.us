@@ -18,6 +18,7 @@ jest.mock('../utils', () => ({
     addLayers: jest.fn(),
     addHoverFunctions: jest.fn(),
     addClickFunctions: jest.fn(),
+    addMouseMoveFunctions: jest.fn(),
     addControls: jest.fn(),
 }));
 describe('Map Component: ClientSide', () => {

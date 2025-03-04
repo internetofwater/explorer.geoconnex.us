@@ -2,10 +2,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
     createSummary,
-    defaultGeoJson,
     getMainstemBuffer,
     transformDatasets,
-} from '../utils';
+} from '@/lib/state/utils';
 import {
     Feature,
     FeatureCollection,
@@ -14,8 +13,9 @@ import {
 } from 'geojson';
 import { LayerId, SubLayerId } from '@/app/features/MainMap/config';
 import { Dataset } from '@/app/types';
-import { GeoJSONFeature, LngLatBoundsLike } from 'mapbox-gl';
+import { LngLatBoundsLike } from 'mapbox-gl';
 import * as turf from '@turf/turf';
+import { defaultGeoJson } from '@/lib/state/consts';
 
 export type Summary = {
     id: number;

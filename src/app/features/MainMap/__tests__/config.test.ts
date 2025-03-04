@@ -3,6 +3,7 @@ import {
     getLayerConfig,
     getLayerName,
     LayerId,
+    MAINSTEM_SMALL_LINE_WIDTH,
     SourceId,
     SubLayerId,
 } from '@/app/features/MainMap//config';
@@ -46,11 +47,11 @@ describe('MainMap: Config', () => {
                     'step',
                     ['zoom'],
                     0.3, // If lower than 7
-                    7,
+                    6,
                     0.8, // Default to 0.1
                 ],
                 'line-color': getLayerColor(SubLayerId.MainstemsSmall),
-                'line-width': 4,
+                'line-width': MAINSTEM_SMALL_LINE_WIDTH,
             },
         });
     });

@@ -17,10 +17,11 @@ import {
     setSelectedMainstemId,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
-import { createSummary, defaultGeoJson } from '@/lib/state/utils';
+import { createSummary } from '@/lib/state/utils';
+import { defaultGeoJson } from '@/lib/state/consts';
 import { Dataset, MainstemData } from '@/app/types';
 import { Linear } from '@/app/assets/Linear';
-import { Summary } from './Summary';
+import { Summary } from '@/app/features/SidePanel/Summary';
 
 const SearchComponent: React.FC = () => {
     const [query, setQuery] = useState('');

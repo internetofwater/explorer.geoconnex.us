@@ -15,7 +15,7 @@ import {
     Map,
     Popup,
 } from 'mapbox-gl';
-import { defaultGeoJson } from '@/lib/state/utils';
+import { defaultGeoJson } from '@/lib/state/consts';
 import {
     hasPeristentPopupOpenToThisItem,
     spiderfyClusters,
