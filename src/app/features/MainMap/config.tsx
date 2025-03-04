@@ -6,7 +6,7 @@ import {
     SourceConfig,
     Sources,
 } from '@/app/components/Map/types';
-import { Feature, Point } from 'geojson';
+import { Feature, LineString, Point } from 'geojson';
 import {
     DataDrivenPropertyValueSpecification,
     ExpressionSpecification,
@@ -40,6 +40,7 @@ export enum LayerId {
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
     SpiderifyPoints = 'spiferified-clusters',
+    MainstemsHighlight = 'mainstems-highlight',
 }
 
 export enum SubLayerId {
@@ -60,6 +61,9 @@ export const allLayerIds = [
 export const CLUSTER_TRANSITION_ZOOM = 14;
 export const MAINSTEM_DRAINAGE_SMALL = 160;
 export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
+export const MAINSTEM_SMALL_LINE_WIDTH = 3;
+export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
+export const MAINSTEM_LARGE_LINE_WIDTH = 6;
 
 export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
     'step',
@@ -148,6 +152,8 @@ export const getLayerName = (layerId: LayerId | SubLayerId): string => {
             return 'HUC2 Boundaries'; // TODO determine if names are accurate
         case SubLayerId.HUC2BoundaryLabels:
             return 'Labels'; // TODO determine if names are accurate
+        case SubLayerId.HUC2BoundaryFill:
+            return 'HUC2 Boundaries'; // TODO determine if names are accurate
         case LayerId.AssociatedData:
             return 'Associated Data'; // TODO determine if names are accurate
         case SubLayerId.AssociatedDataClusters:
@@ -176,7 +182,7 @@ export const getLayerColor = (
         case LayerId.MajorRivers:
             return '#536663';
         case LayerId.HUC2Boundaries:
-            return '#ED4C4C';
+            return '#FFF';
         case LayerId.AssociatedData:
             return ''; // Special case, no parent layer def
         case SubLayerId.AssociatedDataClusters:
@@ -226,7 +232,7 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsSmall),
-                    'line-width': 4,
+                    'line-width': MAINSTEM_SMALL_LINE_WIDTH,
                 },
             };
         case SubLayerId.MainstemsMedium:
@@ -256,7 +262,7 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsMedium),
-                    'line-width': 4,
+                    'line-width': MAINSTEM_MEDIUM_LINE_WIDTH,
                 },
             };
         case SubLayerId.MainstemsLarge:
@@ -271,14 +277,33 @@ export const getLayerConfig = (
                     visibility: 'none',
                 },
                 filter: [
-                    '>',
+                    '>=',
                     ['get', 'outlet_drainagearea_sqkm'],
                     MAINSTEM_DRAINAGE_MEDIUM,
                 ],
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsLarge),
-                    'line-width': 4,
+                    'line-width': MAINSTEM_LARGE_LINE_WIDTH,
+                },
+            };
+        case LayerId.MainstemsHighlight:
+            return {
+                id: LayerId.MainstemsHighlight,
+                type: LayerType.Line,
+                source: SourceId.Mainstems,
+                'source-layer': SourceId.Mainstems,
+                // Filter all features out by default
+                filter: ['==', ['get', 'id'], null],
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                    visibility: 'visible',
+                },
+                paint: {
+                    'line-width': 12,
+                    'line-blur': 3,
+                    'line-color': MAINSTEMS_SELECTED_COLOR,
                 },
             };
         case LayerId.MajorRivers:
@@ -293,7 +318,7 @@ export const getLayerConfig = (
                     'line-join': 'round',
                 },
                 paint: {
-                    'line-opacity': ['step', ['zoom'], 0.8, 7, 0.1],
+                    'line-opacity': ['step', ['zoom'], 0.6, 7, 0.1],
                     'line-color': getLayerColor(LayerId.MajorRivers),
                     'line-width': 4,
                 },
@@ -330,7 +355,7 @@ export const getLayerConfig = (
                 },
                 paint: {
                     'text-color': getLayerColor(LayerId.HUC2Boundaries),
-                    'text-opacity': ['step', ['zoom'], 1, 6, 0],
+                    'text-opacity': 0,
                 },
             };
         case SubLayerId.HUC2BoundaryFill:
@@ -528,7 +553,9 @@ export const getLayerHoverFunction = (
                                 .coordinates as [number, number];
                             const html = `<span style="color: black;"> 
                                 <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p></div>
+                                <div style="display:flex;">
+                                    <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
+                                </div>
                               </span>`;
 
                             hoverPopup
@@ -545,8 +572,20 @@ export const getLayerHoverFunction = (
                     map.getCanvas().style.cursor = 'pointer';
                 };
             case SubLayerId.HUC2BoundaryFill:
-                return () => {
+                return (e) => {
                     map.getCanvas().style.cursor = 'pointer';
+                    const feature = e.features?.[0] as
+                        | Feature<LineString>
+                        | undefined;
+                    const zoom = map.getZoom();
+                    if (feature && feature.properties && zoom < 7) {
+                        const name = feature.properties.NAME;
+                        map.setPaintProperty(
+                            SubLayerId.HUC2BoundaryLabels,
+                            'text-opacity',
+                            ['case', ['==', ['get', 'NAME'], name], 1, 0]
+                        );
+                    }
                 };
             default:
                 return (e) => {
@@ -578,6 +617,15 @@ export const getLayerCustomHoverExitFunction = (
                     // Remove offset from shared object
                     hoverPopup.setOffset(0);
                 };
+            case SubLayerId.HUC2BoundaryFill:
+                return () => {
+                    map.getCanvas().style.cursor = '';
+                    map.setPaintProperty(
+                        SubLayerId.HUC2BoundaryLabels,
+                        'text-opacity',
+                        0
+                    );
+                };
             default:
                 return (e) => {
                     console.log('Hover Exit Event Triggered: ', e);
@@ -589,6 +637,80 @@ export const getLayerCustomHoverExitFunction = (
         }
     };
 };
+
+// Mousemove functions, handle changes when moving between features in the same layer
+export const getLayerMouseMoveFunction = (
+    id: LayerId | SubLayerId
+): CustomListenerFunction => {
+    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+        switch (id) {
+            case SubLayerId.HUC2BoundaryFill:
+                return (e) => {
+                    map.getCanvas().style.cursor = 'pointer';
+                    const feature = e.features?.[0] as
+                        | Feature<LineString>
+                        | undefined;
+                    const zoom = map.getZoom();
+                    if (feature && feature.properties && zoom < 6) {
+                        const name = feature.properties.NAME;
+                        map.setPaintProperty(
+                            SubLayerId.HUC2BoundaryLabels,
+                            'text-opacity',
+                            ['case', ['==', ['get', 'NAME'], name], 1, 0]
+                        );
+                    }
+                };
+            case LayerId.SpiderifyPoints:
+                return (e) => {
+                    map.getCanvas().style.cursor = 'pointer';
+                    const feature = e.features?.[0] as
+                        | Feature<Point>
+                        | undefined;
+                    if (feature && feature.properties) {
+                        const itemId = feature.properties.distributionURL;
+                        if (
+                            !hasPeristentPopupOpenToThisItem(
+                                persistentPopup,
+                                itemId
+                            )
+                        ) {
+                            hoverPopup.remove();
+                            const variableMeasured =
+                                feature.properties.variableMeasured.split(
+                                    ' / '
+                                )[0];
+                            const offset: [number, number] = JSON.parse(
+                                feature.properties.iconOffset
+                            );
+                            const coordinates = feature.geometry
+                                .coordinates as [number, number];
+                            const html = `<span style="color: black;"> 
+                                            <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
+                                            <div style="display:flex;">
+                                                <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
+                                        </div>
+                                        </span>`;
+
+                            hoverPopup
+                                .setLngLat(coordinates)
+                                .setOffset(offset)
+                                .setHTML(html)
+                                .addTo(map);
+                        }
+                    }
+                };
+            default:
+                return (e) => {
+                    console.log('Hover Exit Event Triggered: ', e);
+                    console.log('The map: ', map);
+                    console.log('Available Popups: ');
+                    console.log('Hover: ', hoverPopup);
+                    console.log('Persistent: ', persistentPopup);
+                };
+        }
+    };
+};
+
 // Click handlers
 export const getLayerClickFunction = (
     id: LayerId | SubLayerId
@@ -650,12 +772,6 @@ export const getLayerClickFunction = (
 // meaning they have their own click and hover listeners
 export const layerDefinitions: MainLayerDefinition[] = [
     {
-        id: LayerId.MajorRivers,
-        controllable: true,
-        legend: true,
-        config: getLayerConfig(LayerId.MajorRivers),
-    },
-    {
         id: LayerId.Mainstems,
         controllable: true,
         legend: true,
@@ -687,9 +803,21 @@ export const layerDefinitions: MainLayerDefinition[] = [
         ],
     },
     {
-        id: LayerId.HUC2Boundaries,
+        id: LayerId.MajorRivers,
         controllable: true,
         legend: true,
+        config: getLayerConfig(LayerId.MajorRivers),
+    },
+    {
+        id: LayerId.MainstemsHighlight,
+        controllable: false,
+        legend: false,
+        config: getLayerConfig(LayerId.MainstemsHighlight),
+    },
+    {
+        id: LayerId.HUC2Boundaries,
+        controllable: true,
+        legend: false,
         config: getLayerConfig(LayerId.HUC2Boundaries),
         subLayers: [
             {
@@ -704,6 +832,12 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.HUC2BoundaryFill),
                 hoverFunction: getLayerHoverFunction(
+                    SubLayerId.HUC2BoundaryFill
+                ),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.HUC2BoundaryFill
+                ),
+                mouseMoveFunction: getLayerMouseMoveFunction(
                     SubLayerId.HUC2BoundaryFill
                 ),
             },
@@ -753,6 +887,7 @@ export const layerDefinitions: MainLayerDefinition[] = [
         legend: true,
         config: getLayerConfig(LayerId.SpiderifyPoints),
         hoverFunction: getLayerHoverFunction(LayerId.SpiderifyPoints),
+        mouseMoveFunction: getLayerMouseMoveFunction(LayerId.SpiderifyPoints),
         customHoverExitFunction: getLayerCustomHoverExitFunction(
             LayerId.SpiderifyPoints
         ),

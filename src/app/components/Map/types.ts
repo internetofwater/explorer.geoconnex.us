@@ -49,6 +49,7 @@ export type LayerDefinition = {
     hoverFunction?: CustomListenerFunction;
     customHoverExitFunction?: CustomListenerFunction;
     clickFunction?: CustomListenerFunction;
+    mouseMoveFunction?: CustomListenerFunction;
 };
 
 export type MainLayerDefinition = LayerDefinition & {

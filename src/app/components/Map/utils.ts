@@ -134,6 +134,38 @@ export const addHoverFunctions = (
     });
 };
 
+export const addMouseMoveFunctions = (
+    map: Map,
+    layerDefinitions: MainLayerDefinition[],
+    hoverPopup: Popup,
+    persistentPopup: Popup
+) => {
+    layerDefinitions.forEach((layer) => {
+        if (layer.mouseMoveFunction) {
+            map.on(
+                'mousemove',
+                layer.id,
+                layer.mouseMoveFunction(map, hoverPopup, persistentPopup)
+            );
+        }
+        if ((layer?.subLayers ?? []).length > 0) {
+            layer.subLayers!.forEach((subLayer) => {
+                if (subLayer.mouseMoveFunction) {
+                    map.on(
+                        'mousemove',
+                        subLayer.id,
+                        subLayer.mouseMoveFunction(
+                            map,
+                            hoverPopup,
+                            persistentPopup
+                        )
+                    );
+                }
+            });
+        }
+    });
+};
+
 export const addClickFunctions = (
     map: Map,
     layerDefinitions: MainLayerDefinition[],

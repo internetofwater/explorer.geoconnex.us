@@ -2,7 +2,7 @@ export const RightArrow: React.FC = () => {
     return (
         <svg
             data-testid="right-arrow-icon"
-            fill="#FFF"
+            fill="#000"
             height="20px"
             width="20px"
             version="1.1"

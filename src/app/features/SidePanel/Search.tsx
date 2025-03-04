@@ -15,25 +15,18 @@ import {
     setHoverId,
     setSearchResultIds,
     setSelectedMainstemId,
+    Summary as SummaryObject,
 } from '@/lib/state/main/slice';
-import { defaultGeoJson } from '@/lib/state/utils';
+import { createSummary, defaultGeoJson } from '@/lib/state/utils';
 import { Dataset, MainstemData } from '@/app/types';
 import { Linear } from '@/app/assets/Linear';
-
-type Summary = {
-    id: number;
-    length: number;
-    total: number;
-    variables: string;
-    types: string;
-    techniques: string;
-};
+import { Summary } from './Summary';
 
 const SearchComponent: React.FC = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
-    const [summary, setSummary] = useState<Summary | null>(null);
+    const [summary, setSummary] = useState<SummaryObject | null>(null);
 
     const dispatch: AppDispatch = useDispatch();
 
@@ -88,54 +81,9 @@ const SearchComponent: React.FC = () => {
                 GeoJsonProperties & { datasets: Dataset[] }
             > = await response.json();
 
-            const datasets = feature.properties.datasets;
-            const length: number = feature.properties.lengthkm;
-            if (datasets && datasets.length) {
-                const total = datasets.length;
-                const variables: string[] = [];
-                const types: string[] = [];
-                const techniques: string[] = [];
-                datasets.forEach((dataset) => {
-                    const { variableMeasured, type, measurementTechnique } =
-                        dataset;
-
-                    const variable = variableMeasured.split(' / ')[0];
-                    if (!variables.includes(variable)) {
-                        variables.push(variable);
-                    }
-
-                    if (!types.includes(type)) {
-                        types.push(type);
-                    }
-
-                    if (!techniques.includes(measurementTechnique)) {
-                        techniques.push(measurementTechnique);
-                    }
-                });
-
-                const summary: Summary = {
-                    id,
-                    length,
-                    total,
-                    variables: variables.join(', '),
-                    types: types.join(', '),
-                    techniques: techniques.join(', '),
-                };
-
-                setSummary(summary);
-                setLoading(false);
-            } else {
-                // No datasets, add placeholder to prevent additional fetches
-                setSummary({
-                    id,
-                    length,
-                    total: 0,
-                    variables: '',
-                    types: '',
-                    techniques: '',
-                });
-                setLoading(false);
-            }
+            const summary = createSummary(id, feature);
+            setSummary(summary);
+            setLoading(false);
         } catch (error) {
             console.error('Error fetching datasets: ', error);
             setLoading(false);
@@ -210,57 +158,11 @@ const SearchComponent: React.FC = () => {
                                 >
                                     <strong>{result.name_at_outlet}</strong> -{' '}
                                     {result.uri}
-                                    {summary !== null &&
-                                        summary.id === id &&
-                                        (summary.total > 0 ? (
-                                            <ul
-                                                key={`summary-${index}`}
-                                                className="pl-4 mt-2"
-                                            >
-                                                {/* showSummary confirms summary existence */}
-                                                <li className="list-disc list-inside break-words whitespace-normal">
-                                                    Length (km):{' '}
-                                                    {summary!.length}
-                                                </li>
-                                                <li className="list-disc list-inside break-words whitespace-normal">
-                                                    Datasets: {summary!.total}
-                                                </li>
-                                                {summary!.types.length > 0 && (
-                                                    <li className="list-disc list-inside break-words whitespace-normal">
-                                                        Types: {summary!.types}
-                                                    </li>
-                                                )}
-                                                {summary!.variables.length >
-                                                    0 && (
-                                                    <li className="list-disc list-inside break-words whitespace-normal">
-                                                        Variables Measures:{' '}
-                                                        {summary!.variables}
-                                                    </li>
-                                                )}
-                                                {summary!.techniques.length >
-                                                    0 && (
-                                                    <li className="list-disc list-inside break-words whitespace-normal">
-                                                        Techniques:{' '}
-                                                        {summary!.techniques}
-                                                    </li>
-                                                )}
-                                            </ul>
-                                        ) : (
-                                            <>
-                                                <ul
-                                                    key={`summary-${index}`}
-                                                    className="pl-4 mt-2"
-                                                >
-                                                    <li className="list-disc list-inside break-words whitespace-normal">
-                                                        Length (km):{' '}
-                                                        {summary!.length}
-                                                    </li>
-                                                </ul>
-                                                <p className="mt-2 text-gray-500">
-                                                    No Observations
-                                                </p>
-                                            </>
-                                        ))}
+                                    {summary !== null && summary.id === id && (
+                                        <span className="mt-2">
+                                            <Summary summary={summary} />
+                                        </span>
+                                    )}
                                 </li>
                             );
                         })}

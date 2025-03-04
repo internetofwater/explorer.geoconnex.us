@@ -29,7 +29,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                     }`}
                 >
                     <ul
-                        className="max-h-[16vh] rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                        className="rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
                         role="listbox"
                         aria-labelledby="listbox-label"
                     >

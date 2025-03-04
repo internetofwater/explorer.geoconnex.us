@@ -38,7 +38,7 @@ export const Legend: React.FC<Props> = (props) => {
                 return (
                     <div
                         key={`legend-entry-${layer.id}-${sublayer.id}`}
-                        className="ml-4 p-1 flex items-center"
+                        className="ml-6 p-1 flex items-center"
                     >
                         {color && typeof color === 'string' && (
                             <div className="mr-1">
@@ -57,7 +57,7 @@ export const Legend: React.FC<Props> = (props) => {
                                 {type === LayerType.Fill && (
                                     <Square
                                         key={`legend-entry-${layer.id}-${sublayer.id}`}
-                                        color={color}
+                                        fill={color}
                                     />
                                 )}
                                 {type === LayerType.Symbol &&
@@ -81,10 +81,17 @@ export const Legend: React.FC<Props> = (props) => {
             const type = getLayerConfig(layer.id)?.type ?? 'none';
             const color = getLayerColor(layer.id);
 
+            if (
+                !layer.legend &&
+                !layer.subLayers?.some((subLayer) => subLayer.legend)
+            ) {
+                return;
+            }
+
             return (
                 <div
                     key={`legend-entry-${layer.id}`}
-                    className="p-1 text-black"
+                    className="py-1 text-black"
                 >
                     {layer.legend && (
                         <div className="flex items-center">
@@ -105,7 +112,7 @@ export const Legend: React.FC<Props> = (props) => {
                                     {type === LayerType.Fill && (
                                         <Square
                                             key={`legend-entry-${layer.id}`}
-                                            color={color}
+                                            fill={color}
                                         />
                                     )}
                                     {type === LayerType.Symbol &&
@@ -118,7 +125,11 @@ export const Legend: React.FC<Props> = (props) => {
                                         )}
                                 </div>
                             )}
-                            {getLayerName(layer.id)}
+                            <span
+                                className={type === 'none' ? 'font-bold' : ''}
+                            >
+                                {getLayerName(layer.id)}
+                            </span>
                         </div>
                     )}
                     {layer.subLayers && renderSubLayers(layer)}
@@ -133,6 +144,7 @@ export const Legend: React.FC<Props> = (props) => {
 
     return (
         <>
+            <h6 className="text-lg font-bold mb-1">Legend</h6>
             {renderLegend()}
             {custom}
         </>

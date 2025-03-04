@@ -14,6 +14,9 @@ import {
     MAINSTEMS_SELECTED_COLOR,
     MAINSTEMS_SEARCH_COLOR,
     MAINSTEM_OPACITY_EXPRESSION,
+    MAINSTEM_SMALL_LINE_WIDTH,
+    MAINSTEM_MEDIUM_LINE_WIDTH,
+    MAINSTEM_LARGE_LINE_WIDTH,
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,18 +30,15 @@ import {
 import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
+    reset,
     setLayerVisibility,
     setSelectedData,
     setSelectedMainstemBBOX,
     setSelectedMainstemId,
 } from '@/lib/state/main/slice';
-import {
-    hasPeristentPopupOpenToThisItem,
-    spiderfyClusters,
-    zoomToMainStem,
-} from '@/app/features/MainMap/utils';
+import { spiderfyClusters } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { FeatureCollection, Geometry } from 'geojson';
 import { Dataset } from '@/app/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -152,12 +152,32 @@ export const MainMap: React.FC<Props> = (props) => {
                     const feature = features[0];
                     if (feature.properties) {
                         const id = feature.properties.id;
-                        dispatch(fetchDatasets(id));
+
                         dispatch(setSelectedMainstemId(id));
+                        dispatch(fetchDatasets(id));
                     }
                 }
             }
         );
+
+        map.on('click', (e) => {
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: [
+                    SubLayerId.MainstemsSmall,
+                    SubLayerId.MainstemsMedium,
+                    SubLayerId.MainstemsLarge,
+                    SubLayerId.AssociatedDataClusters,
+                    SubLayerId.AssociatedDataClusterCount,
+                    SubLayerId.AssociatedDataUnclustered,
+                    LayerId.SpiderifyPoints,
+                ],
+            });
+
+            if (!features.length) {
+                dispatch(setSelectedMainstemId(null));
+                dispatch(reset());
+            }
+        });
 
         // Allow the user to zoom into a boundary once from page load
         const HUC2BoundaryClickListener = (e: MapMouseEvent) => {
@@ -233,34 +253,10 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         });
 
-        // Copy of hover listener, ensure popup updates when in a tight cluster
-        map.on('mousemove', LayerId.SpiderifyPoints, (e) => {
-            map.getCanvas().style.cursor = 'pointer';
-            const feature = e.features?.[0] as Feature<Point> | undefined;
-            if (feature && feature.properties) {
-                const itemId = feature.properties.distributionURL;
-                if (!hasPeristentPopupOpenToThisItem(persistentPopup, itemId)) {
-                    hoverPopup.remove();
-                    const variableMeasured =
-                        feature.properties.variableMeasured.split(' / ')[0];
-                    const offset: [number, number] = JSON.parse(
-                        feature.properties.iconOffset
-                    );
-                    const coordinates = feature.geometry.coordinates as [
-                        number,
-                        number
-                    ];
-                    const html = `<span style="color: black;"> 
-                                            <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                            <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p></div>
-                                          </span>`;
-
-                    hoverPopup
-                        .setLngLat(coordinates)
-                        .setOffset(offset)
-                        .setHTML(html)
-                        .addTo(map);
-                }
+        map.on('zoom', () => {
+            const zoom = map.getZoom();
+            if (zoom < CLUSTER_TRANSITION_ZOOM) {
+                persistentPopup.remove();
             }
         });
     }, [map]);
@@ -343,6 +339,63 @@ export const MainMap: React.FC<Props> = (props) => {
             MAINSTEMS_SEARCH_COLOR,
             getLayerColor(SubLayerId.MainstemsLarge), // Not In List
         ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-blur', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            1,
+            0,
+        ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-blur', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            1,
+            0,
+        ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-blur', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            1,
+            0,
+        ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            4,
+            MAINSTEM_SMALL_LINE_WIDTH,
+        ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            4,
+            MAINSTEM_MEDIUM_LINE_WIDTH,
+        ]);
+
+        map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedMainstemId],
+            4,
+            MAINSTEM_LARGE_LINE_WIDTH,
+        ]);
+
+        // Allow selected feature in highlight layer
+        if (selectedMainstemId) {
+            map.setFilter(LayerId.MainstemsHighlight, [
+                '==',
+                ['get', 'id'],
+                selectedMainstemId,
+            ]);
+        } else {
+            map.setFilter(LayerId.MainstemsHighlight, [
+                '==',
+                ['get', 'id'],
+                null,
+            ]);
+        }
     }, [searchResultIds, selectedMainstemId, hoverId]);
 
     useEffect(() => {

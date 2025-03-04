@@ -51,7 +51,7 @@ export const Toggles: React.FC<Props> = (props) => {
                             .map((sublayer) => (
                                 <div
                                     key={`layer-control-${layer.id}-${sublayer.id}`}
-                                    className="ml-4 p-1 flex items-center justify-between"
+                                    className="ml-6 p-1 flex items-center justify-between"
                                 >
                                     <label className="font-large mr-1">
                                         <input
@@ -83,5 +83,10 @@ export const Toggles: React.FC<Props> = (props) => {
             ));
     }, [visibleLayers]);
 
-    return <>{renderToggles()}</>;
+    return (
+        <>
+            <h6 className="text-lg font-bold mb-1">Layers</h6>
+            {renderToggles()}
+        </>
+    );
 };

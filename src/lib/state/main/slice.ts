@@ -1,11 +1,30 @@
 'use client';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { defaultGeoJson, getMainstemBuffer, transformDatasets } from '../utils';
-import { FeatureCollection, Geometry } from 'geojson';
+import {
+    createSummary,
+    defaultGeoJson,
+    getMainstemBuffer,
+    transformDatasets,
+} from '../utils';
+import {
+    Feature,
+    FeatureCollection,
+    GeoJsonProperties,
+    Geometry,
+} from 'geojson';
 import { LayerId, SubLayerId } from '@/app/features/MainMap/config';
 import { Dataset } from '@/app/types';
 import { GeoJSONFeature, LngLatBoundsLike } from 'mapbox-gl';
 import * as turf from '@turf/turf';
+
+export type Summary = {
+    id: number;
+    length: number;
+    total: number;
+    variables: string;
+    types: string;
+    techniques: string;
+};
 
 type InitialState = {
     showSidePanel: boolean;
@@ -13,6 +32,7 @@ type InitialState = {
     selectedMainstemBBOX: LngLatBoundsLike | null;
     hoverId: number | null;
     selectedData: Dataset | null;
+    selectedSummary: Summary | null;
     searchResultIds: string[];
     status: string;
     error: string | null;
@@ -47,6 +67,7 @@ const initialState: InitialState = {
     selectedMainstemBBOX: null,
     hoverId: null,
     selectedData: null,
+    selectedSummary: null,
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
@@ -207,6 +228,19 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedMainstemBBOX = action.payload;
         },
+        reset: (state) => {
+            state.selectedMainstemId = null;
+            state.selectedMainstemBBOX = null;
+            state.datasets = defaultGeoJson as FeatureCollection<
+                Geometry,
+                Dataset
+            >;
+            state.filteredDatasets = defaultGeoJson as FeatureCollection<
+                Geometry,
+                Dataset
+            >;
+            state.selectedSummary = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -216,14 +250,34 @@ export const mainSlice = createSlice({
             })
             .addCase(
                 fetchDatasets.fulfilled,
-                (state, action: PayloadAction<GeoJSONFeature>) => {
+                (
+                    state,
+                    action: PayloadAction<
+                        Feature<
+                            Geometry,
+                            GeoJsonProperties & { datasets: Dataset[] }
+                        >
+                    >
+                ) => {
                     state.status = 'succeeded';
                     if (action.payload) {
+                        // Create a summary for this mainstem
+                        const id = action.payload.id;
+                        const summary = createSummary(
+                            Number(id),
+                            action.payload
+                        );
+                        state.selectedSummary = summary;
+
                         // Get an appropriate buffer size based on drainage area
                         const buffer = getMainstemBuffer(action.payload);
+                        // Simplify the line to reduce work getting bounds
+                        const simplifiedLine = turf.simplify(action.payload, {
+                            tolerance: 0.25,
+                        });
                         // Buffer line to better fit feature to screen
                         const bufferedLine = turf.buffer(
-                            action.payload,
+                            simplifiedLine,
                             buffer,
                             {
                                 units: 'kilometers',
@@ -263,6 +317,7 @@ export const {
     setFilter,
     setView,
     setSelectedMainstemBBOX,
+    reset,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

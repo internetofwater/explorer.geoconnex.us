@@ -10,9 +10,9 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#46ab9d',
-                    hover: '#5fc0b1',
-                    darker: '#3a9487', // other tab color
+                    DEFAULT: '#FFFFFFEF',
+                    hover: '#F6F6F6EF',
+                    darker: '#D4D4D4EF', // other tab color
                 },
                 secondary: {
                     DEFAULT: '#4798E6',

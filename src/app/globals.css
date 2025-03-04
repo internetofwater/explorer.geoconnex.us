@@ -36,7 +36,7 @@ div#side-panel-control {
 }
 
 div#scrollable-side-panel {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 58px);
 }
 
 div#tools {

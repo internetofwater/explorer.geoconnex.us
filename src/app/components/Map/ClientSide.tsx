@@ -9,6 +9,7 @@ import {
     addControls,
     addHoverFunctions,
     addLayers,
+    addMouseMoveFunctions,
     addSources,
 } from '@/app/components/Map/utils';
 
@@ -50,6 +51,12 @@ const MapComponent: React.FC<MapComponentProps> = (props) => {
                 addLayers(newMap, layers);
                 addHoverFunctions(newMap, layers, hoverPopup, persistentPopup);
                 addClickFunctions(newMap, layers, hoverPopup, persistentPopup);
+                addMouseMoveFunctions(
+                    newMap,
+                    layers,
+                    hoverPopup,
+                    persistentPopup
+                );
                 addControls(newMap, controls);
             });
 
@@ -65,6 +72,12 @@ const MapComponent: React.FC<MapComponentProps> = (props) => {
                 addLayers(newMap, layers);
                 addHoverFunctions(newMap, layers, hoverPopup, persistentPopup);
                 addClickFunctions(newMap, layers, hoverPopup, persistentPopup);
+                addMouseMoveFunctions(
+                    newMap,
+                    layers,
+                    hoverPopup,
+                    persistentPopup
+                );
             });
         }
 

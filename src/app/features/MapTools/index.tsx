@@ -18,7 +18,7 @@ import { LayerIcon } from '@/app/assets/icons/LayerIcon';
 import { ControlsIcon } from '@/app/assets/icons/ControlsIcon';
 import { LegendIcon } from '@/app/assets/icons/LegendIcon';
 import Circle from '@/app/assets/icons/Circle';
-import { Marker } from '@/app/assets/icons/Marker';
+import Square from '@/app/assets/icons/Square';
 
 export const MapTools: React.FC = () => {
     const { visibleLayers } = useSelector((state: RootState) => state.main);
@@ -56,7 +56,11 @@ export const MapTools: React.FC = () => {
             <div className="flex flex-col items-end lg:items-center lg:flex-row-reverse space-x-0 lg:space-x-2 space-y-2 lg:space-y-0">
                 <IconButton
                     title="Tools"
-                    handleClick={() => setShowTools(!showTools)}
+                    handleClick={() => {
+                        setShowLegend(false);
+                        setShowLayerToggle(false);
+                        setShowTools(!showTools);
+                    }}
                     className="ml-2"
                 >
                     <ControlsIcon />
@@ -66,9 +70,7 @@ export const MapTools: React.FC = () => {
                         <IconButton
                             title="Layer Toggles"
                             handleClick={() => {
-                                if (showLegend) {
-                                    setShowLegend(false);
-                                }
+                                setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
                             }}
                         >
@@ -77,9 +79,7 @@ export const MapTools: React.FC = () => {
                         <IconButton
                             title="Legend"
                             handleClick={() => {
-                                if (showLayerToggle) {
-                                    setShowLayerToggle(false);
-                                }
+                                setShowLayerToggle(false);
                                 setShowLegend(!showLegend);
                             }}
                         >
@@ -119,23 +119,35 @@ export const MapTools: React.FC = () => {
                             ) => null | LayerSpecification
                         }
                         custom={
-                            <div className="-mt-2">
-                                Dataset Clusters
-                                <span className="flex">
-                                    <Circle color="#51bbd6" />
-                                    &lt; 5
-                                </span>
-                                <span className="flex">
-                                    <Circle color="#f1f075" />
-                                    &gt; 5
-                                </span>
-                                <span className="flex">
-                                    <Circle color="#f28cb1" />
-                                    &gt; 10
-                                </span>
-                                Dataset
-                                <Marker />
-                            </div>
+                            <>
+                                <div className="-mt-2">
+                                    <div className="flex items-center">
+                                        <div className="mr-1">
+                                            <Square
+                                                fill="#FFF"
+                                                stroke="#000"
+                                                height={8}
+                                            />
+                                        </div>
+                                        {getLayerName(LayerId.HUC2Boundaries)}
+                                    </div>
+                                    <span className="font-bold">
+                                        Dataset Clusters
+                                    </span>
+                                    <span className="flex">
+                                        <Circle color="#51bbd6" />
+                                        &lt; 5
+                                    </span>
+                                    <span className="flex">
+                                        <Circle color="#f1f075" />
+                                        &gt; 5
+                                    </span>
+                                    <span className="flex">
+                                        <Circle color="#f28cb1" />
+                                        &gt; 10
+                                    </span>
+                                </div>
+                            </>
                         }
                     />
                 </Card>

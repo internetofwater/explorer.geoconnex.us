@@ -54,8 +54,10 @@ export const App: React.FC<Props> = (props) => {
                       w-[70vw] lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
                      min-w-[300px] sm:min-w-[400px]
                      max-w-[300px] sm:max-w-[400px]
-                     h-[88vh] lg:h-full
+                     h-fit lg:h-full
+                     max-h-[88vh] lg:max-h-none
                      flex overflow-hidden bg-primary
+                     border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      m-2 lg:m-0
                      rounded-lg lg:rounded-none
                      ${showSidePanel ? 'block' : 'hidden'}`}
@@ -71,7 +73,7 @@ export const App: React.FC<Props> = (props) => {
             </div>
             <div
                 id="table"
-                className={`overflow-hidden absolute xl:relative ${
+                className={`overflow-hidden absolute lg:relative ${
                     view === 'table' ? 'block' : 'hidden'
                 } w-full`}
             >
