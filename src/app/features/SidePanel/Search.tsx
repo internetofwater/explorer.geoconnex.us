@@ -129,7 +129,7 @@ const SearchComponent: React.FC = () => {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search..."
+                    placeholder="Search for Names at Outlet or URIs"
                     className="border p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12 focus:outline-none focus:ring-2 focus:ring-[#4798e6] shadow-lg"
                 />
                 <div
@@ -161,7 +161,10 @@ const SearchComponent: React.FC = () => {
                                     {result.uri}
                                     {summary !== null && summary.id === id && (
                                         <span className="mt-2">
-                                            <Summary summary={summary} />
+                                            <Summary
+                                                summary={summary}
+                                                exclusions={{ name: true }}
+                                            />
                                         </span>
                                     )}
                                 </li>

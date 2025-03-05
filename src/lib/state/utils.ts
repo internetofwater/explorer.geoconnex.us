@@ -79,6 +79,7 @@ export const createSummary = (
 ): Summary => {
     const datasets = feature.properties.datasets;
     const length: number = feature.properties.lengthkm;
+    const name = feature.properties.name_at_outlet;
     if (datasets && datasets.length) {
         const total = datasets.length;
         const variables: string[] = [];
@@ -103,6 +104,7 @@ export const createSummary = (
 
         return {
             id,
+            name,
             length,
             total,
             variables: variables.join(', '),
@@ -113,6 +115,7 @@ export const createSummary = (
         // No datasets, add placeholder to prevent additional fetches
         return {
             id,
+            name,
             length,
             total: 0,
             variables: '',

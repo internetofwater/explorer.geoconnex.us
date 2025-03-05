@@ -19,6 +19,7 @@ import { defaultGeoJson } from '@/lib/state/consts';
 
 export type Summary = {
     id: number;
+    name: string;
     length: number;
     total: number;
     variables: string;

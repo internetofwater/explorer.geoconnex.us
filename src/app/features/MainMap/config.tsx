@@ -334,9 +334,9 @@ export const getLayerConfig = (
                     'line-join': 'round',
                 },
                 paint: {
-                    'line-opacity': ['step', ['zoom'], 0.8, 7, 0.1],
+                    'line-opacity': 1,
                     'line-color': getLayerColor(LayerId.HUC2Boundaries),
-                    'line-width': 2,
+                    'line-width': 3,
                 },
             };
         case SubLayerId.HUC2BoundaryLabels:

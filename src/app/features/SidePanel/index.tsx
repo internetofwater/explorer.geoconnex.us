@@ -59,7 +59,7 @@ export const SidePanel: React.FC<Props> = (props) => {
                                 ? 'bg-primary -mb-px border-b-transparent'
                                 : 'bg-primary-darker text-gray-900'
                         } hover:enabled:bg-primary 
-                        disabled:opacity-60
+                        disabled:opacity-50
                         border-t border-x border-gray-300
                         py-3 px-4
                       text-black hover::enabled:text-black font-bold 
