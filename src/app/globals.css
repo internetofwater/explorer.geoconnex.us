@@ -54,6 +54,14 @@ button.mapboxgl-popup-close-button {
     right: 3px;
 }
 
+#modal-overlay {
+    z-index: 2;
+}
+#modal-overlay div svg:not(.close-button svg) {
+    width: 100%;
+    height: 100%;
+}
+
 input[type='checkbox'] {
     accent-color: --secondary;
 }

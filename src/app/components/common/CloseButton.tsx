@@ -18,7 +18,7 @@ const CloseButton: React.FC<Props> = (props) => {
         <button
             data-testid="close-button"
             onClick={handleClick}
-            className={`focus:outline-none ${className}`}
+            className={`close-button focus:outline-none ${className}`}
         >
             <CloseIcon className={closeIconClassName} />
         </button>

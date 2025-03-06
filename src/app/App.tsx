@@ -11,6 +11,7 @@ import { useLayoutEffect } from 'react';
 import { setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import { Hamburger } from '@/app/assets/icons/Hamburger';
+import { HelpModal } from '@/app/features/HelpModal';
 
 type Props = {
     accessToken: string;
@@ -38,19 +39,21 @@ export const App: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="flex w-[100vw] h-[100vh] max-w-[100vw] max-h-[100vh] overflow-hidden">
-            <div id="side-panel-control" className={`fixed top-2 left-2`}>
-                {!showSidePanel && (
-                    <IconButton
-                        handleClick={() => handleSidePanelControlClick()}
-                    >
-                        <Hamburger />
-                    </IconButton>
-                )}
-            </div>
-            <div
-                id="side-panel"
-                className={`
+        <>
+            <HelpModal />
+            <div className="flex w-[100vw] h-[100vh] max-w-[100vw] max-h-[100vh] overflow-hidden">
+                <div id="side-panel-control" className={`fixed top-2 left-2`}>
+                    {!showSidePanel && (
+                        <IconButton
+                            handleClick={() => handleSidePanelControlClick()}
+                        >
+                            <Hamburger />
+                        </IconButton>
+                    )}
+                </div>
+                <div
+                    id="side-panel"
+                    className={`
                       w-[70vw] lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
                      min-w-[300px] sm:min-w-[400px]
                      max-w-[300px] sm:max-w-[400px]
@@ -61,28 +64,29 @@ export const App: React.FC<Props> = (props) => {
                      m-2 lg:m-0
                      rounded-lg lg:rounded-none
                      ${showSidePanel ? 'block' : 'hidden'}`}
-            >
-                <SidePanel />
-            </div>
-            <div
-                id="map"
-                className={`absolute  lg:relative
+                >
+                    <SidePanel />
+                </div>
+                <div
+                    id="map"
+                    className={`absolute  lg:relative
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
-            >
-                <MainMap accessToken={accessToken} />
+                >
+                    <MainMap accessToken={accessToken} />
+                </div>
+                <div
+                    id="table"
+                    className={`overflow-hidden absolute lg:relative ${
+                        view === 'table' ? 'block' : 'hidden'
+                    } w-full`}
+                >
+                    <Table />
+                </div>
+                <div id="tools" className={`fixed top-2 right-2`}>
+                    {view === 'map' && <MapTools />}
+                </div>
             </div>
-            <div
-                id="table"
-                className={`overflow-hidden absolute lg:relative ${
-                    view === 'table' ? 'block' : 'hidden'
-                } w-full`}
-            >
-                <Table />
-            </div>
-            <div id="tools" className={`fixed top-2 right-2`}>
-                {view === 'map' && <MapTools />}
-            </div>
-        </div>
+        </>
     );
 };
 
