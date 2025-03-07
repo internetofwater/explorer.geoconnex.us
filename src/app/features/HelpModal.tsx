@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Modal from '@/app/components/common/Modal';
 import { MagnifyingGlass } from '@/app/assets/icons/MagnifyingGlass';
 import { Pointer } from '@/app/assets/icons/Pointer';
+import { Typography } from '../components/common/Typography';
 
 export const HelpModal: React.FC = () => {
     const [showHelp, setShowHelp] = useState(false);
@@ -33,83 +34,128 @@ export const HelpModal: React.FC = () => {
     };
 
     return (
-        <Modal open={showHelp} handleClose={handleHelpClose}>
-            <div>
-                <h2 className="text-4xl font-extrabold mb-4 text-center">
-                    Modal Title
-                </h2>
-                <div className="overflow-y-auto max-h-[72vh] pr-2">
-                    <h4 className="text-2xl font-bold mb-2">Welcome!</h4>
-                    <p className="mb-5">
-                        This application shows <strong>Mainstems</strong>,{' '}
-                        <strong>Associated Datasets</strong>, and{' '}
-                        <strong>Two-digit Hydrologic Regions</strong> from the{' '}
-                        <a
-                            href="https://reference.geoconnex.us/"
-                            target="_blank"
-                        >
-                            Geoconnex Reference Service
-                        </a>
-                        .
-                    </p>
-                    <h4 className="text-2xl font-bold mb-2">How to Use:</h4>
-                    <div className="flex mb-5 ">
-                        <div className="w-[15%] mr-2">
-                            <MagnifyingGlass />
-                        </div>
-                        <p className="w-[85%]">
-                            To search for <strong>Mainstems</strong>, use the
-                            Search Bar on the left side of the screen. You can
-                            search by the <strong>Name at Outlet</strong> or the{' '}
-                            <strong>Uniform Resource Identifier (URI)</strong>.
-                            After you search, relevant results will appear in
-                            the search bar and highlighted in yellow on the map.
-                            If you hover over the results, you will see the{' '}
-                            <strong>Mainstem</strong> location in pink on the
-                            map.
-                        </p>
-                    </div>
-                    <p className="mb-5">
-                        Click on a <strong>Mainstem</strong> from the search
-                        results or the map to find related datasets. After
-                        selecting a <strong>Mainstem</strong>, you can filter
-                        datasets in the Search Bar. You can view datasets on the
-                        map or in the <i className="font-semibold">Table</i> tab
-                        in the Search Bar.
-                    </p>
-                    <div className="flex mb-5">
-                        <p className="w-[87%]">
-                            Alternatively, you can search visually by selecting
-                            a <strong>Hydrologic Region</strong> or zooming in
-                            to display
-                            <strong>Mainstems</strong>. Hover over a{' '}
-                            <strong>Mainstem</strong> to display the{' '}
-                            <strong>Name at Outlet</strong>. Select it to fetch
-                            associated datasets and display a summary of
-                            information in the Search Bar.
-                        </p>
-                        <div className="w-[13%] ml-2">
-                            <Pointer />
-                        </div>
-                    </div>
-                    <p className="mb-5">
-                        Once you find and filter datasets, you can export the
-                        results by using the{' '}
-                        <i className="font-semibold">Download CSV</i> button in
-                        the filter menu of the search bar.
-                    </p>
-                </div>
-                <label className="text-lg mt-1 flex items-center">
-                    <input
-                        type="checkbox"
-                        name="show-help-again"
-                        checked={!showHelpAgain}
-                        onChange={(e) => handleDontShowClick(e)}
-                        className="mr-2 w-6 h-6"
-                    />
-                    Don&apos;t Show Again
-                </label>
-            </div>
+        <Modal
+            title="Application Name"
+            open={showHelp}
+            handleClose={handleHelpClose}
+        >
+            <Typography variant="h4" className="mb-2">
+                Welcome!
+            </Typography>
+            <p className="mb-5 ml-2">
+                This application shows <strong>Mainstems</strong>,{' '}
+                <strong>Associated Datasets</strong>, and{' '}
+                <strong>Two-digit Hydrologic Regions</strong> from the{' '}
+                <a href="https://reference.geoconnex.us/" target="_blank">
+                    Geoconnex Reference Service
+                </a>
+                .
+            </p>
+            <Typography variant="h5" className="mb-2">
+                How to Use This Application
+            </Typography>
+            <Typography variant="h6" className="mt-2">
+                Search for Mainstems
+            </Typography>
+            <ul className="ml-8">
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Use the <strong>Search Bar</strong> (left side of the
+                        screen) to find a Mainstem by its{' '}
+                        <strong>Name at Outlet</strong> or{' '}
+                        <strong>Uniform Resource Identifier (URI)</strong>.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Search results will appear in the search bar and be{' '}
+                        <strong>highlighted in yellow</strong> on the map.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Hover over a result to see the Mainstem&apos;s location
+                        in <strong>pink</strong>.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        <strong>Click a Mainstem</strong> to view its related
+                        datasets.
+                    </Typography>
+                </li>
+            </ul>
+            <Typography variant="h6" className=" mt-2">
+                Find and Filter Datasets
+            </Typography>
+            <ul className="ml-8">
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        After selecting a Mainstem, use the{' '}
+                        <strong>Search Bar</strong> to filter datasets.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        View datasets either <strong>on the map</strong> or in
+                        the <strong>Table tab</strong>.
+                    </Typography>
+                </li>
+            </ul>
+            <Typography variant="h6" className="mt-2">
+                Search Visually{' '}
+            </Typography>
+            <ul className="ml-8">
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Select a <strong>Hydrologic Region</strong> or{' '}
+                        <strong>zoom in</strong> to reveal Mainstems.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Hover over a Mainstem to display its{' '}
+                        <strong>Name at Outlet</strong>.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        <strong>Click a Mainstem</strong> to fetch related
+                        datasets and see a summary in the{' '}
+                        <strong>Search Bar</strong>.
+                    </Typography>
+                </li>
+            </ul>
+            <Typography variant="h6" className="mt-2">
+                Download Data{' '}
+            </Typography>
+            <ul className="ml-8">
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body">
+                        Once you&apos;ve found and filtered datasets, click
+                        Download CSV in the filter menu of the Search Bar to
+                        export results.
+                    </Typography>
+                </li>
+            </ul>
+            <Typography variant="h6" className="mt-4">
+                Get Started{' '}
+            </Typography>
+            <p className="ml-2 mb-6">
+                Try searching for a Mainstem using the{' '}
+                <strong>Search Bar</strong> or selecting a{' '}
+                <strong>Hydrologic Region</strong> to begin exploring!
+            </p>
+            <label className="bottom-4 flex items-center">
+                <input
+                    type="checkbox"
+                    name="show-help-again"
+                    checked={!showHelpAgain}
+                    onChange={(e) => handleDontShowClick(e)}
+                    className="mr-2 w-6 h-6"
+                />
+                <strong>Don&apos;t Show Again</strong>
+            </label>
         </Modal>
     );
 };
