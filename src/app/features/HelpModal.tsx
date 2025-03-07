@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '@/app/components/common/Modal';
-import { MagnifyingGlass } from '@/app/assets/icons/MagnifyingGlass';
-import { Pointer } from '@/app/assets/icons/Pointer';
-import { Typography } from '../components/common/Typography';
+import { Typography } from '@/app/components/common/Typography';
 
 export const HelpModal: React.FC = () => {
     const [showHelp, setShowHelp] = useState(false);

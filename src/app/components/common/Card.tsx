@@ -1,5 +1,5 @@
 import React from 'react';
-import CloseButton from './CloseButton';
+import CloseButton from '@/app/components/common/CloseButton';
 
 type Props = {
     children: React.ReactNode;

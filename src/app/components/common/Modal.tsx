@@ -1,5 +1,5 @@
 import CloseButton from '@/app/components/common/CloseButton';
-import { Typography } from './Typography';
+import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     open: boolean;
