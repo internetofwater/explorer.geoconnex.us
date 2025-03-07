@@ -29,7 +29,7 @@ const Modal: React.FC<Props> = (props) => {
                         data-testid="modal-content"
                         className="bg-white text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
                     >
-                        <div className="sticky flex p-6 top-0 bg-white items-center justify-center">
+                        <div className="sticky top-0 bg-white flex items-center justify-center p-6 ">
                             <Typography
                                 variant="h3"
                                 className="text-center flex-grow"
@@ -43,7 +43,7 @@ const Modal: React.FC<Props> = (props) => {
                             />
                         </div>
                         <div className="p-6">{props.children}</div>
-                        <div className="sticky flex bg-white bottom-0 p-4">
+                        <div className="sticky -bottom-1 flex bg-white p-4">
                             {props.action}
                         </div>
                     </div>
