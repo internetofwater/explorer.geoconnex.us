@@ -7,6 +7,7 @@
     --foreground: #171717;
     --primary: theme('colors.primary.DEFAULT');
     --secondary: theme('colors.secondary.DEFAULT');
+    --secondary-hover: theme('colors.secondary.hover');
 }
 
 @media (prefers-color-scheme: dark) {
@@ -66,7 +67,12 @@ button.mapboxgl-popup-close-button {
 }
 
 input[type='checkbox'] {
-    accent-color: --secondary;
+    accent-color: var(--secondary);
+}
+
+input[type='checkbox']:hover,
+input[type='checkbox']:active {
+    accent-color: var(--secondary-hover);
 }
 
 a {

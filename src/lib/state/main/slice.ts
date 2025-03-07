@@ -29,6 +29,7 @@ export type Summary = {
 
 type InitialState = {
     showSidePanel: boolean;
+    showHelp: boolean;
     selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
     hoverId: number | null;
@@ -64,6 +65,7 @@ type InitialState = {
 
 const initialState: InitialState = {
     showSidePanel: false,
+    showHelp: false,
     selectedMainstemId: null,
     selectedMainstemBBOX: null,
     hoverId: null,
@@ -127,6 +129,12 @@ export const mainSlice = createSlice({
             action: PayloadAction<InitialState['showSidePanel']>
         ) => {
             state.showSidePanel = action.payload;
+        },
+        setShowHelp: (
+            state,
+            action: PayloadAction<InitialState['showHelp']>
+        ) => {
+            state.showHelp = action.payload;
         },
         setSearchResultIds: (
             state,
@@ -308,6 +316,7 @@ export const mainSlice = createSlice({
 
 export const {
     setShowSidePanel,
+    setShowHelp,
     setSearchResultIds,
     setSelectedMainstemId,
     setHoverId,

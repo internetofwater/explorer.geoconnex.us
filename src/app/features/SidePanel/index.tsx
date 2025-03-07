@@ -1,29 +1,30 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
-import { setShowSidePanel, setView } from '@/lib/state/main/slice';
+import { setShowHelp, setShowSidePanel, setView } from '@/lib/state/main/slice';
 import Search from '@/app/features/SidePanel/Search';
 import { Filters } from '@/app/features/SidePanel/Filters';
 import { CSVDownload } from '@/app/features/SidePanel/CSVDownload';
 import Collapsible from '@/app/components/common/Collapsible';
 import CloseButton from '@/app/components/common/CloseButton';
 import { Summary } from '@/app/features/SidePanel//Summary';
+import { HelpIcon } from '@/app/assets/icons/HelpIcon';
 
-type Props = {
-    className?: string;
-};
-
-export const SidePanel: React.FC<Props> = (props) => {
-    const { className } = props;
-
+export const SidePanel: React.FC = () => {
     const { datasets, view, selectedSummary } = useSelector(
         (state: RootState) => state.main
     );
 
     const dispatch: AppDispatch = useDispatch();
 
+    const handleHelpClick = () => {
+        dispatch(setShowHelp(true));
+    };
+
     return (
         <div className="w-full mt-1">
-            {/* <Image
+            <div className="mt-1 flex flex-col justify-between border-b border-gray-300 shadow-lg">
+                <div className="flex" id="attribution">
+                    {/* <Image
                 src={logo}
                 alt="Internet of Water logo"
                 layout="responsive"
@@ -33,9 +34,28 @@ export const SidePanel: React.FC<Props> = (props) => {
                     height: 'auto',
                 }}
             /> */}
-
-            <div className="mt-1 flex justify-between border-b border-gray-300 shadow-lg">
-                <div className="flex w-[60%]">
+                    <div className="flex flex-col ml-auto">
+                        <div
+                            id="side-panel-close"
+                            className="ml-auto mr-2 text-black block lg:hidden"
+                        >
+                            <CloseButton
+                                handleClick={() =>
+                                    dispatch(setShowSidePanel(false))
+                                }
+                                className="text-gray-900 hover:text-gray-700 text-md"
+                                closeIconClassName="w-8 h-8"
+                            />
+                        </div>
+                        <button
+                            onClick={handleHelpClick}
+                            className="w-8 mr-2 ml-auto text-gray-900 hover:text-gray-700 text-lg"
+                        >
+                            <HelpIcon />
+                        </button>
+                    </div>
+                </div>
+                <div className="flex w-[60%] mt-2">
                     <button
                         onClick={() => dispatch(setView('map'))}
                         className={`${
@@ -68,16 +88,6 @@ export const SidePanel: React.FC<Props> = (props) => {
                     >
                         Table
                     </button>
-                </div>
-                <div
-                    id="side-panel-close"
-                    className="mr-1 text-black block lg:hidden"
-                >
-                    <CloseButton
-                        handleClick={() => dispatch(setShowSidePanel(false))}
-                        className="text-gray-900 hover:text-gray-700 text-md"
-                        closeIconClassName="w-8 h-8"
-                    />
                 </div>
             </div>
             <div

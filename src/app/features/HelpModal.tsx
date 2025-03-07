@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
 import Modal from '@/app/components/common/Modal';
 import { Typography } from '@/app/components/common/Typography';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/lib/state/store';
+import { setShowHelp } from '@/lib/state/main/slice';
 
 export const HelpModal: React.FC = () => {
-    const [showHelp, setShowHelp] = useState(false);
+    const { showHelp } = useSelector((state: RootState) => state.main);
+
+    const dispatch: AppDispatch = useDispatch();
+
     const [showHelpAgain, setShowHelpAgain] = useState(true);
 
     useEffect(() => {
         const showHelp = localStorage.getItem('showHelp');
         if (!showHelp || showHelp === 'true') {
-            setShowHelp(true);
+            dispatch(setShowHelp(true));
             setShowHelpAgain(true);
+        } else if (showHelp === 'false') {
+            setShowHelpAgain(false);
         }
     }, []);
 
@@ -28,7 +36,7 @@ export const HelpModal: React.FC = () => {
     };
 
     const handleHelpClose = () => {
-        setShowHelp(false);
+        dispatch(setShowHelp(false));
     };
 
     return (
@@ -43,7 +51,7 @@ export const HelpModal: React.FC = () => {
                         name="show-help-again"
                         checked={!showHelpAgain}
                         onChange={(e) => handleDontShowClick(e)}
-                        className="ml-2 mr-2 w-6 h-6 "
+                        className="ml-2 mr-2 w-5 h-5 "
                     />
                     <label htmlFor="show-help-again">
                         <strong>Don&apos;t Show Again</strong>
@@ -63,7 +71,7 @@ export const HelpModal: React.FC = () => {
                 </a>
                 .
             </p>
-            <Typography variant="h5" className="mb-2">
+            <Typography variant="h4" className="mb-2">
                 How to Use This Application
             </Typography>
             <Typography variant="h6" className="mt-2">
@@ -71,7 +79,7 @@ export const HelpModal: React.FC = () => {
             </Typography>
             <ul className="ml-8">
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Use the <strong>Search Bar</strong> (left side of the
                         screen) to find a Mainstem by its{' '}
                         <strong>Name at Outlet</strong> or{' '}
@@ -79,19 +87,19 @@ export const HelpModal: React.FC = () => {
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Search results will appear in the search bar and be{' '}
                         <strong>highlighted in yellow</strong> on the map.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Hover over a result to see the Mainstem&apos;s location
                         in <strong>pink</strong>.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         <strong>Click a Mainstem</strong> to view its related
                         datasets.
                     </Typography>
@@ -102,13 +110,13 @@ export const HelpModal: React.FC = () => {
             </Typography>
             <ul className="ml-8">
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         After selecting a Mainstem, use the{' '}
                         <strong>Search Bar</strong> to filter datasets.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         View datasets either <strong>on the map</strong> or in
                         the <strong>Table tab</strong>.
                     </Typography>
@@ -119,19 +127,19 @@ export const HelpModal: React.FC = () => {
             </Typography>
             <ul className="ml-8">
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Select a <strong>Hydrologic Region</strong> or{' '}
                         <strong>zoom in</strong> to reveal Mainstems.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Hover over a Mainstem to display its{' '}
                         <strong>Name at Outlet</strong>.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         <strong>Click a Mainstem</strong> to fetch related
                         datasets and see a summary in the{' '}
                         <strong>Search Bar</strong>.
@@ -143,7 +151,7 @@ export const HelpModal: React.FC = () => {
             </Typography>
             <ul className="ml-8">
                 <li className="list-disc break-words whitespace-normal">
-                    <Typography variant="body">
+                    <Typography variant="body-small">
                         Once you&apos;ve found and filtered datasets, click
                         Download CSV in the filter menu of the Search Bar to
                         export results.
