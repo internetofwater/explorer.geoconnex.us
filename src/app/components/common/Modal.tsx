@@ -16,6 +16,7 @@ const Modal: React.FC<Props> = (props) => {
             {open && (
                 <div
                     id="modal-overlay"
+                    data-testid="modal-overlay"
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
                     onClick={(e) => {
                         if ((e.target as HTMLElement).id === 'modal-overlay') {
@@ -23,7 +24,10 @@ const Modal: React.FC<Props> = (props) => {
                         }
                     }}
                 >
-                    <div className="bg-white rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93vh] relative overflow-x-hidden overflow-y-auto">
+                    <div
+                        data-testid="modal-content"
+                        className="bg-white rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93vh] relative overflow-x-hidden overflow-y-auto"
+                    >
                         <div className="sticky flex p-6 top-0 bg-white items-center justify-center">
                             <Typography
                                 variant="h3"
