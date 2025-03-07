@@ -36,6 +36,20 @@ export const HelpModal: React.FC = () => {
             title="Application Name"
             open={showHelp}
             handleClose={handleHelpClose}
+            action={
+                <div className="flex">
+                    <input
+                        type="checkbox"
+                        name="show-help-again"
+                        checked={!showHelpAgain}
+                        onChange={(e) => handleDontShowClick(e)}
+                        className="ml-2 mr-2 w-6 h-6 "
+                    />
+                    <label htmlFor="show-help-again">
+                        <strong>Don&apos;t Show Again</strong>
+                    </label>
+                </div>
+            }
         >
             <Typography variant="h4" className="mb-2">
                 Welcome!
@@ -139,21 +153,11 @@ export const HelpModal: React.FC = () => {
             <Typography variant="h6" className="mt-4">
                 Get Started{' '}
             </Typography>
-            <p className="ml-2 mb-6">
+            <p className="ml-2">
                 Try searching for a Mainstem using the{' '}
                 <strong>Search Bar</strong> or selecting a{' '}
                 <strong>Hydrologic Region</strong> to begin exploring!
             </p>
-            <label className="bottom-4 flex items-center">
-                <input
-                    type="checkbox"
-                    name="show-help-again"
-                    checked={!showHelpAgain}
-                    onChange={(e) => handleDontShowClick(e)}
-                    className="mr-2 w-6 h-6"
-                />
-                <strong>Don&apos;t Show Again</strong>
-            </label>
         </Modal>
     );
 };

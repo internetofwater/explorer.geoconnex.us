@@ -20,11 +20,15 @@ body {
     color: var(--foreground);
     background: black;
     font-family: Arial, Helvetica, sans-serif;
+    max-height: 100svh;
+    max-width: 100svw;
 }
 
 #map-container-main {
-    width: 100%;
-    height: 100vh;
+    width: 100svw;
+    height: 100svh;
+    max-width: 100svw;
+    max-height: 100svh;
 }
 
 div#side-panel {
@@ -36,7 +40,7 @@ div#side-panel-control {
 }
 
 div#scrollable-side-panel {
-    height: calc(100vh - 58px);
+    height: calc(100svh - 58px);
 }
 
 div#tools {
@@ -93,7 +97,7 @@ a:active {
 
 @media (max-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100vh - 155px);
+        height: calc(100svh - 155px);
     }
 }
 

@@ -82,7 +82,7 @@ export const SidePanel: React.FC<Props> = (props) => {
             </div>
             <div
                 id="scrollable-side-panel"
-                className="overflow-y-auto h-fit lg:h-full max-h-[80vh] lg:max-h-none"
+                className="overflow-y-auto h-fit lg:h-full max-h-[80svh] lg:max-h-none"
             >
                 <Collapsible title="Search">
                     <Search />

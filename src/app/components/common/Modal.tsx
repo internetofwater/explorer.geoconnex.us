@@ -6,6 +6,7 @@ type Props = {
     title: string;
     handleClose: () => void;
     children: React.ReactNode;
+    action: React.ReactNode;
 };
 
 const Modal: React.FC<Props> = (props) => {
@@ -26,7 +27,7 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className="bg-white rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93vh] relative overflow-x-hidden overflow-y-auto"
+                        className="bg-white text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
                     >
                         <div className="sticky flex p-6 top-0 bg-white items-center justify-center">
                             <Typography
@@ -42,6 +43,9 @@ const Modal: React.FC<Props> = (props) => {
                             />
                         </div>
                         <div className="p-6">{props.children}</div>
+                        <div className="sticky flex bg-white bottom-0 p-4">
+                            {props.action}
+                        </div>
                     </div>
                 </div>
             )}

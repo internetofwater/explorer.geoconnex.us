@@ -40,8 +40,8 @@ export const App: React.FC<Props> = (props) => {
 
     return (
         <>
-            <HelpModal />
-            <div className="flex w-[100vw] h-[100vh] max-w-[100vw] max-h-[100vh] overflow-hidden">
+            <div className="flex w-[100svw] h-[100svh] max-w-[100svw] max-h-[100svh] overflow-hidden">
+                <HelpModal />
                 <div id="side-panel-control" className={`fixed top-2 left-2`}>
                     {!showSidePanel && (
                         <IconButton
