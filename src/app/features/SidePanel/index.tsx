@@ -75,8 +75,8 @@ export const SidePanel: React.FC<Props> = (props) => {
                 >
                     <CloseButton
                         handleClick={() => dispatch(setShowSidePanel(false))}
-                        className="text-gray-900 hover:text-gray-700 text-lg"
-                        closeIconClassName="w-10 h-10"
+                        className="text-gray-900 hover:text-gray-700 text-md"
+                        closeIconClassName="w-8 h-8"
                     />
                 </div>
             </div>
