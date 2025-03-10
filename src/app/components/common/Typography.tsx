@@ -47,7 +47,7 @@ export const Typography = ({ variant, children, className, as }: Props) => {
     const Tag = as || tags[variant];
 
     return (
-        <Tag className={`${sizeClasses} ${className} flex-grow`}>
+        <Tag className={`${sizeClasses} ${className} flex-grow text-black`}>
             {children}
         </Tag>
     );
