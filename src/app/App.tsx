@@ -10,7 +10,7 @@ import { MapTools } from '@/app/features/MapTools';
 import { useLayoutEffect } from 'react';
 import { setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
-import { Hamburger } from '@/app/assets/icons/Hamburger';
+import HamburgerIcon from '@/app/assets/icons/Hamburger';
 
 type Props = {
     accessToken: string;
@@ -42,9 +42,10 @@ export const App: React.FC<Props> = (props) => {
             <div id="side-panel-control" className={`fixed top-2 left-2`}>
                 {!showSidePanel && (
                     <IconButton
-                        handleClick={() => handleSidePanelControlClick()}
+                        tabIndex={4}
+                        onClick={() => handleSidePanelControlClick()}
                     >
-                        <Hamburger />
+                        <HamburgerIcon />
                     </IconButton>
                 )}
             </div>

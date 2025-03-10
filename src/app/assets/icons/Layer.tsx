@@ -1,4 +1,4 @@
-export const LayerIcon: React.FC = () => {
+const LayerIcon: React.FC = () => {
     return (
         <svg
             width="24"
@@ -6,7 +6,13 @@ export const LayerIcon: React.FC = () => {
             viewBox="0 0 24 28"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="icon-title-layer icon-desc-layer"
         >
+            <title id="icon-title-layer">Layer Icon</title>
+            <desc id="icon-desc-layer">
+                This icon is used in a button to show layer visibility toggles
+            </desc>
             <path
                 d="M11.3353 8.63766C11.7025 8.33957 12.2284 8.33957 12.5956 8.63766L22.9743 17.0615C23.4674 17.4617 23.4674 18.2141 22.9743 18.6143L12.5956 27.0381C12.2284 27.3362 11.7025 27.3362 11.3353 27.0381L0.956618 18.6143C0.463544 18.2141 0.463544 17.4617 0.956618 17.0615L11.3353 8.63766Z"
                 fill="#5FC0B1"
@@ -22,3 +28,5 @@ export const LayerIcon: React.FC = () => {
         </svg>
     );
 };
+
+export default LayerIcon;

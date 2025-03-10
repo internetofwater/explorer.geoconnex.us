@@ -1,4 +1,5 @@
 import MultiSelect from '@/app/components/common/MultiSelect';
+import { Typography } from '@/app/components/common/Typography';
 import { setFilter } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { useEffect, useState } from 'react';
@@ -49,13 +50,19 @@ export const Variables: React.FC = () => {
 
     return (
         <>
-            <h6>Variable</h6>
+            <Typography variant="h6">Variable</Typography>
             {uniqueVariables.length > 0 && (
-                <MultiSelect
-                    options={uniqueVariables}
-                    selectedOptions={filter.selectedVariables}
-                    handleOptionClick={handleTypeOptionClick}
-                />
+                <>
+                    <label id="variables-select-label" className="sr-only">
+                        Filter datasets by variable
+                    </label>
+                    <MultiSelect
+                        ariaLabel="variables-select-label"
+                        options={uniqueVariables}
+                        selectedOptions={filter.selectedVariables}
+                        handleOptionClick={handleTypeOptionClick}
+                    />
+                </>
             )}
         </>
     );

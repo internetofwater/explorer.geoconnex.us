@@ -1,4 +1,4 @@
-export const LegendIcon: React.FC = () => {
+const LegendIcon: React.FC = () => {
     return (
         <svg
             width="22"
@@ -6,7 +6,13 @@ export const LegendIcon: React.FC = () => {
             viewBox="0 0 22 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="icon-title-legend icon-desc-legend"
         >
+            <title id="icon-title-legend">Legend Icon</title>
+            <desc id="icon-desc-legend">
+                This icon is used in a button to show the map legend
+            </desc>
             <rect
                 x="9.67993"
                 y="11.908"
@@ -37,3 +43,5 @@ export const LegendIcon: React.FC = () => {
         </svg>
     );
 };
+
+export default LegendIcon;

@@ -2,7 +2,7 @@ type Props = {
     className: string;
 };
 
-export const CloseIcon: React.FC<Props> = (props) => {
+const CloseIcon: React.FC<Props> = (props) => {
     const { className } = props;
 
     return (
@@ -13,7 +13,11 @@ export const CloseIcon: React.FC<Props> = (props) => {
             stroke="currentColor"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="icon-title-close icon-desc-close"
         >
+            <title id="icon-title-close">Close Icon</title>
+            <desc id="icon-desc-close">A simple x to close page elements</desc>
             <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -23,3 +27,5 @@ export const CloseIcon: React.FC<Props> = (props) => {
         </svg>
     );
 };
+
+export default CloseIcon;

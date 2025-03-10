@@ -1,4 +1,5 @@
 import { DateRange } from '@/app/components/common/DateRange';
+import { Typography } from '@/app/components/common/Typography';
 import { Dataset } from '@/app/types';
 import { setFilter } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
@@ -77,7 +78,7 @@ export const TemporalCoverage: React.FC = () => {
 
     return (
         <>
-            <h6>Temporal Coverage</h6>
+            <Typography variant="h6">Temporal Coverage</Typography>
             <DateRange
                 startDate={filter?.startTemporalCoverage ?? minDate}
                 handleStartDateChange={handleStartDateChange}

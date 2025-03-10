@@ -1,3 +1,4 @@
+import { Typography } from '@/app/components/common/Typography';
 import { Summary as SummaryObject } from '@/lib/state/main/slice';
 
 export type Exclusions = {
@@ -20,37 +21,48 @@ export const Summary: React.FC<Props> = (props) => {
     return (
         <div className="mt-1">
             {!exclusions['name'] && (
-                <h6 className="text-lg font-bold">{summary.name}</h6>
+                <Typography variant="h5">{summary.name}</Typography>
             )}
             {summary.total > 0 ? (
-                <ul className="pl-4">
-                    <li className="list-disc list-inside break-words whitespace-normal">
-                        <strong>Length (km):</strong> {summary.length}
+                <ul className="pl-4" aria-labelledby="summary-name">
+                    <li className="list-disc break-words whitespace-normal">
+                        <Typography variant="body-small">
+                            <strong>Length (km):</strong> {summary.length}
+                        </Typography>
                     </li>
-                    <li className="list-disc list-inside break-words whitespace-normal">
-                        <strong>Datasets:</strong> {summary.total}
+                    <li className="list-disc break-words whitespace-normal">
+                        <Typography variant="body-small">
+                            <strong>Datasets:</strong> {summary.total}
+                        </Typography>
                     </li>
                     {summary.types.length > 0 && (
-                        <li className="list-disc list-inside break-words whitespace-normal">
-                            <strong>Types:</strong> {summary.types}
+                        <li className="list-disc break-words whitespace-normal">
+                            <Typography variant="body-small">
+                                <strong>Types:</strong> {summary.types}
+                            </Typography>
                         </li>
                     )}
                     {summary.variables.length > 0 && (
-                        <li className="list-disc list-inside break-words whitespace-normal">
-                            <strong>Variables Measured:</strong>{' '}
-                            {summary.variables}
+                        <li className="list-disc break-words whitespace-normal">
+                            <Typography variant="body-small">
+                                <strong>Variables Measured:</strong>{' '}
+                                {summary.variables}
+                            </Typography>
                         </li>
                     )}
                     {summary.techniques.length > 0 && (
-                        <li className="list-disc list-inside break-words whitespace-normal">
-                            <strong>Techniques:</strong> {summary.techniques}
+                        <li className="list-disc break-words whitespace-normal">
+                            <Typography variant="body-small">
+                                <strong>Techniques:</strong>{' '}
+                                {summary.techniques}
+                            </Typography>
                         </li>
                     )}
                 </ul>
             ) : (
                 <>
-                    <ul className="pl-4">
-                        <li className="list-disc list-inside break-words whitespace-normal">
+                    <ul className="pl-4" aria-labelledby="summary-name">
+                        <li className="list-disc break-words whitespace-normal">
                             <strong>Length (km):</strong> {summary.length}
                         </li>
                     </ul>

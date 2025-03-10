@@ -1,4 +1,4 @@
-import Circle from '@/app/assets/icons/Circle';
+import CircleIcon from '@/app/assets/icons/Circle';
 import Line from '@/app/assets/icons/Line';
 import Square from '@/app/assets/icons/Square';
 import { LayerType, MainLayerDefinition } from '@/app/components/Map/types';
@@ -39,6 +39,7 @@ export const Legend: React.FC<Props> = (props) => {
                     <div
                         key={`legend-entry-${layer.id}-${sublayer.id}`}
                         className="ml-6 p-1 flex items-center"
+                        role="listitem"
                     >
                         {color && typeof color === 'string' && (
                             <div className="mr-1">
@@ -49,7 +50,7 @@ export const Legend: React.FC<Props> = (props) => {
                                     />
                                 )}
                                 {type === LayerType.Circle && (
-                                    <Circle
+                                    <CircleIcon
                                         key={`legend-entry-${layer.id}-${sublayer.id}`}
                                         color={color}
                                     />
@@ -70,7 +71,7 @@ export const Legend: React.FC<Props> = (props) => {
                                     )}
                             </div>
                         )}
-                        {getLayerName(sublayer.id)}
+                        <span>{getLayerName(sublayer.id)}</span>
                     </div>
                 );
             });
@@ -85,13 +86,14 @@ export const Legend: React.FC<Props> = (props) => {
                 !layer.legend &&
                 !layer.subLayers?.some((subLayer) => subLayer.legend)
             ) {
-                return;
+                return null;
             }
 
             return (
                 <div
                     key={`legend-entry-${layer.id}`}
                     className="py-1 text-black"
+                    role="listitem"
                 >
                     {layer.legend && (
                         <div className="flex items-center">
@@ -104,7 +106,7 @@ export const Legend: React.FC<Props> = (props) => {
                                         />
                                     )}
                                     {type === LayerType.Circle && (
-                                        <Circle
+                                        <CircleIcon
                                             key={`legend-entry-${layer.id}`}
                                             color={color}
                                         />
@@ -139,7 +141,7 @@ export const Legend: React.FC<Props> = (props) => {
     };
 
     const renderLegend = useCallback(() => {
-        return renderLayers(layerDefinitions);
+        return <div role="list">{renderLayers(layerDefinitions)}</div>;
     }, [layerDefinitions, visibleLayers]);
 
     return (

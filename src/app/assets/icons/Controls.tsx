@@ -1,4 +1,4 @@
-export const ControlsIcon: React.FC = () => {
+const ControlsIcon: React.FC = () => {
     return (
         <svg
             width="28"
@@ -6,7 +6,13 @@ export const ControlsIcon: React.FC = () => {
             viewBox="0 0 28 28"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="icon-title-controls icon-desc-controls"
         >
+            <title id="icon-title-controls">Controls Icon</title>
+            <desc id="icon-desc-controls">
+                A slider icon used to represent map settings
+            </desc>
             <path
                 d="M4.66665 9.33335C6.8413 9.33335 8.6683 7.84623 9.1863 5.83335H26.8333C27.4776 5.83335 27.9999 5.31103 27.9999 4.6667C28 4.02232 27.4777 3.5 26.8334 3.5H9.18635C8.66835 1.48712 6.84135 0 4.6667 0C2.08917 0 0 2.08917 0 4.66665C0 7.24413 2.08917 9.33335 4.66665 9.33335ZM4.66665 2.33335C5.95547 2.33335 7 3.37783 7 4.6667C7 5.95558 5.95552 7 4.66665 7C3.37777 7 2.3333 5.95552 2.3333 4.66665C2.3333 3.37777 3.37783 2.33335 4.66665 2.33335Z"
                 fill="#4798E6"
@@ -22,3 +28,5 @@ export const ControlsIcon: React.FC = () => {
         </svg>
     );
 };
+
+export default ControlsIcon;

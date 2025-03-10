@@ -1,4 +1,4 @@
-import { RightArrow } from '@/app/assets/icons/RightArrow';
+import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useState } from 'react';
 
 type Props = {
@@ -19,7 +19,7 @@ const Collapsible: React.FC<Props> = (props) => {
     return (
         <div className="bg-primary border-b text-black border-gray-300">
             <button
-                className="w-full flex justify-between items-center p-4 bg-primary font-bold text-lg hover:bg-primary-hover focus:outline-none"
+                className="w-full flex justify-between items-center p-4 bg-primary font-bold text-lg hover:bg-primary-hover active:bg-primary-hover focus:bg-primary-hover"
                 onClick={toggleCollapse}
             >
                 {title}
@@ -34,11 +34,15 @@ const Collapsible: React.FC<Props> = (props) => {
             </button>
             <div
                 data-testid="collapsible-content"
-                className={`overflow-hidden transition-max-height duration-300 ${
-                    isOpen ? 'max-h-screen' : 'max-h-0'
-                }`}
+                className={`overflow-hidden ${isOpen ? 'block' : 'hidden'}`}
             >
-                <div className="px-4">{props.children}</div>
+                <div
+                    aria-disabled={!isOpen}
+                    aria-hidden={!isOpen}
+                    className="px-4"
+                >
+                    {props.children}
+                </div>
             </div>
         </div>
     );
