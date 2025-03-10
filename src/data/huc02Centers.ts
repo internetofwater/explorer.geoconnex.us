@@ -154,7 +154,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [-105.85927750623031, 31.923558206414327],
+                coordinates: [-104.221449787, 30.865801709],
             },
         },
         {
