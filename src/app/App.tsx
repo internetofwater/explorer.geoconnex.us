@@ -32,7 +32,7 @@ export const App: React.FC<Props> = (props) => {
         if (window.innerWidth > 1280) {
             dispatch(setShowSidePanel(true));
         }
-    }, [map]);
+    }, []);
 
     const handleSidePanelControlClick = () => {
         dispatch(setShowSidePanel(true));

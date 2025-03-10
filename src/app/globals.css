@@ -43,12 +43,13 @@ div#side-panel-control {
     z-index: 1;
 }
 
-div#scrollable-side-panel {
-    height: calc(100svh - 58px);
-}
-
 div#tools {
     z-index: 1;
+}
+
+div#scrollable-side-panel {
+    height: calc(100svh - 210px);
+    max-height: calc(100svh - 210px);
 }
 
 #date-range-columns {
@@ -100,9 +101,12 @@ a:active {
     }
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 155px);
+        height: calc(100svh - 130px);
+        max-height: calc(100svh - 130px);
+        /* height: calc(100svh - 98px);
+        max-height: calc(100svh - 98px); */
     }
 }
 

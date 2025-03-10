@@ -8,6 +8,7 @@ import Collapsible from '@/app/components/common/Collapsible';
 import CloseButton from '@/app/components/common/CloseButton';
 import { Summary } from '@/app/features/SidePanel//Summary';
 import { HelpIcon } from '@/app/assets/icons/HelpIcon';
+import { Typography } from '@/app/components/common/Typography';
 
 export const SidePanel: React.FC = () => {
     const { datasets, view, selectedSummary } = useSelector(
@@ -23,21 +24,15 @@ export const SidePanel: React.FC = () => {
     return (
         <div className="w-full mt-1">
             <div className="mt-1 flex flex-col justify-between border-b border-gray-300 shadow-lg">
-                <div className="flex" id="attribution">
-                    {/* <Image
-                src={logo}
-                alt="Internet of Water logo"
-                layout="responsive"
-                style={{
-                    marginLeft: '1rem',
-                    width: '60%',
-                    height: 'auto',
-                }}
-            /> */}
-                    <div className="flex flex-col ml-auto">
+                <div className="flex justify-between" id="attribution">
+                    {/* Mock-height to account for logo */}
+                    <div className="ml-4 flex items-center h-16">
+                        <Typography variant="h4">Application Name</Typography>
+                    </div>
+                    <div className="flex flex-col justify-center">
                         <div
                             id="side-panel-close"
-                            className="ml-auto mr-2 text-black block lg:hidden"
+                            className="mr-2 text-black block lg:hidden"
                         >
                             <CloseButton
                                 handleClick={() =>
@@ -49,7 +44,7 @@ export const SidePanel: React.FC = () => {
                         </div>
                         <button
                             onClick={handleHelpClick}
-                            className="w-8 mr-2 ml-auto text-gray-900 hover:text-gray-700 text-lg"
+                            className="w-8 mr-2 text-gray-900 hover:text-gray-700 text-lg"
                         >
                             <HelpIcon />
                         </button>
@@ -90,10 +85,7 @@ export const SidePanel: React.FC = () => {
                     </button>
                 </div>
             </div>
-            <div
-                id="scrollable-side-panel"
-                className="overflow-y-auto h-fit lg:h-full max-h-[80svh] lg:max-h-none"
-            >
+            <div id="scrollable-side-panel" className="overflow-y-auto">
                 <Collapsible title="Search">
                     <Search />
                 </Collapsible>

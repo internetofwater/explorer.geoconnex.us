@@ -4,6 +4,7 @@ import { Typography } from '@/app/components/common/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { setShowHelp } from '@/lib/state/main/slice';
+import Button from '../components/common/Button';
 
 export const HelpModal: React.FC = () => {
     const { showHelp } = useSelector((state: RootState) => state.main);
@@ -45,31 +46,37 @@ export const HelpModal: React.FC = () => {
             open={showHelp}
             handleClose={handleHelpClose}
             action={
-                <div className="flex">
-                    <input
-                        type="checkbox"
-                        name="show-help-again"
-                        checked={!showHelpAgain}
-                        onChange={(e) => handleDontShowClick(e)}
-                        className="ml-2 mr-2 w-5 h-5 "
-                    />
-                    <label htmlFor="show-help-again">
-                        <strong>Don&apos;t Show Again</strong>
-                    </label>
+                <div className="w-full flex justify-between items-center ml-2">
+                    <Button onClick={handleHelpClose}>Continue</Button>
+                    <span className="flex w-1/2 justify-center items-center">
+                        <input
+                            type="checkbox"
+                            id="show-help-again"
+                            name="show-help-again"
+                            checked={!showHelpAgain}
+                            onChange={(e) => handleDontShowClick(e)}
+                            className="ml-auto mr-2 w-5 h-5 "
+                        />
+                        <label htmlFor="show-help-again">
+                            <Typography variant="body-small">
+                                <strong>
+                                    <em>Don&apos;t Show Again</em>
+                                </strong>
+                            </Typography>
+                        </label>
+                    </span>
                 </div>
             }
         >
             <Typography variant="h4" className="mb-2">
                 Welcome!
             </Typography>
-            <p className="mb-5 ml-2">
-                This application shows <strong>Mainstems</strong>,{' '}
-                <strong>Associated Datasets</strong>, and{' '}
-                <strong>Two-digit Hydrologic Regions</strong> from the{' '}
-                <a href="https://reference.geoconnex.us/" target="_blank">
-                    Geoconnex Reference Service
-                </a>
-                .
+            <p className="mb-6 ml-4">
+                This application allows users to explore{' '}
+                <strong>Mainstem Rivers</strong> in the{' '}
+                <strong>Continental United States</strong> and discover various{' '}
+                <strong>datasets</strong> from across the web with a single
+                click.
             </p>
             <Typography variant="h4" className="mb-2">
                 How to Use This Application
@@ -161,7 +168,7 @@ export const HelpModal: React.FC = () => {
             <Typography variant="h6" className="mt-4">
                 Get Started{' '}
             </Typography>
-            <p className="ml-2">
+            <p className="ml-4">
                 Try searching for a Mainstem using the{' '}
                 <strong>Search Bar</strong> or selecting a{' '}
                 <strong>Hydrologic Region</strong> to begin exploring!

@@ -2,11 +2,11 @@ import React from 'react';
 
 type Props = {
     children: React.ReactNode;
-    handleClick: () => void;
+    onClick: () => void;
 };
 
 const Button: React.FC<Props> = (props) => {
-    const { handleClick } = props;
+    const { onClick: handleClick } = props;
 
     return (
         <button
