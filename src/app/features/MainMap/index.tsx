@@ -17,6 +17,7 @@ import {
     MAINSTEM_SMALL_LINE_WIDTH,
     MAINSTEM_MEDIUM_LINE_WIDTH,
     MAINSTEM_LARGE_LINE_WIDTH,
+    MAINSTEM_VISIBLE_ZOOM,
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
@@ -72,7 +73,7 @@ export const MainMap: React.FC<Props> = (props) => {
         }
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
-            if (zoom >= 5) {
+            if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
                         [SubLayerId.MainstemsSmall]: true,

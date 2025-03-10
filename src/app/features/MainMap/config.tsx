@@ -21,6 +21,7 @@ import {
     spiderfyClusters,
 } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
+import { huc02Centers } from '@/data/huc02Centers';
 
 export const MAP_ID = 'main';
 
@@ -32,6 +33,7 @@ export enum SourceId {
     HUC2Boundaries = 'hu02',
     AssociatedData = 'associated-data-source',
     Spiderify = 'spiderify',
+    HUC2GeoJSON = 'huc-02-geojson',
 }
 
 export enum LayerId {
@@ -64,13 +66,24 @@ export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
 export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
 export const MAINSTEM_LARGE_LINE_WIDTH = 6;
+export const MAINSTEM_VISIBLE_ZOOM = 5;
+export const MAINSTEM_OPACITY_ZOOM = 6;
 
 export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
     'step',
     ['zoom'],
     0.3,
-    6,
+    MAINSTEM_OPACITY_ZOOM,
     0.8,
+];
+
+const filteredHucs = ['19', '20', '21', '22'];
+const hucFilterExpression: ExpressionSpecification = [
+    'match',
+    ['get', 'HUC2'],
+    filteredHucs,
+    false,
+    true,
 ];
 
 /**********************************************************************
@@ -127,6 +140,15 @@ export const sourceConfigs: SourceConfig[] = [
                 type: 'FeatureCollection',
                 features: [],
             },
+            cluster: false,
+        },
+    },
+    {
+        id: SourceId.HUC2GeoJSON,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: huc02Centers,
             cluster: false,
         },
     },
@@ -338,24 +360,24 @@ export const getLayerConfig = (
                     'line-color': getLayerColor(LayerId.HUC2Boundaries),
                     'line-width': 3,
                 },
+                filter: hucFilterExpression,
             };
         case SubLayerId.HUC2BoundaryLabels:
             return {
                 id: SubLayerId.HUC2BoundaryLabels,
                 type: LayerType.Symbol,
-                source: SourceId.HUC2Boundaries,
-                'source-layer': SourceId.HUC2Boundaries,
+                source: SourceId.HUC2GeoJSON,
                 layout: {
-                    'text-field': ['get', 'NAME'],
+                    'text-field': ['get', 'name'],
                     'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                    'text-radial-offset': 0.25,
-
                     'text-size': 18,
-                    'text-justify': 'auto',
                 },
                 paint: {
                     'text-color': getLayerColor(LayerId.HUC2Boundaries),
                     'text-opacity': 0,
+                    'text-halo-blur': 1,
+                    'text-halo-color': '#000000',
+                    'text-halo-width': 2,
                 },
             };
         case SubLayerId.HUC2BoundaryFill:
@@ -368,6 +390,7 @@ export const getLayerConfig = (
                     'fill-color': '#000',
                     'fill-opacity': 0,
                 },
+                filter: hucFilterExpression,
             };
         case LayerId.AssociatedData:
             return null;
@@ -482,47 +505,56 @@ export const getLayerHoverFunction = (
             case SubLayerId.MainstemsSmall:
                 return (e) => {
                     if (!hoverOnCluster) {
-                        map.getCanvas().style.cursor = 'pointer';
+                        const zoom = map.getZoom();
+                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                            map.getCanvas().style.cursor = 'pointer';
 
-                        const feature = e.features?.[0];
-                        if (feature && feature.properties) {
-                            const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
-                            hoverPopup
-                                .setLngLat(e.lngLat)
-                                .setHTML(html)
-                                .addTo(map);
+                            const feature = e.features?.[0];
+                            if (feature && feature.properties) {
+                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                                hoverPopup
+                                    .setLngLat(e.lngLat)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
                         }
                     }
                 };
             case SubLayerId.MainstemsMedium:
                 return (e) => {
                     if (!hoverOnCluster) {
-                        map.getCanvas().style.cursor = 'pointer';
+                        const zoom = map.getZoom();
+                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                            map.getCanvas().style.cursor = 'pointer';
 
-                        const feature = e.features?.[0];
-                        if (feature && feature.properties) {
-                            const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                            const feature = e.features?.[0];
+                            if (feature && feature.properties) {
+                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
 
-                            hoverPopup
-                                .setLngLat(e.lngLat)
-                                .setHTML(html)
-                                .addTo(map);
+                                hoverPopup
+                                    .setLngLat(e.lngLat)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
                         }
                     }
                 };
             case SubLayerId.MainstemsLarge:
                 return (e) => {
                     if (!hoverOnCluster) {
-                        map.getCanvas().style.cursor = 'pointer';
+                        const zoom = map.getZoom();
+                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                            map.getCanvas().style.cursor = 'pointer';
 
-                        const feature = e.features?.[0];
-                        if (feature && feature.properties) {
-                            const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                            const feature = e.features?.[0];
+                            if (feature && feature.properties) {
+                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
 
-                            hoverPopup
-                                .setLngLat(e.lngLat)
-                                .setHTML(html)
-                                .addTo(map);
+                                hoverPopup
+                                    .setLngLat(e.lngLat)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
                         }
                     }
                 };
@@ -573,18 +605,20 @@ export const getLayerHoverFunction = (
                 };
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
-                    map.getCanvas().style.cursor = 'pointer';
-                    const feature = e.features?.[0] as
-                        | Feature<LineString>
-                        | undefined;
                     const zoom = map.getZoom();
-                    if (feature && feature.properties && zoom < 7) {
-                        const name = feature.properties.NAME;
-                        map.setPaintProperty(
-                            SubLayerId.HUC2BoundaryLabels,
-                            'text-opacity',
-                            ['case', ['==', ['get', 'NAME'], name], 1, 0]
-                        );
+                    if (zoom < MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = 'pointer';
+                        const feature = e.features?.[0] as
+                            | Feature<LineString>
+                            | undefined;
+                        if (feature && feature.properties) {
+                            const id = Number(feature.properties.HUC2);
+                            map.setPaintProperty(
+                                SubLayerId.HUC2BoundaryLabels,
+                                'text-opacity',
+                                ['case', ['==', ['get', 'id'], id], 1, 0]
+                            );
+                        }
                     }
                 };
             default:
@@ -651,12 +685,16 @@ export const getLayerMouseMoveFunction = (
                         | Feature<LineString>
                         | undefined;
                     const zoom = map.getZoom();
-                    if (feature && feature.properties && zoom < 6) {
-                        const name = feature.properties.NAME;
+                    if (
+                        feature &&
+                        feature.properties &&
+                        zoom < MAINSTEM_VISIBLE_ZOOM
+                    ) {
+                        const id = Number(feature.properties.HUC2);
                         map.setPaintProperty(
                             SubLayerId.HUC2BoundaryLabels,
                             'text-opacity',
-                            ['case', ['==', ['get', 'NAME'], name], 1, 0]
+                            ['case', ['==', ['get', 'id'], id], 1, 0]
                         );
                     }
                 };
@@ -875,9 +913,6 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 controllable: false,
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
-                // hoverFunction: getLayerHoverFunction(
-                //     SubLayerId.AssociatedDataUnclustered
-                // ),
             },
         ],
     },
@@ -892,19 +927,4 @@ export const layerDefinitions: MainLayerDefinition[] = [
             LayerId.SpiderifyPoints
         ),
     },
-
-    // {
-    //     id: LayerId.Points,
-    //     controllable: true,
-    //     config: getLayerConfig(LayerId.Points),
-    //     hoverFunction: getLayerHoverFunction(LayerId.Points),
-    //     clickFunction: getLayerClickFunction(LayerId.Points),
-    //     subLayers: [
-    //         {
-    //             id: SubLayerId.PointsSmall,
-    //             controllable: true,
-    //             config: getLayerConfig(SubLayerId.PointsSmall),
-    //         },
-    //     ],
-    // },
 ];
