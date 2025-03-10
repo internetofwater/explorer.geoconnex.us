@@ -58,7 +58,7 @@ export const HelpModal: React.FC = () => {
                             className="ml-auto mr-2 w-5 h-5 "
                         />
                         <label htmlFor="show-help-again">
-                            <Typography variant="body-small">
+                            <Typography variant="small">
                                 <strong>
                                     <em>Don&apos;t Show Again</em>
                                 </strong>
