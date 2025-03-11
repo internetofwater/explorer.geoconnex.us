@@ -15,8 +15,8 @@ export default {
                     darker: '#D4D4D4EF', // other tab color
                 },
                 secondary: {
-                    DEFAULT: '#4798E6',
-                    hover: '#5AA9F0',
+                    DEFAULT: '#1C76CA',
+                    hover: '#155A9A',
                 },
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
