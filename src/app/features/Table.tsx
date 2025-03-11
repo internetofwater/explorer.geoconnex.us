@@ -9,7 +9,7 @@ const Table: React.FC = () => {
 
     // TODO: ensure property order and call getHeaderValue
     return (
-        <div className="h-[100vh] overflow-x-auto f-full bg-white">
+        <div className="h-[100svh] overflow-x-auto f-full bg-white">
             <table className="min-w-full bg-white border border-gray-200 text-black text-sm">
                 <thead>
                     <tr>

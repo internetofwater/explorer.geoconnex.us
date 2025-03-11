@@ -7,6 +7,7 @@
     --foreground: #171717;
     --primary: theme('colors.primary.DEFAULT');
     --secondary: theme('colors.secondary.DEFAULT');
+    --secondary-hover: theme('colors.secondary.hover');
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,11 +21,18 @@ body {
     color: var(--foreground);
     background: black;
     font-family: Arial, Helvetica, sans-serif;
+    height: 100svh;
+    width: 100svw;
+    max-height: 100svh;
+    max-width: 100svw;
+    overflow: hidden;
 }
 
 #map-container-main {
-    width: 100%;
-    height: 100vh;
+    width: 100svw;
+    height: 100svh;
+    max-width: 100svw;
+    max-height: 100svh;
 }
 
 div#side-panel {
@@ -35,12 +43,13 @@ div#side-panel-control {
     z-index: 1;
 }
 
-div#scrollable-side-panel {
-    height: calc(100vh - 58px);
-}
-
 div#tools {
     z-index: 1;
+}
+
+div#scrollable-side-panel {
+    height: calc(100svh - 210px);
+    max-height: calc(100svh - 210px);
 }
 
 #date-range-columns {
@@ -54,8 +63,17 @@ button.mapboxgl-popup-close-button {
     right: 3px;
 }
 
+#modal-overlay {
+    z-index: 3;
+}
+
 input[type='checkbox'] {
-    accent-color: --secondary;
+    accent-color: var(--secondary);
+}
+
+input[type='checkbox']:hover,
+input[type='checkbox']:active {
+    accent-color: var(--secondary-hover);
 }
 
 a {
@@ -83,9 +101,12 @@ a:active {
     }
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100vh - 155px);
+        height: calc(100svh - 130px);
+        max-height: calc(100svh - 130px);
+        /* height: calc(100svh - 98px);
+        max-height: calc(100svh - 98px); */
     }
 }
 

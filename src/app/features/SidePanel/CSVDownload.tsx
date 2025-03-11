@@ -12,9 +12,7 @@ export const CSVDownload: React.FC = () => {
                 <div id="csvButton">
                     <Button
                         title="Download filtered datasets as CSV"
-                        handleClick={() =>
-                            convertGeoJSONToCSV(filteredDatasets)
-                        }
+                        onClick={() => convertGeoJSONToCSV(filteredDatasets)}
                     >
                         <span>Download CSV</span>
                     </Button>

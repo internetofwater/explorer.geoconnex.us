@@ -3,16 +3,16 @@ import React from 'react';
 type Props = {
     title: string;
     children: React.ReactNode;
-    handleClick: () => void;
+    onClick: () => void;
 };
 
 const Button: React.FC<Props> = (props) => {
-    const { title, handleClick } = props;
+    const { title, onClick } = props;
 
     return (
         <button
             title={title}
-            onClick={handleClick}
+            onClick={onClick}
             className={
                 'bg-secondary hover:bg-secondary-hover text-white font-bold py-2 px-4 rounded'
             }
