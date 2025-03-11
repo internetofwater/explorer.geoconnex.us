@@ -36,10 +36,9 @@ export const Legend: React.FC<Props> = (props) => {
                 const color = getLayerColor(sublayer.id);
 
                 return (
-                    <div
+                    <li
                         key={`legend-entry-${layer.id}-${sublayer.id}`}
                         className="ml-6 p-1 flex items-center"
-                        role="listitem"
                     >
                         {color && typeof color === 'string' && (
                             <div className="mr-1">
@@ -72,7 +71,7 @@ export const Legend: React.FC<Props> = (props) => {
                             </div>
                         )}
                         <span>{getLayerName(sublayer.id)}</span>
-                    </div>
+                    </li>
                 );
             });
     };
@@ -90,10 +89,9 @@ export const Legend: React.FC<Props> = (props) => {
             }
 
             return (
-                <div
+                <li
                     key={`legend-entry-${layer.id}`}
                     className="py-1 text-black"
-                    role="listitem"
                 >
                     {layer.legend && (
                         <div className="flex items-center">
@@ -134,14 +132,14 @@ export const Legend: React.FC<Props> = (props) => {
                             </span>
                         </div>
                     )}
-                    {layer.subLayers && renderSubLayers(layer)}
-                </div>
+                    {layer.subLayers && <ul>{renderSubLayers(layer)}</ul>}
+                </li>
             );
         });
     };
 
     const renderLegend = useCallback(() => {
-        return <div role="list">{renderLayers(layerDefinitions)}</div>;
+        return <ul>{renderLayers(layerDefinitions)}</ul>;
     }, [layerDefinitions, visibleLayers]);
 
     return (

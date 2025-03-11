@@ -12,18 +12,19 @@ type Props = {
     layerDefinitions: MainLayerDefinition[];
 };
 
-export const Toggles: React.FC<Props> = (props) => {
-    const { visibleLayers, layerDefinitions, getLayerName, handleChange } =
-        props;
-
+export const Toggles: React.FC<Props> = ({
+    visibleLayers,
+    layerDefinitions,
+    getLayerName,
+    handleChange,
+}) => {
     const renderToggles = useCallback(() => {
         return layerDefinitions
             .filter((layer) => layer.controllable)
             .map((layer) => (
-                <div
+                <li
                     key={`layer-control-${layer.id}`}
                     className="p-1 text-black"
-                    role="listitem"
                 >
                     <div className="flex items-center justify-between">
                         <label
@@ -45,47 +46,50 @@ export const Toggles: React.FC<Props> = (props) => {
                         </label>
                     </div>
 
-                    {layer.subLayers &&
-                        layer.subLayers.length > 0 &&
-                        layer.subLayers
-                            .filter((sublayer) => sublayer.controllable)
-                            .map((sublayer) => (
-                                <div
-                                    key={`layer-control-${layer.id}-${sublayer.id}`}
-                                    className="ml-6 p-1 flex items-center justify-between"
-                                    role="listitem"
-                                >
-                                    <label
-                                        className="font-large mr-1"
-                                        htmlFor={`toggle-${sublayer.id}`}
+                    {(layer.subLayers ?? []).length > 0 && (
+                        <ul className="ml-6">
+                            {(layer.subLayers ?? [])
+                                .filter((sublayer) => sublayer.controllable)
+                                .map((sublayer) => (
+                                    <li
+                                        key={`layer-control-${layer.id}-${sublayer.id}`}
+                                        className="p-1 flex items-center justify-between"
                                     >
-                                        <input
-                                            type="checkbox"
-                                            id={`toggle-${sublayer.id}`}
-                                            name={sublayer.id}
-                                            checked={visibleLayers[sublayer.id]}
-                                            onChange={(e) =>
-                                                handleChange(e, false)
-                                            }
-                                            className="mr-1"
-                                            aria-labelledby={`toggle-label-${sublayer.id}`}
-                                        />
-                                        <span
-                                            id={`toggle-label-${sublayer.id}`}
+                                        <label
+                                            className="font-large mr-1"
+                                            htmlFor={`toggle-${sublayer.id}`}
                                         >
-                                            {getLayerName(sublayer.id)}
-                                        </span>
-                                    </label>
-                                </div>
-                            ))}
-                </div>
+                                            <input
+                                                type="checkbox"
+                                                id={`toggle-${sublayer.id}`}
+                                                name={sublayer.id}
+                                                checked={
+                                                    visibleLayers[sublayer.id]
+                                                }
+                                                onChange={(e) =>
+                                                    handleChange(e, false)
+                                                }
+                                                className="mr-1"
+                                                aria-labelledby={`toggle-label-${sublayer.id}`}
+                                            />
+                                            <span
+                                                id={`toggle-label-${sublayer.id}`}
+                                            >
+                                                {getLayerName(sublayer.id)}
+                                            </span>
+                                        </label>
+                                    </li>
+                                ))}
+                        </ul>
+                    )}
+                </li>
             ));
     }, [visibleLayers, layerDefinitions, getLayerName, handleChange]);
 
     return (
         <>
             <h6 className="text-lg font-bold mb-1">Layers</h6>
-            <div role="list">{renderToggles()}</div>
+            <ul>{renderToggles()}</ul>
         </>
     );
 };
