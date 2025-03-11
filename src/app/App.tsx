@@ -62,6 +62,9 @@ export const App: React.FC<Props> = (props) => {
             >
                 <SidePanel />
             </div>
+            <div id="tools" className={`fixed top-2 right-2`}>
+                {view === 'map' && <MapTools />}
+            </div>
             <div
                 id="map"
                 className={`absolute  lg:relative
@@ -76,9 +79,6 @@ export const App: React.FC<Props> = (props) => {
                 } w-full`}
             >
                 <Table />
-            </div>
-            <div id="tools" className={`fixed top-2 right-2`}>
-                {view === 'map' && <MapTools />}
             </div>
         </div>
     );
