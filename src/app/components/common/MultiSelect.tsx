@@ -1,3 +1,4 @@
+import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useState } from 'react';
 
 type Props = {
@@ -21,13 +22,21 @@ const MultiSelect: React.FC<Props> = (props) => {
         <div className="w-100 mt-1 mb-1 text-black">
             <div className="relative">
                 <button
-                    className="w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default sm:text-sm"
+                    className="flex justify-between w-full bg-white border border-gray-300 rounded-md shadow-sm px-3 py-2 text-left cursor-default sm:text-sm"
                     aria-haspopup="listbox"
                     aria-expanded={showOptions}
                     aria-labelledby={ariaLabel}
                     onClick={() => setShowOptions(!showOptions)}
                 >
                     {showOptions ? 'Click to Close' : 'Select...'}
+                    <span
+                        data-testid="arrow-icon-wrapper"
+                        className={`transform ${
+                            showOptions ? '-rotate-90' : 'rotate-90'
+                        }`}
+                    >
+                        <RightArrow />
+                    </span>
                 </button>
                 <div
                     className={`mt-1 w-full rounded-md bg-white shadow-lg ${
@@ -47,11 +56,6 @@ const MultiSelect: React.FC<Props> = (props) => {
                                 role="option"
                                 aria-selected={selectedOptions?.includes(type)}
                                 onClick={() => handleOptionClick(type)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        handleOptionClick(type);
-                                    }
-                                }}
                             >
                                 <div className="flex items-center">
                                     <input
