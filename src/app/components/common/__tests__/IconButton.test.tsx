@@ -17,7 +17,7 @@ describe('Common Components: IconButton', () => {
             </IconButton>
         );
         const buttonElement = screen.getByRole('button');
-        const svgElement = screen.getByTestId('map-icon');
+        const svgElement = screen.getByTestId('hamburger-icon');
         expect(buttonElement).toBeInTheDocument();
         expect(svgElement).toBeInTheDocument();
     });

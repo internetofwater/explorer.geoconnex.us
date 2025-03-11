@@ -20,15 +20,15 @@ describe('Common Components: Collapsible', () => {
 
         const content = screen.getByTestId('collapsible-content');
         // Initially, the content should not be visible
-        expect(content).toHaveClass('max-h-0');
+        expect(content).toHaveClass('hidden');
 
         // Click the button to open the collapsible
         fireEvent.click(screen.getByText('Test Title'));
-        expect(content).toHaveClass('max-h-screen');
+        expect(content).toHaveClass('block');
 
         // Click the button again to close the collapsible
         fireEvent.click(screen.getByText('Test Title'));
-        expect(content).toHaveClass('max-h-0');
+        expect(content).toHaveClass('hidden');
     });
 
     test('displays the correct arrow direction based on state', () => {

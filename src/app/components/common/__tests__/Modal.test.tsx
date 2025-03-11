@@ -8,7 +8,12 @@ describe('Common Components: Modal', () => {
 
     const renderModal = (open: boolean) => {
         return render(
-            <Modal open={open} title={title} handleClose={handleClose}>
+            <Modal
+                action={<></>}
+                open={open}
+                title={title}
+                handleClose={handleClose}
+            >
                 {children}
             </Modal>
         );

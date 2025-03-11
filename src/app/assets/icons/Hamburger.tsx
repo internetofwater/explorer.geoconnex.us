@@ -1,6 +1,7 @@
 const HamburgerIcon: React.FC = () => {
     return (
         <svg
+            data-testid="hamburger-icon"
             width="24"
             height="24"
             className=" text-secondary"
