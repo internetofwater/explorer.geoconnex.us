@@ -174,7 +174,6 @@ const SearchComponent: React.FC = () => {
                                     aria-selected={
                                         summary !== null && summary.id === id
                                     }
-                                    tabIndex={0}
                                     onKeyDown={(e) => {
                                         if (
                                             e.key === 'Enter' ||

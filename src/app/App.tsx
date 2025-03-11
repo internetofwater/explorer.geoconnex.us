@@ -41,10 +41,7 @@ export const App: React.FC<Props> = (props) => {
         <div className="flex w-[100vw] h-[100vh] max-w-[100vw] max-h-[100vh] overflow-hidden">
             <div id="side-panel-control" className={`fixed top-2 left-2`}>
                 {!showSidePanel && (
-                    <IconButton
-                        tabIndex={4}
-                        onClick={() => handleSidePanelControlClick()}
-                    >
+                    <IconButton onClick={() => handleSidePanelControlClick()}>
                         <HamburgerIcon />
                     </IconButton>
                 )}

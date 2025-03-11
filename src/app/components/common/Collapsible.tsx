@@ -19,6 +19,7 @@ const Collapsible: React.FC<Props> = (props) => {
     return (
         <div className="bg-primary border-b text-black border-gray-300">
             <button
+                title={`${isOpen ? 'Hide' : 'Show'} ${title}`}
                 className="w-full flex justify-between items-center p-4 bg-primary font-bold text-lg hover:bg-primary-hover active:bg-primary-hover focus:bg-primary-hover"
                 onClick={toggleCollapse}
             >
@@ -36,13 +37,7 @@ const Collapsible: React.FC<Props> = (props) => {
                 data-testid="collapsible-content"
                 className={`overflow-hidden ${isOpen ? 'block' : 'hidden'}`}
             >
-                <div
-                    aria-disabled={!isOpen}
-                    aria-hidden={!isOpen}
-                    className="px-4"
-                >
-                    {props.children}
-                </div>
+                <div className="px-4">{props.children}</div>
             </div>
         </div>
     );

@@ -55,8 +55,7 @@ export const MapTools: React.FC = () => {
         <>
             <div className="flex flex-col items-end lg:items-center lg:flex-row-reverse space-x-0 lg:space-x-2 space-y-2 lg:space-y-0">
                 <IconButton
-                    tabIndex={5}
-                    title="Map Tools"
+                    title={`${showTools ? 'Hide' : 'Show'} Map Tools`}
                     onClick={() => {
                         setShowLegend(false);
                         setShowLayerToggle(false);
@@ -69,8 +68,9 @@ export const MapTools: React.FC = () => {
                 {showTools && (
                     <>
                         <IconButton
-                            tabIndex={6}
-                            title="Layer Toggles"
+                            title={`${
+                                showLayerToggle ? 'Hide' : 'Show'
+                            } Layer Toggles`}
                             onClick={() => {
                                 setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
@@ -79,8 +79,7 @@ export const MapTools: React.FC = () => {
                             <LayerIcon />
                         </IconButton>
                         <IconButton
-                            tabIndex={7}
-                            title="Legend"
+                            title={`${showLegend ? 'Hide' : 'Show'} Legend`}
                             onClick={() => {
                                 setShowLayerToggle(false);
                                 setShowLegend(!showLegend);

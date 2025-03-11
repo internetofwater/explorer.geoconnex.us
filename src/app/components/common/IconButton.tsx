@@ -5,24 +5,16 @@ type Props = {
     children: React.ReactNode;
     className?: string;
     disabled?: boolean;
-    tabIndex?: number;
     title?: string;
 };
 
 const IconButton: React.FC<Props> = (props) => {
-    const {
-        onClick,
-        className = '',
-        disabled = false,
-        tabIndex,
-        title = '',
-    } = props;
+    const { onClick, className = '', disabled = false, title = '' } = props;
 
     return (
         <button
             onClick={onClick}
             title={title}
-            tabIndex={tabIndex}
             disabled={disabled}
             className={`bg-white hover:bg-gray-100
                 rounded-full p-2 shadow-md 

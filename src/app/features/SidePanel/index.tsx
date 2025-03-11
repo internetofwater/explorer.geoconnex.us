@@ -37,7 +37,6 @@ export const SidePanel: React.FC<Props> = (props) => {
             <div className="mt-1 flex justify-between border-b border-gray-300 shadow-lg">
                 <div className="flex w-[60%]">
                     <button
-                        tabIndex={1}
                         title="Map Tab"
                         aria-label="Tab to show map"
                         onClick={() => dispatch(setView('map'))}
@@ -55,7 +54,6 @@ export const SidePanel: React.FC<Props> = (props) => {
                         Map
                     </button>
                     <button
-                        tabIndex={2}
                         title="Table Tab"
                         aria-label="Tab to show table"
                         onClick={() => dispatch(setView('table'))}
@@ -80,7 +78,6 @@ export const SidePanel: React.FC<Props> = (props) => {
                     className="mr-1 text-black block lg:hidden"
                 >
                     <CloseButton
-                        tabIndex={3}
                         title="Close search bar"
                         onClick={() => dispatch(setShowSidePanel(false))}
                         className="text-gray-900 hover:text-gray-700 text-lg"

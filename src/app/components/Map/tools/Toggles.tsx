@@ -38,7 +38,6 @@ export const Toggles: React.FC<Props> = (props) => {
                                 onChange={(e) => handleChange(e, true)}
                                 className="mr-1"
                                 aria-labelledby={`toggle-label-${layer.id}`}
-                                tabIndex={6}
                             />
                             <span id={`toggle-label-${layer.id}`}>
                                 {getLayerName(layer.id)}
@@ -70,7 +69,6 @@ export const Toggles: React.FC<Props> = (props) => {
                                             }
                                             className="mr-1"
                                             aria-labelledby={`toggle-label-${sublayer.id}`}
-                                            tabIndex={6}
                                         />
                                         <span
                                             id={`toggle-label-${sublayer.id}`}
