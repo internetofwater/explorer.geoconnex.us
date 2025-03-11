@@ -41,7 +41,7 @@ const Modal: React.FC<Props> = (props) => {
                                 {title}
                             </Typography>
                             <CloseButton
-                                handleClick={() => handleClose()}
+                                onClick={() => handleClose()}
                                 className="text-gray-900 hover:text-gray-700 text-md ml-auto"
                                 closeIconClassName="w-8 h-8"
                             />
