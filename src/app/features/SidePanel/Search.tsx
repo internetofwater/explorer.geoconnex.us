@@ -2,12 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import debounce from 'lodash.debounce';
-import {
-    Feature,
-    FeatureCollection,
-    GeoJsonProperties,
-    Geometry,
-} from 'geojson';
+import { Feature, FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
 import {
     fetchDatasets,
@@ -40,8 +35,10 @@ const SearchComponent: React.FC = () => {
                 const response = await fetch(
                     `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`
                 );
-                const data: FeatureCollection<Geometry, MainstemData> =
-                    await response.json();
+                const data = (await response.json()) as FeatureCollection<
+                    Geometry,
+                    MainstemData
+                >;
                 const searchResults: MainstemData[] = data.features.map(
                     (feature) =>
                         ({
@@ -77,10 +74,10 @@ const SearchComponent: React.FC = () => {
             const response = await fetch(
                 `https://reference.geoconnex.us/collections/mainstems/items/${id}`
             );
-            const feature: Feature<
+            const feature = (await response.json()) as Feature<
                 Geometry,
-                GeoJsonProperties & { datasets: Dataset[] }
-            > = await response.json();
+                MainstemData & { datasets: Dataset[] }
+            >;
 
             const summary = createSummary(id, feature);
             setSummary(summary);
@@ -109,7 +106,7 @@ const SearchComponent: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        debouncedSearch(query);
+        debouncedSearch(query); // eslint-disable-line @typescript-eslint/no-floating-promises
     }, [query]);
 
     useEffect(() => {
@@ -117,8 +114,8 @@ const SearchComponent: React.FC = () => {
         dispatch(setSearchResultIds(ids));
     }, [results]);
 
-    const handleClick = async (id: number) => {
-        dispatch(fetchDatasets(id));
+    const handleClick = (id: number) => {
+        dispatch(fetchDatasets(String(id))); // eslint-disable-line @typescript-eslint/no-floating-promises
         dispatch(setSelectedMainstemId(String(id)));
     };
 
@@ -150,7 +147,7 @@ const SearchComponent: React.FC = () => {
                                     onClick={() => handleClick(id)}
                                     onMouseOver={() => {
                                         dispatch(setHoverId(id));
-                                        debouncedGetDatasets(id);
+                                        debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                                     }}
                                     onMouseLeave={() => {
                                         debouncedGetDatasets.cancel();
