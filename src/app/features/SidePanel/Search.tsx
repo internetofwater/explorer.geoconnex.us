@@ -146,13 +146,14 @@ const SearchComponent: React.FC = () => {
                     }}
                     aria-live="polite"
                 >
-                    <ul role="listbox" aria-labelledby="search-input">
+                    <ul aria-label="Search results">
                         {results.map((result, index) => {
                             const id = Number(result.id);
 
                             return (
                                 <li
                                     key={index}
+                                    tabIndex={0}
                                     className="p-2 border-b truncate cursor-pointer hover:bg-gray-100"
                                     onClick={() => handleClick(id)}
                                     onMouseOver={() => {
