@@ -197,11 +197,11 @@ export const getLayerColor = (
         case LayerId.Mainstems:
             return '#7A9939';
         case SubLayerId.MainstemsSmall:
-            return '#00BFFF';
+            return '#e0f3db';
         case SubLayerId.MainstemsMedium:
-            return '#30D5C8';
+            return '#7bccc4';
         case SubLayerId.MainstemsLarge:
-            return '#6A8DFF';
+            return '#08589e';
         case LayerId.MajorRivers:
             return '#536663';
         case LayerId.HUC2Boundaries:
@@ -212,11 +212,11 @@ export const getLayerColor = (
             return [
                 'step',
                 ['get', 'point_count'],
-                '#51bbd6',
+                '#91bfdb', // Less than 5
                 5,
-                '#f1f075',
+                '#ffffbf', // GTE 5
                 10,
-                '#f28cb1',
+                '#fc8d59', // GTE 10
             ];
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';

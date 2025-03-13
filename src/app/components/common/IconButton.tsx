@@ -1,23 +1,23 @@
 import React from 'react';
 
 type Props = {
-    handleClick: () => void;
+    onClick: () => void;
     children: React.ReactNode;
-    title?: string;
-    disabled?: boolean;
     className?: string;
+    disabled?: boolean;
+    title?: string;
 };
 
 const IconButton: React.FC<Props> = (props) => {
-    const { handleClick, className = '', disabled = false, title = '' } = props;
+    const { onClick, className = '', disabled = false, title = '' } = props;
 
     return (
         <button
+            onClick={onClick}
             title={title}
-            onClick={handleClick}
             disabled={disabled}
             className={`bg-white hover:bg-gray-100
-                rounded-full p-2 shadow-md  focus:outline-none 
+                rounded-full p-2 shadow-md 
                 w-11 h-11
                 flex justify-center items-center
 

@@ -14,10 +14,10 @@ import {
 import IconButton from '@/app/components/common/IconButton';
 import { Legend } from '@/app/components/Map/tools/Legend';
 import { LayerSpecification } from 'mapbox-gl';
-import { LayerIcon } from '@/app/assets/icons/LayerIcon';
-import { ControlsIcon } from '@/app/assets/icons/ControlsIcon';
-import { LegendIcon } from '@/app/assets/icons/LegendIcon';
-import Circle from '@/app/assets/icons/Circle';
+import LayerIcon from '@/app/assets/icons/Layer';
+import ControlsIcon from '@/app/assets/icons/Controls';
+import LegendIcon from '@/app/assets/icons/Legend';
+import CircleIcon from '@/app/assets/icons/Circle';
 import Square from '@/app/assets/icons/Square';
 
 export const MapTools: React.FC = () => {
@@ -55,8 +55,8 @@ export const MapTools: React.FC = () => {
         <>
             <div className="flex flex-col items-end lg:items-center lg:flex-row-reverse space-x-0 lg:space-x-2 space-y-2 lg:space-y-0">
                 <IconButton
-                    title="Tools"
-                    handleClick={() => {
+                    title={`${showTools ? 'Hide' : 'Show'} Map Tools`}
+                    onClick={() => {
                         setShowLegend(false);
                         setShowLayerToggle(false);
                         setShowTools(!showTools);
@@ -68,8 +68,10 @@ export const MapTools: React.FC = () => {
                 {showTools && (
                     <>
                         <IconButton
-                            title="Layer Toggles"
-                            handleClick={() => {
+                            title={`${
+                                showLayerToggle ? 'Hide' : 'Show'
+                            } Layer Toggles`}
+                            onClick={() => {
                                 setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
                             }}
@@ -77,8 +79,8 @@ export const MapTools: React.FC = () => {
                             <LayerIcon />
                         </IconButton>
                         <IconButton
-                            title="Legend"
-                            handleClick={() => {
+                            title={`${showLegend ? 'Hide' : 'Show'} Legend`}
+                            onClick={() => {
                                 setShowLayerToggle(false);
                                 setShowLegend(!showLegend);
                             }}
@@ -135,15 +137,15 @@ export const MapTools: React.FC = () => {
                                         Dataset Clusters
                                     </span>
                                     <span className="flex">
-                                        <Circle color="#51bbd6" />
+                                        <CircleIcon color="#51bbd6" />
                                         &lt; 5
                                     </span>
                                     <span className="flex">
-                                        <Circle color="#f1f075" />
+                                        <CircleIcon color="#f1f075" />
                                         &gt; 5
                                     </span>
                                     <span className="flex">
-                                        <Circle color="#f28cb1" />
+                                        <CircleIcon color="#f28cb1" />
                                         &gt; 10
                                     </span>
                                 </div>

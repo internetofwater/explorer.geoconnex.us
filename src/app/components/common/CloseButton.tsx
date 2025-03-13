@@ -1,24 +1,28 @@
-import { CloseIcon } from '@/app/assets/icons/CloseIcon';
+import CloseIcon from '@/app/assets/icons/Close';
 import React from 'react';
 
 type Props = {
-    handleClick: () => void;
+    onClick: () => void;
     className?: string;
     closeIconClassName?: string;
+    title?: string;
 };
 
 const CloseButton: React.FC<Props> = (props) => {
     const {
-        handleClick,
+        onClick,
         className = '',
         closeIconClassName = 'w-6 h-6',
+        title = 'Close',
     } = props;
 
     return (
         <button
+            title={title}
+            aria-label={title}
             data-testid="close-button"
-            onClick={handleClick}
-            className={`close-button focus:outline-none ${className}`}
+            onClick={onClick}
+            className={className}
         >
             <CloseIcon className={closeIconClassName} />
         </button>

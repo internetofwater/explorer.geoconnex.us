@@ -12,81 +12,84 @@ type Props = {
     layerDefinitions: MainLayerDefinition[];
 };
 
-export const Toggles: React.FC<Props> = (props) => {
-    const { visibleLayers, layerDefinitions, getLayerName, handleChange } =
-        props;
-
+export const Toggles: React.FC<Props> = ({
+    visibleLayers,
+    layerDefinitions,
+    getLayerName,
+    handleChange,
+}) => {
     const renderToggles = useCallback(() => {
         return layerDefinitions
             .filter((layer) => layer.controllable)
             .map((layer) => (
-                <div
+                <li
                     key={`layer-control-${layer.id}`}
                     className="p-1 text-black"
                 >
                     <div className="flex items-center justify-between">
-                        <label className="font-large mr-1">
+                        <label
+                            className="font-large mr-1"
+                            htmlFor={`toggle-${layer.id}`}
+                        >
                             <input
                                 type="checkbox"
+                                id={`toggle-${layer.id}`}
                                 name={layer.id}
                                 checked={visibleLayers[layer.id]}
                                 onChange={(e) => handleChange(e, true)}
                                 className="mr-1"
+                                aria-labelledby={`toggle-label-${layer.id}`}
                             />
-                            {getLayerName(layer.id)}
+                            <span id={`toggle-label-${layer.id}`}>
+                                {getLayerName(layer.id)}
+                            </span>
                         </label>
-                        {/* {getLayerColor(layer.id) &&
-                            typeof getLayerColor(layer.id) === 'string' && (
-                                <HorizontalLine
-                                    key={`layer-control-${layer.id}-color`}
-                                    color={getLayerColor(layer.id) as string}
-                                />
-                            )} */}
                     </div>
 
-                    {layer.subLayers &&
-                        layer.subLayers.length > 0 &&
-                        layer.subLayers
-                            .filter((sublayer) => sublayer.controllable)
-                            .map((sublayer) => (
-                                <div
-                                    key={`layer-control-${layer.id}-${sublayer.id}`}
-                                    className="ml-6 p-1 flex items-center justify-between"
-                                >
-                                    <label className="font-large mr-1">
-                                        <input
-                                            type="checkbox"
-                                            name={sublayer.id}
-                                            checked={visibleLayers[sublayer.id]}
-                                            onChange={(e) =>
-                                                handleChange(e, false)
-                                            }
-                                            className="mr-1"
-                                        />
-                                        {getLayerName(sublayer.id)}
-                                    </label>
-                                    {/* {getLayerColor(sublayer.id) &&
-                                    typeof getLayerColor(sublayer.id) ===
-                                        'string' && (
-                                        <HorizontalLine
-                                            key={`layer-control-${layer.id}-${sublayerId}-color`}
-                                            color={
-                                                getLayerColor(
-                                                    sublayerId
-                                                ) as string
-                                            }
-                                        />
-                                    )} */}
-                                </div>
-                            ))}
-                </div>
+                    {(layer.subLayers ?? []).length > 0 && (
+                        <ul className="ml-6">
+                            {(layer.subLayers ?? [])
+                                .filter((sublayer) => sublayer.controllable)
+                                .map((sublayer) => (
+                                    <li
+                                        key={`layer-control-${layer.id}-${sublayer.id}`}
+                                        className="p-1 flex items-center justify-between"
+                                    >
+                                        <label
+                                            className="font-large mr-1"
+                                            htmlFor={`toggle-${sublayer.id}`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id={`toggle-${sublayer.id}`}
+                                                name={sublayer.id}
+                                                checked={
+                                                    visibleLayers[sublayer.id]
+                                                }
+                                                onChange={(e) =>
+                                                    handleChange(e, false)
+                                                }
+                                                className="mr-1"
+                                                aria-labelledby={`toggle-label-${sublayer.id}`}
+                                            />
+                                            <span
+                                                id={`toggle-label-${sublayer.id}`}
+                                            >
+                                                {getLayerName(sublayer.id)}
+                                            </span>
+                                        </label>
+                                    </li>
+                                ))}
+                        </ul>
+                    )}
+                </li>
             ));
-    }, [visibleLayers]);
+    }, [visibleLayers, layerDefinitions, getLayerName, handleChange]);
 
     return (
         <>
             <h6 className="text-lg font-bold mb-1">Layers</h6>
-            {renderToggles()}
+            <ul>{renderToggles()}</ul>
         </>
     );
 };

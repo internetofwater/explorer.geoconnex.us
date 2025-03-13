@@ -1,4 +1,4 @@
-export const RightArrow: React.FC = () => {
+const RightArrow: React.FC = () => {
     return (
         <svg
             data-testid="right-arrow-icon"
@@ -11,7 +11,13 @@ export const RightArrow: React.FC = () => {
             xmlnsXlink="http://www.w3.org/1999/xlink"
             viewBox="0 0 330 330"
             xmlSpace="preserve"
+            role="img"
+            aria-labelledby="icon-title-right-arrow icon-desc-right-arrow"
         >
+            <title id="icon-title-right-arrow">Right Arrow Icon</title>
+            <desc id="icon-desc-right-arrow">
+                A right arrow icon used show if a collapsed element is visible
+            </desc>
             <path
                 id="XMLID_222_"
                 d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001
@@ -22,3 +28,5 @@ export const RightArrow: React.FC = () => {
         </svg>
     );
 };
+
+export default RightArrow;

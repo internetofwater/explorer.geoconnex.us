@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react';
+import { Typography } from './Typography';
 
 type Props = {
     startDate: string;
@@ -15,33 +16,27 @@ export const DateRange: React.FC<Props> = (props) => {
             {/* Defined in global.css */}
             <div id="date-range-columns">
                 <div className="flex flex-col">
-                    <label
-                        htmlFor="start-date"
-                        className="text-sm font-medium mb-1"
-                    >
-                        Start Date
+                    <label htmlFor="start-date" className="mb-1">
+                        <Typography variant="body-small">Start Date</Typography>
                     </label>
                     <input
                         type="date"
                         id="start-date"
                         value={startDate}
                         onChange={handleStartDateChange}
-                        className="p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-2 text-black border border-gray-300 rounded-md"
                     />
                 </div>
                 <div className="flex flex-col">
-                    <label
-                        htmlFor="end-date"
-                        className="text-sm font-medium mb-1"
-                    >
-                        End Date
+                    <label htmlFor="end-date" className="mb-1">
+                        <Typography variant="body-small">End Date</Typography>
                     </label>
                     <input
                         type="date"
                         id="end-date"
                         value={endDate}
                         onChange={handleEndDateChange}
-                        className="p-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-2 text-black border border-gray-300 rounded-md"
                     />
                 </div>
             </div>

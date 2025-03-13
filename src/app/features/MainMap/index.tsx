@@ -79,7 +79,7 @@ export const MainMap: React.FC<Props> = (props) => {
                         [SubLayerId.MainstemsSmall]: true,
                         [SubLayerId.MainstemsMedium]: true,
                         [SubLayerId.MainstemsLarge]: true,
-                        [LayerId.MajorRivers]: true,
+                        [LayerId.MajorRivers]: false,
                     })
                 );
 

@@ -2,8 +2,8 @@ import React from 'react';
 import CloseButton from '@/app/components/common/CloseButton';
 
 type Props = {
-    children: React.ReactNode;
     handleClose?: () => void;
+    children: React.ReactNode;
     className?: string;
 };
 
@@ -16,7 +16,8 @@ const Card: React.FC<Props> = (props) => {
                 {handleClose && (
                     <span className="absolute top-2 right-2">
                         <CloseButton
-                            handleClick={handleClose}
+                            title="Close Card"
+                            onClick={handleClose}
                             className="text-gray-500 hover:text-gray-700 "
                         />
                     </span>

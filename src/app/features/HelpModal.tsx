@@ -47,7 +47,12 @@ export const HelpModal: React.FC = () => {
             handleClose={handleHelpClose}
             action={
                 <div className="w-full flex justify-between items-center ml-2">
-                    <Button onClick={handleHelpClose}>Continue</Button>
+                    <Button
+                        title="Continue to application"
+                        onClick={handleHelpClose}
+                    >
+                        Continue
+                    </Button>
                     <span className="flex w-1/2 justify-center items-center">
                         <input
                             type="checkbox"

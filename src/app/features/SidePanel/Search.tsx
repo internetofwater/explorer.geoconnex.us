@@ -17,6 +17,7 @@ import { defaultGeoJson } from '@/lib/state/consts';
 import { Dataset, MainstemData } from '@/app/types';
 import { Linear } from '@/app/assets/Linear';
 import { Summary } from '@/app/features/SidePanel/Summary';
+import { Typography } from '@/app/components/common/Typography';
 
 const SearchComponent: React.FC = () => {
     const [query, setQuery] = useState('');
@@ -122,27 +123,34 @@ const SearchComponent: React.FC = () => {
     return (
         <>
             <div className="bg-white flex flex-col justify-center m-1 pb-1 text-black border border-gray-500 rounded-lg shadow-lg">
+                <label htmlFor="search-input" className="sr-only">
+                    Search for Names at Outlet or URIs
+                </label>
                 <input
                     type="text"
+                    id="search-input"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search for Names at Outlet or URIs"
-                    className="border p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12 focus:outline-none focus:ring-2 focus:ring-[#4798e6] shadow-lg"
+                    aria-label="Search for Names at Outlet or URIs"
+                    className="border p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12 shadow-lg"
                 />
                 <div
-                    className="h-30% max-h-[29vh] overflow-auto p-2.5 w-[100%] "
+                    className="h-30% max-h-[29svh] overflow-auto p-2.5 w-[100%]"
                     onMouseLeave={() => {
                         dispatch(setHoverId(null));
                         debouncedGetDatasets.cancel();
                     }}
+                    aria-live="polite"
                 >
-                    <ul>
+                    <ul aria-label="Search results">
                         {results.map((result, index) => {
                             const id = Number(result.id);
 
                             return (
                                 <li
                                     key={index}
+                                    tabIndex={0}
                                     className="p-2 border-b truncate cursor-pointer hover:bg-gray-100"
                                     onClick={() => handleClick(id)}
                                     onMouseOver={() => {
@@ -152,10 +160,31 @@ const SearchComponent: React.FC = () => {
                                     onMouseLeave={() => {
                                         debouncedGetDatasets.cancel();
                                     }}
+                                    onFocus={() => {
+                                        dispatch(setHoverId(id));
+                                        debouncedGetDatasets(id);
+                                    }}
+                                    onBlur={() => {
+                                        debouncedGetDatasets.cancel();
+                                    }}
                                     title={`${result.name_at_outlet} - ${result.uri}`}
+                                    role="option"
+                                    aria-selected={
+                                        summary !== null && summary.id === id
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (
+                                            e.key === 'Enter' ||
+                                            e.key === ' '
+                                        ) {
+                                            handleClick(id);
+                                        }
+                                    }}
                                 >
-                                    <strong>{result.name_at_outlet}</strong> -{' '}
-                                    {result.uri}
+                                    <Typography variant="body">
+                                        <strong>{result.name_at_outlet}</strong>{' '}
+                                        - {result.uri}
+                                    </Typography>
                                     {summary !== null && summary.id === id && (
                                         <span className="mt-2">
                                             <Summary

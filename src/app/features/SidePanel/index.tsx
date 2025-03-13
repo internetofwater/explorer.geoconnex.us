@@ -7,7 +7,7 @@ import { CSVDownload } from '@/app/features/SidePanel/CSVDownload';
 import Collapsible from '@/app/components/common/Collapsible';
 import CloseButton from '@/app/components/common/CloseButton';
 import { Summary } from '@/app/features/SidePanel//Summary';
-import { HelpIcon } from '@/app/assets/icons/HelpIcon';
+import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 
 export const SidePanel: React.FC = () => {
@@ -35,7 +35,7 @@ export const SidePanel: React.FC = () => {
                             className="mr-2 text-black block lg:hidden"
                         >
                             <CloseButton
-                                handleClick={() =>
+                                onClick={() =>
                                     dispatch(setShowSidePanel(false))
                                 }
                                 className="text-gray-900 hover:text-gray-700 text-md"
@@ -43,6 +43,7 @@ export const SidePanel: React.FC = () => {
                             />
                         </div>
                         <button
+                            title="Show Help Modal"
                             onClick={handleHelpClick}
                             className="w-8 mr-2 text-gray-900 hover:text-gray-700 text-lg"
                         >
@@ -52,6 +53,8 @@ export const SidePanel: React.FC = () => {
                 </div>
                 <div className="flex w-[60%] mt-2">
                     <button
+                        title="Map Tab"
+                        aria-label="Tab to show map"
                         onClick={() => dispatch(setView('map'))}
                         className={`${
                             view === 'map'
@@ -67,6 +70,8 @@ export const SidePanel: React.FC = () => {
                         Map
                     </button>
                     <button
+                        title="Table Tab"
+                        aria-label="Tab to show table"
                         onClick={() => dispatch(setView('table'))}
                         disabled={datasets.features.length === 0}
                         className={`${
