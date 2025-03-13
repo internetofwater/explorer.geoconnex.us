@@ -97,7 +97,7 @@ export const sourceConfigs: SourceConfig[] = [
         definition: {
             type: 'vector',
             tiles: [
-                `https://reference.geoconnex.us/collections/mainstems/tiles/WebMercatorQuad/{z}/{x}/{y}?f=mvt`,
+                `https://reference-geoconnex-us-414886575015.us-central1.run.app/collections/mainstems/tiles/WebMercatorQuad/{z}/{x}/{y}?f=mvt`,
             ],
             minzoom: 0,
 
@@ -123,7 +123,7 @@ export const sourceConfigs: SourceConfig[] = [
         definition: {
             type: 'vector',
             tiles: [
-                `https://reference.geoconnex.us/collections/hu02/tiles/WebMercatorQuad/{z}/{x}/{y}?f=mvt`,
+                `https://reference-geoconnex-us-414886575015.us-central1.run.app//collections/hu02/tiles/WebMercatorQuad/{z}/{x}/{y}?f=mvt`,
             ],
             minzoom: 0,
 
