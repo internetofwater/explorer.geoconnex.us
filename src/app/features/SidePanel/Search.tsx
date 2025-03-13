@@ -162,7 +162,7 @@ const SearchComponent: React.FC = () => {
                                     }}
                                     onFocus={() => {
                                         dispatch(setHoverId(id));
-                                        debouncedGetDatasets(id);
+                                        debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                                     }}
                                     onBlur={() => {
                                         debouncedGetDatasets.cancel();
