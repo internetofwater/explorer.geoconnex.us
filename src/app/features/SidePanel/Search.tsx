@@ -24,13 +24,19 @@ import { Linear } from '@/app/assets/Linear';
 import { Summary } from '@/app/features/SidePanel/Summary';
 import { Typography } from '@/app/components/common/Typography';
 
-const SearchComponent: React.FC = () => {
+type Props = {
+    setLoading: (loading: boolean) => void;
+    setResults: (results: MainstemData[]) => void;
+};
+
+const SearchComponent: React.FC<Props> = (props) => {
+    const { setLoading, setResults } = props;
+
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState<MainstemData[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [summary, setSummary] = useState<SummaryObject | null>(null);
 
     const dispatch: AppDispatch = useDispatch();
+
+    const controller = new AbortController();
 
     const search = async (query: string) => {
         const _query = query.toLowerCase();
@@ -39,7 +45,8 @@ const SearchComponent: React.FC = () => {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`
+                    `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
+                    { signal: controller.signal }
                 );
                 const data: FeatureCollection<Geometry, MainstemData> =
                     await response.json();
@@ -58,7 +65,6 @@ const SearchComponent: React.FC = () => {
             }
         } else {
             setResults([]);
-            setSummary(null);
             dispatch(
                 setDatasets(
                     defaultGeoJson as FeatureCollection<Geometry, Dataset>
@@ -67,45 +73,15 @@ const SearchComponent: React.FC = () => {
         }
     };
 
-    const getDatasets = async (id: number) => {
-        if (summary && summary.id === id) {
-            return;
-        }
-
-        try {
-            setLoading(true);
-
-            const response = await fetch(
-                `https://reference.geoconnex.us/collections/mainstems/items/${id}`
-            );
-            const feature: Feature<
-                Geometry,
-                GeoJsonProperties & { datasets: Dataset[] }
-            > = await response.json();
-
-            const summary = createSummary(id, feature);
-            setSummary(summary);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching datasets: ', error);
-            setLoading(false);
-        }
-    };
-
     const debouncedSearch = useCallback(
         debounce(async (query: string) => search(query), 800),
         []
     );
 
-    const debouncedGetDatasets = useCallback(
-        debounce((id: number) => getDatasets(id), 300),
-        [summary]
-    );
-
     useEffect(() => {
-        return function cleanup() {
+        return () => {
             debouncedSearch.cancel();
-            debouncedGetDatasets.cancel();
+            controller.abort();
         };
     }, []);
 
@@ -113,96 +89,20 @@ const SearchComponent: React.FC = () => {
         debouncedSearch(query);
     }, [query]);
 
-    useEffect(() => {
-        const ids = results.map((result) => result.id);
-        dispatch(setSearchResultIds(ids));
-    }, [results]);
-
-    const handleClick = async (id: number) => {
-        dispatch(fetchDatasets(id));
-        dispatch(setSelectedMainstemId(String(id)));
-    };
-
     return (
         <>
-            <div className="bg-white flex flex-col justify-center m-1 pb-1 text-black border border-gray-500 rounded-lg shadow-lg">
-                <label htmlFor="search-input" className="sr-only">
-                    Search for Names at Outlet or URIs
-                </label>
-                <input
-                    type="text"
-                    id="search-input"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search for Names at Outlet or URIs"
-                    aria-label="Search for Names at Outlet or URIs"
-                    className="border p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12 shadow-lg"
-                />
-                <div
-                    className="h-30% max-h-[29svh] overflow-auto p-2.5 w-[100%]"
-                    onMouseLeave={() => {
-                        dispatch(setHoverId(null));
-                        debouncedGetDatasets.cancel();
-                    }}
-                    aria-live="polite"
-                >
-                    <ul aria-label="Search results">
-                        {results.map((result, index) => {
-                            const id = Number(result.id);
-
-                            return (
-                                <li
-                                    key={index}
-                                    tabIndex={0}
-                                    className="p-2 border-b truncate cursor-pointer hover:bg-gray-100"
-                                    onClick={() => handleClick(id)}
-                                    onMouseOver={() => {
-                                        dispatch(setHoverId(id));
-                                        debouncedGetDatasets(id);
-                                    }}
-                                    onMouseLeave={() => {
-                                        debouncedGetDatasets.cancel();
-                                    }}
-                                    onFocus={() => {
-                                        dispatch(setHoverId(id));
-                                        debouncedGetDatasets(id);
-                                    }}
-                                    onBlur={() => {
-                                        debouncedGetDatasets.cancel();
-                                    }}
-                                    title={`${result.name_at_outlet} - ${result.uri}`}
-                                    role="option"
-                                    aria-selected={
-                                        summary !== null && summary.id === id
-                                    }
-                                    onKeyDown={(e) => {
-                                        if (
-                                            e.key === 'Enter' ||
-                                            e.key === ' '
-                                        ) {
-                                            handleClick(id);
-                                        }
-                                    }}
-                                >
-                                    <Typography variant="body">
-                                        <strong>{result.name_at_outlet}</strong>{' '}
-                                        - {result.uri}
-                                    </Typography>
-                                    {summary !== null && summary.id === id && (
-                                        <span className="mt-2">
-                                            <Summary
-                                                summary={summary}
-                                                exclusions={{ name: true }}
-                                            />
-                                        </span>
-                                    )}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </div>
-            </div>
-            {loading ? <Linear /> : <div className="h-2" />}
+            <label htmlFor="search-input" className="sr-only">
+                Search for Names at Outlet or URIs
+            </label>
+            <input
+                type="text"
+                id="search-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search for Names at Outlet or URIs"
+                aria-label="Search for Names at Outlet or URIs"
+                className="border border-gray-500 p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12"
+            />
         </>
     );
 };

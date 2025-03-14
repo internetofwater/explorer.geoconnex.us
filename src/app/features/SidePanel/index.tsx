@@ -1,6 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
-import { setShowHelp, setShowSidePanel, setView } from '@/lib/state/main/slice';
+import {
+    setSearchResultIds,
+    setShowHelp,
+    setShowSidePanel,
+    setView,
+} from '@/lib/state/main/slice';
 import Search from '@/app/features/SidePanel/Search';
 import { Filters } from '@/app/features/SidePanel/Filters';
 import { CSVDownload } from '@/app/features/SidePanel/CSVDownload';
@@ -9,13 +14,25 @@ import CloseButton from '@/app/components/common/CloseButton';
 import { Summary } from '@/app/features/SidePanel//Summary';
 import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
+import { useEffect, useState } from 'react';
+import { Linear } from '@/app/assets/Linear';
+import { Results } from './Results';
+import { MainstemData } from '@/app/types';
 
 export const SidePanel: React.FC = () => {
+    const [results, setResults] = useState<MainstemData[]>([]);
+    const [loading, setLoading] = useState(false);
+
     const { datasets, view, selectedSummary } = useSelector(
         (state: RootState) => state.main
     );
 
     const dispatch: AppDispatch = useDispatch();
+
+    useEffect(() => {
+        const ids = results.map((result) => result.id);
+        dispatch(setSearchResultIds(ids));
+    }, [results]);
 
     const handleHelpClick = () => {
         dispatch(setShowHelp(true));
@@ -27,7 +44,9 @@ export const SidePanel: React.FC = () => {
                 <div className="flex justify-between" id="attribution">
                     {/* Mock-height to account for logo */}
                     <div className="ml-4 flex items-center h-16">
-                        <Typography variant="h4">Application Name</Typography>
+                        <Typography variant="h4" as="h1">
+                            Application Name
+                        </Typography>
                     </div>
                     <div className="flex flex-col justify-center">
                         <div
@@ -90,22 +109,31 @@ export const SidePanel: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <div className="w-full py-3 px-2 bg-white flex flex-col justify-center text-black ">
+                <Search setLoading={setLoading} setResults={setResults} />
+                {loading ? <Linear /> : <div className="h-2" />}
+            </div>
+
             <div id="scrollable-side-panel" className="overflow-y-auto">
-                <Collapsible title="Search">
-                    <Search />
-                </Collapsible>
+                {results.length > 0 && (
+                    <Collapsible title="Mainstems" open={true}>
+                        <Results results={results} setLoading={setLoading} />
+                    </Collapsible>
+                )}
                 {selectedSummary && (
                     <Collapsible title="Summary" open={true}>
-                        <div className="pb-2">
+                        <div className="px-4 pb-2">
                             <Summary summary={selectedSummary} />
                         </div>
                     </Collapsible>
                 )}
                 {datasets.features.length > 0 && (
                     <Collapsible title="Filters">
-                        <Filters />
-                        <div className="mt-5 mb-2">
-                            <CSVDownload />
+                        <div className="px-4">
+                            <Filters />
+                            <div className="mt-5 mb-2">
+                                <CSVDownload />
+                            </div>
                         </div>
                     </Collapsible>
                 )}
