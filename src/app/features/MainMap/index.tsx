@@ -218,39 +218,45 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         map.on('click', LayerId.SpiderifyPoints, (e) => {
-            const feature = e.features?.[0];
-            if (feature && feature.properties) {
-                if (persistentPopup.isOpen()) {
-                    persistentPopup.remove();
+            const zoom = map.getZoom();
+            if (zoom > CLUSTER_TRANSITION_ZOOM) {
+                const feature = e.features?.[0];
+                if (feature && feature.properties) {
+                    if (persistentPopup.isOpen()) {
+                        persistentPopup.remove();
+                    }
+                    hoverPopup.remove();
+                    const itemId = feature.properties.distributionURL;
+                    const latLng = extractLatLng(feature.properties.wkt);
+                    const html = `<span style="color: black;" data-observationId="${itemId}"> 
+                    <h6 style="font-weight:bold;">${
+                        feature.properties.siteName
+                    }</h6>
+                    <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${
+                        feature.properties.type
+                    }</p></div>
+                    <div style="display:flex;"><strong>Variable:</strong>&nbsp;<p>${
+                        feature.properties.variableMeasured.split(' / ')?.[0]
+                    }</p></div>
+                    <div style="display:flex;"><strong>Unit:</strong>&nbsp;<p>${
+                        feature.properties.variableUnit
+                    }</p></div>
+                    <div style="display:flex;"><strong>Latitude:</strong>&nbsp;<p>${
+                        latLng.lat
+                    }</p></div>
+                    <div style="display:flex;"><strong>Longitude:</strong>&nbsp;<p>${
+                        latLng.lng
+                    }</p></div>
+                    <a href="${
+                        feature.properties.url
+                    }" target="_blank" style="margin:0 auto;">More Info</a>
+                  </span>`;
+                    persistentPopup
+                        .setLngLat(e.lngLat)
+                        .setHTML(html)
+                        .addTo(map);
+                    dispatch(setSelectedData(feature.properties as Dataset));
                 }
-                hoverPopup.remove();
-                const itemId = feature.properties.distributionURL;
-                const latLng = extractLatLng(feature.properties.wkt);
-                const html = `<span style="color: black;" data-observationId="${itemId}"> 
-                <h6 style="font-weight:bold;">${
-                    feature.properties.siteName
-                }</h6>
-                <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${
-                    feature.properties.type
-                }</p></div>
-                <div style="display:flex;"><strong>Variable:</strong>&nbsp;<p>${
-                    feature.properties.variableMeasured.split(' / ')?.[0]
-                }</p></div>
-                <div style="display:flex;"><strong>Unit:</strong>&nbsp;<p>${
-                    feature.properties.variableUnit
-                }</p></div>
-                <div style="display:flex;"><strong>Latitude:</strong>&nbsp;<p>${
-                    latLng.lat
-                }</p></div>
-                <div style="display:flex;"><strong>Longitude:</strong>&nbsp;<p>${
-                    latLng.lng
-                }</p></div>
-                <a href="${
-                    feature.properties.url
-                }" target="_blank" style="margin:0 auto;">More Info</a>
-              </span>`;
-                persistentPopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-                dispatch(setSelectedData(feature.properties as Dataset));
             }
         });
 
