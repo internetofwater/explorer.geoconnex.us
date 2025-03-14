@@ -37,7 +37,7 @@ export const MapTools: React.FC = () => {
         if (isPrimary) {
             const layerId = name as LayerId;
             const layerDef = layerDefinitions.find(
-                (layerDef) => layerDef.id === layerId
+                (layerDef) => (layerDef.id as LayerId) === layerId
             );
             dispatch(setLayerVisibility({ [layerId]: checked }));
             if (layerDef?.subLayers?.length) {

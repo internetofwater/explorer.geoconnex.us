@@ -90,19 +90,18 @@ export const spiderfyClusters = async (
     map: Map,
     source: GeoJSONSource,
     features: GeoJSONFeature[]
-) => {
-    if (!map) return;
+): Promise<void> => {
     const totalLeaves: GeoJSON.GeoJSON = {
         type: 'FeatureCollection',
         features: [],
     };
 
     const promises = features.map((feature) => {
-        return new Promise((resolve, reject) => {
+        return new Promise<Feature<Point>[] | null>((resolve, reject) => {
             if (!feature.properties) {
                 return resolve(null);
             }
-            const clusterId = feature.properties.cluster_id;
+            const clusterId = feature.properties.cluster_id as number;
             const coordinates = (feature.geometry as Point).coordinates as [
                 number,
                 number
@@ -134,19 +133,20 @@ export const spiderfyClusters = async (
                                   );
 
                         const updatedFeatures = _features.map(
-                            (feature, index) => ({
-                                ...feature,
-                                properties: {
-                                    ...feature.properties,
-                                    iconOffset: spiderfiedPositions[index],
-                                    isNotFiltered: 1,
-                                },
-                                geometry: {
-                                    ...feature.geometry,
-                                    type: 'Point',
-                                    coordinates: [lngLat.lng, lngLat.lat],
-                                },
-                            })
+                            (feature, index) =>
+                                ({
+                                    ...feature,
+                                    properties: {
+                                        ...feature.properties,
+                                        iconOffset: spiderfiedPositions[index],
+                                        isNotFiltered: 1,
+                                    },
+                                    geometry: {
+                                        ...feature.geometry,
+                                        type: 'Point',
+                                        coordinates: [lngLat.lng, lngLat.lat],
+                                    },
+                                } as Feature<Point>)
                         );
 
                         return resolve(updatedFeatures);
@@ -161,9 +161,7 @@ export const spiderfyClusters = async (
         const results = await Promise.all(promises);
         results.forEach((result) => {
             if (result) {
-                totalLeaves.features = totalLeaves.features.concat(
-                    result as Feature[]
-                );
+                totalLeaves.features = totalLeaves.features.concat(result);
             }
         });
         const spiderfySource = map.getSource(

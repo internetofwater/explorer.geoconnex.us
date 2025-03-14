@@ -12,7 +12,10 @@ export const convertGeoJSONToCSV = (
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datasets');
 
-    const csvData = XLSX.write(workbook, { bookType: 'csv', type: 'array' });
+    const csvData = XLSX.write(workbook, {
+        bookType: 'csv',
+        type: 'array',
+    }) as BlobPart;
     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
 
     // Create a link element

@@ -39,7 +39,7 @@ import {
 } from '@/lib/state/main/slice';
 import { spiderfyClusters } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { FeatureCollection, Geometry } from 'geojson';
+import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -95,8 +95,10 @@ export const MainMap: React.FC<Props> = (props) => {
                     layers: [SubLayerId.AssociatedDataClusters],
                 });
                 // Get unique ids
-                const uniqueIds = new Set(
-                    features.map((feature) => feature.properties!.cluster_id)
+                const uniqueIds = new Set<number>(
+                    features.map(
+                        (feature) => feature.properties!.cluster_id as number
+                    )
                 );
                 // Sort and convert to string
                 const clusterIds = Array.from(uniqueIds).sort().join();
@@ -110,7 +112,15 @@ export const MainMap: React.FC<Props> = (props) => {
                         SourceId.AssociatedData
                     ) as GeoJSONSource;
 
-                    spiderfyClusters(map, source, features);
+                    spiderfyClusters(map, source, features).catch(
+                        (error: ErrorEvent) =>
+                            console.error(
+                                'Unable to spiderify clusters: ',
+                                clusterIds,
+                                ', Error: ',
+                                error
+                            )
+                    );
                 }
             }
         };
@@ -152,10 +162,10 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        const id = feature.properties.id;
+                        const id = feature.properties.id as string;
 
                         dispatch(setSelectedMainstemId(id));
-                        dispatch(fetchDatasets(id));
+                        dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
                     }
                 }
             }
@@ -218,7 +228,9 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         map.on('click', LayerId.SpiderifyPoints, (e) => {
-            const feature = e.features?.[0];
+            const feature = e.features?.[0] as
+                | Feature<Point, Dataset>
+                | undefined;
             if (feature && feature.properties) {
                 if (persistentPopup.isOpen()) {
                     persistentPopup.remove();
@@ -250,7 +262,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 }" target="_blank" style="margin:0 auto;">More Info</a>
               </span>`;
                 persistentPopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-                dispatch(setSelectedData(feature.properties as Dataset));
+                dispatch(setSelectedData(feature.properties));
             }
         });
 

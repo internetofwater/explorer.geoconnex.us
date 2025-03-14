@@ -5,14 +5,9 @@ import {
     getMainstemBuffer,
     transformDatasets,
 } from '@/lib/state/utils';
-import {
-    Feature,
-    FeatureCollection,
-    GeoJsonProperties,
-    Geometry,
-} from 'geojson';
+import { Feature, FeatureCollection, Geometry } from 'geojson';
 import { LayerId, SubLayerId } from '@/app/features/MainMap/config';
-import { Dataset } from '@/app/types';
+import { Dataset, MainstemData } from '@/app/types';
 import { LngLatBoundsLike } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
@@ -98,27 +93,30 @@ const initialState: InitialState = {
 };
 
 // Good candidate for caching
-export const fetchDatasets = createAsyncThunk(
-    'main/fetchDatasets',
-    async (id: number) => {
-        const response = await fetch(
-            `https://reference.geoconnex.us/collections/mainstems/items/${id}`
-        );
-        const data = await response.json();
-        return data;
-    }
-);
+export const fetchDatasets = createAsyncThunk<
+    Feature<Geometry, MainstemData & { datasets: Dataset[] }>,
+    string
+>('main/fetchDatasets', async (id: string) => {
+    const response = await fetch(
+        `https://reference.geoconnex.us/collections/mainstems/items/${id}`
+    );
+    const data = (await response.json()) as Feature<
+        Geometry,
+        MainstemData & { datasets: Dataset[] }
+    >;
+    return data;
+});
 
-export const searchMainstemsCQL = createAsyncThunk(
-    'main/fetchDatasets',
-    async (query: string) => {
-        const response = await fetch(
-            `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json`
-        );
-        const data = await response.json();
-        return data;
-    }
-);
+// export const searchMainstemsCQL = createAsyncThunk(
+//     'main/fetchDatasets',
+//     async (query: string) => {
+//         const response = await fetch(
+//             `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json`
+//         );
+//         const data = await response.json();
+//         return data;
+//     }
+// );
 
 export const mainSlice = createSlice({
     name: 'main',
@@ -189,7 +187,7 @@ export const mainSlice = createSlice({
 
             // Apply filter automatically to the main datasets obj
             const features = state.datasets.features.filter((feature) => {
-                const { type, variableMeasured, temporalCoverage } =
+                const { variableMeasured, temporalCoverage } =
                     feature.properties;
                 const [startTemporal, endTemporal] =
                     temporalCoverage.split('/');
@@ -257,56 +255,38 @@ export const mainSlice = createSlice({
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(
-                fetchDatasets.fulfilled,
-                (
-                    state,
-                    action: PayloadAction<
-                        Feature<
-                            Geometry,
-                            GeoJsonProperties & { datasets: Dataset[] }
-                        >
-                    >
-                ) => {
-                    state.status = 'succeeded';
-                    if (action.payload) {
-                        // Create a summary for this mainstem
-                        const id = action.payload.id;
-                        const summary = createSummary(
-                            Number(id),
-                            action.payload
-                        );
-                        state.selectedSummary = summary;
+            .addCase(fetchDatasets.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                if (action.payload) {
+                    // Create a summary for this mainstem
+                    const id = action.payload.id;
+                    const summary = createSummary(Number(id), action.payload);
+                    state.selectedSummary = summary;
 
-                        // Get an appropriate buffer size based on drainage area
-                        const buffer = getMainstemBuffer(action.payload);
-                        // Simplify the line to reduce work getting bounds
-                        const simplifiedLine = turf.simplify(action.payload, {
-                            tolerance: 0.25,
-                        });
-                        // Buffer line to better fit feature to screen
-                        const bufferedLine = turf.buffer(
-                            simplifiedLine,
-                            buffer,
-                            {
-                                units: 'kilometers',
-                            }
-                        );
-                        if (bufferedLine) {
-                            const bbox = turf.bbox(
-                                bufferedLine
-                            ) as LngLatBoundsLike;
+                    // Get an appropriate buffer size based on drainage area
+                    const buffer = getMainstemBuffer(action.payload);
+                    // Simplify the line to reduce work getting bounds
+                    const simplifiedLine = turf.simplify(action.payload, {
+                        tolerance: 0.25,
+                    });
+                    // Buffer line to better fit feature to screen
+                    const bufferedLine = turf.buffer(simplifiedLine, buffer, {
+                        units: 'kilometers',
+                    });
+                    if (bufferedLine) {
+                        const bbox = turf.bbox(
+                            bufferedLine
+                        ) as LngLatBoundsLike;
 
-                            state.selectedMainstemBBOX = bbox;
-                        }
-                        // Transform datasets into a new feature collection
-                        const datasets = transformDatasets(action.payload);
-                        state.datasets = datasets;
-                        state.filteredDatasets = datasets;
+                        state.selectedMainstemBBOX = bbox;
                     }
-                    return;
+                    // Transform datasets into a new feature collection
+                    const datasets = transformDatasets(action.payload);
+                    state.datasets = datasets;
+                    state.filteredDatasets = datasets;
                 }
-            )
+                return;
+            })
             .addCase(fetchDatasets.rejected, (state, action) => {
                 state.status = 'failed';
                 console.log('Error: ', action);

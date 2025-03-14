@@ -2,7 +2,7 @@ import {
     MAINSTEM_DRAINAGE_MEDIUM,
     MAINSTEM_DRAINAGE_SMALL,
 } from '@/app/features/MainMap/config';
-import { Dataset } from '@/app/types';
+import { Dataset, MainstemData } from '@/app/types';
 import {
     Feature,
     FeatureCollection,
@@ -58,7 +58,7 @@ export const extractLatLng = (wkt: string) => {
 };
 
 export const getMainstemBuffer = (
-    feature: Feature<Geometry, GeoJsonProperties & { datasets: Dataset[] }>
+    feature: Feature<Geometry, MainstemData & { datasets: Dataset[] }>
 ): number => {
     if (feature.properties) {
         const drainageArea = feature.properties.outlet_drainagearea_sqkm;
@@ -75,10 +75,10 @@ export const getMainstemBuffer = (
 
 export const createSummary = (
     id: number,
-    feature: Feature<Geometry, GeoJsonProperties & { datasets: Dataset[] }>
+    feature: Feature<Geometry, MainstemData & { datasets: Dataset[] }>
 ): Summary => {
     const datasets = feature.properties.datasets;
-    const length: number = feature.properties.lengthkm;
+    const length = feature.properties.lengthkm;
     const name = feature.properties.name_at_outlet;
     if (datasets && datasets.length) {
         const total = datasets.length;

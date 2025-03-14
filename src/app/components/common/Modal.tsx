@@ -1,6 +1,5 @@
 import CloseButton from '@/app/components/common/CloseButton';
 import { Typography } from '@/app/components/common/Typography';
-import { useLayoutEffect, useRef } from 'react';
 
 type Props = {
     open: boolean;
