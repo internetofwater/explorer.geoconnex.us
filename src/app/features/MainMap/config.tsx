@@ -564,7 +564,7 @@ export const getLayerHoverFunction = (
                 return (e) => {
                     map.getCanvas().style.cursor = 'pointer';
                     const feature = e.features?.[0] as
-                        | Feature<Point, Dataset & { iconOffset: 'string' }>
+                        | Feature<Point, Dataset & { iconOffset: string }>
                         | undefined;
                     if (feature && feature.properties) {
                         const itemId: string =
@@ -704,7 +704,7 @@ export const getLayerMouseMoveFunction = (
                 return (e) => {
                     map.getCanvas().style.cursor = 'pointer';
                     const feature = e.features?.[0] as
-                        | Feature<Point, Dataset & { iconOffset: 'string' }>
+                        | Feature<Point, Dataset & { iconOffset: string }>
                         | undefined;
                     if (feature && feature.properties) {
                         const itemId = feature.properties.distributionURL;
