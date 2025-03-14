@@ -39,7 +39,7 @@ const SearchComponent: React.FC = () => {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://reference-geoconnex-us-414886575015.us-central1.run.app/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`
+                    `https://reference.geoconnex.dev/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`
                 );
                 const data: FeatureCollection<Geometry, MainstemData> =
                     await response.json();
@@ -76,7 +76,7 @@ const SearchComponent: React.FC = () => {
             setLoading(true);
 
             const response = await fetch(
-                `https://reference-geoconnex-us-414886575015.us-central1.run.app/collections/mainstems/items/${id}`
+                `https://reference.geoconnex.dev/collections/mainstems/items/${id}`
             );
             const feature: Feature<
                 Geometry,
