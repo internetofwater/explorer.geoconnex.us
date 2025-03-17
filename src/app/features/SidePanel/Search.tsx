@@ -2,27 +2,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import debounce from 'lodash.debounce';
-import {
-    Feature,
-    FeatureCollection,
-    GeoJsonProperties,
-    Geometry,
-} from 'geojson';
+import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
-import {
-    fetchDatasets,
-    setDatasets,
-    setHoverId,
-    setSearchResultIds,
-    setSelectedMainstemId,
-    Summary as SummaryObject,
-} from '@/lib/state/main/slice';
-import { createSummary } from '@/lib/state/utils';
+import { setDatasets } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { Dataset, MainstemData } from '@/app/types';
-import { Linear } from '@/app/assets/Linear';
-import { Summary } from '@/app/features/SidePanel/Summary';
-import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     setLoading: (loading: boolean) => void;
@@ -48,8 +32,10 @@ const SearchComponent: React.FC<Props> = (props) => {
                     `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
                     { signal: controller.signal }
                 );
-                const data: FeatureCollection<Geometry, MainstemData> =
-                    await response.json();
+                const data = (await response.json()) as FeatureCollection<
+                    Geometry,
+                    MainstemData
+                >;
                 const searchResults: MainstemData[] = data.features.map(
                     (feature) =>
                         ({
@@ -86,7 +72,7 @@ const SearchComponent: React.FC<Props> = (props) => {
     }, []);
 
     useEffect(() => {
-        debouncedSearch(query);
+        debouncedSearch(query); // eslint-disable-line @typescript-eslint/no-floating-promises
     }, [query]);
 
     return (
