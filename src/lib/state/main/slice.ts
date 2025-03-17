@@ -107,16 +107,6 @@ export const fetchDatasets = createAsyncThunk<
     return data;
 });
 
-// export const searchMainstemsCQL = createAsyncThunk(
-//     'main/fetchDatasets',
-//     async (query: string) => {
-//         const response = await fetch(
-//             `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json`
-//         );
-//         const data = await response.json();
-//         return data;
-//     }
-// );
 
 export const mainSlice = createSlice({
     name: 'main',
