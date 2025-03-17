@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 type Props = {
     title: string;
     open?: boolean;
-    noPadding?: boolean;
     children: React.ReactNode;
 };
 
 const Collapsible: React.FC<Props> = (props) => {
-    const { title, open = false, noPadding } = props;
+    const { title, open = false } = props;
 
     const [isOpen, setIsOpen] = useState(open);
 

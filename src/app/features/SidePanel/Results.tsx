@@ -40,10 +40,10 @@ export const Results: React.FC<Props> = (props) => {
                 `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
                 { signal: controller.signal }
             );
-            const feature: Feature<
+            const feature = (await response.json()) as Feature<
                 Geometry,
                 MainstemData & { datasets: Dataset[] }
-            > = await response.json();
+            >;
 
             const summary = createSummary(id, feature);
             setSummary(summary);
@@ -66,8 +66,8 @@ export const Results: React.FC<Props> = (props) => {
         };
     }, []);
 
-    const handleClick = async (id: number) => {
-        dispatch(fetchDatasets(id));
+    const handleClick = (id: number) => {
+        dispatch(fetchDatasets(String(id))); // eslint-disable-line @typescript-eslint/no-floating-promises
         dispatch(setSelectedMainstemId(String(id)));
     };
 
@@ -92,7 +92,7 @@ export const Results: React.FC<Props> = (props) => {
                             onClick={() => handleClick(id)}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));
-                                debouncedGetDatasets(id);
+                                debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                             }}
                             onMouseLeave={() => {
                                 debouncedGetDatasets.cancel();
@@ -100,7 +100,7 @@ export const Results: React.FC<Props> = (props) => {
                             }}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
-                                debouncedGetDatasets(id);
+                                debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                             }}
                             onBlur={() => {
                                 debouncedGetDatasets.cancel();
