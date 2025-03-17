@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 import debounce from 'lodash.debounce';
@@ -13,14 +13,15 @@ type Props = {
     setResults: (results: MainstemData[]) => void;
 };
 
-const SearchComponent: React.FC<Props> = (props) => {
+const Search: React.FC<Props> = (props) => {
     const { setLoading, setResults } = props;
 
     const [query, setQuery] = useState('');
 
     const dispatch: AppDispatch = useDispatch();
 
-    const controller = new AbortController();
+    const controller = useRef<AbortController>(null);
+    const isMounted = useRef(true);
 
     const search = async (query: string) => {
         const _query = query.toLowerCase();
@@ -28,9 +29,17 @@ const SearchComponent: React.FC<Props> = (props) => {
         if (_query) {
             try {
                 setLoading(true);
+
+                if (controller.current) {
+                    controller.current.abort(
+                        `New search request for: ${_query}`
+                    );
+                }
+                controller.current = new AbortController();
+
                 const response = await fetch(
                     `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
-                    { signal: controller.signal }
+                    { signal: controller.current.signal }
                 );
                 const data = (await response.json()) as FeatureCollection<
                     Geometry,
@@ -43,19 +52,34 @@ const SearchComponent: React.FC<Props> = (props) => {
                             id: feature.id,
                         } as MainstemData)
                 );
-                setResults(searchResults);
-                setLoading(false);
+                if (isMounted.current) {
+                    setResults(searchResults);
+                    setLoading(false);
+                }
             } catch (error) {
-                console.error('Error fetching mainstems: ', error);
-                setLoading(false);
+                // Abort signals come in 2 variants
+                if (
+                    (error as Error)?.name === 'AbortError' ||
+                    (typeof error === 'string' &&
+                        error.includes('New search request for:'))
+                ) {
+                    console.log('Fetch request canceled');
+                } else {
+                    console.error('Error fetching mainstems: ', error);
+                    if (isMounted.current) {
+                        setLoading(false);
+                    }
+                }
             }
         } else {
-            setResults([]);
-            dispatch(
-                setDatasets(
-                    defaultGeoJson as FeatureCollection<Geometry, Dataset>
-                )
-            );
+            if (isMounted.current) {
+                setResults([]);
+                dispatch(
+                    setDatasets(
+                        defaultGeoJson as FeatureCollection<Geometry, Dataset>
+                    )
+                );
+            }
         }
     };
 
@@ -66,10 +90,18 @@ const SearchComponent: React.FC<Props> = (props) => {
 
     useEffect(() => {
         return () => {
-            debouncedSearch.cancel();
-            controller.abort();
+            isMounted.current = false;
+            if (controller.current) {
+                controller.current.abort('Component unmount');
+            }
         };
     }, []);
+
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
     useEffect(() => {
         debouncedSearch(query); // eslint-disable-line @typescript-eslint/no-floating-promises
@@ -93,4 +125,4 @@ const SearchComponent: React.FC<Props> = (props) => {
     );
 };
 
-export default SearchComponent;
+export default Search;

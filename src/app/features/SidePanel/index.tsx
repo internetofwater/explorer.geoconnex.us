@@ -115,11 +115,12 @@ export const SidePanel: React.FC = () => {
             </div>
 
             <div id="scrollable-side-panel" className="overflow-y-auto">
-                {results.length > 0 && (
+                {/* Results makes async call, ensure mounting */}
+                <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
                     <Collapsible title="Mainstems" open={true}>
                         <Results results={results} setLoading={setLoading} />
                     </Collapsible>
-                )}
+                </div>
                 {selectedSummary && (
                     <Collapsible title="Summary" open={true}>
                         <div className="px-4 pb-2">

@@ -1,17 +1,17 @@
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
-import { useCallback, useEffect, useState } from 'react';
 import {
     fetchDatasets,
     setHoverId,
     setSelectedMainstemId,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
-import debounce from 'lodash.debounce';
 import { createSummary } from '@/lib/state/utils';
 import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
-import { useDispatch } from 'react-redux';
 import { Summary } from '@/app/features/SidePanel/Summary';
 
 type Props = {
@@ -26,7 +26,8 @@ export const Results: React.FC<Props> = (props) => {
 
     const dispatch: AppDispatch = useDispatch();
 
-    const controller = new AbortController();
+    const controller = useRef<AbortController>(null);
+    const isMounted = useRef(true);
 
     const getDatasets = async (id: number) => {
         if (summary && summary.id === id) {
@@ -36,21 +37,39 @@ export const Results: React.FC<Props> = (props) => {
         try {
             setLoading(true);
 
+            if (controller.current) {
+                controller.current.abort(`New request for id: ${id}`);
+            }
+            controller.current = new AbortController();
+
             const response = await fetch(
                 `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
-                { signal: controller.signal }
+                { signal: controller.current.signal }
             );
             const feature = (await response.json()) as Feature<
                 Geometry,
                 MainstemData & { datasets: Dataset[] }
             >;
 
-            const summary = createSummary(id, feature);
-            setSummary(summary);
-            setLoading(false);
+            if (isMounted.current) {
+                const summary = createSummary(id, feature);
+                setSummary(summary);
+                setLoading(false);
+            }
         } catch (error) {
-            console.error('Error fetching datasets: ', error);
-            setLoading(false);
+            // Abort signals can come in 2 variants
+            if (
+                (error as Error)?.name === 'AbortError' ||
+                (typeof error === 'string' &&
+                    error.includes('New request for id:'))
+            ) {
+                console.log('Fetch request canceled');
+            } else {
+                console.error('Error fetching datasets: ', error);
+                if (isMounted.current) {
+                    setLoading(false);
+                }
+            }
         }
     };
 
@@ -61,23 +80,34 @@ export const Results: React.FC<Props> = (props) => {
 
     useEffect(() => {
         return () => {
+            isMounted.current = false;
             debouncedGetDatasets.cancel();
-            controller.abort();
+            if (controller.current) {
+                controller.current.abort('Component unmount');
+            }
         };
     }, []);
+
+    useEffect(() => {
+        return () => {
+            debouncedGetDatasets.cancel();
+        };
+    }, [debouncedGetDatasets]);
 
     const handleClick = (id: number) => {
         dispatch(fetchDatasets(String(id))); // eslint-disable-line @typescript-eslint/no-floating-promises
         dispatch(setSelectedMainstemId(String(id)));
     };
 
+    const handleMouseLeave = () => {
+        dispatch(setHoverId(null));
+        debouncedGetDatasets.cancel();
+    };
+
     return (
         <div
             className="w-full ml-2"
-            onMouseLeave={() => {
-                dispatch(setHoverId(null));
-                debouncedGetDatasets.cancel();
-            }}
+            onMouseLeave={handleMouseLeave}
             aria-live="polite"
         >
             <ul aria-label="Search results">
@@ -94,10 +124,7 @@ export const Results: React.FC<Props> = (props) => {
                                 dispatch(setHoverId(id));
                                 debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                             }}
-                            onMouseLeave={() => {
-                                debouncedGetDatasets.cancel();
-                                controller.abort();
-                            }}
+                            onMouseLeave={handleMouseLeave}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
                                 debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
