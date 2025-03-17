@@ -2,7 +2,7 @@
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { MainMap } from '@/app/features/MainMap';
 import store, { AppDispatch, RootState } from '@/lib/state/store';
-import { MapProvider, useMap } from '@/app/contexts/MapContexts';
+import { MapProvider } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { SidePanel } from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
@@ -25,8 +25,6 @@ export const App: React.FC<Props> = (props) => {
     );
 
     const dispatch: AppDispatch = useDispatch();
-
-    const { map } = useMap(MAIN_MAP_ID);
 
     useLayoutEffect(() => {
         if (window.innerWidth > 1280) {

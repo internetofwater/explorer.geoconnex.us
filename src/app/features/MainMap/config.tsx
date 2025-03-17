@@ -22,6 +22,7 @@ import {
 } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
+import { Dataset } from '@/app/types';
 
 export const MAP_ID = 'main';
 
@@ -564,11 +565,13 @@ export const getLayerHoverFunction = (
                     const zoom = map.getZoom();
                     if (zoom > CLUSTER_TRANSITION_ZOOM) {
                         map.getCanvas().style.cursor = 'pointer';
+
                         const feature = e.features?.[0] as
-                            | Feature<Point>
+                            | Feature<Point, Dataset & { iconOffset: string }>
                             | undefined;
                         if (feature && feature.properties) {
-                            const itemId = feature.properties.distributionURL;
+                            const itemId: string =
+                                feature.properties.distributionURL;
                             if (
                                 !hasPeristentPopupOpenToThisItem(
                                     persistentPopup,
@@ -580,17 +583,17 @@ export const getLayerHoverFunction = (
                                     feature.properties.variableMeasured.split(
                                         ' / '
                                     )[0];
-                                const offset: [number, number] = JSON.parse(
+                                const offset = JSON.parse(
                                     feature.properties.iconOffset
-                                );
+                                ) as [number, number];
                                 const coordinates = feature.geometry
                                     .coordinates as [number, number];
                                 const html = `<span style="color: black;"> 
-                                    <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                    <div style="display:flex;">
-                                        <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                    </div>
-                                </span>`;
+                                <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
+                                <div style="display:flex;">
+                                    <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
+                                </div>
+                              </span>`;
 
                                 hoverPopup
                                     .setLngLat(coordinates)
@@ -707,7 +710,7 @@ export const getLayerMouseMoveFunction = (
                     if (zoom > CLUSTER_TRANSITION_ZOOM) {
                         map.getCanvas().style.cursor = 'pointer';
                         const feature = e.features?.[0] as
-                            | Feature<Point>
+                            | Feature<Point, Dataset & { iconOffset: string }>
                             | undefined;
                         if (feature && feature.properties) {
                             const itemId = feature.properties.distributionURL;
@@ -722,17 +725,17 @@ export const getLayerMouseMoveFunction = (
                                     feature.properties.variableMeasured.split(
                                         ' / '
                                     )[0];
-                                const offset: [number, number] = JSON.parse(
+                                const offset = JSON.parse(
                                     feature.properties.iconOffset
-                                );
+                                ) as [number, number];
                                 const coordinates = feature.geometry
                                     .coordinates as [number, number];
                                 const html = `<span style="color: black;"> 
-                                                <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                                <div style="display:flex;">
-                                                    <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                            </div>
-                                            </span>`;
+                                            <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
+                                            <div style="display:flex;">
+                                                <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
+                                        </div>
+                                        </span>`;
 
                                 hoverPopup
                                     .setLngLat(coordinates)
@@ -769,7 +772,8 @@ export const getLayerClickFunction = (
 
                     const feature = features?.[0];
                     if (feature && feature.properties) {
-                        const clusterId = feature.properties.cluster_id;
+                        const clusterId = feature.properties
+                            .cluster_id as number;
                         const source = map.getSource(
                             SourceId.AssociatedData
                         ) as GeoJSONSource;
@@ -788,7 +792,14 @@ export const getLayerClickFunction = (
                                     if (zoom > CLUSTER_TRANSITION_ZOOM) {
                                         spiderfyClusters(map, source, [
                                             feature,
-                                        ]);
+                                        ]).catch((error: ErrorEvent) =>
+                                            console.error(
+                                                'Unable to spiderify cluster(s): ',
+                                                clusterId,
+                                                ', Error: ',
+                                                error
+                                            )
+                                        );
                                     }
                                     map.easeTo({
                                         center: coordinates,
