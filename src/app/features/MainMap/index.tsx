@@ -31,6 +31,7 @@ import {
 import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
+    getDatasets,
     reset,
     setLayerVisibility,
     setSelectedData,
@@ -56,12 +57,13 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const {
         searchResultIds,
-        filteredDatasets,
         visibleLayers,
         hoverId,
         selectedMainstemId,
         selectedMainstemBBOX,
     } = useSelector((state: RootState) => state.main);
+
+    const datasets = useSelector(getDatasets);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 
@@ -412,13 +414,13 @@ export const MainMap: React.FC<Props> = (props) => {
     }, [searchResultIds, selectedMainstemId, hoverId]);
 
     useEffect(() => {
-        if (!map || !filteredDatasets) {
+        if (!map || !datasets) {
             return;
         }
 
         const source = map.getSource(SourceId.AssociatedData) as GeoJSONSource;
         if (source) {
-            source.setData(filteredDatasets);
+            source.setData(datasets);
             const spiderfySource = map.getSource(
                 SourceId.Spiderify
             ) as GeoJSONSource;
@@ -436,7 +438,7 @@ export const MainMap: React.FC<Props> = (props) => {
                             ...feature,
                             properties: {
                                 ...feature.properties,
-                                isNotFiltered: filteredDatasets.features.some(
+                                isNotFiltered: datasets.features.some(
                                     (dataSetFeature) =>
                                         dataSetFeature.properties.url ===
                                         feature.properties.url
@@ -451,7 +453,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 spiderfySource.setData(newData);
             }
         }
-    }, [filteredDatasets]);
+    }, [datasets]);
 
     useEffect(() => {
         if (!map) {

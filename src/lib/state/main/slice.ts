@@ -11,6 +11,7 @@ import { Dataset, MainstemData } from '@/app/types';
 import { LngLatBoundsLike } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
+import { RootState } from '@/lib/state/store';
 
 export type Summary = {
     id: number;
@@ -34,7 +35,7 @@ type InitialState = {
     status: string;
     error: string | null;
     datasets: FeatureCollection<Geometry, Dataset>;
-    filteredDatasets: FeatureCollection<Geometry, Dataset>;
+    filteredDatasets: FeatureCollection<Geometry, Dataset> | null;
     view: 'map' | 'table';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
@@ -70,7 +71,7 @@ const initialState: InitialState = {
     status: 'idle', // Additional state to track loading status
     error: null,
     datasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
-    filteredDatasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
+    filteredDatasets: null,
     view: 'map',
     visibleLayers: {
         [LayerId.MajorRivers]: true,
@@ -107,6 +108,8 @@ export const fetchDatasets = createAsyncThunk<
     return data;
 });
 
+export const getDatasets = (state: RootState) =>
+    state.main.filteredDatasets ?? state.main.datasets;
 
 export const mainSlice = createSlice({
     name: 'main',
@@ -135,7 +138,6 @@ export const mainSlice = createSlice({
             action: PayloadAction<InitialState['datasets']>
         ) => {
             state.datasets = action.payload;
-            state.filteredDatasets = action.payload;
         },
         setFilteredDatasets: (
             state,
@@ -208,10 +210,15 @@ export const mainSlice = createSlice({
                 return isVariableSelected && isStartDateValid && isEndDateValid;
             });
 
-            state.filteredDatasets = {
-                type: 'FeatureCollection',
-                features: features,
-            };
+            // If features are not filtered, dont store
+            if (state.datasets.features.length !== features.length) {
+                state.filteredDatasets = {
+                    type: 'FeatureCollection',
+                    features: features,
+                };
+            } else {
+                state.filteredDatasets = null;
+            }
         },
         setHoverId: (state, action: PayloadAction<InitialState['hoverId']>) => {
             state.hoverId = action.payload;
@@ -232,10 +239,7 @@ export const mainSlice = createSlice({
                 Geometry,
                 Dataset
             >;
-            state.filteredDatasets = defaultGeoJson as FeatureCollection<
-                Geometry,
-                Dataset
-            >;
+            state.filteredDatasets = null;
             state.selectedSummary = null;
         },
     },
@@ -273,7 +277,6 @@ export const mainSlice = createSlice({
                     // Transform datasets into a new feature collection
                     const datasets = transformDatasets(action.payload);
                     state.datasets = datasets;
-                    state.filteredDatasets = datasets;
                 }
                 return;
             })

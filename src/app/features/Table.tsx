@@ -1,11 +1,12 @@
+import { getDatasets } from '@/lib/state/main/slice';
 import { RootState } from '@/lib/state/store';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
 const Table: React.FC = () => {
-    const { filteredDatasets, selectedData } = useSelector(
-        (state: RootState) => state.main
-    );
+    const { selectedData } = useSelector((state: RootState) => state.main);
+
+    const datasets = useSelector(getDatasets);
 
     // TODO: ensure property order and call getHeaderValue
     return (
@@ -42,7 +43,7 @@ const Table: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredDatasets.features.map((feature, index) => (
+                    {datasets.features.map((feature, index) => (
                         <tr
                             key={index}
                             className={`${

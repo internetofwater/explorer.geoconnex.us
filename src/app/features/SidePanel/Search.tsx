@@ -7,6 +7,7 @@ import { AppDispatch } from '@/lib/state/store';
 import {
     fetchDatasets,
     setDatasets,
+    setFilteredDatasets,
     setHoverId,
     setSearchResultIds,
     setSelectedMainstemId,
@@ -61,6 +62,7 @@ const SearchComponent: React.FC = () => {
                     defaultGeoJson as FeatureCollection<Geometry, Dataset>
                 )
             );
+            dispatch(setFilteredDatasets(null));
         }
     };
 
