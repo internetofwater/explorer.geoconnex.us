@@ -23,7 +23,7 @@ export const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const { datasets, view, selectedSummary } = useSelector(
+    const { datasets, view, selectedSummary, showResults } = useSelector(
         (state: RootState) => state.main
     );
 
@@ -117,12 +117,12 @@ export const SidePanel: React.FC = () => {
             <div id="scrollable-side-panel" className="overflow-y-auto">
                 {/* Results makes async call, ensure mounting */}
                 <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
-                    <Collapsible title="Mainstems" open={true}>
+                    <Collapsible title="Results" open={showResults}>
                         <Results results={results} setLoading={setLoading} />
                     </Collapsible>
                 </div>
                 {selectedSummary && (
-                    <Collapsible title="Summary" open={true}>
+                    <Collapsible title="Selected" open={true}>
                         <div className="px-4 pb-2">
                             <Summary summary={selectedSummary} />
                         </div>

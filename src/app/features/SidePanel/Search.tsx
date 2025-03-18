@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
-import { setDatasets } from '@/lib/state/main/slice';
+import { setDatasets, setShowResults } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { Dataset, MainstemData } from '@/app/types';
 
@@ -38,7 +38,7 @@ const Search: React.FC<Props> = (props) => {
                 controller.current = new AbortController();
 
                 const response = await fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items?filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
+                    `https://reference.geoconnex.us/collections/mainstems/items?sortby=-outlet_drainagearea_sqkm&filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
                     { signal: controller.current.signal }
                 );
                 const data = (await response.json()) as FeatureCollection<
@@ -53,6 +53,7 @@ const Search: React.FC<Props> = (props) => {
                         } as MainstemData)
                 );
                 if (isMounted.current) {
+                    dispatch(setShowResults(true));
                     setResults(searchResults);
                     setLoading(false);
                 }
@@ -119,7 +120,7 @@ const Search: React.FC<Props> = (props) => {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search for Names at Outlet or URIs"
                 aria-label="Search for Names at Outlet or URIs"
-                className="border border-gray-500 p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12"
+                className="border border-gray-500 p-2 mx-1 mt-1 mb-[0.3rem] rounded w-[98%] h-12 shadow-md"
             />
         </>
     );

@@ -6,6 +6,7 @@ import {
     fetchDatasets,
     setHoverId,
     setSelectedMainstemId,
+    setShowResults,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
 import { createSummary } from '@/lib/state/utils';
@@ -95,6 +96,7 @@ export const Results: React.FC<Props> = (props) => {
     }, [debouncedGetDatasets]);
 
     const handleClick = (id: number) => {
+        dispatch(setShowResults(true));
         dispatch(fetchDatasets(String(id))); // eslint-disable-line @typescript-eslint/no-floating-promises
         dispatch(setSelectedMainstemId(String(id)));
     };
@@ -106,7 +108,7 @@ export const Results: React.FC<Props> = (props) => {
 
     return (
         <div
-            className="w-full ml-2"
+            className="w-full"
             onMouseLeave={handleMouseLeave}
             aria-live="polite"
         >
@@ -118,7 +120,7 @@ export const Results: React.FC<Props> = (props) => {
                         <li
                             key={index}
                             tabIndex={0}
-                            className="p-2.5 border-b cursor-pointer hover:bg-gray-100"
+                            className="p-3.5 border-b cursor-pointer hover:bg-gray-100"
                             onClick={() => handleClick(id)}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));

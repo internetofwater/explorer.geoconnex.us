@@ -25,6 +25,7 @@ export type Summary = {
 type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
+    showResults: boolean;
     selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
     hoverId: number | null;
@@ -61,6 +62,7 @@ type InitialState = {
 const initialState: InitialState = {
     showSidePanel: false,
     showHelp: false,
+    showResults: false,
     selectedMainstemId: null,
     selectedMainstemBBOX: null,
     hoverId: null,
@@ -107,7 +109,6 @@ export const fetchDatasets = createAsyncThunk<
     return data;
 });
 
-
 export const mainSlice = createSlice({
     name: 'main',
     initialState: initialState,
@@ -123,6 +124,12 @@ export const mainSlice = createSlice({
             action: PayloadAction<InitialState['showHelp']>
         ) => {
             state.showHelp = action.payload;
+        },
+        setShowResults: (
+            state,
+            action: PayloadAction<InitialState['showResults']>
+        ) => {
+            state.showResults = action.payload;
         },
         setSearchResultIds: (
             state,
@@ -274,6 +281,7 @@ export const mainSlice = createSlice({
                     const datasets = transformDatasets(action.payload);
                     state.datasets = datasets;
                     state.filteredDatasets = datasets;
+                    state.showResults = false;
                 }
                 return;
             })
@@ -287,6 +295,7 @@ export const mainSlice = createSlice({
 export const {
     setShowSidePanel,
     setShowHelp,
+    setShowResults,
     setSearchResultIds,
     setSelectedMainstemId,
     setHoverId,
