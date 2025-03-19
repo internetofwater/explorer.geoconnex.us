@@ -41,7 +41,6 @@ type InitialState = {
     status: string;
     error: string | null;
     datasets: FeatureCollection<Geometry, Dataset>;
-    filteredDatasets: FeatureCollection<Geometry, Dataset> | null;
     view: 'map' | 'table';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
@@ -78,7 +77,6 @@ const initialState: InitialState = {
     status: 'idle', // Additional state to track loading status
     error: null,
     datasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
-    filteredDatasets: null,
     view: 'map',
     visibleLayers: {
         [LayerId.MajorRivers]: true,
@@ -120,7 +118,7 @@ const selectFilter = (state: RootState) => state.main.filter;
 // Memoized selector to prevent false rerender requests
 export const getDatasets = createSelector(
     [selectDatasets, selectFilter],
-    (datasets, filter) => {
+    (datasets, filter): FeatureCollection<Geometry, Dataset> => {
         if (
             !filter.selectedVariables &&
             !filter.startTemporalCoverage &&
@@ -199,12 +197,6 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
-        setFilteredDatasets: (
-            state,
-            action: PayloadAction<InitialState['filteredDatasets']>
-        ) => {
-            state.filteredDatasets = action.payload;
-        },
         setSelectedMainstemId: (
             state,
             action: PayloadAction<InitialState['selectedMainstemId']>
@@ -257,7 +249,6 @@ export const mainSlice = createSlice({
                 Geometry,
                 Dataset
             >;
-            state.filteredDatasets = null;
             state.selectedSummary = null;
         },
     },
@@ -295,7 +286,6 @@ export const mainSlice = createSlice({
                     // Transform datasets into a new feature collection
                     const datasets = transformDatasets(action.payload);
                     state.datasets = datasets;
-                    state.filteredDatasets = datasets;
                     state.showResults = false;
                 }
                 return;
@@ -315,7 +305,6 @@ export const {
     setSelectedMainstemId,
     setHoverId,
     setDatasets,
-    setFilteredDatasets,
     setLayerVisibility,
     setSelectedData,
     setFilter,
