@@ -65,7 +65,7 @@ type InitialState = {
 };
 
 const initialState: InitialState = {
-    showSidePanel: false,
+    showSidePanel: true,
     showHelp: false,
     showResults: false,
     selectedMainstemId: null,
