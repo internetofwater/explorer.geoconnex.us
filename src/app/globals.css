@@ -52,6 +52,10 @@ div#scrollable-side-panel {
     max-height: calc(100svh - 339px);
 }
 
+div#table-wrapper {
+    max-height: calc(100svh - 90px);
+}
+
 #date-range-columns {
     display: grid;
     grid-template-columns: 1fr;
