@@ -7,7 +7,6 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { SidePanel } from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
-import { useLayoutEffect } from 'react';
 import { setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
@@ -25,12 +24,6 @@ export const App: React.FC<Props> = (props) => {
     );
 
     const dispatch: AppDispatch = useDispatch();
-
-    useLayoutEffect(() => {
-        if (window.innerWidth > 1280) {
-            dispatch(setShowSidePanel(true));
-        }
-    }, []);
 
     const handleSidePanelControlClick = () => {
         dispatch(setShowSidePanel(true));

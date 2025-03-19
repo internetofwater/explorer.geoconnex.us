@@ -4,7 +4,6 @@ import mainReducer, {
     setSelectedMainstemId,
     setHoverId,
     setDatasets,
-    setFilteredDatasets,
     setLayerVisibility,
     setSelectedData,
     setFilter,
@@ -51,17 +50,6 @@ describe('mainSlice', () => {
         store.dispatch(setDatasets(datasets));
         const state = store.getState().main;
         expect(state.datasets).toEqual(datasets);
-        expect(state.filteredDatasets).toEqual(datasets);
-    });
-
-    test('should handle setFilteredDatasets', () => {
-        const filteredDatasets: FeatureCollection<Geometry, Dataset> = {
-            type: 'FeatureCollection',
-            features: [],
-        };
-        store.dispatch(setFilteredDatasets(filteredDatasets));
-        const state = store.getState().main;
-        expect(state.filteredDatasets).toEqual(filteredDatasets);
     });
 
     test('should handle setLayerVisibility', () => {
