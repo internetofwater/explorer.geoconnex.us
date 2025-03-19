@@ -1,5 +1,10 @@
 'use client';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+    createAsyncThunk,
+    createSelector,
+    createSlice,
+    PayloadAction,
+} from '@reduxjs/toolkit';
 import {
     createSummary,
     getMainstemBuffer,
@@ -110,8 +115,55 @@ export const fetchDatasets = createAsyncThunk<
     return data;
 });
 
-export const getDatasets = (state: RootState) =>
-    state.main.filteredDatasets ?? state.main.datasets;
+const selectDatasets = (state: RootState) => state.main.datasets;
+const selectFilter = (state: RootState) => state.main.filter;
+// Memoized selector to prevent false rerender requests
+export const getDatasets = createSelector(
+    [selectDatasets, selectFilter],
+    (datasets, filter) => {
+        if (
+            !filter.selectedVariables &&
+            !filter.startTemporalCoverage &&
+            !filter.endTemporalCoverage
+        ) {
+            return datasets;
+        }
+
+        // Apply filter automatically to the main datasets obj
+        const features = datasets.features.filter((feature) => {
+            const { variableMeasured, temporalCoverage } = feature.properties;
+            const [startTemporal, endTemporal] = temporalCoverage.split('/');
+
+            const startDate = new Date(startTemporal);
+            const endDate = new Date(endTemporal);
+
+            // If filter exists apply it
+
+            // Check variable measured
+            const isVariableSelected =
+                filter.selectedVariables === undefined ||
+                filter.selectedVariables.includes(
+                    variableMeasured.split(' / ')[0]
+                );
+
+            // Check start of temporal coverages
+            const isStartDateValid =
+                filter.startTemporalCoverage === undefined ||
+                new Date(filter.startTemporalCoverage) <= new Date(startDate);
+            // Check end of temporal coverages
+            const isEndDateValid =
+                filter.endTemporalCoverage === undefined ||
+                new Date(filter.endTemporalCoverage) >= new Date(endDate);
+
+            return isVariableSelected && isStartDateValid && isEndDateValid;
+        });
+
+        return {
+            type: 'FeatureCollection',
+            features: features,
+        };
+    }
+);
 
 export const mainSlice = createSlice({
     name: 'main',
@@ -183,50 +235,8 @@ export const mainSlice = createSlice({
                 ...state.filter,
                 ...action.payload,
             };
+
             state.filter = newFilter;
-
-            // Apply filter automatically to the main datasets obj
-            const features = state.datasets.features.filter((feature) => {
-                const { variableMeasured, temporalCoverage } =
-                    feature.properties;
-                const [startTemporal, endTemporal] =
-                    temporalCoverage.split('/');
-
-                const startDate = new Date(startTemporal);
-                const endDate = new Date(endTemporal);
-
-                // If filter exists apply it
-
-                // Check variable measured
-                const isVariableSelected =
-                    newFilter.selectedVariables === undefined ||
-                    newFilter.selectedVariables.includes(
-                        variableMeasured.split(' / ')[0]
-                    );
-
-                // Check start of temporal coverages
-                const isStartDateValid =
-                    newFilter.startTemporalCoverage === undefined ||
-                    new Date(newFilter.startTemporalCoverage) <=
-                        new Date(startDate);
-                // Check end of temporal coverages
-                const isEndDateValid =
-                    newFilter.endTemporalCoverage === undefined ||
-                    new Date(newFilter.endTemporalCoverage) >=
-                        new Date(endDate);
-
-                return isVariableSelected && isStartDateValid && isEndDateValid;
-            });
-
-            // If features are not filtered, dont store
-            if (state.datasets.features.length !== features.length) {
-                state.filteredDatasets = {
-                    type: 'FeatureCollection',
-                    features: features,
-                };
-            } else {
-                state.filteredDatasets = null;
-            }
         },
         setHoverId: (state, action: PayloadAction<InitialState['hoverId']>) => {
             state.hoverId = action.payload;
