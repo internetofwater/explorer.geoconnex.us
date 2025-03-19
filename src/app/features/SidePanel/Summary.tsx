@@ -24,7 +24,7 @@ export const Summary: React.FC<Props> = (props) => {
                 <Typography variant="h5">{summary.name}</Typography>
             )}
             {summary.total > 0 ? (
-                <ul className="pl-4">
+                <ul className="pl-8">
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
                             <strong>Length (km):</strong> {summary.length}
@@ -61,7 +61,7 @@ export const Summary: React.FC<Props> = (props) => {
                 </ul>
             ) : (
                 <>
-                    <ul className="pl-4">
+                    <ul className="pl-8">
                         <li className="list-disc break-words whitespace-normal">
                             <strong>Length (km):</strong> {summary.length}
                         </li>

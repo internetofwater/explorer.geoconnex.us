@@ -48,8 +48,8 @@ div#tools {
 }
 
 div#scrollable-side-panel {
-    height: calc(100svh - 210px);
-    max-height: calc(100svh - 210px);
+    height: calc(100svh - 339px);
+    max-height: calc(100svh - 339px);
 }
 
 #date-range-columns {
@@ -103,8 +103,8 @@ a:active {
 
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 130px);
-        max-height: calc(100svh - 130px);
+        height: calc(100svh - 219px);
+        max-height: calc(100svh - 219px);
         /* height: calc(100svh - 98px);
         max-height: calc(100svh - 98px); */
     }
