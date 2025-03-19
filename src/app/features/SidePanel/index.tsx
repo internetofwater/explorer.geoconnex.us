@@ -123,14 +123,14 @@ const SidePanel: React.FC = () => {
                 </div>
                 {selectedSummary && (
                     <Collapsible title="Selected" open={true}>
-                        <div className="px-4 pb-2">
+                        <div className="p-4">
                             <Summary summary={selectedSummary} />
                         </div>
                     </Collapsible>
                 )}
                 {datasets.features.length > 0 && (
                     <Collapsible title="Filters">
-                        <div className="px-4">
+                        <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
                                 <CSVDownload />

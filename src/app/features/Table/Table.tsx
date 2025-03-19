@@ -1,20 +1,21 @@
 import React from 'react';
-import { flexRender, Table as TableObj } from '@tanstack/react-table';
-import { Dataset } from '../../types';
-import { Typography } from '../../components/common/Typography';
+import { flexRender, HeaderGroup, RowModel } from '@tanstack/react-table';
+import { Dataset } from '@/app/types';
+import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
-    table: TableObj<Dataset>;
+    getHeaderGroups: () => HeaderGroup<Dataset>[];
+    getRowModel: () => RowModel<Dataset>;
 };
 
 const Table: React.FC<Props> = (props) => {
-    const { table } = props;
+    const { getHeaderGroups, getRowModel } = props;
 
     return (
         <div
             id="table-wrapper"
-            className="lg:w-[99%] lg:max-w-[99%] 
-                            lg:mt-2 mx-auto overflow-auto 
+            className="
+                            lg:mt-2 mx-4 overflow-auto 
                             border border-gray-200 
                             text-black text-sm
                             lg:rounded-lg lg:shadow-lg
@@ -22,7 +23,7 @@ const Table: React.FC<Props> = (props) => {
         >
             <table className="w-full h-full">
                 <thead id="table-header" className="sticky top-0 h-12 bg-white">
-                    {table.getHeaderGroups().map((headerGroup) => (
+                    {getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id} className=" ">
                             {headerGroup.headers.map((header) => {
                                 return (
@@ -63,7 +64,7 @@ const Table: React.FC<Props> = (props) => {
                     ))}
                 </thead>
                 <tbody>
-                    {table.getRowModel().rows.map((row) => {
+                    {getRowModel().rows.map((row) => {
                         return (
                             <tr
                                 key={row.id}

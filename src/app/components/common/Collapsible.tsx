@@ -1,5 +1,6 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useEffect, useState } from 'react';
+import { Typography } from './Typography';
 
 type Props = {
     title: string;
@@ -32,7 +33,9 @@ const Collapsible: React.FC<Props> = (props) => {
                         z-[1]`}
                 onClick={toggleCollapse}
             >
-                {title}
+                <Typography variant="h3" as="h2" className="flex-grow-0">
+                    {title}
+                </Typography>
                 <span
                     data-testid="arrow-icon-wrapper"
                     className={`transform ${
