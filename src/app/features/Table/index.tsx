@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { getDatasets } from '@/lib/state/main/slice';
 import {
     useReactTable,
@@ -122,13 +122,6 @@ const TableWrapper: React.FC = () => {
         pageIndex: 0,
         pageSize: 100,
     });
-
-    useEffect(() => {
-        setPagination({
-            ...pagination,
-            pageSize: data.length,
-        });
-    }, [data]);
 
     const table = useReactTable({
         columns,
