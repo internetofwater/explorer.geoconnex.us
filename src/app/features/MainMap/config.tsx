@@ -562,41 +562,45 @@ export const getLayerHoverFunction = (
 
             case LayerId.SpiderifyPoints:
                 return (e) => {
-                    map.getCanvas().style.cursor = 'pointer';
-                    const feature = e.features?.[0] as
-                        | Feature<Point, Dataset & { iconOffset: string }>
-                        | undefined;
-                    if (feature && feature.properties) {
-                        const itemId: string =
-                            feature.properties.distributionURL;
-                        if (
-                            !hasPeristentPopupOpenToThisItem(
-                                persistentPopup,
-                                itemId
-                            )
-                        ) {
-                            hoverPopup.remove();
-                            const variableMeasured =
-                                feature.properties.variableMeasured.split(
-                                    ' / '
-                                )[0];
-                            const offset = JSON.parse(
-                                feature.properties.iconOffset
-                            ) as [number, number];
-                            const coordinates = feature.geometry
-                                .coordinates as [number, number];
-                            const html = `<span style="color: black;"> 
+                    const zoom = map.getZoom();
+                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
+                        map.getCanvas().style.cursor = 'pointer';
+
+                        const feature = e.features?.[0] as
+                            | Feature<Point, Dataset & { iconOffset: string }>
+                            | undefined;
+                        if (feature && feature.properties) {
+                            const itemId: string =
+                                feature.properties.distributionURL;
+                            if (
+                                !hasPeristentPopupOpenToThisItem(
+                                    persistentPopup,
+                                    itemId
+                                )
+                            ) {
+                                hoverPopup.remove();
+                                const variableMeasured =
+                                    feature.properties.variableMeasured.split(
+                                        ' / '
+                                    )[0];
+                                const offset = JSON.parse(
+                                    feature.properties.iconOffset
+                                ) as [number, number];
+                                const coordinates = feature.geometry
+                                    .coordinates as [number, number];
+                                const html = `<span style="color: black;"> 
                                 <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
                                 <div style="display:flex;">
                                     <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
                                 </div>
                               </span>`;
 
-                            hoverPopup
-                                .setLngLat(coordinates)
-                                .setOffset(offset)
-                                .setHTML(html)
-                                .addTo(map);
+                                hoverPopup
+                                    .setLngLat(coordinates)
+                                    .setOffset(offset)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
                         }
                     }
                 };
@@ -702,40 +706,43 @@ export const getLayerMouseMoveFunction = (
                 };
             case LayerId.SpiderifyPoints:
                 return (e) => {
-                    map.getCanvas().style.cursor = 'pointer';
-                    const feature = e.features?.[0] as
-                        | Feature<Point, Dataset & { iconOffset: string }>
-                        | undefined;
-                    if (feature && feature.properties) {
-                        const itemId = feature.properties.distributionURL;
-                        if (
-                            !hasPeristentPopupOpenToThisItem(
-                                persistentPopup,
-                                itemId
-                            )
-                        ) {
-                            hoverPopup.remove();
-                            const variableMeasured =
-                                feature.properties.variableMeasured.split(
-                                    ' / '
-                                )[0];
-                            const offset = JSON.parse(
-                                feature.properties.iconOffset
-                            ) as [number, number];
-                            const coordinates = feature.geometry
-                                .coordinates as [number, number];
-                            const html = `<span style="color: black;"> 
+                    const zoom = map.getZoom();
+                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
+                        map.getCanvas().style.cursor = 'pointer';
+                        const feature = e.features?.[0] as
+                            | Feature<Point, Dataset & { iconOffset: string }>
+                            | undefined;
+                        if (feature && feature.properties) {
+                            const itemId = feature.properties.distributionURL;
+                            if (
+                                !hasPeristentPopupOpenToThisItem(
+                                    persistentPopup,
+                                    itemId
+                                )
+                            ) {
+                                hoverPopup.remove();
+                                const variableMeasured =
+                                    feature.properties.variableMeasured.split(
+                                        ' / '
+                                    )[0];
+                                const offset = JSON.parse(
+                                    feature.properties.iconOffset
+                                ) as [number, number];
+                                const coordinates = feature.geometry
+                                    .coordinates as [number, number];
+                                const html = `<span style="color: black;"> 
                                             <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
                                             <div style="display:flex;">
                                                 <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
                                         </div>
                                         </span>`;
 
-                            hoverPopup
-                                .setLngLat(coordinates)
-                                .setOffset(offset)
-                                .setHTML(html)
-                                .addTo(map);
+                                hoverPopup
+                                    .setLngLat(coordinates)
+                                    .setOffset(offset)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
                         }
                     }
                 };

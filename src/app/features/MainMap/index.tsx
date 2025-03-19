@@ -230,17 +230,19 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         map.on('click', LayerId.SpiderifyPoints, (e) => {
-            const feature = e.features?.[0] as
-                | Feature<Point, Dataset>
-                | undefined;
-            if (feature && feature.properties) {
-                if (persistentPopup.isOpen()) {
-                    persistentPopup.remove();
-                }
-                hoverPopup.remove();
-                const itemId = feature.properties.distributionURL;
-                const latLng = extractLatLng(feature.properties.wkt);
-                const html = `<span style="color: black;" data-observationId="${itemId}"> 
+            const zoom = map.getZoom();
+            if (zoom > CLUSTER_TRANSITION_ZOOM) {
+                const feature = e.features?.[0] as
+                    | Feature<Point, Dataset>
+                    | undefined;
+                if (feature && feature.properties) {
+                    if (persistentPopup.isOpen()) {
+                        persistentPopup.remove();
+                    }
+                    hoverPopup.remove();
+                    const itemId = feature.properties.distributionURL;
+                    const latLng = extractLatLng(feature.properties.wkt);
+                    const html = `<span style="color: black;" data-observationId="${itemId}"> 
                 <h6 style="font-weight:bold;">${
                     feature.properties.siteName
                 }</h6>
@@ -263,8 +265,12 @@ export const MainMap: React.FC<Props> = (props) => {
                     feature.properties.url
                 }" target="_blank" style="margin:0 auto;">More Info</a>
               </span>`;
-                persistentPopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-                dispatch(setSelectedData(feature.properties));
+                    persistentPopup
+                        .setLngLat(e.lngLat)
+                        .setHTML(html)
+                        .addTo(map);
+                    dispatch(setSelectedData(feature.properties));
+                }
             }
         });
 
