@@ -13,6 +13,11 @@ export default {
                     DEFAULT: '#FFFFFFEF',
                     hover: '#F6F6F6EF',
                     darker: '#D4D4D4EF', // other tab color
+                    opaque: {
+                        DEFAULT: '#FFFFFF',
+                        hover: '#F6F6F6',
+                        darker: '#D4D4D4', // other tab color
+                    },
                 },
                 secondary: {
                     DEFAULT: '#1C76CA',

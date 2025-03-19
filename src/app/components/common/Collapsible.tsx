@@ -1,5 +1,5 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 type Props = {
     title: string;
@@ -12,15 +12,23 @@ const Collapsible: React.FC<Props> = (props) => {
 
     const [isOpen, setIsOpen] = useState(open);
 
+    useEffect(() => {
+        setIsOpen(open);
+    }, [open]);
+
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
     };
 
     return (
-        <div className="bg-primary border-b text-black border-gray-300">
+        <div className="bg-primary text-black ">
             <button
                 title={`${isOpen ? 'Hide' : 'Show'} ${title}`}
-                className="w-full flex justify-between items-center p-4 bg-primary font-bold text-lg hover:bg-primary-hover active:bg-primary-hover focus:bg-primary-hover"
+                className={`sticky top-0 w-full 
+                        flex justify-between items-center p-4 bg-primary-opaque 
+                        font-bold text-lg 
+                        border-t ${isOpen && 'border-b'} border-gray-300
+                        hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover`}
                 onClick={toggleCollapse}
             >
                 {title}
@@ -37,7 +45,7 @@ const Collapsible: React.FC<Props> = (props) => {
                 data-testid="collapsible-content"
                 className={`overflow-hidden ${isOpen ? 'block' : 'hidden'}`}
             >
-                <div className="px-4">{props.children}</div>
+                {props.children}
             </div>
         </div>
     );
