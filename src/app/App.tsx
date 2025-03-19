@@ -38,7 +38,7 @@ export const App: React.FC<Props> = (props) => {
                     className={`fixed left-2 ${
                         view === 'table'
                             ? 'top-[unset] bottom-6 lg:top-2 lg:bottom-[unset]'
-                            : ''
+                            : 'top-2'
                     }`}
                 >
                     {!showSidePanel && (
