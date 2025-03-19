@@ -63,7 +63,7 @@ const Table: React.FC<Props> = (props) => {
                         </tr>
                     ))}
                 </thead>
-                <tbody>
+                <tbody className="bg-white">
                     {getRowModel().rows.map((row) => {
                         return (
                             <tr

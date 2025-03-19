@@ -146,7 +146,7 @@ const TableWrapper: React.FC = () => {
     });
 
     return (
-        <div className="h-full w-full bg-white p-0 lg:pt-2">
+        <div className="h-full w-full bg-primary p-0 lg:pt-2">
             <Table
                 getHeaderGroups={table.getHeaderGroups}
                 getRowModel={table.getRowModel}

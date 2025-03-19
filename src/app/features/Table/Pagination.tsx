@@ -26,10 +26,10 @@ const Pagination: React.FC<Props> = (props) => {
     const { paginationFunctions, recordCount } = props;
 
     return (
-        <div className=" flex flex-col lg:flex-row items-center gap-4 justify-center py-3 ml-6 lg:ml-0">
+        <div className=" flex flex-col lg:flex-row items-center gap-4 justify-center py-2 ml-6 lg:ml-0">
             <div className="flex gap-2">
                 <button
-                    className="border rounded p-1 disabled:opacity-70"
+                    className="border rounded p-1 text-lg disabled:opacity-70"
                     onClick={() => paginationFunctions.firstPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
                 >
@@ -51,11 +51,11 @@ const Pagination: React.FC<Props> = (props) => {
                     {' ▶ '}
                 </button>
                 <button
-                    className="border rounded p-1 disabled:opacity-70"
+                    className="border rounded p-1 text-lg disabled:opacity-70"
                     onClick={() => paginationFunctions.lastPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
                 >
-                    {' ⏭ '}
+                    {'  ⏭  '}
                 </button>
                 <span className="flex items-center gap-1 ml-1">
                     <label htmlFor="page-index-input">
@@ -101,7 +101,7 @@ const Pagination: React.FC<Props> = (props) => {
                 </Typography>
 
                 <Typography variant="body-small" className="flex-grow-0">
-                    | <strong>Total:</strong> {recordCount} |
+                    | <strong>Total Datasets:</strong> {recordCount} |
                 </Typography>
                 <select
                     aria-label="Select Page Size"
@@ -110,7 +110,7 @@ const Pagination: React.FC<Props> = (props) => {
                     onChange={(e) => {
                         paginationFunctions.setPageSize(Number(e.target.value));
                     }}
-                    className={getTextStyling('body-small')}
+                    className={`${getTextStyling('body-small')} bg-transparent`}
                 >
                     {[100, 500, 1000].map((pageSize) => (
                         <option key={pageSize} value={pageSize}>

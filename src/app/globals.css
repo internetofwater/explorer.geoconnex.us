@@ -52,7 +52,7 @@ div#scrollable-side-panel {
 }
 
 div#table-wrapper {
-    max-height: calc(100svh - 98px);
+    max-height: calc(100svh - 90px);
 }
 
 thead#table-header {
