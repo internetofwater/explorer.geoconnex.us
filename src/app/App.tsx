@@ -52,11 +52,14 @@ export const App: React.FC<Props> = (props) => {
                 <div
                     id="side-panel"
                     className={`
-                     w-[400px] max-w-[90svw]
+                                              w-[90vw] lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
+                     min-w-[300px] sm:min-w-[400px]
+                     max-w-[300px] sm:max-w-[400px]
                      flex overflow-hidden bg-primary
                      border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      m-2 lg:m-0
                      rounded-lg lg:rounded-none
+                     shadow-lg
                      ${showSidePanel ? 'block' : 'hidden'}`}
                 >
                     <SidePanel />
