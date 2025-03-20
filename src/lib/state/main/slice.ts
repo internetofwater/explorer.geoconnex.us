@@ -18,29 +18,34 @@ import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 
+export type SummaryData = Record<string, number>;
+
 export type Summary = {
-    id: number;
+    id: string;
     name: string;
     length: number;
-    total: number;
-    variables: string;
-    types: string;
-    techniques: string;
+    totalDatasets: number;
+    totalSites: number;
+    variables: SummaryData;
+    types: SummaryData;
+    techniques: SummaryData;
 };
 
 type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
+    selectedMainstem: MainstemData | null;
     selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
-    hoverId: number | null;
+    hoverId: string | null;
     selectedData: Dataset | null;
     selectedSummary: Summary | null;
     searchResultIds: string[];
     status: string;
     error: string | null;
     datasets: FeatureCollection<Geometry, Dataset>;
+    visibleDatasetIds: string[];
     view: 'map' | 'table';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
@@ -68,6 +73,7 @@ const initialState: InitialState = {
     showSidePanel: true,
     showHelp: false,
     showResults: false,
+    selectedMainstem: null,
     selectedMainstemId: null,
     selectedMainstemBBOX: null,
     hoverId: null,
@@ -77,6 +83,7 @@ const initialState: InitialState = {
     status: 'idle', // Additional state to track loading status
     error: null,
     datasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
+    visibleDatasetIds: [],
     view: 'map',
     visibleLayers: {
         [LayerId.MajorRivers]: true,
@@ -100,7 +107,7 @@ const initialState: InitialState = {
 
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
-    Feature<Geometry, MainstemData & { datasets: Dataset[] }>,
+    Feature<Geometry, Omit<MainstemData, 'id'> & { datasets: Dataset[] }>,
     string
 >('main/fetchDatasets', async (id: string) => {
     const response = await fetch(
@@ -108,13 +115,19 @@ export const fetchDatasets = createAsyncThunk<
     );
     const data = (await response.json()) as Feature<
         Geometry,
-        MainstemData & { datasets: Dataset[] }
+        Omit<MainstemData, 'id'> & { datasets: Dataset[] }
     >;
     return data;
 });
 
+export const getDatasetsLength = (state: RootState) =>
+    state.main.datasets.features.length;
+export const getVisibleDatasetsLength = (state: RootState) =>
+    state.main.visibleDatasetIds.length;
+
 const selectDatasets = (state: RootState) => state.main.datasets;
 const selectFilter = (state: RootState) => state.main.filter;
+
 // Memoized selector to prevent false rerender requests
 export const getDatasets = createSelector(
     [selectDatasets, selectFilter],
@@ -160,6 +173,32 @@ export const getDatasets = createSelector(
             type: 'FeatureCollection',
             features: features,
         };
+    }
+);
+
+const selectSelectedMainstem = (state: RootState) =>
+    state.main.selectedMainstem;
+const selectVisibleDatasetIds = (state: RootState) =>
+    state.main.visibleDatasetIds;
+
+export const getSelectedSummary = createSelector(
+    [selectSelectedMainstem, selectVisibleDatasetIds, getDatasets],
+    (selectedMainstem, visibleDatasetIds, datasets): Summary | null => {
+        if (!selectedMainstem || datasets.features.length === 0) {
+            return null;
+        }
+        const _datasets = datasets.features
+            .filter((feature) =>
+                visibleDatasetIds.includes(feature.id as string)
+            )
+            .map((feature) => feature.properties);
+
+        const selectedSummary = createSummary(selectedMainstem.id, {
+            ...selectedMainstem,
+            datasets: _datasets,
+        });
+
+        return selectedSummary;
     }
 );
 
@@ -209,6 +248,12 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedData = action.payload;
         },
+        setVisibleDatasetIds: (
+            state,
+            action: PayloadAction<InitialState['visibleDatasetIds']>
+        ) => {
+            state.visibleDatasetIds = action.payload;
+        },
         setLayerVisibility: (
             state,
             action: PayloadAction<Partial<InitialState['visibleLayers']>>
@@ -243,6 +288,7 @@ export const mainSlice = createSlice({
             state.selectedMainstemBBOX = action.payload;
         },
         reset: (state) => {
+            state.selectedMainstem = null;
             state.selectedMainstemId = null;
             state.selectedMainstemBBOX = null;
             state.datasets = defaultGeoJson as FeatureCollection<
@@ -263,11 +309,20 @@ export const mainSlice = createSlice({
                 if (action.payload) {
                     // Create a summary for this mainstem
                     const id = action.payload.id;
-                    const summary = createSummary(Number(id), action.payload);
-                    state.selectedSummary = summary;
+
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { datasets: _, ...propertiesWithoutDatasets } =
+                        action.payload.properties;
+
+                    state.selectedMainstem = {
+                        ...propertiesWithoutDatasets,
+                        id: String(id),
+                    };
 
                     // Get an appropriate buffer size based on drainage area
-                    const buffer = getMainstemBuffer(action.payload);
+                    const buffer = getMainstemBuffer(
+                        action.payload.properties.outlet_drainagearea_sqkm
+                    );
                     // Simplify the line to reduce work getting bounds
                     const simplifiedLine = turf.simplify(action.payload, {
                         tolerance: 0.25,
@@ -307,6 +362,7 @@ export const {
     setDatasets,
     setLayerVisibility,
     setSelectedData,
+    setVisibleDatasetIds,
     setFilter,
     setView,
     setSelectedMainstemBBOX,

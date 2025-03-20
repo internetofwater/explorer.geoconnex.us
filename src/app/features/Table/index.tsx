@@ -1,5 +1,4 @@
 import React from 'react';
-import { getDatasets } from '@/lib/state/main/slice';
 import {
     useReactTable,
     getCoreRowModel,
@@ -9,13 +8,17 @@ import {
     ColumnDef,
     PaginationState,
 } from '@tanstack/react-table';
-import { useSelector } from 'react-redux';
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
+import { FeatureCollection, Geometry } from 'geojson';
 
-const TableWrapper: React.FC = () => {
-    const datasets = useSelector(getDatasets);
+type Props = {
+    datasets: FeatureCollection<Geometry, Dataset>;
+};
+
+const TableWrapper: React.FC<Props> = (props) => {
+    const { datasets } = props;
 
     const columns = React.useMemo<ColumnDef<Dataset>[]>(
         () => [

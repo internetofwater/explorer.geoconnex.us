@@ -7,7 +7,7 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import SidePanel from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
-import { setShowSidePanel } from '@/lib/state/main/slice';
+import { getDatasets, setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/HelpModal';
@@ -22,6 +22,7 @@ export const App: React.FC<Props> = (props) => {
     const { view, showSidePanel } = useSelector(
         (state: RootState) => state.main
     );
+    const datasets = useSelector(getDatasets);
 
     const dispatch: AppDispatch = useDispatch();
 
@@ -62,7 +63,7 @@ export const App: React.FC<Props> = (props) => {
                      shadow-lg
                      ${showSidePanel ? 'block' : 'hidden'}`}
                 >
-                    <SidePanel />
+                    <SidePanel datasets={datasets} />
                 </div>
                 <div id="tools" className={`fixed top-2 right-2`}>
                     {view === 'map' && <MapTools />}
@@ -80,7 +81,7 @@ export const App: React.FC<Props> = (props) => {
                         view === 'table' ? 'block' : 'hidden'
                     } w-full`}
                 >
-                    <Table />
+                    <Table datasets={datasets} />
                 </div>
             </div>
         </>

@@ -1,10 +1,14 @@
 import Button from '@/app/components/common/Button';
+import { Dataset } from '@/app/types';
 import { convertGeoJSONToCSV } from '@/app/utils/csv';
-import { getDatasets } from '@/lib/state/main/slice';
-import { useSelector } from 'react-redux';
+import { FeatureCollection, Geometry } from 'geojson';
 
-export const CSVDownload: React.FC = () => {
-    const datasets = useSelector(getDatasets);
+type Props = {
+    datasets: FeatureCollection<Geometry, Dataset>;
+};
+
+export const CSVDownload: React.FC<Props> = (props) => {
+    const { datasets } = props;
 
     return (
         <>
