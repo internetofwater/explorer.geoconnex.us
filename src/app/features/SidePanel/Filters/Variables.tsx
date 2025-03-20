@@ -27,6 +27,8 @@ export const Variables: React.FC = () => {
             }
         });
 
+        newUniqueVariables.sort();
+
         if (
             JSON.stringify(uniqueVariables) !==
             JSON.stringify(newUniqueVariables)
@@ -41,11 +43,28 @@ export const Variables: React.FC = () => {
             filter?.selectedVariables && filter.selectedVariables.includes(type)
                 ? filter.selectedVariables.filter((item) => item !== type)
                 : [...(filter?.selectedVariables ?? []), type];
+
         dispatch(
             setFilter({
                 selectedVariables: newSelectedVariables,
             })
         );
+    };
+
+    const handleSelectAll = (allSelected: boolean) => {
+        if (allSelected) {
+            dispatch(
+                setFilter({
+                    selectedVariables: uniqueVariables,
+                })
+            );
+        } else {
+            dispatch(
+                setFilter({
+                    selectedVariables: [],
+                })
+            );
+        }
     };
 
     return (
@@ -61,6 +80,9 @@ export const Variables: React.FC = () => {
                         options={uniqueVariables}
                         selectedOptions={filter.selectedVariables}
                         handleOptionClick={handleTypeOptionClick}
+                        searchable
+                        selectAll
+                        handleSelectAll={handleSelectAll}
                     />
                 </>
             )}
