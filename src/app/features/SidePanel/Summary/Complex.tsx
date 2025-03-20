@@ -86,13 +86,12 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
-                            <strong>Total Sites:</strong> {summary.totalSites}
+                            <strong>Sites:</strong> {summary.totalSites}
                         </Typography>
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
-                            <strong>Total Datasets:</strong>{' '}
-                            {summary.totalDatasets}
+                            <strong>Datasets:</strong> {summary.totalDatasets}
                         </Typography>
                     </li>
                     <SummaryEntry

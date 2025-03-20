@@ -66,6 +66,7 @@ describe('utils', () => {
                             type: 'Point',
                             coordinates: [30, 10],
                         },
+                        id: 0,
                         properties: {
                             datasetDescription: 'Test Description',
                             distributionFormat: 'CSV',
