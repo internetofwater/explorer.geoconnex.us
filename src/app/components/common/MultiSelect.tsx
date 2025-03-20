@@ -5,9 +5,10 @@ type Props = {
     ariaLabel?: string;
     options: string[];
     selectedOptions: string[] | undefined;
+    handleOptionClick: (type: string) => void;
+    limit?: number;
     searchable?: boolean;
     selectAll?: boolean;
-    handleOptionClick: (type: string) => void;
     handleSelectAll?: (allSelected: boolean) => void;
 };
 
@@ -16,9 +17,10 @@ const MultiSelect: React.FC<Props> = (props) => {
         ariaLabel = '',
         options,
         selectedOptions,
+        handleOptionClick,
+        limit,
         searchable = false,
         selectAll = false,
-        handleOptionClick,
         handleSelectAll,
     } = props;
 
@@ -30,14 +32,19 @@ const MultiSelect: React.FC<Props> = (props) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [allSelected, setAllSelected] = useState(false);
 
+    const limitedOptions = useMemo(
+        () => options.slice(0, limit ?? options.length),
+        [options, searchTerm]
+    );
+
     const filteredOptions = useMemo(
         () =>
-            options.filter(
+            limitedOptions.filter(
                 (option) =>
-                    !searchTerm ||
+                    !searchable ||
                     option.toLowerCase().includes(searchTerm.toLowerCase())
             ),
-        [options]
+        [limitedOptions, searchTerm]
     );
 
     useEffect(() => {
