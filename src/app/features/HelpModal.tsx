@@ -42,7 +42,7 @@ export const HelpModal: React.FC = () => {
 
     return (
         <Modal
-            title="Application Name"
+            title="Geoconnex Explorer"
             open={showHelp}
             handleClose={handleHelpClose}
             action={
