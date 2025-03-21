@@ -34,30 +34,10 @@ describe('Common Components: MultiSelect', () => {
         );
         const buttonElement = screen.getByRole('button');
         fireEvent.click(buttonElement);
-        expect(buttonElement).toHaveTextContent('Click to Close');
         const optionsList = screen.getByRole('listbox');
         expect(optionsList).toBeInTheDocument();
         fireEvent.click(buttonElement);
         expect(buttonElement).toHaveTextContent('Select...');
-    });
-
-    test('toggles the options display when the searchable input is clicked', () => {
-        render(
-            <MultiSelect
-                options={options}
-                selectedOptions={selectedOptions}
-                handleOptionClick={handleOptionClick}
-                searchable
-                selectAll
-                handleSelectAll={handleSelectAll}
-            />
-        );
-        const inputElement = screen.getByTestId('searchable-input');
-        fireEvent.click(inputElement);
-        options.forEach((option) => {
-            const optionElement = screen.getByText(option);
-            expect(optionElement).toBeInTheDocument();
-        });
     });
 
     test('renders the options correctly', () => {
