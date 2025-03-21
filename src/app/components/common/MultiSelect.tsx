@@ -1,5 +1,6 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Typography } from './Typography';
 
 type Props = {
     ariaLabel?: string;
@@ -31,20 +32,38 @@ const MultiSelect: React.FC<Props> = (props) => {
     const [showOptions, setShowOptions] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [allSelected, setAllSelected] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const limitedOptions = useMemo(
-        () => options.slice(0, limit ?? options.length),
-        [options, searchTerm]
-    );
+    const handleClickOutside = (event: MouseEvent) => {
+        if (
+            dropdownRef.current &&
+            !dropdownRef.current.contains(event.target as Node)
+        ) {
+            setShowOptions(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const filteredOptions = useMemo(
         () =>
-            limitedOptions.filter(
+            options.filter(
                 (option) =>
                     !searchable ||
                     option.toLowerCase().includes(searchTerm.toLowerCase())
             ),
-        [limitedOptions, searchTerm]
+        [options, searchTerm]
+    );
+
+    const limitedOptions = useMemo(
+        () => filteredOptions.slice(0, limit ?? filteredOptions.length),
+        [filteredOptions, limit]
     );
 
     useEffect(() => {
@@ -63,7 +82,7 @@ const MultiSelect: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="w-100 mt-1 mb-1 text-black">
+        <div className="w-100 mt-1 mb-1 text-black" ref={dropdownRef}>
             <div className="relative">
                 {searchable ? (
                     <div
@@ -72,12 +91,13 @@ const MultiSelect: React.FC<Props> = (props) => {
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
-                        onClick={() => setShowOptions(!showOptions)}
+                        onClick={() => setShowOptions(true)}
                     >
                         <input
                             type="text"
                             className="w-full bg-transparent border-none focus:outline-none"
                             placeholder="Select..."
+                            ref={inputRef}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onFocus={() => setShowOptions(true)}
@@ -97,7 +117,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
-                        onClick={() => setShowOptions(!showOptions)}
+                        onFocus={() => setShowOptions(true)}
                     >
                         {showOptions ? 'Click to Close' : 'Select...'}
                         <span
@@ -112,19 +132,28 @@ const MultiSelect: React.FC<Props> = (props) => {
                 )}
 
                 <div
-                    className={`mt-1 w-full rounded-md bg-white shadow-lg ${
+                    className={`mt-1 w-full max-h-96 overflow-y-auto text-center rounded-md bg-white border border-gray-300 shadow-lg ${
                         showOptions ? 'block' : 'hidden'
                     }`}
                     aria-live="polite"
                 >
+                    {limit && limitedOptions.length === limit && (
+                        <Typography variant="small">
+                            Showing top {limit} results
+                        </Typography>
+                    )}
                     <ul
-                        className="rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                        className=" py-1 text-base overflow-auto sm:text-sm"
                         role="listbox"
                         aria-labelledby={ariaLabel}
                     >
                         {selectAll && (
                             <li
-                                className="cursor-pointer select-none relative py-2 pl-3 pr-9"
+                                className={`select-none relative py-2 pl-3 pr-9 ${
+                                    limit && limitedOptions.length === limit
+                                        ? 'border-y'
+                                        : 'border-b'
+                                } border-gray-300 `}
                                 role="option"
                                 aria-selected={allSelected}
                             >
@@ -134,12 +163,19 @@ const MultiSelect: React.FC<Props> = (props) => {
                                         type="checkbox"
                                         id="select-all"
                                         checked={allSelected}
-                                        onChange={handleSelectAllClick}
-                                        className="h-4 w-4 border-gray-300 rounded"
+                                        onChange={() => {
+                                            handleSelectAllClick();
+                                            if (inputRef.current) {
+                                                inputRef.current.focus({
+                                                    preventScroll: true,
+                                                });
+                                            }
+                                        }}
+                                        className="h-4 w-4 rounded cursor-pointer"
                                     />
                                     <label
                                         htmlFor="select-all"
-                                        className="ml-3 block truncate"
+                                        className="ml-3 block font-bold truncate cursor-pointer"
                                     >
                                         Select All
                                     </label>
@@ -147,10 +183,10 @@ const MultiSelect: React.FC<Props> = (props) => {
                             </li>
                         )}
 
-                        {filteredOptions.map((type, index) => (
+                        {limitedOptions.map((type, index) => (
                             <li
                                 key={index}
-                                className="cursor-pointer select-none relative py-2 pl-3 pr-9"
+                                className="select-none relative py-2 pl-3 pr-9"
                                 role="option"
                                 aria-selected={selectedOptions?.includes(type)}
                             >
@@ -162,12 +198,19 @@ const MultiSelect: React.FC<Props> = (props) => {
                                         checked={selectedOptions?.includes(
                                             type
                                         )}
-                                        onChange={() => handleOptionClick(type)}
-                                        className="h-4 w-4 border-gray-300 rounded"
+                                        onChange={() => {
+                                            handleOptionClick(type);
+                                            if (inputRef.current) {
+                                                inputRef.current.focus({
+                                                    preventScroll: true,
+                                                });
+                                            }
+                                        }}
+                                        className="h-4 w-4 rounded cursor-pointer"
                                     />
                                     <label
                                         htmlFor={type}
-                                        className="ml-3 block truncate"
+                                        className="ml-3 block truncate cursor-pointer"
                                     >
                                         {type}
                                     </label>
