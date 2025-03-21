@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'explorer.geoconnex.us',
+    title: 'Geoconnex Explorer',
     description: 'Mainstem Exploration App',
 };
 
