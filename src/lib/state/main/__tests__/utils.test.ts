@@ -5,6 +5,7 @@ import {
     FeatureCollection,
     GeoJsonProperties,
     Geometry,
+    Point,
 } from 'geojson';
 import { defaultGeoJson } from '@/lib/state/consts';
 
@@ -57,7 +58,7 @@ describe('utils', () => {
                 },
             };
 
-            const expected: FeatureCollection<Geometry, Dataset> = {
+            const expected: FeatureCollection<Point, Dataset> = {
                 type: 'FeatureCollection',
                 features: [
                     {

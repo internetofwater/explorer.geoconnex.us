@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import TableWrapper from '@/app/features/Table';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Geometry, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 
-const datasets: FeatureCollection<Geometry, Dataset> = {
+const datasets: FeatureCollection<Point, Dataset> = {
     type: 'FeatureCollection',
     features: [
         {

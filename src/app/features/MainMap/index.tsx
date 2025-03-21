@@ -34,16 +34,13 @@ import {
     getDatasets,
     reset,
     setLayerVisibility,
+    setMapMoved,
     setSelectedData,
     setSelectedMainstemBBOX,
-    setVisibleDatasetIds,
 } from '@/lib/state/main/slice';
-import {
-    getVisibleClusterData,
-    spiderfyClusters,
-} from '@/app/features/MainMap/utils';
+import { spiderfyClusters } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { Feature, FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import debounce from 'lodash.debounce';
 
@@ -76,23 +73,10 @@ export const MainMap: React.FC<Props> = (props) => {
     const previousClusterIds = useRef('');
     const isMounted = useRef(true);
 
-    const getCurrentVisibleDatasets = async () => {
-        if (map) {
-            const visibleDatasetIds = await getVisibleClusterData(
-                map,
-                [SubLayerId.AssociatedDataClusters],
-                SourceId.AssociatedData
-            );
-
-            if (isMounted.current) {
-                dispatch(setVisibleDatasetIds(visibleDatasetIds));
-            }
-        }
-    };
-
     const handleMapMove = () => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        getCurrentVisibleDatasets();
+        if (isMounted.current) {
+            dispatch(setMapMoved(Math.random()));
+        }
     };
 
     const debouncedHandleMapMove = debounce(handleMapMove, 500);
@@ -460,19 +444,22 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        const source = map.getSource(SourceId.AssociatedData) as GeoJSONSource;
-        if (source) {
-            source.setData(datasets);
+        const clusterSource = map.getSource(
+            SourceId.AssociatedData
+        ) as GeoJSONSource;
+
+        if (clusterSource) {
+            clusterSource.setData(datasets);
             const spiderfySource = map.getSource(
                 SourceId.Spiderify
             ) as GeoJSONSource;
             const spiderfySourceData =
-                spiderfySource._data as FeatureCollection<Geometry, Dataset>;
+                spiderfySource._data as FeatureCollection<Point, Dataset>;
 
             if (spiderfySourceData.features.length > 0) {
                 let newData = JSON.parse(
                     JSON.stringify(spiderfySourceData)
-                ) as FeatureCollection<Geometry, Dataset>;
+                ) as FeatureCollection<Point, Dataset>;
                 newData = {
                     type: 'FeatureCollection',
                     features: newData.features.map((feature) => {
@@ -482,8 +469,7 @@ export const MainMap: React.FC<Props> = (props) => {
                                 ...feature.properties,
                                 isNotFiltered: datasets.features.some(
                                     (dataSetFeature) =>
-                                        dataSetFeature.properties.url ===
-                                        feature.properties.url
+                                        dataSetFeature.id === feature.id
                                 )
                                     ? 1
                                     : 0.1,

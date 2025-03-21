@@ -1,9 +1,9 @@
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Geometry, Point } from 'geojson';
 import * as XLSX from 'xlsx';
 import { Dataset } from '@/app/types';
 
 export const convertGeoJSONToCSV = (
-    geojson: FeatureCollection<Geometry, Dataset>
+    geojson: FeatureCollection<Point, Dataset>
 ) => {
     // TODO: add name of mainstem and call getHeaderValue the add cells in the same order as the Table headers
     const datasets = geojson.features.map((feature) => feature.properties);

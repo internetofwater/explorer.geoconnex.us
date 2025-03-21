@@ -11,10 +11,10 @@ import {
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Geometry, Point } from 'geojson';
 
 type Props = {
-    datasets: FeatureCollection<Geometry, Dataset>;
+    datasets: FeatureCollection<Point, Dataset>;
 };
 
 const TableWrapper: React.FC<Props> = (props) => {
@@ -129,7 +129,6 @@ const TableWrapper: React.FC<Props> = (props) => {
     const table = useReactTable({
         columns,
         data,
-        debugTable: true,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),

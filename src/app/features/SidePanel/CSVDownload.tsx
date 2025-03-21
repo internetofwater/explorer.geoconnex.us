@@ -1,10 +1,10 @@
 import Button from '@/app/components/common/Button';
 import { Dataset } from '@/app/types';
 import { convertGeoJSONToCSV } from '@/app/utils/csv';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Point } from 'geojson';
 
 type Props = {
-    datasets: FeatureCollection<Geometry, Dataset>;
+    datasets: FeatureCollection<Point, Dataset>;
 };
 
 export const CSVDownload: React.FC<Props> = (props) => {

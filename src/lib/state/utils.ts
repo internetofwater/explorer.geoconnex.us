@@ -8,13 +8,14 @@ import {
     FeatureCollection,
     GeoJsonProperties,
     Geometry,
+    Point,
 } from 'geojson';
 import { Summary, SummaryData } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
 
 export const transformDatasets = (
     feature: Feature<Geometry, GeoJsonProperties & { datasets?: Dataset[] }>
-): FeatureCollection<Geometry, Dataset> => {
+): FeatureCollection<Point, Dataset> => {
     if (
         feature.properties &&
         feature.properties?.datasets &&
@@ -45,11 +46,11 @@ export const transformDatasets = (
 
         return {
             type: 'FeatureCollection',
-            features: features as Feature<Geometry, Dataset>[],
+            features: features as Feature<Point, Dataset>[],
         };
     }
 
-    return defaultGeoJson as FeatureCollection<Geometry, Dataset>;
+    return defaultGeoJson as FeatureCollection<Point, Dataset>;
 };
 
 export const extractLatLng = (wkt: string) => {

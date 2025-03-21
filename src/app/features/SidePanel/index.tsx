@@ -20,10 +20,12 @@ import { Linear } from '@/app/assets/Linear';
 import { Results } from './Results';
 import { Dataset, MainstemData } from '@/app/types';
 import { ComplexSummary } from './Summary/Complex';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Point } from 'geojson';
+import { useMap } from '@/app/contexts/MapContexts';
+import { MAP_ID as MAIN_MAP_ID } from '../MainMap/config';
 
 type Props = {
-    datasets: FeatureCollection<Geometry, Dataset>;
+    datasets: FeatureCollection<Point, Dataset>;
 };
 
 const SidePanel: React.FC<Props> = (props) => {
@@ -32,11 +34,15 @@ const SidePanel: React.FC<Props> = (props) => {
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const { map } = useMap(MAIN_MAP_ID);
+
     const { view, showResults } = useSelector((state: RootState) => state.main);
 
     const datasetsLength = useSelector(getDatasetsLength);
 
-    const selectedSummary = useSelector(getSelectedSummary);
+    const selectedSummary = useSelector((state: RootState) =>
+        getSelectedSummary(state, map)
+    );
 
     const dispatch: AppDispatch = useDispatch();
 
