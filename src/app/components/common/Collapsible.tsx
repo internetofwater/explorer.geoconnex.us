@@ -1,5 +1,6 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useEffect, useState } from 'react';
+import { Typography } from './Typography';
 
 type Props = {
     title: string;
@@ -24,14 +25,17 @@ const Collapsible: React.FC<Props> = (props) => {
         <div className="bg-primary text-black ">
             <button
                 title={`${isOpen ? 'Hide' : 'Show'} ${title}`}
-                className={`sticky top-0 w-full 
+                className={`sticky top-0 w-full -mt-1
                         flex justify-between items-center p-4 bg-primary-opaque 
                         font-bold text-lg 
                         border-t ${isOpen && 'border-b'} border-gray-300
-                        hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover`}
+                        hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover
+                        z-[1]`}
                 onClick={toggleCollapse}
             >
-                {title}
+                <Typography variant="h3" as="h2" className="flex-grow-0">
+                    {title}
+                </Typography>
                 <span
                     data-testid="arrow-icon-wrapper"
                     className={`transform ${

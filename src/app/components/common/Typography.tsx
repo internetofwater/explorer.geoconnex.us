@@ -42,6 +42,8 @@ const sizes: Record<Variant, string> = {
     small: 'text-sm sm:text-xs',
 };
 
+export const getTextStyling = (variant: Variant) => sizes[variant];
+
 export const Typography = ({
     variant,
     children,

@@ -21,7 +21,9 @@ export const Summary: React.FC<Props> = (props) => {
     return (
         <div className="mt-1" aria-label="dataset-summary">
             {!exclusions['name'] && (
-                <Typography variant="h5">{summary.name}</Typography>
+                <Typography variant="h5" as="h3">
+                    {summary.name}
+                </Typography>
             )}
             {summary.total > 0 ? (
                 <ul className="pl-8">

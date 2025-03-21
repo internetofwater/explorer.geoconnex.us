@@ -19,7 +19,7 @@ import { Linear } from '@/app/assets/Linear';
 import { Results } from './Results';
 import { MainstemData } from '@/app/types';
 
-export const SidePanel: React.FC = () => {
+const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -109,7 +109,7 @@ export const SidePanel: React.FC = () => {
                     </button>
                 </div>
             </div>
-            <div className="w-full py-3 px-2 bg-white flex flex-col justify-center text-black ">
+            <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
                 <Search setLoading={setLoading} setResults={setResults} />
                 {loading ? <Linear /> : <div className="h-2" />}
             </div>
@@ -123,14 +123,14 @@ export const SidePanel: React.FC = () => {
                 </div>
                 {selectedSummary && (
                     <Collapsible title="Selected" open={true}>
-                        <div className="px-4 pb-2">
+                        <div className="p-4">
                             <Summary summary={selectedSummary} />
                         </div>
                     </Collapsible>
                 )}
                 {datasets.features.length > 0 && (
                     <Collapsible title="Filters">
-                        <div className="px-4">
+                        <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
                                 <CSVDownload />
@@ -142,3 +142,5 @@ export const SidePanel: React.FC = () => {
         </div>
     );
 };
+
+export default SidePanel;

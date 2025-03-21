@@ -9,7 +9,7 @@ const LegendIcon: React.FC = () => {
             role="img"
             aria-labelledby="icon-title-legend icon-desc-legend"
         >
-            <title id="icon-title-legend">Legend Icon</title>
+            <title id="icon-title-legend">Legend Reference</title>
             <desc id="icon-desc-legend">
                 This icon is used in a button to show the map legend
             </desc>
