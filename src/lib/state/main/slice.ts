@@ -104,7 +104,7 @@ export const fetchDatasets = createAsyncThunk<
     string
 >('main/fetchDatasets', async (id: string) => {
     const response = await fetch(
-        `https://reference.geoconnex.us/collections/mainstems/items/${id}`
+        `https://reference.geoconnex.dev/collections/mainstems/items/${id}`
     );
     const data = (await response.json()) as Feature<
         Geometry,
