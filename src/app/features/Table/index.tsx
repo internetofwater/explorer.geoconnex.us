@@ -11,7 +11,7 @@ import {
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
-import { FeatureCollection, Geometry, Point } from 'geojson';
+import { FeatureCollection, Point } from 'geojson';
 
 type Props = {
     datasets: FeatureCollection<Point, Dataset>;

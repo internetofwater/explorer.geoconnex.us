@@ -183,10 +183,11 @@ const selectSelectedMainstem = (state: RootState) =>
 const selectMapMoved = (state: RootState) => state.main.mapMoved;
 const selectMap = (state: RootState, map: Map | null) => map;
 
-export const getSelectedSummary = createSelector(
-    [selectSelectedMainstem, selectMapMoved, getDatasets, selectMap],
-    (selectedMainstem, mapMoved, datasets, map): Summary | null => {
-        if (!map || !selectedMainstem || !mapMoved) {
+// Restrict the datasets collection to what is within the current map bounds
+export const getDatasetsInBounds = createSelector(
+    [selectMapMoved, getDatasets, selectMap],
+    (mapMoved, datasets, map): FeatureCollection<Point, Dataset> | null => {
+        if (!map || !mapMoved) {
             return null;
         }
         const bounds = map.getBounds();
@@ -208,17 +209,31 @@ export const getSelectedSummary = createSelector(
 
             const contained = turf.pointsWithinPolygon(datasets, bbox);
 
-            if (contained.features.length > 0) {
-                const _datasets = contained.features.map(
-                    (feature) => feature.properties
-                );
-                const selectedSummary = createSummary(selectedMainstem.id, {
-                    ...selectedMainstem,
-                    datasets: _datasets,
-                });
-                return selectedSummary;
-            }
+            return contained as FeatureCollection<Point, Dataset>;
         }
+        return null;
+    }
+);
+
+// Create a summary for the restricted datasets
+export const getSelectedSummary = createSelector(
+    [selectSelectedMainstem, getDatasetsInBounds],
+    (selectedMainstem, datasets): Summary | null => {
+        if (!selectedMainstem) {
+            return null;
+        }
+
+        if (datasets) {
+            const _datasets = datasets.features.map(
+                (feature) => feature.properties
+            );
+            const selectedSummary = createSummary(selectedMainstem.id, {
+                ...selectedMainstem,
+                datasets: _datasets,
+            });
+            return selectedSummary;
+        }
+
         return null;
     }
 );

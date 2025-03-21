@@ -1,16 +1,25 @@
 import { Typography } from '@/app/components/common/Typography';
-import { SummaryData } from '@/lib/state/main/slice';
+import { useMemo, useState } from 'react';
 
-type Props = {
-    top: number;
+interface Props {
     total: number;
     title: string;
     length: number;
-    data: SummaryData;
-};
+    data: Record<string, number>;
+}
 
 export const SummaryEntry: React.FC<Props> = (props) => {
-    const { top, total, title, length, data } = props;
+    const { total, title, length, data } = props;
+    const [visibleCount, setVisibleCount] = useState(5);
+
+    const handleShowMore = () => {
+        setVisibleCount((prevCount) => prevCount + 5);
+    };
+
+    const limitedData = useMemo(
+        () => Object.fromEntries(Object.entries(data).slice(0, visibleCount)),
+        [data, visibleCount]
+    );
 
     return (
         <>
@@ -20,26 +29,30 @@ export const SummaryEntry: React.FC<Props> = (props) => {
                         <strong>{title}:</strong>
                     </Typography>
                     <ul className="list-disc ml-4">
-                        {Object.entries(data).map(([key, count], index) => {
-                            let percentage: string | number = Math.round(
-                                (count / total) * 100
-                            );
-                            if (percentage < 1) {
-                                percentage = '<1';
-                            }
-                            return (
-                                <li key={index}>
-                                    <Typography variant="body-small">
-                                        {key}: {count} ({percentage}%)
-                                    </Typography>
-                                </li>
-                            );
-                        })}
+                        {Object.entries(limitedData)
+                            .slice(0, visibleCount)
+                            .map(([key, count], index) => {
+                                let percentage: string | number = Math.round(
+                                    (count / total) * 100
+                                );
+                                if (percentage < 1) {
+                                    percentage = '<1';
+                                }
+                                return (
+                                    <li key={index}>
+                                        <Typography variant="body-small">
+                                            {key}: {count} ({percentage}%)
+                                        </Typography>
+                                    </li>
+                                );
+                            })}
                     </ul>
-                    {length > top && (
-                        <Typography variant="body-small">
-                            + {length - top} more
-                        </Typography>
+                    {length > visibleCount && (
+                        <button onClick={handleShowMore}>
+                            <Typography variant="body-small">
+                                + {Math.min(5, length - visibleCount)} more
+                            </Typography>
+                        </button>
                     )}
                 </li>
             )}

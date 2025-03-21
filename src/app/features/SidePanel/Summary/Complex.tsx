@@ -1,12 +1,7 @@
-import RadioGroup from '@/app/components/common/RadioGroup';
 import { Typography } from '@/app/components/common/Typography';
-import {
-    getVisibleDatasetsLength,
-    Summary as SummaryObj,
-} from '@/lib/state/main/slice';
-import { useMemo, useState } from 'react';
+import { Summary as SummaryObj } from '@/lib/state/main/slice';
+import { useState } from 'react';
 import { SummaryEntry } from './Entry';
-import { useSelector } from 'react-redux';
 
 export type Exclusions = {
     name?: boolean;
@@ -24,8 +19,6 @@ type Props = {
 
 export const ComplexSummary: React.FC<Props> = (props) => {
     const { summary, exclusions = {} } = props;
-
-    const visibleDatasetsLength = useSelector(getVisibleDatasetsLength);
 
     const [top, setTop] = useState<number>(5);
 
@@ -54,16 +47,16 @@ export const ComplexSummary: React.FC<Props> = (props) => {
         setTop(top);
     };
 
-    const limitedTypes = useMemo(
-        () => Object.fromEntries(Object.entries(summary.types).slice(0, top)),
-        [summary.types, top]
-    );
+    // const limitedTypes = useMemo(
+    //     () => Object.fromEntries(Object.entries(summary.types).slice(0, top)),
+    //     [summary.types, top]
+    // );
 
-    const limitedVariables = useMemo(
-        () =>
-            Object.fromEntries(Object.entries(summary.variables).slice(0, top)),
-        [summary.variables, top]
-    );
+    // const limitedVariables = useMemo(
+    //     () =>
+    //         Object.fromEntries(Object.entries(summary.variables).slice(0, top)),
+    //     [summary.variables, top]
+    // );
 
     // const typesLength = Object.keys(summary.types).length;
 
@@ -72,11 +65,12 @@ export const ComplexSummary: React.FC<Props> = (props) => {
             {!exclusions['name'] && (
                 <Typography variant="h5">{summary.name}</Typography>
             )}
-            <RadioGroup
+            {/* <RadioGroup
+                value={top}
                 options={topOptions}
                 handleChange={handleTopChange}
                 ariaLabelPrefix="Select"
-            />
+            /> */}
             {summary.totalDatasets > 0 ? (
                 <ul className="pl-8">
                     <li className="list-disc break-words whitespace-normal">
@@ -95,18 +89,16 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                         </Typography>
                     </li>
                     <SummaryEntry
-                        top={top}
-                        total={visibleDatasetsLength}
+                        total={summary.totalDatasets}
                         length={typesLength}
                         title="Types"
-                        data={limitedTypes}
+                        data={summary.types}
                     />
                     <SummaryEntry
-                        top={top}
-                        total={visibleDatasetsLength}
+                        total={summary.totalDatasets}
                         length={variablesLength}
                         title="Variables Measured"
-                        data={limitedVariables}
+                        data={summary.variables}
                     />
                 </ul>
             ) : (

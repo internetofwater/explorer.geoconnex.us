@@ -1,4 +1,4 @@
-import { FeatureCollection, Geometry, Point } from 'geojson';
+import { FeatureCollection, Point } from 'geojson';
 import * as XLSX from 'xlsx';
 import { Dataset } from '@/app/types';
 

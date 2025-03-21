@@ -1,6 +1,7 @@
 import React, { JSX } from 'react';
 
 type Props<T extends string | number> = {
+    value: T;
     options: { value: T; label: string }[];
     ariaLabelPrefix: string;
     vertical?: boolean;
@@ -10,7 +11,13 @@ type Props<T extends string | number> = {
 const RadioGroup = <T extends string | number>(
     props: Props<T>
 ): JSX.Element => {
-    const { options, ariaLabelPrefix, vertical = false, handleChange } = props;
+    const {
+        value,
+        options,
+        ariaLabelPrefix,
+        vertical = false,
+        handleChange,
+    } = props;
 
     return (
         <div
@@ -24,6 +31,7 @@ const RadioGroup = <T extends string | number>(
                         type="radio"
                         name="option"
                         value={option.value}
+                        checked={value === option.value}
                         aria-label={`${ariaLabelPrefix} ${option.label}`}
                         onChange={() => handleChange(option.value)}
                     />
