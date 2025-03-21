@@ -1,6 +1,6 @@
 import { Typography } from '@/app/components/common/Typography';
 import { Summary as SummaryObj } from '@/lib/state/main/slice';
-import { useState } from 'react';
+// import { useState } from 'react';
 import { SummaryEntry } from './Entry';
 
 export type Exclusions = {
@@ -20,32 +20,32 @@ type Props = {
 export const ComplexSummary: React.FC<Props> = (props) => {
     const { summary, exclusions = {} } = props;
 
-    const [top, setTop] = useState<number>(5);
+    // const [top, setTop] = useState<number>(5);
 
     const typesLength = Object.keys(summary.types).length;
     const variablesLength = Object.keys(summary.variables).length;
 
-    const topOptions: {
-        value: number;
-        label: string;
-    }[] = [
-        {
-            value: 5,
-            label: 'Top 5',
-        },
-        {
-            value: 10,
-            label: 'Top 10',
-        },
-        {
-            value: 20,
-            label: 'Top 20',
-        },
-    ];
+    // const topOptions: {
+    //     value: number;
+    //     label: string;
+    // }[] = [
+    //     {
+    //         value: 5,
+    //         label: 'Top 5',
+    //     },
+    //     {
+    //         value: 10,
+    //         label: 'Top 10',
+    //     },
+    //     {
+    //         value: 20,
+    //         label: 'Top 20',
+    //     },
+    // ];
 
-    const handleTopChange = (top: number) => {
-        setTop(top);
-    };
+    // const handleTopChange = (top: number) => {
+    //     setTop(top);
+    // };
 
     // const limitedTypes = useMemo(
     //     () => Object.fromEntries(Object.entries(summary.types).slice(0, top)),

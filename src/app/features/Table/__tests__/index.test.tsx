@@ -1,9 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import TableWrapper from '@/app/features/Table';
-import { FeatureCollection, Geometry, Point } from 'geojson';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import Table from '@/app/features/Table';
+import { FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 
+const mockStore = configureStore([]);
 const datasets: FeatureCollection<Point, Dataset> = {
     type: 'FeatureCollection',
     features: [
@@ -32,21 +35,47 @@ const datasets: FeatureCollection<Point, Dataset> = {
     ],
 };
 
+const filter = {
+    selectedVariables: ['Variable 1'],
+    selectedTypes: ['Type 1'],
+    startTemporalCoverage: '1969-01-01',
+    endTemporalCoverage: '2030-01-01',
+};
+
+const store = mockStore({
+    main: {
+        datasets,
+        filter,
+    },
+});
+
 describe('Table', () => {
     test('renders table headers correctly', () => {
-        render(<TableWrapper datasets={datasets} />);
+        render(
+            <Provider store={store}>
+                <Table />
+            </Provider>
+        );
 
         expect(screen.getByText('Site Name')).toBeInTheDocument();
     });
 
     test('renders table rows correctly', () => {
-        render(<TableWrapper datasets={datasets} />);
+        render(
+            <Provider store={store}>
+                <Table />
+            </Provider>
+        );
 
         expect(screen.getByText('Site 1')).toBeInTheDocument();
     });
 
     test('handles pagination correctly', () => {
-        render(<TableWrapper datasets={datasets} />);
+        render(
+            <Provider store={store}>
+                <Table />
+            </Provider>
+        );
 
         const nextPageButton = screen.getByTestId('next-button');
         fireEvent.click(nextPageButton);

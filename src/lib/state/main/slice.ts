@@ -186,9 +186,9 @@ const selectMap = (state: RootState, map: Map | null) => map;
 // Restrict the datasets collection to what is within the current map bounds
 export const getDatasetsInBounds = createSelector(
     [selectMapMoved, getDatasets, selectMap],
-    (mapMoved, datasets, map): FeatureCollection<Point, Dataset> | null => {
+    (mapMoved, datasets, map): FeatureCollection<Point, Dataset> => {
         if (!map || !mapMoved) {
-            return null;
+            return datasets;
         }
         const bounds = map.getBounds();
         if (bounds) {
@@ -211,7 +211,7 @@ export const getDatasetsInBounds = createSelector(
 
             return contained as FeatureCollection<Point, Dataset>;
         }
-        return null;
+        return datasets;
     }
 );
 
@@ -223,18 +223,14 @@ export const getSelectedSummary = createSelector(
             return null;
         }
 
-        if (datasets) {
-            const _datasets = datasets.features.map(
-                (feature) => feature.properties
-            );
-            const selectedSummary = createSummary(selectedMainstem.id, {
-                ...selectedMainstem,
-                datasets: _datasets,
-            });
-            return selectedSummary;
-        }
-
-        return null;
+        const _datasets = datasets.features.map(
+            (feature) => feature.properties
+        );
+        const selectedSummary = createSummary(selectedMainstem.id, {
+            ...selectedMainstem,
+            datasets: _datasets,
+        });
+        return selectedSummary;
     }
 );
 

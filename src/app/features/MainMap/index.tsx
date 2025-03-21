@@ -79,7 +79,7 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
-    const debouncedHandleMapMove = debounce(handleMapMove, 500);
+    const debouncedHandleMapMove = debounce(handleMapMove, 150);
 
     useEffect(() => {
         return () => {

@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import {
+    getDatasets,
     getDatasetsLength,
     getSelectedSummary,
     setSearchResultIds,
@@ -18,19 +19,12 @@ import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
 import { Linear } from '@/app/assets/Linear';
 import { Results } from './Results';
-import { Dataset, MainstemData } from '@/app/types';
+import { MainstemData } from '@/app/types';
 import { ComplexSummary } from './Summary/Complex';
-import { FeatureCollection, Point } from 'geojson';
 import { useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '../MainMap/config';
 
-type Props = {
-    datasets: FeatureCollection<Point, Dataset>;
-};
-
-const SidePanel: React.FC<Props> = (props) => {
-    const { datasets } = props;
-
+const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -39,6 +33,7 @@ const SidePanel: React.FC<Props> = (props) => {
     const { view, showResults } = useSelector((state: RootState) => state.main);
 
     const datasetsLength = useSelector(getDatasetsLength);
+    const datasets = useSelector(getDatasets);
 
     const selectedSummary = useSelector((state: RootState) =>
         getSelectedSummary(state, map)

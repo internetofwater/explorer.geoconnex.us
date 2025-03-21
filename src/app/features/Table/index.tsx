@@ -11,14 +11,18 @@ import {
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
-import { FeatureCollection, Point } from 'geojson';
+import { getDatasetsInBounds } from '@/lib/state/main/slice';
+import { MAP_ID as MAIN_MAP_ID } from '../MainMap/config';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/state/store';
+import { useMap } from '@/app/contexts/MapContexts';
 
-type Props = {
-    datasets: FeatureCollection<Point, Dataset>;
-};
+const TableWrapper: React.FC = () => {
+    const { map } = useMap(MAIN_MAP_ID);
 
-const TableWrapper: React.FC<Props> = (props) => {
-    const { datasets } = props;
+    const datasets = useSelector((state: RootState) =>
+        getDatasetsInBounds(state, map)
+    );
 
     const columns = React.useMemo<ColumnDef<Dataset>[]>(
         () => [
