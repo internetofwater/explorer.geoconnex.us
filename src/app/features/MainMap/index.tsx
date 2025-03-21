@@ -34,14 +34,15 @@ import {
     getDatasets,
     reset,
     setLayerVisibility,
+    setMapMoved,
     setSelectedData,
     setSelectedMainstemBBOX,
-    setSelectedMainstemId,
 } from '@/lib/state/main/slice';
 import { spiderfyClusters } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { Feature, FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
+import debounce from 'lodash.debounce';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -59,15 +60,33 @@ export const MainMap: React.FC<Props> = (props) => {
         searchResultIds,
         visibleLayers,
         hoverId,
-        selectedMainstemId,
+        selectedMainstem,
         selectedMainstemBBOX,
     } = useSelector((state: RootState) => state.main);
+
+    const selectedMainstemId = selectedMainstem?.id ?? null;
 
     const datasets = useSelector(getDatasets);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 
     const previousClusterIds = useRef('');
+    const isMounted = useRef(true);
+
+    const handleMapMove = () => {
+        if (isMounted.current) {
+            dispatch(setMapMoved(Math.random()));
+        }
+    };
+
+    const debouncedHandleMapMove = debounce(handleMapMove, 150);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+            debouncedHandleMapMove.cancel();
+        };
+    }, []);
 
     useEffect(() => {
         if (!map) {
@@ -166,7 +185,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     if (feature.properties) {
                         const id = feature.properties.id as string;
 
-                        dispatch(setSelectedMainstemId(id));
                         dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
                     }
                 }
@@ -187,7 +205,6 @@ export const MainMap: React.FC<Props> = (props) => {
             });
 
             if (!features.length) {
-                dispatch(setSelectedMainstemId(null));
                 dispatch(reset());
             }
         });
@@ -208,6 +225,9 @@ export const MainMap: React.FC<Props> = (props) => {
             SubLayerId.HUC2BoundaryFill,
             HUC2BoundaryClickListener
         );
+
+        map.on('moveend', debouncedHandleMapMove);
+        map.on('zoomend', debouncedHandleMapMove);
 
         // Temp hack to force Vector Tile layers to reload without breaking cache
         map.on('style.load', () => {
@@ -330,7 +350,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-color', [
             'case',
-            ['==', ['get', 'id'], String(hoverId)],
+            ['==', ['get', 'id'], hoverId],
             MAINSTEMS_SELECTED_COLOR,
             ['==', ['get', 'id'], selectedMainstemId],
             MAINSTEMS_SELECTED_COLOR,
@@ -341,7 +361,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-color', [
             'case',
-            ['==', ['get', 'id'], String(hoverId)],
+            ['==', ['get', 'id'], hoverId],
             MAINSTEMS_SELECTED_COLOR,
             ['==', ['get', 'id'], selectedMainstemId],
             MAINSTEMS_SELECTED_COLOR,
@@ -352,7 +372,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-color', [
             'case',
-            ['==', ['get', 'id'], String(hoverId)],
+            ['==', ['get', 'id'], hoverId],
             MAINSTEMS_SELECTED_COLOR,
             ['==', ['get', 'id'], selectedMainstemId],
             MAINSTEMS_SELECTED_COLOR,
@@ -424,19 +444,22 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        const source = map.getSource(SourceId.AssociatedData) as GeoJSONSource;
-        if (source) {
-            source.setData(datasets);
+        const clusterSource = map.getSource(
+            SourceId.AssociatedData
+        ) as GeoJSONSource;
+
+        if (clusterSource) {
+            clusterSource.setData(datasets);
             const spiderfySource = map.getSource(
                 SourceId.Spiderify
             ) as GeoJSONSource;
             const spiderfySourceData =
-                spiderfySource._data as FeatureCollection<Geometry, Dataset>;
+                spiderfySource._data as FeatureCollection<Point, Dataset>;
 
             if (spiderfySourceData.features.length > 0) {
                 let newData = JSON.parse(
                     JSON.stringify(spiderfySourceData)
-                ) as FeatureCollection<Geometry, Dataset>;
+                ) as FeatureCollection<Point, Dataset>;
                 newData = {
                     type: 'FeatureCollection',
                     features: newData.features.map((feature) => {
@@ -446,8 +469,7 @@ export const MainMap: React.FC<Props> = (props) => {
                                 ...feature.properties,
                                 isNotFiltered: datasets.features.some(
                                     (dataSetFeature) =>
-                                        dataSetFeature.properties.url ===
-                                        feature.properties.url
+                                        dataSetFeature.id === feature.id
                                 )
                                     ? 1
                                     : 0.1,

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 import debounce from 'lodash.debounce';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Geometry, Point } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
 import { setDatasets, setShowResults } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
@@ -77,7 +77,7 @@ const Search: React.FC<Props> = (props) => {
                 setResults([]);
                 dispatch(
                     setDatasets(
-                        defaultGeoJson as FeatureCollection<Geometry, Dataset>
+                        defaultGeoJson as FeatureCollection<Point, Dataset>
                     )
                 );
             }

@@ -10,7 +10,7 @@ import mainReducer, {
     setView,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import { FeatureCollection, Geometry } from 'geojson';
+import { FeatureCollection, Geometry, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import { LayerId } from '@/app/features/MainMap/config';
 
@@ -36,14 +36,14 @@ describe('mainSlice', () => {
     });
 
     test('should handle setHoverId', () => {
-        const hoverId = 2;
+        const hoverId = '2';
         store.dispatch(setHoverId(hoverId));
         const state = store.getState().main;
         expect(state.hoverId).toEqual(hoverId);
     });
 
     test('should handle setDatasets', () => {
-        const datasets: FeatureCollection<Geometry, Dataset> = {
+        const datasets: FeatureCollection<Point, Dataset> = {
             type: 'FeatureCollection',
             features: [],
         };
