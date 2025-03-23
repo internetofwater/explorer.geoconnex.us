@@ -12,7 +12,7 @@ import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
 import { getDatasetsInBounds } from '@/lib/state/main/slice';
-import { MAP_ID as MAIN_MAP_ID } from '../MainMap/config';
+import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/state/store';
 import { useMap } from '@/app/contexts/MapContexts';

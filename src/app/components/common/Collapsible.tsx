@@ -1,6 +1,6 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useEffect, useState } from 'react';
-import { Typography } from './Typography';
+import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     title: string;

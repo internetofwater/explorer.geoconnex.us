@@ -6,10 +6,13 @@ import {
     Map,
     Popup,
 } from 'mapbox-gl';
-import { CLUSTER_TRANSITION_ZOOM, SourceId, SubLayerId } from './config';
-import { Feature, Geometry, LineString, Point } from 'geojson';
+import {
+    CLUSTER_TRANSITION_ZOOM,
+    SourceId,
+    SubLayerId,
+} from '@/app/features/MainMap/config';
+import { Feature, LineString, Point } from 'geojson';
 import * as turf from '@turf/turf';
-import { Dataset } from '@/app/types';
 
 export const calculateSpiderfiedPositionsConcentricCircle = (
     count: number
@@ -236,65 +239,4 @@ export const hasPeristentPopupOpenToThisItem = (
     itemId: string
 ) => {
     return popUp.isOpen() && popUp._content?.innerHTML.includes(itemId);
-};
-
-export const getVisibleClusterData = (
-    map: Map,
-    layerIds: string[],
-    sourceId: string
-): Promise<string[]> => {
-    const visibleClusters = map.queryRenderedFeatures({ layers: layerIds });
-    if (visibleClusters) {
-        const clusterDataPromises = visibleClusters.map((feature) => {
-            const clusterId = feature.properties!.cluster_id as number;
-            return new Promise<Feature<Geometry, Dataset>[]>(
-                (resolve, reject) => {
-                    const source = map.getSource(sourceId) as GeoJSONSource;
-                    if (source) {
-                        source.getClusterLeaves(
-                            clusterId,
-                            Infinity,
-                            0,
-                            (err, leaves) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    if (leaves) {
-                                        resolve(
-                                            leaves as Feature<
-                                                Geometry,
-                                                Dataset
-                                            >[]
-                                        );
-                                    } else {
-                                        resolve([]);
-                                    }
-                                }
-                            }
-                        );
-                    } else {
-                        reject(new Error(`Source ${sourceId} not found`));
-                    }
-                }
-            );
-        });
-
-        return Promise.all(clusterDataPromises)
-            .then((clusters) => {
-                const clusterIds = clusters
-                    .map((clusterData) => {
-                        return clusterData.map(
-                            (feature) => feature.id as string
-                        );
-                    })
-                    .flat();
-                return clusterIds;
-            })
-            .catch((err) => {
-                console.error('Error fetching cluster data:', err);
-                return [];
-            });
-    } else {
-        return Promise.resolve([]);
-    }
 };

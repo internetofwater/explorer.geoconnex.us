@@ -12,7 +12,7 @@ import { createSummary } from '@/lib/state/utils';
 import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
-import { SimpleSummary } from './Summary/Simple';
+import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 
 type Props = {
     setLoading: (loading: boolean) => void;

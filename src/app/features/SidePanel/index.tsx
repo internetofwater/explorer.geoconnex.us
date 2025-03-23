@@ -18,11 +18,11 @@ import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
 import { Linear } from '@/app/assets/Linear';
-import { Results } from './Results';
+import { Results } from '@/app/features/SidePanel/Results';
 import { MainstemData } from '@/app/types';
-import { ComplexSummary } from './Summary/Complex';
+import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
 import { useMap } from '@/app/contexts/MapContexts';
-import { MAP_ID as MAIN_MAP_ID } from '../MainMap/config';
+import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);

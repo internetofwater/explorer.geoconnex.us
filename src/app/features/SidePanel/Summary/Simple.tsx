@@ -18,9 +18,8 @@ type Props = {
 export const SimpleSummary: React.FC<Props> = (props) => {
     const { summary, exclusions = {} } = props;
 
-    const typesLength = Object.keys(summary.types).length;
-    const variablesLength = Object.keys(summary.variables).length;
-    // const typesLength = Object.keys(summary.types).length;
+    const types = Object.keys(summary.types);
+    const variables = Object.keys(summary.variables);
 
     return (
         <div className="mt-1" aria-label="dataset-summary">
@@ -45,45 +44,39 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                             {summary.totalDatasets}
                         </Typography>
                     </li>
-                    {typesLength > 0 && (
+                    {types.length > 0 && (
                         <li className="list-disc break-words whitespace-normal">
                             <Typography variant="body-small">
-                                {typesLength > 10 ? (
+                                {types.length > 10 ? (
                                     <>
                                         <strong>Top 5 Types:</strong>{' '}
-                                        {Object.keys(summary.types)
-                                            .slice(0, 5)
-                                            .join(', ')}{' '}
-                                        + {typesLength - 5} more
+                                        {types.slice(0, 5).join(', ')} +{' '}
+                                        {types.length - 5} more
                                     </>
                                 ) : (
                                     <>
                                         <strong>Types:</strong>{' '}
-                                        {Object.keys(summary.types).join(', ')}
+                                        {types.join(', ')}
                                     </>
                                 )}
                             </Typography>
                         </li>
                     )}
-                    {variablesLength > 0 && (
+                    {variables.length > 0 && (
                         <li className="list-disc break-words whitespace-normal">
                             <Typography variant="body-small">
-                                {variablesLength > 10 ? (
+                                {variables.length > 10 ? (
                                     <>
                                         <strong>
                                             Top 5 Variables Measured:
                                         </strong>{' '}
-                                        {Object.keys(summary.variables)
-                                            .slice(0, 5)
-                                            .join(', ')}{' '}
-                                        + {variablesLength - 5} more
+                                        {variables.slice(0, 5).join(', ')} +{' '}
+                                        {variables.length - 5} more
                                     </>
                                 ) : (
                                     <>
                                         <strong>Variables Measured:</strong>{' '}
-                                        {Object.keys(summary.variables).join(
-                                            ', '
-                                        )}
+                                        {variables.join(', ')}
                                     </>
                                 )}
                             </Typography>

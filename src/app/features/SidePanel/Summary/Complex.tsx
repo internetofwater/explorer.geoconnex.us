@@ -1,7 +1,7 @@
 import { Typography } from '@/app/components/common/Typography';
 import { Summary as SummaryObj } from '@/lib/state/main/slice';
 // import { useState } from 'react';
-import { SummaryEntry } from './Entry';
+import { SummaryEntry } from '@/app/features/SidePanel/Summary/Entry';
 
 export type Exclusions = {
     name?: boolean;
