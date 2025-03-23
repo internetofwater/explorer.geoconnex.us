@@ -129,7 +129,8 @@ export const getDatasets = createSelector(
 
         // Apply filter automatically to the main datasets obj
         const features = datasets.features.filter((feature) => {
-            const { variableMeasured, temporalCoverage } = feature.properties;
+            const { variableMeasured, type, temporalCoverage } =
+                feature.properties;
             const [startTemporal, endTemporal] = temporalCoverage.split('/');
 
             const startDate = new Date(startTemporal);
@@ -144,6 +145,11 @@ export const getDatasets = createSelector(
                     variableMeasured.split(' / ')[0]
                 );
 
+            // Check type
+            const isTypeSelected =
+                filter.selectedTypes === undefined ||
+                filter.selectedTypes.includes(type);
+
             // Check start of temporal coverages
             const isStartDateValid =
                 filter.startTemporalCoverage === undefined ||
@@ -153,7 +159,12 @@ export const getDatasets = createSelector(
                 filter.endTemporalCoverage === undefined ||
                 new Date(filter.endTemporalCoverage) >= new Date(endDate);
 
-            return isVariableSelected && isStartDateValid && isEndDateValid;
+            return (
+                isVariableSelected &&
+                isTypeSelected &&
+                isStartDateValid &&
+                isEndDateValid
+            );
         });
 
         return {
