@@ -116,7 +116,11 @@ export const SummarySection: React.FC<Props> = (props) => {
             <Typography variant="h6">{title}</Typography>
             <div className="flex flex-col justify-center items-center h-64 w-full mt-4 mx-2 mb-1">
                 <div className="flex justify-center h-64 w-full">
-                    <div className={`${showLegend ? 'w-1/2' : 'w-full'} h-64`}>
+                    <div
+                        className={`flex justify-center items-center ${
+                            showLegend ? 'w-1/2' : 'w-full'
+                        } h-64`}
+                    >
                         <PieChart
                             labels={Object.keys(data).slice(0, top)}
                             values={Object.values(data).slice(0, top)}
