@@ -75,13 +75,11 @@ export const SummarySection: React.FC<Props> = (props) => {
     const length = useMemo(() => Object.keys(data).length, [data]);
 
     useEffect(() => {
-        const topVariableOptions = getOptions(length);
-        setTopOptions(topVariableOptions);
+        const topOptions = getOptions(length);
+        setTopOptions(topOptions);
     }, [length]);
 
-    const handleTopVariablesChange = (
-        event: ChangeEvent<HTMLSelectElement>
-    ) => {
+    const handleTopChange = (event: ChangeEvent<HTMLSelectElement>) => {
         setTop(Number(event.target.value));
     };
 
@@ -158,12 +156,12 @@ export const SummarySection: React.FC<Props> = (props) => {
                 </div>
                 {topOptions.length > 0 && (
                     <select
-                        aria-label="Top variables pie chart"
-                        onChange={(e) => handleTopVariablesChange(e)}
+                        aria-label="Top values pie chart"
+                        onChange={(e) => handleTopChange(e)}
                         className="static ml-auto -mt-6 z-[1]"
                     >
                         {topOptions.map(({ label, value }) => (
-                            <option key={`top-variable-${value}`} value={value}>
+                            <option key={`top-values-${value}`} value={value}>
                                 {label}
                             </option>
                         ))}
