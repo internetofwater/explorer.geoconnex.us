@@ -34,6 +34,7 @@ import {
     getDatasets,
     reset,
     setLayerVisibility,
+    setLoading,
     setMapMoved,
     setSelectedData,
     setSelectedMainstemBBOX,
@@ -76,6 +77,14 @@ export const MainMap: React.FC<Props> = (props) => {
     const handleMapMove = () => {
         if (isMounted.current) {
             dispatch(setMapMoved(Math.random()));
+        }
+    };
+
+    const handleDatasetFetch = async (id: string) => {
+        if (isMounted.current) {
+            dispatch(setLoading(true));
+            await dispatch(fetchDatasets(id));
+            dispatch(setLoading(false));
         }
     };
 
@@ -183,9 +192,8 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        const id = feature.properties.id as string;
-
-                        dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
+                        const id = String(feature.properties.id);
+                        handleDatasetFetch(id); // eslint-disable-line @typescript-eslint/no-floating-promises
                     }
                 }
             }
@@ -444,6 +452,8 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
+        console.log('useEffect');
+        dispatch(setLoading(true));
         const clusterSource = map.getSource(
             SourceId.AssociatedData
         ) as GeoJSONSource;
@@ -481,6 +491,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 spiderfySource.setData(newData);
             }
         }
+        dispatch(setLoading(false));
     }, [datasets]);
 
     useEffect(() => {

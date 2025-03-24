@@ -74,6 +74,7 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <MainMap accessToken={accessToken} />
+                    <LoadingBar />
                 </div>
                 <div
                     id="table"
@@ -82,9 +83,9 @@ export const App: React.FC<Props> = (props) => {
                     } w-full`}
                 >
                     <Table />
+                    <LoadingBar />
                 </div>
             </div>
-            <LoadingBar />
         </>
     );
 };
