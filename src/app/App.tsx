@@ -11,6 +11,7 @@ import { setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/HelpModal';
+import { LoadingBar } from '@/app/features/Loading';
 
 type Props = {
     accessToken: string;
@@ -83,6 +84,7 @@ export const App: React.FC<Props> = (props) => {
                     <Table />
                 </div>
             </div>
+            <LoadingBar />
         </>
     );
 };

@@ -4,17 +4,20 @@ import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
-import { setDatasets, setShowResults } from '@/lib/state/main/slice';
+import {
+    setDatasets,
+    setLoading,
+    setShowResults,
+} from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { Dataset, MainstemData } from '@/app/types';
 
 type Props = {
-    setLoading: (loading: boolean) => void;
     setResults: (results: MainstemData[]) => void;
 };
 
 const Search: React.FC<Props> = (props) => {
-    const { setLoading, setResults } = props;
+    const { setResults } = props;
 
     const [query, setQuery] = useState('');
 
@@ -28,7 +31,7 @@ const Search: React.FC<Props> = (props) => {
 
         if (_query) {
             try {
-                setLoading(true);
+                dispatch(setLoading(true));
 
                 if (controller.current) {
                     controller.current.abort(
@@ -55,7 +58,7 @@ const Search: React.FC<Props> = (props) => {
                 if (isMounted.current) {
                     dispatch(setShowResults(true));
                     setResults(searchResults);
-                    setLoading(false);
+                    dispatch(setLoading(false));
                 }
             } catch (error) {
                 // Abort signals come in 2 variants
@@ -68,7 +71,7 @@ const Search: React.FC<Props> = (props) => {
                 } else {
                     console.error('Error fetching mainstems: ', error);
                     if (isMounted.current) {
-                        setLoading(false);
+                        dispatch(setLoading(false));
                     }
                 }
             }

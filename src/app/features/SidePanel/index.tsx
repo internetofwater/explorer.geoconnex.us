@@ -15,13 +15,11 @@ import { Summary } from '@/app/features/SidePanel//Summary';
 import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
-import { Linear } from '@/app/assets/Linear';
 import { Results } from './Results';
 import { MainstemData } from '@/app/types';
 
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
-    const [loading, setLoading] = useState(false);
 
     const { datasets, view, selectedSummary, showResults } = useSelector(
         (state: RootState) => state.main
@@ -110,15 +108,14 @@ const SidePanel: React.FC = () => {
                 </div>
             </div>
             <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
-                <Search setLoading={setLoading} setResults={setResults} />
-                {loading ? <Linear /> : <div className="h-2" />}
+                <Search setResults={setResults} />
             </div>
 
             <div id="scrollable-side-panel" className="overflow-y-auto">
                 {/* Results makes async call, ensure mounting */}
                 <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
                     <Collapsible title="Results" open={showResults}>
-                        <Results results={results} setLoading={setLoading} />
+                        <Results results={results} />
                     </Collapsible>
                 </div>
                 {selectedSummary && (

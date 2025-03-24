@@ -40,6 +40,7 @@ type InitialState = {
     searchResultIds: string[];
     status: string;
     error: string | null;
+    loading: boolean;
     datasets: FeatureCollection<Geometry, Dataset>;
     view: 'map' | 'table';
     visibleLayers: {
@@ -76,6 +77,7 @@ const initialState: InitialState = {
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
+    loading: false,
     datasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
     view: 'map',
     visibleLayers: {
@@ -242,6 +244,10 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedMainstemBBOX = action.payload;
         },
+        setLoading: (state, action: PayloadAction<InitialState['loading']>) => {
+            state.loading = action.payload;
+        },
+
         reset: (state) => {
             state.selectedMainstemId = null;
             state.selectedMainstemBBOX = null;
@@ -310,6 +316,7 @@ export const {
     setFilter,
     setView,
     setSelectedMainstemBBOX,
+    setLoading,
     reset,
 } = mainSlice.actions;
 

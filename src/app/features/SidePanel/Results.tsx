@@ -5,6 +5,7 @@ import { Typography } from '@/app/components/common/Typography';
 import {
     fetchDatasets,
     setHoverId,
+    setLoading,
     setSelectedMainstemId,
     setShowResults,
     Summary as SummaryObject,
@@ -16,12 +17,11 @@ import { AppDispatch } from '@/lib/state/store';
 import { Summary } from '@/app/features/SidePanel/Summary';
 
 type Props = {
-    setLoading: (loading: boolean) => void;
     results: MainstemData[];
 };
 
 export const Results: React.FC<Props> = (props) => {
-    const { setLoading, results } = props;
+    const { results } = props;
 
     const [summary, setSummary] = useState<SummaryObject | null>(null);
 
@@ -36,7 +36,7 @@ export const Results: React.FC<Props> = (props) => {
         }
 
         try {
-            setLoading(true);
+            dispatch(setLoading(true));
 
             if (controller.current) {
                 controller.current.abort(`New request for id: ${id}`);
@@ -55,7 +55,7 @@ export const Results: React.FC<Props> = (props) => {
             if (isMounted.current) {
                 const summary = createSummary(id, feature);
                 setSummary(summary);
-                setLoading(false);
+                dispatch(setLoading(false));
             }
         } catch (error) {
             // Abort signals can come in 2 variants
@@ -68,7 +68,7 @@ export const Results: React.FC<Props> = (props) => {
             } else {
                 console.error('Error fetching datasets: ', error);
                 if (isMounted.current) {
-                    setLoading(false);
+                    dispatch(setLoading(false));
                 }
             }
         }
