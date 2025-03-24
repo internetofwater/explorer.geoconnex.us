@@ -57,7 +57,7 @@ const SidePanel: React.FC = () => {
                     {/* Mock-height to account for logo */}
                     <div className="ml-4 flex items-center h-16">
                         <Typography variant="h4" as="h1">
-                            Application Name
+                            Geoconnex Explorer
                         </Typography>
                     </div>
                     <div className="flex flex-col justify-center">

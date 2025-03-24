@@ -9,7 +9,7 @@ const ControlsIcon: React.FC = () => {
             role="img"
             aria-labelledby="icon-title-controls icon-desc-controls"
         >
-            <title id="icon-title-controls">Controls Icon</title>
+            <title id="icon-title-controls">Map Control Menu</title>
             <desc id="icon-desc-controls">
                 A slider icon used to represent map settings
             </desc>

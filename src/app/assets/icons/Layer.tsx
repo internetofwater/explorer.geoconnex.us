@@ -9,7 +9,7 @@ const LayerIcon: React.FC = () => {
             role="img"
             aria-labelledby="icon-title-layer icon-desc-layer"
         >
-            <title id="icon-title-layer">Layer Icon</title>
+            <title id="icon-title-layer">Map Layer Settings</title>
             <desc id="icon-desc-layer">
                 This icon is used in a button to show layer visibility toggles
             </desc>
