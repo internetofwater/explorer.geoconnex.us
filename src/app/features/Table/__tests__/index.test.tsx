@@ -2,12 +2,20 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import TableWrapper from '@/app/features/Table';
+import Table from '@/app/features/Table';
+import { FeatureCollection, Point } from 'geojson';
+import { Dataset } from '@/app/types';
 
 const mockStore = configureStore([]);
-const datasets = {
+const datasets: FeatureCollection<Point, Dataset> = {
+    type: 'FeatureCollection',
     features: [
         {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [0, 0],
+            },
             properties: {
                 siteName: 'Site 1',
                 type: 'Type 1',
@@ -16,6 +24,8 @@ const datasets = {
                 measurementTechnique: 'Technique 1',
                 temporalCoverage: '2011-01-01T00:00:01Z/2025-01-01T23:23:59Z',
                 monitoringLocation: 'Location 1',
+                datasetDescription: 'Description 1',
+                wkt: 'Point(0, 0)',
                 distributionFormat: 'Format 1',
                 distributionName: 'Name 1',
                 distributionURL: 'http://example.com',
@@ -43,7 +53,7 @@ describe('Table', () => {
     test('renders table headers correctly', () => {
         render(
             <Provider store={store}>
-                <TableWrapper />
+                <Table />
             </Provider>
         );
 
@@ -53,7 +63,7 @@ describe('Table', () => {
     test('renders table rows correctly', () => {
         render(
             <Provider store={store}>
-                <TableWrapper />
+                <Table />
             </Provider>
         );
 
@@ -63,7 +73,7 @@ describe('Table', () => {
     test('handles pagination correctly', () => {
         render(
             <Provider store={store}>
-                <TableWrapper />
+                <Table />
             </Provider>
         );
 

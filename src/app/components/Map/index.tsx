@@ -1,6 +1,6 @@
 'use client';
 import React, { lazy } from 'react';
-import { MapComponentProps } from './types';
+import { MapComponentProps } from '@/app/components/Map/types';
 
 const ClientSideMap = lazy(() => import('./ClientSide'));
 

@@ -6,7 +6,6 @@ import {
     fetchDatasets,
     setHoverId,
     setLoading,
-    setSelectedMainstemId,
     setShowResults,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
@@ -14,7 +13,7 @@ import { createSummary } from '@/lib/state/utils';
 import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
-import { Summary } from '@/app/features/SidePanel/Summary';
+import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 
 type Props = {
     results: MainstemData[];
@@ -30,7 +29,7 @@ export const Results: React.FC<Props> = (props) => {
     const controller = useRef<AbortController>(null);
     const isMounted = useRef(true);
 
-    const getDatasets = async (id: number) => {
+    const getDatasets = async (id: string) => {
         if (summary && summary.id === id) {
             return;
         }
@@ -53,7 +52,7 @@ export const Results: React.FC<Props> = (props) => {
             >;
 
             if (isMounted.current) {
-                const summary = createSummary(id, feature);
+                const summary = createSummary(id, feature.properties);
                 setSummary(summary);
                 dispatch(setLoading(false));
             }
@@ -75,7 +74,7 @@ export const Results: React.FC<Props> = (props) => {
     };
 
     const debouncedGetDatasets = useCallback(
-        debounce((id: number) => getDatasets(id), 300),
+        debounce((id: string) => getDatasets(id), 300),
         [summary]
     );
 
@@ -95,10 +94,9 @@ export const Results: React.FC<Props> = (props) => {
         };
     }, [debouncedGetDatasets]);
 
-    const handleClick = (id: number) => {
+    const handleClick = (id: string) => {
         dispatch(setShowResults(true));
-        dispatch(fetchDatasets(String(id))); // eslint-disable-line @typescript-eslint/no-floating-promises
-        dispatch(setSelectedMainstemId(String(id)));
+        dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
     };
 
     const handleMouseLeave = () => {
@@ -114,7 +112,7 @@ export const Results: React.FC<Props> = (props) => {
         >
             <ul aria-label="Search results">
                 {results.map((result, index) => {
-                    const id = Number(result.id);
+                    const id = result.id;
 
                     return (
                         <li
@@ -150,7 +148,7 @@ export const Results: React.FC<Props> = (props) => {
                                 {result.uri}
                             </Typography>
                             {summary !== null && summary.id === id && (
-                                <Summary
+                                <SimpleSummary
                                     summary={summary}
                                     exclusions={{ name: true }}
                                 />

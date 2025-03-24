@@ -4,13 +4,8 @@ import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
-import {
-    setDatasets,
-    setLoading,
-    setShowResults,
-} from '@/lib/state/main/slice';
-import { defaultGeoJson } from '@/lib/state/consts';
-import { Dataset, MainstemData } from '@/app/types';
+import { setLoading, setShowResults } from '@/lib/state/main/slice';
+import { MainstemData } from '@/app/types';
 
 type Props = {
     setResults: (results: MainstemData[]) => void;
@@ -78,11 +73,6 @@ const Search: React.FC<Props> = (props) => {
         } else {
             if (isMounted.current) {
                 setResults([]);
-                dispatch(
-                    setDatasets(
-                        defaultGeoJson as FeatureCollection<Geometry, Dataset>
-                    )
-                );
             }
         }
     };

@@ -6,7 +6,11 @@ import {
     Map,
     Popup,
 } from 'mapbox-gl';
-import { CLUSTER_TRANSITION_ZOOM, SourceId, SubLayerId } from './config';
+import {
+    CLUSTER_TRANSITION_ZOOM,
+    SourceId,
+    SubLayerId,
+} from '@/app/features/MainMap/config';
 import { Feature, LineString, Point } from 'geojson';
 import * as turf from '@turf/turf';
 

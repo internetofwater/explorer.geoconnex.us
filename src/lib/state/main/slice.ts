@@ -10,38 +10,43 @@ import {
     getMainstemBuffer,
     transformDatasets,
 } from '@/lib/state/utils';
-import { Feature, FeatureCollection, Geometry } from 'geojson';
+import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
 import { LayerId, SubLayerId } from '@/app/features/MainMap/config';
 import { Dataset, MainstemData } from '@/app/types';
-import { LngLatBoundsLike } from 'mapbox-gl';
+import { LngLatBoundsLike, Map } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 
+export type SummaryData = Record<string, number>;
+
 export type Summary = {
-    id: number;
+    id: string;
     name: string;
     length: number;
-    total: number;
-    variables: string;
-    types: string;
-    techniques: string;
+    totalDatasets: number;
+    totalSites: number;
+    variables: SummaryData;
+    types: SummaryData;
+    techniques: SummaryData;
 };
 
 type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
+    selectedMainstem: MainstemData | null;
     selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
-    hoverId: number | null;
+    mapMoved: number | null;
+    hoverId: string | null;
     selectedData: Dataset | null;
     selectedSummary: Summary | null;
     searchResultIds: string[];
     status: string;
     error: string | null;
     loading: boolean;
-    datasets: FeatureCollection<Geometry, Dataset>;
+    datasets: FeatureCollection<Point, Dataset>;
     view: 'map' | 'table';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
@@ -69,8 +74,10 @@ const initialState: InitialState = {
     showSidePanel: true,
     showHelp: false,
     showResults: false,
+    selectedMainstem: null,
     selectedMainstemId: null,
     selectedMainstemBBOX: null,
+    mapMoved: null,
     hoverId: null,
     selectedData: null,
     selectedSummary: null,
@@ -78,7 +85,7 @@ const initialState: InitialState = {
     status: 'idle', // Additional state to track loading status
     error: null,
     loading: false,
-    datasets: defaultGeoJson as FeatureCollection<Geometry, Dataset>,
+    datasets: defaultGeoJson as FeatureCollection<Point, Dataset>,
     view: 'map',
     visibleLayers: {
         [LayerId.MajorRivers]: true,
@@ -102,7 +109,7 @@ const initialState: InitialState = {
 
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
-    Feature<Geometry, MainstemData & { datasets: Dataset[] }>,
+    Feature<Geometry, Omit<MainstemData, 'id'> & { datasets: Dataset[] }>,
     string
 >('main/fetchDatasets', async (id: string) => {
     const response = await fetch(
@@ -110,17 +117,21 @@ export const fetchDatasets = createAsyncThunk<
     );
     const data = (await response.json()) as Feature<
         Geometry,
-        MainstemData & { datasets: Dataset[] }
+        Omit<MainstemData, 'id'> & { datasets: Dataset[] }
     >;
     return data;
 });
 
+export const getDatasetsLength = (state: RootState) =>
+    state.main.datasets.features.length;
+
 const selectDatasets = (state: RootState) => state.main.datasets;
 const selectFilter = (state: RootState) => state.main.filter;
+
 // Memoized selector to prevent false rerender requests
 export const getDatasets = createSelector(
     [selectDatasets, selectFilter],
-    (datasets, filter): FeatureCollection<Geometry, Dataset> => {
+    (datasets, filter): FeatureCollection<Point, Dataset> => {
         if (
             !filter.selectedVariables &&
             !filter.startTemporalCoverage &&
@@ -162,6 +173,62 @@ export const getDatasets = createSelector(
             type: 'FeatureCollection',
             features: features,
         };
+    }
+);
+
+const selectSelectedMainstem = (state: RootState) =>
+    state.main.selectedMainstem;
+const selectMapMoved = (state: RootState) => state.main.mapMoved;
+const selectMap = (state: RootState, map: Map | null) => map;
+
+// Restrict the datasets collection to what is within the current map bounds
+export const getDatasetsInBounds = createSelector(
+    [selectMapMoved, getDatasets, selectMap],
+    (mapMoved, datasets, map): FeatureCollection<Point, Dataset> => {
+        if (!map || !mapMoved) {
+            return datasets;
+        }
+        const bounds = map.getBounds();
+        if (bounds) {
+            const southWest = bounds.getSouthWest();
+            const northEast = bounds.getNorthEast();
+            const southEast = bounds.getSouthEast();
+            const northWest = bounds.getNorthWest();
+
+            const bbox = turf.polygon([
+                [
+                    [northEast.lng, northEast.lat],
+                    [northWest.lng, northWest.lat],
+                    [southWest.lng, southWest.lat],
+                    [southEast.lng, southEast.lat],
+                    [northEast.lng, northEast.lat],
+                ],
+            ]);
+
+            const contained = turf.pointsWithinPolygon(datasets, bbox);
+
+            return contained as FeatureCollection<Point, Dataset>;
+        }
+        return datasets;
+    }
+);
+
+// Create a summary for the restricted datasets
+export const getSelectedSummary = createSelector(
+    [selectSelectedMainstem, getDatasetsInBounds],
+    (selectedMainstem, datasets): Summary | null => {
+        if (!selectedMainstem) {
+            return null;
+        }
+
+        const _datasets = datasets.features.map(
+            (feature) => feature.properties
+        );
+        const selectedSummary = createSummary(selectedMainstem.id, {
+            ...selectedMainstem,
+            datasets: _datasets,
+        });
+        return selectedSummary;
     }
 );
 
@@ -232,6 +299,12 @@ export const mainSlice = createSlice({
 
             state.filter = newFilter;
         },
+        setMapMoved: (
+            state,
+            action: PayloadAction<InitialState['mapMoved']>
+        ) => {
+            state.mapMoved = action.payload;
+        },
         setHoverId: (state, action: PayloadAction<InitialState['hoverId']>) => {
             state.hoverId = action.payload;
         },
@@ -249,10 +322,11 @@ export const mainSlice = createSlice({
         },
 
         reset: (state) => {
+            state.selectedMainstem = null;
             state.selectedMainstemId = null;
             state.selectedMainstemBBOX = null;
             state.datasets = defaultGeoJson as FeatureCollection<
-                Geometry,
+                Point,
                 Dataset
             >;
             state.selectedSummary = null;
@@ -269,11 +343,20 @@ export const mainSlice = createSlice({
                 if (action.payload) {
                     // Create a summary for this mainstem
                     const id = action.payload.id;
-                    const summary = createSummary(Number(id), action.payload);
-                    state.selectedSummary = summary;
+
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { datasets: _, ...propertiesWithoutDatasets } =
+                        action.payload.properties;
+
+                    state.selectedMainstem = {
+                        ...propertiesWithoutDatasets,
+                        id: String(id),
+                    };
 
                     // Get an appropriate buffer size based on drainage area
-                    const buffer = getMainstemBuffer(action.payload);
+                    const buffer = getMainstemBuffer(
+                        action.payload.properties.outlet_drainagearea_sqkm
+                    );
                     // Simplify the line to reduce work getting bounds
                     const simplifiedLine = turf.simplify(action.payload, {
                         tolerance: 0.25,
@@ -310,6 +393,7 @@ export const {
     setSearchResultIds,
     setSelectedMainstemId,
     setHoverId,
+    setMapMoved,
     setDatasets,
     setLayerVisibility,
     setSelectedData,

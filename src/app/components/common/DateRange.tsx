@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { Typography } from './Typography';
+import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     startDate: string;

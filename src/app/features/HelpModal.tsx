@@ -4,7 +4,7 @@ import { Typography } from '@/app/components/common/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { setShowHelp } from '@/lib/state/main/slice';
-import Button from '../components/common/Button';
+import Button from '@/app/components/common/Button';
 
 export const HelpModal: React.FC = () => {
     const { showHelp } = useSelector((state: RootState) => state.main);
