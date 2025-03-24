@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import {
     Chart as ChartJS,
     ArcElement,
     Tooltip,
     Legend,
     ChartData,
+    Chart,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
@@ -14,9 +15,11 @@ type Props = {
     labels: string[];
     values: number[];
     top: number;
+    showLegend?: boolean;
+    ref?: RefObject<Chart<'doughnut', number[], string> | null>;
 };
 
-const colors = [
+export const colors = [
     [0, 123, 255], // Blue
     [40, 167, 69], // Green
     [255, 193, 7], // Yellow
@@ -40,7 +43,8 @@ const colors = [
 ];
 
 export const PieChart: React.FC<Props> = (props) => {
-    const { labels, values, top } = props;
+    const { ref = null, labels, values, top, showLegend = false } = props;
+
     const data: ChartData<'doughnut', number[], string> = {
         labels,
         datasets: [
@@ -60,8 +64,18 @@ export const PieChart: React.FC<Props> = (props) => {
 
     return (
         <Doughnut
+            ref={ref}
             data={data}
-            options={{ plugins: { legend: { display: false } } }}
+            options={{
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: showLegend,
+                        position: 'right',
+                        fullSize: true,
+                    },
+                },
+            }}
         />
     );
 };

@@ -21,8 +21,6 @@ const RadioGroup = <T extends string | number>(
         handleChange,
     } = props;
 
-    console.log('value?', keyPrefix, value, options);
-
     return (
         <div
             className={`flex ${
