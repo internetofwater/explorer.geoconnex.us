@@ -45,6 +45,7 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                             </Typography>
                         </li>
                     </ul>
+                    <hr />
                     <div className="my-4">
                         <SummarySection
                             title="Types"
