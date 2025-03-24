@@ -42,74 +42,76 @@ export const SummaryTable: React.FC<Props> = (props) => {
     return (
         <>
             {length > 0 && (
-                <div className="max-w-full w-full">
-                    <table className="divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-1 text-left font-normal">
-                                    <Typography
-                                        variant="body"
-                                        className="max-w-[45%]"
-                                    >
-                                        <strong>{title}</strong>
-                                    </Typography>
-                                </th>
-                                <th
-                                    className="px-4 py-1 text-center font-normal"
-                                    style={{ width: '27.5%' }}
-                                >
-                                    <Typography
-                                        variant="body"
-                                        className="max-w-[27.5%]"
-                                    >
-                                        <strong>Count</strong>
-                                    </Typography>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {Object.entries(limitedData).map(
-                                ([key, count], index) => {
-                                    let percentage: string | number =
-                                        Math.round((count / total) * 100);
-                                    if (percentage < 1) {
-                                        percentage = '<1';
-                                    }
-                                    return (
-                                        <tr
-                                            key={index}
-                                            onMouseEnter={() =>
-                                                handleMouseEnter(index)
-                                            }
-                                            onMouseLeave={handleMouseLeave}
+                <>
+                    <div className="max-w-full w-full overflow-x-auto">
+                        <table className="w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-4 py-1 text-left font-normal">
+                                        <Typography
+                                            variant="body"
+                                            className="max-w-[45%]"
                                         >
-                                            <td
-                                                className="px-6 py-2 "
-                                                title={key}
+                                            <strong>{title}</strong>
+                                        </Typography>
+                                    </th>
+                                    <th
+                                        className="px-4 py-1 text-center font-normal"
+                                        style={{ width: '27.5%' }}
+                                    >
+                                        <Typography
+                                            variant="body"
+                                            className="max-w-[27.5%]"
+                                        >
+                                            <strong>Count</strong>
+                                        </Typography>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {Object.entries(limitedData).map(
+                                    ([key, count], index) => {
+                                        let percentage: string | number =
+                                            Math.round((count / total) * 100);
+                                        if (percentage < 1) {
+                                            percentage = '<1';
+                                        }
+                                        return (
+                                            <tr
+                                                key={index}
+                                                onMouseEnter={() =>
+                                                    handleMouseEnter(index)
+                                                }
+                                                onMouseLeave={handleMouseLeave}
                                             >
-                                                <Typography
-                                                    variant="body-small"
-                                                    className="overflow-hidden overflow-ellipsis"
+                                                <td
+                                                    className="px-6 py-2 "
+                                                    title={key}
                                                 >
-                                                    {key}
-                                                </Typography>
-                                            </td>
-                                            <td className="px-6 py-2 text-center">
-                                                <Typography variant="body-small">
-                                                    {count}
-                                                </Typography>
-                                            </td>
-                                            <td className="px-6 py-2">
-                                                <Typography variant="body-small">
-                                                    {percentage}%
-                                                </Typography>
-                                            </td>
-                                        </tr>
-                                    );
-                                }
-                            )}
-                        </tbody>
-                    </table>
+                                                    <Typography
+                                                        variant="body-small"
+                                                        className="overflow-hidden overflow-ellipsis"
+                                                    >
+                                                        {key}
+                                                    </Typography>
+                                                </td>
+                                                <td className="px-6 py-2 text-center">
+                                                    <Typography variant="body-small">
+                                                        {count}
+                                                    </Typography>
+                                                </td>
+                                                <td className="px-6 py-2">
+                                                    <Typography variant="body-small">
+                                                        {percentage}%
+                                                    </Typography>
+                                                </td>
+                                            </tr>
+                                        );
+                                    }
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                     {showMore && (
                         <button
                             title={`Show more ${title}`}
@@ -133,7 +135,7 @@ export const SummaryTable: React.FC<Props> = (props) => {
                             </Typography>
                         </button>
                     )}
-                </div>
+                </>
             )}
         </>
     );
