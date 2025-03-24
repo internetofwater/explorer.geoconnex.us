@@ -30,7 +30,7 @@ const Collapsible: React.FC<Props> = (props) => {
                         font-bold text-lg 
                         border-t ${isOpen && 'border-b'} border-gray-300
                         hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover
-                        z-[1]`}
+                        z-[2]`}
                 onClick={toggleCollapse}
             >
                 <Typography variant="h3" as="h2" className="flex-grow-0">
