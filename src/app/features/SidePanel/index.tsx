@@ -133,13 +133,6 @@ const SidePanel: React.FC = () => {
                         <Results results={results} setLoading={setLoading} />
                     </Collapsible>
                 </div>
-                {selectedSummary && (
-                    <Collapsible title="Selected" open={true}>
-                        <div className="p-4">
-                            <ComplexSummary summary={selectedSummary} />
-                        </div>
-                    </Collapsible>
-                )}
                 {datasetsLength > 0 && (
                     <Collapsible title="Filters">
                         <div className="p-4">
@@ -147,6 +140,16 @@ const SidePanel: React.FC = () => {
                             <div className="mt-5 mb-2">
                                 <CSVDownload datasets={datasets} />
                             </div>
+                        </div>
+                    </Collapsible>
+                )}
+                {selectedSummary && (
+                    <Collapsible title={selectedSummary.name} open={true}>
+                        <div className="p-4">
+                            <ComplexSummary
+                                summary={selectedSummary}
+                                exclusions={{ name: true }}
+                            />
                         </div>
                     </Collapsible>
                 )}

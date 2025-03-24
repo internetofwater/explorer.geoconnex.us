@@ -29,17 +29,17 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                 <>
                     <ul className="pl-8 mb-2">
                         <li className="list-disc break-words whitespace-normal">
-                            <Typography variant="body-small">
+                            <Typography variant="body">
                                 <strong>Length (km):</strong> {summary.length}
                             </Typography>
                         </li>
                         <li className="list-disc break-words whitespace-normal">
-                            <Typography variant="body-small">
+                            <Typography variant="body">
                                 <strong>Sites:</strong> {summary.totalSites}
                             </Typography>
                         </li>
                         <li className="list-disc break-words whitespace-normal">
-                            <Typography variant="body-small">
+                            <Typography variant="body">
                                 <strong>Datasets:</strong>{' '}
                                 {summary.totalDatasets}
                             </Typography>
