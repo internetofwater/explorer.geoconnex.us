@@ -44,7 +44,7 @@ export const Results: React.FC<Props> = (props) => {
             controller.current = new AbortController();
 
             const response = await fetch(
-                `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
+                `https://reference.geoconnex.dev/collections/mainstems/items/${id}`,
                 { signal: controller.current.signal }
             );
             const feature = (await response.json()) as Feature<
