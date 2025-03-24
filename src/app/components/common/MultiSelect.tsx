@@ -91,7 +91,10 @@ const MultiSelect: React.FC<Props> = (props) => {
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
-                        onClick={() => setShowOptions(true)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowOptions(true);
+                        }}
                     >
                         <input
                             type="text"
@@ -107,6 +110,14 @@ const MultiSelect: React.FC<Props> = (props) => {
                             className={`transform ${
                                 showOptions ? '-rotate-90' : 'rotate-90'
                             }`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowOptions(!showOptions);
+                            }}
+                            role="button"
+                            aria-label={`${
+                                showOptions ? 'Hide' : 'Show'
+                            } Options`}
                         >
                             <RightArrow />
                         </span>
@@ -117,7 +128,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
-                        onFocus={() => setShowOptions(true)}
+                        onClick={() => setShowOptions(!showOptions)}
                     >
                         {showOptions ? 'Click to Close' : 'Select...'}
                         <span
