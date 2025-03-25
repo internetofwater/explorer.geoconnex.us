@@ -161,14 +161,6 @@ const selectFilter = (state: RootState) => state.main.filter;
 export const getFilteredDatasets = createSelector(
     [selectDatasets, selectFilter],
     (datasets, filter): FeatureCollection<Point, Dataset> => {
-        if (
-            !filter.variables &&
-            !filter.startTemporalCoverage &&
-            !filter.endTemporalCoverage
-        ) {
-            return datasets;
-        }
-
         // Apply filter automatically to the main datasets obj
         const features = datasets.features.filter((feature) => {
             const {
@@ -184,9 +176,6 @@ export const getFilteredDatasets = createSelector(
             const endDate = new Date(endTemporal);
 
             // If filter exists apply it
-            const isSiteName =
-                !filter.selectedSiteName ||
-                siteName.toLowerCase().includes(filter.selectedSiteName);
 
             // Check type
             const isTypeSelected =
@@ -412,7 +401,7 @@ export const mainSlice = createSlice({
             })
             .addCase(fetchDatasets.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                console.log('action.payload', action.payload);
+
                 if (
                     action.payload &&
                     !isFetchDatasetsNotFound(action.payload)

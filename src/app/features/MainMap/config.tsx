@@ -117,7 +117,7 @@ export const sourceConfigs: SourceConfig[] = [
             type: 'geojson',
             data: defaultGeoJson,
             cluster: true,
-            clusterMaxZoom: 17, // Max zoom to cluster points on
+            clusterMaxZoom: 20, // Max zoom to cluster points on
             clusterRadius: 50,
         },
     },
@@ -566,8 +566,8 @@ export const getLayerConfig = (
                         'DIN Offc Pro Medium',
                         'Arial Unicode MS Bold',
                     ],
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 paint: {
                     'text-color': '#FFFFFF',
@@ -1072,15 +1072,6 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataClusterCount),
             },
-            // {
-            //     id: SubLayerId.AssociatedDataUnclustered,
-            //     controllable: false,
-            //     legend: false,
-            //     config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
-            //     clickFunction: getLayerClickFunction(
-            //         SubLayerId.AssociatedDataUnclustered
-            //     ),
-            // },
         ],
     },
     {

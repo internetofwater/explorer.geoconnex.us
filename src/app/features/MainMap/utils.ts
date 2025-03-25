@@ -11,13 +11,7 @@ import {
     SourceId,
     SubLayerId,
 } from '@/app/features/MainMap/config';
-import {
-    Feature,
-    FeatureCollection,
-    GeoJsonProperties,
-    LineString,
-    Point,
-} from 'geojson';
+import { Feature, FeatureCollection, LineString, Point } from 'geojson';
 import * as turf from '@turf/turf';
 import { Dataset } from '@/app/types';
 
@@ -248,30 +242,32 @@ export const hasPeristentPopupOpenToThisItem = (
     return popUp.isOpen() && popUp._content?.innerHTML.includes(itemId);
 };
 
+// Aggregate colocated datasets, create a single point representing a summary of the data
 export const summarizePoints = (
     datasets: FeatureCollection<Point, Dataset>
 ): FeatureCollection<Point, { totalDatasets: number; siteNames: string }> => {
-    console.log('datasetsinside', datasets);
     const groupedPoints = datasets.features.reduce(
         (acc: Record<string, Feature<Point, Dataset>[]>, feature) => {
-            const wkt = feature.properties.wkt;
-            if (!acc[wkt]) {
-                acc[wkt] = [];
+            const coordinates = feature.geometry.coordinates;
+            // Reduce precision to aggregate points that are roughly colocated
+            const key = `${coordinates[0].toFixed(4)},${coordinates[1].toFixed(
+                4
+            )}`;
+            if (!acc[key]) {
+                acc[key] = [];
             }
-            acc[wkt].push(feature);
+            acc[key].push(feature);
             return acc;
         },
         {} as Record<string, Feature<Point, Dataset>[]>
     );
 
-    const summarizedPoints = Object.keys(groupedPoints).map((wkt) => {
-        const datasetPoints = groupedPoints[wkt];
+    const summarizedPoints = Object.keys(groupedPoints).map((key) => {
+        const datasetPoints = groupedPoints[key];
         const siteNamesSet = new Set<string>();
-        const idSet = new Set<number>();
 
         datasetPoints.forEach((feature) => {
             const { siteName } = feature.properties;
-            idSet.add(feature.id);
             siteNamesSet.add(siteName);
         });
 
@@ -289,10 +285,11 @@ export const summarizePoints = (
             siteNames,
         });
     });
-    console.log(turf.featureCollection(summarizedPoints));
+
     return turf.featureCollection(summarizedPoints);
 };
 
+// Get all datasets from currently rendered clusters
 export const createSummaryPoints = async (
     map: Map,
     source: GeoJSONSource,
@@ -340,7 +337,6 @@ export const createSummaryPoints = async (
             }
         });
         const summarizedPoints = summarizePoints(datasets);
-        console.log('results', results);
         const summarySource = map.getSource(
             SourceId.SummaryPoints
         ) as GeoJSONSource;

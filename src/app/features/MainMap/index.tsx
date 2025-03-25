@@ -109,7 +109,7 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         };
 
-        const createSpiderifiedClusters = () => {
+        const createSummaryLayer = () => {
             const zoom = map.getZoom();
             if (zoom >= CLUSTER_TRANSITION_ZOOM) {
                 const features = map.queryRenderedFeatures({
@@ -148,9 +148,9 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.on('zoom', handleInitialZoom);
 
-        map.on('zoom', createSpiderifiedClusters);
+        map.on('zoom', createSummaryLayer);
 
-        map.on('drag', createSpiderifiedClusters);
+        map.on('drag', createSummaryLayer);
 
         map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
@@ -470,36 +470,37 @@ export const MainMap: React.FC<Props> = (props) => {
 
         if (clusterSource) {
             clusterSource.setData(datasets);
-            // const spiderfySource = map.getSource(
-            //     SourceId.Spiderify
-            // ) as GeoJSONSource;
-            // const spiderfySourceData =
-            //     spiderfySource._data as FeatureCollection<Point, Dataset>;
-
-            // if (spiderfySourceData.features.length > 0) {
-            //     let newData = JSON.parse(
-            //         JSON.stringify(spiderfySourceData)
-            //     ) as FeatureCollection<Point, Dataset>;
-            //     newData = {
-            //         type: 'FeatureCollection',
-            //         features: newData.features.map((feature) => {
-            //             return {
-            //                 ...feature,
-            //                 properties: {
-            //                     ...feature.properties,
-            //                     isNotFiltered: datasets.features.some(
-            //                         (dataSetFeature) =>
-            //                             dataSetFeature.id === feature.id
-            //                     )
-            //                         ? 1
-            //                         : 0.1,
-            //                 },
-            //             };
-            //         }),
-            //     };
-
-            //     spiderfySource.setData(newData);
-            // }
+            const zoom = map.getZoom();
+            // Listen for the 'idle' event to ensure the source has updated
+            map.once('idle', () => {
+                // There has been an update to filters, reflect this in declustered points
+                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
+                    const features = map.queryRenderedFeatures({
+                        layers: [SubLayerId.AssociatedDataClusters],
+                    });
+                    // Get unique ids
+                    const uniqueIds = new Set<number>(
+                        features.map(
+                            (feature) =>
+                                feature.properties!.cluster_id as number
+                        )
+                    );
+                    // Sort and convert to string
+                    const clusterIds = Array.from(uniqueIds).sort().join();
+                    // Check ids to prevent repeated spiderfy
+                    if (features.length) {
+                        createSummaryPoints(map, clusterSource, features).catch(
+                            (error: ErrorEvent) =>
+                                console.error(
+                                    'Unable to spiderify clusters: ',
+                                    clusterIds,
+                                    ', Error: ',
+                                    error
+                                )
+                        );
+                    }
+                }
+            });
         }
     }, [datasets]);
 
