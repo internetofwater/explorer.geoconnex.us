@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import {
-    getDatasets,
+    getFilteredDatasets,
     getDatasetsLength,
     getSelectedSummary,
     setSearchResultIds,
@@ -33,7 +33,7 @@ const SidePanel: React.FC = () => {
     const { view, showResults } = useSelector((state: RootState) => state.main);
 
     const datasetsLength = useSelector(getDatasetsLength);
-    const datasets = useSelector(getDatasets);
+    const datasets = useSelector(getFilteredDatasets);
 
     const selectedSummary = useSelector((state: RootState) =>
         getSelectedSummary(state, map)

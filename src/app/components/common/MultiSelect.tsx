@@ -1,8 +1,9 @@
 import RightArrow from '@/app/assets/icons/RightArrow';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Typography } from './Typography';
+import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
+    id: string;
     ariaLabel?: string;
     options: string[];
     selectedOptions: string[] | undefined;
@@ -15,6 +16,7 @@ type Props = {
 
 const MultiSelect: React.FC<Props> = (props) => {
     const {
+        id,
         ariaLabel = '',
         options,
         selectedOptions,
@@ -31,7 +33,6 @@ const MultiSelect: React.FC<Props> = (props) => {
 
     const [showOptions, setShowOptions] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [allSelected, setAllSelected] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -66,16 +67,15 @@ const MultiSelect: React.FC<Props> = (props) => {
         [filteredOptions, limit]
     );
 
-    useEffect(() => {
-        if (!selectedOptions) {
-            return;
-        }
-
-        setAllSelected(options.length === selectedOptions.length);
-    }, [selectedOptions]);
+    const allSelected = useMemo(
+        () =>
+            !selectAll ||
+            limitedOptions.length === 0 ||
+            limitedOptions.every((option) => selectedOptions?.includes(option)),
+        [limitedOptions, selectedOptions]
+    );
 
     const handleSelectAllClick = () => {
-        setAllSelected(!allSelected);
         if (handleSelectAll) {
             handleSelectAll(!allSelected);
         }
@@ -166,13 +166,18 @@ const MultiSelect: React.FC<Props> = (props) => {
                                         : 'border-b'
                                 } border-gray-300 `}
                                 role="option"
-                                aria-selected={allSelected}
+                                aria-selected={
+                                    limitedOptions.length === 0 ||
+                                    limitedOptions.every((option) =>
+                                        selectedOptions?.includes(option)
+                                    )
+                                }
                             >
                                 <div className="flex items-center">
                                     <input
                                         data-testid="select-all-option"
                                         type="checkbox"
-                                        id="select-all"
+                                        id={`${id}-select-all-option`}
                                         checked={allSelected}
                                         onChange={() => {
                                             handleSelectAllClick();
@@ -182,48 +187,50 @@ const MultiSelect: React.FC<Props> = (props) => {
                                                 });
                                             }
                                         }}
-                                        className="h-4 w-4 rounded cursor-pointer"
+                                        className="h-4 w-4 min-w-4 rounded cursor-pointer"
                                     />
                                     <label
-                                        htmlFor="select-all"
+                                        htmlFor={`${id}-select-all-option`}
                                         className="ml-3 block font-bold truncate cursor-pointer"
                                     >
-                                        Select All
+                                        Select All (Visible)
                                     </label>
                                 </div>
                             </li>
                         )}
 
-                        {limitedOptions.map((type, index) => (
+                        {limitedOptions.map((option, index) => (
                             <li
-                                key={index}
+                                key={`${id}-option-${index}`}
                                 className="select-none relative py-2 pl-3 pr-9"
                                 role="option"
-                                aria-selected={selectedOptions?.includes(type)}
+                                aria-selected={selectedOptions?.includes(
+                                    option
+                                )}
                             >
                                 <div className="flex items-center">
                                     <input
-                                        data-testid={type}
-                                        id={type}
+                                        data-testid={option}
+                                        id={option}
                                         type="checkbox"
                                         checked={selectedOptions?.includes(
-                                            type
+                                            option
                                         )}
                                         onChange={() => {
-                                            handleOptionClick(type);
+                                            handleOptionClick(option);
                                             if (inputRef.current) {
                                                 inputRef.current.focus({
                                                     preventScroll: true,
                                                 });
                                             }
                                         }}
-                                        className="h-4 w-4 rounded cursor-pointer"
+                                        className="h-4 w-4 min-w-4 rounded cursor-pointer"
                                     />
                                     <label
-                                        htmlFor={type}
+                                        htmlFor={option}
                                         className="ml-3 block truncate cursor-pointer"
                                     >
-                                        {type}
+                                        {option}
                                     </label>
                                 </div>
                             </li>

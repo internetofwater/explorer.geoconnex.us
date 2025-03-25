@@ -6,7 +6,9 @@ import {
     PayloadAction,
 } from '@reduxjs/toolkit';
 import {
+    createFilters,
     createSummary,
+    getDatasetsInBounds,
     getMainstemBuffer,
     transformDatasets,
 } from '@/lib/state/utils';
@@ -63,8 +65,8 @@ type InitialState = {
         [SubLayerId.AssociatedDataUnclustered]: boolean;
     };
     filter: {
-        selectedTypes?: string[];
-        selectedVariables?: string[];
+        types?: string[];
+        variables?: string[];
         startTemporalCoverage?: string;
         endTemporalCoverage?: string;
     };
@@ -102,8 +104,8 @@ const initialState: InitialState = {
         [SubLayerId.AssociatedDataUnclustered]: true,
     },
     filter: {
-        selectedTypes: [],
-        selectedVariables: [],
+        types: [],
+        variables: [],
     },
 };
 
@@ -131,11 +133,11 @@ const selectDatasets = (state: RootState) => state.main.datasets;
 const selectFilter = (state: RootState) => state.main.filter;
 
 // Memoized selector to prevent false rerender requests
-export const getDatasets = createSelector(
+export const getFilteredDatasets = createSelector(
     [selectDatasets, selectFilter],
     (datasets, filter): FeatureCollection<Point, Dataset> => {
         if (
-            !filter.selectedVariables &&
+            !filter.variables &&
             !filter.startTemporalCoverage &&
             !filter.endTemporalCoverage
         ) {
@@ -155,15 +157,12 @@ export const getDatasets = createSelector(
 
             // Check variable measured
             const isVariableSelected =
-                filter.selectedVariables === undefined ||
-                filter.selectedVariables.includes(
-                    variableMeasured.split(' / ')[0]
-                );
+                filter.variables === undefined ||
+                filter.variables.includes(variableMeasured.split(' / ')[0]);
 
             // Check type
             const isTypeSelected =
-                filter.selectedTypes === undefined ||
-                filter.selectedTypes.includes(type);
+                filter.types === undefined || filter.types.includes(type);
 
             // Check start of temporal coverages
             const isStartDateValid =
@@ -194,41 +193,35 @@ const selectSelectedMainstem = (state: RootState) =>
 const selectMapMoved = (state: RootState) => state.main.mapMoved;
 const selectMap = (state: RootState, map: Map | null) => map;
 
-// Restrict the datasets collection to what is within the current map bounds
-export const getDatasetsInBounds = createSelector(
-    [selectMapMoved, getDatasets, selectMap],
+// Restrict the filtered datasets collection to what is within the current map bounds
+export const getFilteredDatasetsInBounds = createSelector(
+    [selectMapMoved, getFilteredDatasets, selectMap],
     (mapMoved, datasets, map): FeatureCollection<Point, Dataset> => {
         if (!map || !mapMoved) {
             return datasets;
         }
-        const bounds = map.getBounds();
-        if (bounds) {
-            const southWest = bounds.getSouthWest();
-            const northEast = bounds.getNorthEast();
-            const southEast = bounds.getSouthEast();
-            const northWest = bounds.getNorthWest();
 
-            const bbox = turf.polygon([
-                [
-                    [northEast.lng, northEast.lat],
-                    [northWest.lng, northWest.lat],
-                    [southWest.lng, southWest.lat],
-                    [southEast.lng, southEast.lat],
-                    [northEast.lng, northEast.lat],
-                ],
-            ]);
+        const contained = getDatasetsInBounds(map, datasets);
+        return contained;
+    }
+);
 
-            const contained = turf.pointsWithinPolygon(datasets, bbox);
-
-            return contained as FeatureCollection<Point, Dataset>;
+// Get all datasets within the current map bounds
+export const getUnfilteredDatasetsInBounds = createSelector(
+    [selectMapMoved, selectDatasets, selectMap],
+    (mapMoved, datasets, map): FeatureCollection<Point, Dataset> => {
+        if (!map || !mapMoved) {
+            return datasets;
         }
-        return datasets;
+
+        const contained = getDatasetsInBounds(map, datasets);
+        return contained;
     }
 );
 
 // Create a summary for the restricted datasets
 export const getSelectedSummary = createSelector(
-    [selectSelectedMainstem, getDatasetsInBounds],
+    [selectSelectedMainstem, getFilteredDatasetsInBounds],
     (selectedMainstem, datasets): Summary | null => {
         if (!selectedMainstem) {
             return null;
@@ -360,13 +353,17 @@ export const mainSlice = createSlice({
                     const id = action.payload.id;
 
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    const { datasets: _, ...propertiesWithoutDatasets } =
-                        action.payload.properties;
+                    const {
+                        datasets: _datasets,
+                        ...propertiesWithoutDatasets
+                    } = action.payload.properties;
 
                     state.selectedMainstem = {
                         ...propertiesWithoutDatasets,
                         id: String(id),
                     };
+
+                    state.filter = createFilters(_datasets);
 
                     // Get an appropriate buffer size based on drainage area
                     const buffer = getMainstemBuffer(
@@ -389,6 +386,7 @@ export const mainSlice = createSlice({
                     }
                     // Transform datasets into a new feature collection
                     const datasets = transformDatasets(action.payload);
+
                     state.datasets = datasets;
                     state.showResults = false;
                 }

@@ -12,6 +12,8 @@ import {
 } from 'geojson';
 import { Summary, SummaryData } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
+import { Map } from 'mapbox-gl';
+import * as turf from '@turf/turf';
 
 export const transformDatasets = (
     feature: Feature<Geometry, GeoJsonProperties & { datasets?: Dataset[] }>
@@ -130,4 +132,54 @@ export const createSummary = (
             techniques: {},
         };
     }
+};
+
+export const getDatasetsInBounds = (
+    map: Map,
+    datasets: FeatureCollection<Point, Dataset>
+): FeatureCollection<Point, Dataset> => {
+    const bounds = map.getBounds();
+    if (bounds) {
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+        const southEast = bounds.getSouthEast();
+        const northWest = bounds.getNorthWest();
+
+        const bbox = turf.polygon([
+            [
+                [northEast.lng, northEast.lat],
+                [northWest.lng, northWest.lat],
+                [southWest.lng, southWest.lat],
+                [southEast.lng, southEast.lat],
+                [northEast.lng, northEast.lat],
+            ],
+        ]);
+
+        const contained = turf.pointsWithinPolygon(datasets, bbox);
+
+        return contained as FeatureCollection<Point, Dataset>;
+    }
+    return datasets;
+};
+
+export const createFilters = (
+    datasets: Dataset[]
+): { types: string[]; variables: string[] } => {
+    const variables: string[] = [];
+    const types: string[] = [];
+    datasets.forEach((dataset) => {
+        const variable = dataset.variableMeasured.split(' / ')[0];
+        if (!variables.includes(variable)) {
+            variables.push(variable);
+        }
+
+        if (!types.includes(dataset.type)) {
+            types.push(dataset.type);
+        }
+    });
+
+    return {
+        types,
+        variables,
+    };
 };
