@@ -164,21 +164,37 @@ export const getDatasetsInBounds = (
 
 export const createFilters = (
     datasets: Dataset[]
-): { types: string[]; variables: string[] } => {
+): {
+    distributionNames: string[];
+    siteNames: string[];
+    types: string[];
+    variables: string[];
+} => {
+    const distributionNames: string[] = [];
+    const siteNames: string[] = [];
     const variables: string[] = [];
     const types: string[] = [];
     datasets.forEach((dataset) => {
-        const variable = dataset.variableMeasured.split(' / ')[0];
-        if (!variables.includes(variable)) {
-            variables.push(variable);
+        if (!distributionNames.includes(dataset.distributionName)) {
+            distributionNames.push(dataset.distributionName);
+        }
+        if (!siteNames.includes(dataset.siteName)) {
+            siteNames.push(dataset.siteName);
         }
 
         if (!types.includes(dataset.type)) {
             types.push(dataset.type);
         }
+
+        const variable = dataset.variableMeasured.split(' / ')[0];
+        if (!variables.includes(variable)) {
+            variables.push(variable);
+        }
     });
 
     return {
+        distributionNames,
+        siteNames,
         types,
         variables,
     };

@@ -65,6 +65,8 @@ type InitialState = {
         [SubLayerId.AssociatedDataUnclustered]: boolean;
     };
     filter: {
+        distributionNames?: string[];
+        siteNames?: string[];
         types?: string[];
         variables?: string[];
         startTemporalCoverage?: string;
@@ -104,6 +106,8 @@ const initialState: InitialState = {
         [SubLayerId.AssociatedDataUnclustered]: true,
     },
     filter: {
+        distributionNames: [],
+        siteNames: [],
         types: [],
         variables: [],
     },
@@ -146,8 +150,13 @@ export const getFilteredDatasets = createSelector(
 
         // Apply filter automatically to the main datasets obj
         const features = datasets.features.filter((feature) => {
-            const { variableMeasured, type, temporalCoverage } =
-                feature.properties;
+            const {
+                siteName,
+                distributionName,
+                variableMeasured,
+                type,
+                temporalCoverage,
+            } = feature.properties;
             const [startTemporal, endTemporal] = temporalCoverage.split('/');
 
             const startDate = new Date(startTemporal);
@@ -155,30 +164,61 @@ export const getFilteredDatasets = createSelector(
 
             // If filter exists apply it
 
+            // Check type
+            const isTypeSelected =
+                filter.types === undefined || filter.types.includes(type);
+
+            if (!isTypeSelected) {
+                return false;
+            }
+            // Check Site Name
+            const isSiteNameSelected =
+                filter.siteNames === undefined ||
+                filter.siteNames.includes(siteName);
+
+            if (!isSiteNameSelected) {
+                return false;
+            }
+
+            // Check Distribution Name
+            const isDistributionNameSelected =
+                filter.distributionNames === undefined ||
+                filter.distributionNames.includes(distributionName);
+
+            if (!isDistributionNameSelected) {
+                return false;
+            }
+
             // Check variable measured
             const isVariableSelected =
                 filter.variables === undefined ||
                 filter.variables.includes(variableMeasured.split(' / ')[0]);
 
-            // Check type
-            const isTypeSelected =
-                filter.types === undefined || filter.types.includes(type);
+            if (!isVariableSelected) {
+                return false;
+            }
 
             // Check start of temporal coverages
             const isStartDateValid =
                 filter.startTemporalCoverage === undefined ||
                 new Date(filter.startTemporalCoverage) <= new Date(startDate);
+
+            if (!isStartDateValid) {
+                return false;
+            }
+
             // Check end of temporal coverages
             const isEndDateValid =
                 filter.endTemporalCoverage === undefined ||
                 new Date(filter.endTemporalCoverage) >= new Date(endDate);
 
-            return (
-                isVariableSelected &&
-                isTypeSelected &&
-                isStartDateValid &&
-                isEndDateValid
-            );
+            if (!isEndDateValid) {
+                return false;
+            }
+
+            // All true return true
+
+            return true;
         });
 
         return {

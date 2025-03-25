@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/state/store';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
+import { SiteNames } from '@/app/features/SidePanel/Filters/SiteNames';
+import { DistributionNames } from '@/app/features/SidePanel/Filters/DistributionNames';
 
 export const Filters: React.FC = () => {
     const { map } = useMap(MAIN_MAP_ID);
@@ -15,6 +17,8 @@ export const Filters: React.FC = () => {
         getUnfilteredDatasetsInBounds(state, map)
     );
 
+    const [distributionNames, setDistributionNames] = useState<string[]>([]);
+    const [siteNames, setSiteNames] = useState<string[]>([]);
     const [types, setTypes] = useState<string[]>([]);
     const [variables, setVariables] = useState<string[]>([]);
     const [minTime, setMinTime] = useState<Date | null>(null);
@@ -25,12 +29,27 @@ export const Filters: React.FC = () => {
             return;
         }
 
+        const newDistributionNames: string[] = [];
+        const newSiteNames: string[] = [];
         const newTypes: string[] = [];
         const newVariables: string[] = [];
         let minTime: Date | null = null;
         let maxTime: Date | null = null;
         datasets.features.forEach((feature) => {
             if (feature.properties) {
+                if (
+                    !newDistributionNames.includes(
+                        feature.properties.distributionName
+                    )
+                ) {
+                    newDistributionNames.push(
+                        feature.properties.distributionName
+                    );
+                }
+                if (!newSiteNames.includes(feature.properties.siteName)) {
+                    newSiteNames.push(feature.properties.siteName);
+                }
+
                 if (!newTypes.includes(feature.properties.type)) {
                     newTypes.push(feature.properties.type);
                 }
@@ -50,8 +69,14 @@ export const Filters: React.FC = () => {
                 maxTime = !maxTime || endDate > maxTime ? endDate : maxTime;
             }
         });
+
+        newDistributionNames.sort();
+        newSiteNames.sort();
         newTypes.sort();
         newVariables.sort();
+
+        setDistributionNames(newDistributionNames);
+        setSiteNames(newSiteNames);
         setTypes(newTypes);
         setVariables(newVariables);
         setMinTime(minTime);
@@ -60,10 +85,18 @@ export const Filters: React.FC = () => {
 
     return (
         <>
-            <Variables variables={variables} />
-            <br />
-            <Types types={types} />
-            <br />
+            <div className="mb-3">
+                <SiteNames siteNames={siteNames} />
+            </div>
+            <div className="mb-3">
+                <Variables variables={variables} />
+            </div>
+            <div className="mb-3">
+                <Types types={types} />
+            </div>
+            <div className="mb-3">
+                <DistributionNames distributionNames={distributionNames} />
+            </div>
             <TemporalCoverage minTime={minTime} maxTime={maxTime} />
         </>
     );
