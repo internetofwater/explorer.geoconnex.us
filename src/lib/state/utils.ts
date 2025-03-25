@@ -8,25 +8,27 @@ import {
     FeatureCollection,
     GeoJsonProperties,
     Geometry,
+    Point,
 } from 'geojson';
-import { Summary } from '@/lib/state/main/slice';
+import { Summary, SummaryData } from '@/lib/state/main/slice';
 import { defaultGeoJson } from '@/lib/state/consts';
 
 export const transformDatasets = (
     feature: Feature<Geometry, GeoJsonProperties & { datasets?: Dataset[] }>
-): FeatureCollection<Geometry, Dataset> => {
+): FeatureCollection<Point, Dataset> => {
     if (
         feature.properties &&
         feature.properties?.datasets &&
         (feature.properties?.datasets ?? []).length > 0
     ) {
         const features = feature.properties.datasets
-            .map((dataset: Dataset) => {
+            .map((dataset: Dataset, index) => {
                 const { lat, lng } = extractLatLng(dataset.wkt);
                 if (!isNaN(lat) && !isNaN(lng)) {
                     const geometry = { type: 'Point', coordinates: [lng, lat] };
                     return {
                         type: 'Feature',
+                        id: index,
                         geometry,
                         properties: {
                             ...dataset,
@@ -44,11 +46,11 @@ export const transformDatasets = (
 
         return {
             type: 'FeatureCollection',
-            features: features as Feature<Geometry, Dataset>[],
+            features: features as Feature<Point, Dataset>[],
         };
     }
 
-    return defaultGeoJson as FeatureCollection<Geometry, Dataset>;
+    return defaultGeoJson as FeatureCollection<Point, Dataset>;
 };
 
 export const extractLatLng = (wkt: string) => {
@@ -57,70 +59,75 @@ export const extractLatLng = (wkt: string) => {
     return { lat: lat || NaN, lng: lng || NaN };
 };
 
-export const getMainstemBuffer = (
-    feature: Feature<Geometry, MainstemData & { datasets: Dataset[] }>
-): number => {
-    if (feature.properties) {
-        const drainageArea = feature.properties.outlet_drainagearea_sqkm;
-        if (drainageArea < MAINSTEM_DRAINAGE_SMALL) {
-            return 3;
-        } else if (drainageArea < MAINSTEM_DRAINAGE_MEDIUM) {
-            return 10;
-        }
-        // Large mainstem
-        return 20;
+export const getMainstemBuffer = (drainageArea: number): number => {
+    if (drainageArea < MAINSTEM_DRAINAGE_SMALL) {
+        return 3;
+    } else if (drainageArea < MAINSTEM_DRAINAGE_MEDIUM) {
+        return 10;
     }
-    return 0;
+    // Large mainstem
+    return 20;
+};
+
+const sortObjectByCount = (
+    obj: Record<string, number>
+): Record<string, number> => {
+    return Object.fromEntries(
+        Object.entries(obj).sort(([, a], [, b]) => b - a)
+    );
 };
 
 export const createSummary = (
-    id: number,
-    feature: Feature<Geometry, MainstemData & { datasets: Dataset[] }>
+    id: string,
+    data: MainstemData & { datasets: Dataset[] }
 ): Summary => {
-    const datasets = feature.properties.datasets;
-    const length = feature.properties.lengthkm;
-    const name = feature.properties.name_at_outlet;
+    const datasets = data.datasets;
+    const length = data.lengthkm;
+    const name = data.name_at_outlet;
+
     if (datasets && datasets.length) {
-        const total = datasets.length;
-        const variables: string[] = [];
-        const types: string[] = [];
-        const techniques: string[] = [];
+        const totalDatasets = datasets.length;
+        const variables: SummaryData = {};
+        const types: SummaryData = {};
+        const techniques: SummaryData = {};
+        const wkts = new Set<string>();
+
         datasets.forEach((dataset) => {
-            const { variableMeasured, type, measurementTechnique } = dataset;
+            const { variableMeasured, type, measurementTechnique, wkt } =
+                dataset;
 
             const variable = variableMeasured.split(' / ')[0];
-            if (!variables.includes(variable)) {
-                variables.push(variable);
-            }
+            variables[variable] = (variables[variable] || 0) + 1;
 
-            if (!types.includes(type)) {
-                types.push(type);
-            }
+            types[type] = (types[type] || 0) + 1;
 
-            if (!techniques.includes(measurementTechnique)) {
-                techniques.push(measurementTechnique);
-            }
+            techniques[measurementTechnique] =
+                (techniques[measurementTechnique] || 0) + 1;
+
+            wkts.add(wkt); // No need to count each site
         });
 
         return {
             id,
             name,
             length,
-            total,
-            variables: variables.join(', '),
-            types: types.join(', '),
-            techniques: techniques.join(', '),
+            totalDatasets,
+            totalSites: wkts.size,
+            variables: sortObjectByCount(variables),
+            types: sortObjectByCount(types),
+            techniques: sortObjectByCount(techniques),
         };
     } else {
-        // No datasets, add placeholder to prevent additional fetches
+        // No datasets, placeholder to prevent additional fetches
         return {
             id,
             name,
             length,
-            total: 0,
-            variables: '',
-            types: '',
-            techniques: '',
+            totalDatasets: 0,
+            totalSites: 0,
+            variables: {},
+            types: {},
+            techniques: {},
         };
     }
 };

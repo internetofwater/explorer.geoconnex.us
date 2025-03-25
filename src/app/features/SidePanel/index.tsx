@@ -1,6 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import {
+    getDatasets,
+    getDatasetsLength,
+    getSelectedSummary,
     setSearchResultIds,
     setShowHelp,
     setShowSidePanel,
@@ -11,20 +14,29 @@ import { Filters } from '@/app/features/SidePanel/Filters';
 import { CSVDownload } from '@/app/features/SidePanel/CSVDownload';
 import Collapsible from '@/app/components/common/Collapsible';
 import CloseButton from '@/app/components/common/CloseButton';
-import { Summary } from '@/app/features/SidePanel//Summary';
 import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
 import { Linear } from '@/app/assets/Linear';
-import { Results } from './Results';
+import { Results } from '@/app/features/SidePanel/Results';
 import { MainstemData } from '@/app/types';
+import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
+import { useMap } from '@/app/contexts/MapContexts';
+import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const { datasets, view, selectedSummary, showResults } = useSelector(
-        (state: RootState) => state.main
+    const { map } = useMap(MAIN_MAP_ID);
+
+    const { view, showResults } = useSelector((state: RootState) => state.main);
+
+    const datasetsLength = useSelector(getDatasetsLength);
+    const datasets = useSelector(getDatasets);
+
+    const selectedSummary = useSelector((state: RootState) =>
+        getSelectedSummary(state, map)
     );
 
     const dispatch: AppDispatch = useDispatch();
@@ -92,7 +104,7 @@ const SidePanel: React.FC = () => {
                         title="Table Tab"
                         aria-label="Tab to show table"
                         onClick={() => dispatch(setView('table'))}
-                        disabled={datasets.features.length === 0}
+                        disabled={datasetsLength === 0}
                         className={`${
                             view === 'table'
                                 ? 'bg-primary -mb-px border-b-transparent'
@@ -121,20 +133,23 @@ const SidePanel: React.FC = () => {
                         <Results results={results} setLoading={setLoading} />
                     </Collapsible>
                 </div>
-                {selectedSummary && (
-                    <Collapsible title="Selected" open={true}>
-                        <div className="p-4">
-                            <Summary summary={selectedSummary} />
-                        </div>
-                    </Collapsible>
-                )}
-                {datasets.features.length > 0 && (
+                {datasetsLength > 0 && (
                     <Collapsible title="Filters">
                         <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
-                                <CSVDownload />
+                                <CSVDownload datasets={datasets} />
                             </div>
+                        </div>
+                    </Collapsible>
+                )}
+                {selectedSummary && (
+                    <Collapsible title={selectedSummary.name} open={true}>
+                        <div className="p-4">
+                            <ComplexSummary
+                                summary={selectedSummary}
+                                exclusions={{ name: true }}
+                            />
                         </div>
                     </Collapsible>
                 )}

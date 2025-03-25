@@ -1,5 +1,4 @@
 import React from 'react';
-import { getDatasets } from '@/lib/state/main/slice';
 import {
     useReactTable,
     getCoreRowModel,
@@ -9,13 +8,21 @@ import {
     ColumnDef,
     PaginationState,
 } from '@tanstack/react-table';
-import { useSelector } from 'react-redux';
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
+import { getDatasetsInBounds } from '@/lib/state/main/slice';
+import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/state/store';
+import { useMap } from '@/app/contexts/MapContexts';
 
 const TableWrapper: React.FC = () => {
-    const datasets = useSelector(getDatasets);
+    const { map } = useMap(MAIN_MAP_ID);
+
+    const datasets = useSelector((state: RootState) =>
+        getDatasetsInBounds(state, map)
+    );
 
     const columns = React.useMemo<ColumnDef<Dataset>[]>(
         () => [
@@ -126,7 +133,6 @@ const TableWrapper: React.FC = () => {
     const table = useReactTable({
         columns,
         data,
-        debugTable: true,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
