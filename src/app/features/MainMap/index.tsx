@@ -31,21 +31,16 @@ import {
 import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
-    getDatasets,
-    getDatasetsInBounds,
+    getFilteredDatasets,
     reset,
-    setFilter,
     setLayerVisibility,
     setMapMoved,
     setSelectedData,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import {
-    createSummaryPoints,
-    spiderfyClusters,
-} from '@/app/features/MainMap/utils';
+import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Point } from 'geojson';
+import { Feature, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import debounce from 'lodash.debounce';
 
@@ -71,7 +66,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
 
-    const datasets = useSelector(getDatasets);
+    const datasets = useSelector(getFilteredDatasets);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 
