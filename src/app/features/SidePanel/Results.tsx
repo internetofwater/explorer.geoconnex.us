@@ -95,6 +95,7 @@ export const Results: React.FC<Props> = (props) => {
     }, [debouncedGetDatasets]);
 
     const handleClick = (id: string) => {
+        window.history.replaceState({}, '', `/mainstems/${id}`);
         dispatch(setShowResults(true));
         dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
     };

@@ -33,6 +33,7 @@ import {
     fetchDatasets,
     getDatasets,
     reset,
+    setFilter,
     setLayerVisibility,
     setMapMoved,
     setSelectedData,
@@ -152,12 +153,19 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.on('drag', createSpiderifiedClusters);
 
-        map.loadImage('dot-marker.png', (error, image) => {
+        map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
             if (!image) {
                 throw new Error('Image not found: dot-marker.png');
             }
             map.addImage('observation-point', image);
+        });
+        map.loadImage('/dot-marker-alt.png', (error, image) => {
+            if (error) throw error;
+            if (!image) {
+                throw new Error('Image not found: dot-marker-alt.png');
+            }
+            map.addImage('observation-point-center', image);
         });
 
         map.on('error', function (e) {
@@ -184,7 +192,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     const feature = features[0];
                     if (feature.properties) {
                         const id = feature.properties.id as string;
-
+                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                        window.history.replaceState({}, '', `/mainstems/${id}`);
                         dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
                     }
                 }
@@ -205,6 +214,8 @@ export const MainMap: React.FC<Props> = (props) => {
             });
 
             if (!features.length) {
+                window.history.replaceState({}, '', '');
+
                 dispatch(reset());
             }
         });
@@ -239,6 +250,15 @@ export const MainMap: React.FC<Props> = (props) => {
                         throw new Error('Image not found: dot-marker.png');
                     }
                     map.addImage('observation-point', image);
+                });
+            }
+            if (!map.hasImage('observation-point-center')) {
+                map.loadImage('dot-marker-alt.png', (error, image) => {
+                    if (error) throw error;
+                    if (!image) {
+                        throw new Error('Image not found: dot-marker.png');
+                    }
+                    map.addImage('observation-point-center', image);
                 });
             }
         });
@@ -519,7 +539,7 @@ export const MainMap: React.FC<Props> = (props) => {
                     style: BASEMAP,
                     center: INITIAL_CENTER,
                     zoom: INITIAL_ZOOM,
-                    maxZoom: 15,
+                    maxZoom: 20,
                 }}
                 controls={{
                     scaleControl: true,

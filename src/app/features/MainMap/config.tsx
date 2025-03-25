@@ -61,7 +61,7 @@ export const allLayerIds = [
     ...Object.values(SubLayerId),
 ];
 
-export const CLUSTER_TRANSITION_ZOOM = 14;
+export const CLUSTER_TRANSITION_ZOOM = 19;
 export const MAINSTEM_DRAINAGE_SMALL = 160;
 export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
@@ -221,7 +221,7 @@ export const getLayerColor = (
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';
         case SubLayerId.AssociatedDataUnclustered:
-            return '#11b4da';
+            return '#1C76CA';
         case LayerId.SpiderifyPoints:
             return '#46AB9D';
         default:
@@ -439,29 +439,27 @@ export const getLayerConfig = (
         case SubLayerId.AssociatedDataUnclustered:
             return {
                 id: SubLayerId.AssociatedDataUnclustered,
-                type: LayerType.Circle,
+                type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
                 paint: {
-                    'circle-color': getLayerColor(
+                    'icon-color': getLayerColor(
                         SubLayerId.AssociatedDataUnclustered
                     ),
-                    'circle-radius': 4,
-                    'circle-stroke-width': 1,
-                    'circle-stroke-color': '#fff',
-                    'circle-opacity': [
-                        'step',
+                    'icon-opacity': [
+                        'interpolate',
+                        ['linear'],
                         ['zoom'],
-                        0,
                         CLUSTER_TRANSITION_ZOOM,
-                        1,
-                    ],
-                    'circle-stroke-opacity': [
-                        'step',
-                        ['zoom'],
                         0,
-                        CLUSTER_TRANSITION_ZOOM,
-                        1,
+                        CLUSTER_TRANSITION_ZOOM + 0.01,
+                        ['get', 'isNotFiltered'],
                     ],
+                },
+                layout: {
+                    'icon-image': 'observation-point-center',
+                    'icon-size': 1,
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
                 },
             };
         case LayerId.SpiderifyPoints:
@@ -811,6 +809,13 @@ export const getLayerClickFunction = (
                         );
                     }
                 };
+            case SubLayerId.AssociatedDataUnclustered:
+                return (e) => {
+                    const features = map.queryRenderedFeatures(e.point, {
+                        layers: [SubLayerId.AssociatedDataUnclustered],
+                    });
+                    console.log(e, features);
+                };
             default:
                 return (e) => {
                     console.log('Click Event Triggered: ', e);
@@ -930,6 +935,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 controllable: false,
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
+                clickFunction: getLayerClickFunction(
+                    SubLayerId.AssociatedDataUnclustered
+                ),
             },
         ],
     },

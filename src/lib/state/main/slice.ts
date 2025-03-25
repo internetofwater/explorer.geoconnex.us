@@ -63,6 +63,7 @@ type InitialState = {
         [SubLayerId.AssociatedDataUnclustered]: boolean;
     };
     filter: {
+        selectedSiteName?: string;
         selectedTypes?: string[];
         selectedVariables?: string[];
         startTemporalCoverage?: string;
@@ -107,9 +108,30 @@ const initialState: InitialState = {
     },
 };
 
+type FetchDatasetsSuccess = Feature<
+    Geometry,
+    Omit<MainstemData, 'id'> & { datasets: Dataset[] }
+>;
+type FetchDatasetsNotFound = {
+    code: string;
+    type: string;
+    description: string;
+};
+
+function isFetchDatasetsNotFound(
+    payload: FetchDatasetsSuccess | FetchDatasetsNotFound
+): payload is FetchDatasetsNotFound {
+    return Boolean(
+        payload &&
+            (payload as FetchDatasetsNotFound).code &&
+            typeof (payload as FetchDatasetsNotFound).code === 'string' &&
+            (payload as FetchDatasetsNotFound).code === 'NotFound'
+    );
+}
+
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
-    Feature<Geometry, Omit<MainstemData, 'id'> & { datasets: Dataset[] }>,
+    FetchDatasetsSuccess | FetchDatasetsNotFound,
     string
 >('main/fetchDatasets', async (id: string) => {
     const response = await fetch(
@@ -135,6 +157,7 @@ export const getDatasets = createSelector(
     [selectDatasets, selectFilter],
     (datasets, filter): FeatureCollection<Point, Dataset> => {
         if (
+            !filter.selectedSiteName &&
             !filter.selectedVariables &&
             !filter.startTemporalCoverage &&
             !filter.endTemporalCoverage
@@ -144,13 +167,17 @@ export const getDatasets = createSelector(
 
         // Apply filter automatically to the main datasets obj
         const features = datasets.features.filter((feature) => {
-            const { variableMeasured, temporalCoverage } = feature.properties;
+            const { siteName, variableMeasured, temporalCoverage } =
+                feature.properties;
             const [startTemporal, endTemporal] = temporalCoverage.split('/');
 
             const startDate = new Date(startTemporal);
             const endDate = new Date(endTemporal);
 
             // If filter exists apply it
+            const isSiteName =
+                !filter.selectedSiteName ||
+                siteName.toLowerCase().includes(filter.selectedSiteName);
 
             // Check variable measured
             const isVariableSelected =
@@ -168,7 +195,12 @@ export const getDatasets = createSelector(
                 filter.endTemporalCoverage === undefined ||
                 new Date(filter.endTemporalCoverage) >= new Date(endDate);
 
-            return isVariableSelected && isStartDateValid && isEndDateValid;
+            return (
+                isSiteName &&
+                isVariableSelected &&
+                isStartDateValid &&
+                isEndDateValid
+            );
         });
 
         return {
@@ -344,7 +376,11 @@ export const mainSlice = createSlice({
             })
             .addCase(fetchDatasets.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                if (action.payload) {
+                console.log('action.payload', action.payload);
+                if (
+                    action.payload &&
+                    !isFetchDatasetsNotFound(action.payload)
+                ) {
                     // Create a summary for this mainstem
                     const id = action.payload.id;
 
