@@ -35,6 +35,7 @@ export enum SourceId {
     AssociatedData = 'associated-data-source',
     Spiderify = 'spiderify',
     HUC2GeoJSON = 'huc-02-geojson',
+    SummaryPoints = 'summary-points',
 }
 
 export enum LayerId {
@@ -43,6 +44,7 @@ export enum LayerId {
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
     SpiderifyPoints = 'spiferified-clusters',
+    SummaryPoints = 'summary-points',
     MainstemsHighlight = 'mainstems-highlight',
 }
 
@@ -55,13 +57,15 @@ export enum SubLayerId {
     AssociatedDataClusters = 'associated-data-clusters',
     AssociatedDataClusterCount = 'associated-data-cluster-count',
     AssociatedDataUnclustered = 'associated-data-unclustered-point',
+    SummaryPointsSiteName = 'summary-points-site-name',
+    SummaryPointsTotal = 'summary-points-site-total',
 }
 export const allLayerIds = [
     ...Object.values(LayerId),
     ...Object.values(SubLayerId),
 ];
 
-export const CLUSTER_TRANSITION_ZOOM = 19;
+export const CLUSTER_TRANSITION_ZOOM = 17;
 export const MAINSTEM_DRAINAGE_SMALL = 160;
 export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
@@ -113,7 +117,7 @@ export const sourceConfigs: SourceConfig[] = [
             type: 'geojson',
             data: defaultGeoJson,
             cluster: true,
-            clusterMaxZoom: 20, // Max zoom to cluster points on
+            clusterMaxZoom: 17, // Max zoom to cluster points on
             clusterRadius: 50,
         },
     },
@@ -134,6 +138,18 @@ export const sourceConfigs: SourceConfig[] = [
     },
     {
         id: SourceId.Spiderify,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: [],
+            },
+            cluster: false,
+        },
+    },
+    {
+        id: SourceId.SummaryPoints,
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
@@ -414,6 +430,13 @@ export const getLayerConfig = (
                         10,
                         40,
                     ],
+                    'circle-opacity': [
+                        'step',
+                        ['zoom'],
+                        1,
+                        CLUSTER_TRANSITION_ZOOM,
+                        0,
+                    ],
                 },
             };
         case SubLayerId.AssociatedDataClusterCount:
@@ -421,7 +444,6 @@ export const getLayerConfig = (
                 id: SubLayerId.AssociatedDataClusterCount,
                 type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
-                filter: ['has', 'point_count'],
                 layout: {
                     'text-field': ['get', 'point_count_abbreviated'],
                     'text-font': [
@@ -429,11 +451,20 @@ export const getLayerConfig = (
                         'Arial Unicode MS Bold',
                     ],
                     'text-size': 12,
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
                 },
                 paint: {
                     'text-color': getLayerColor(
                         SubLayerId.AssociatedDataClusterCount
                     ),
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        1,
+                        CLUSTER_TRANSITION_ZOOM,
+                        0,
+                    ],
                 },
             };
         case SubLayerId.AssociatedDataUnclustered:
@@ -441,25 +472,114 @@ export const getLayerConfig = (
                 id: SubLayerId.AssociatedDataUnclustered,
                 type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
+                filter: ['!', ['has', 'point_count']],
                 paint: {
                     'icon-color': getLayerColor(
                         SubLayerId.AssociatedDataUnclustered
                     ),
-                    'icon-opacity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        CLUSTER_TRANSITION_ZOOM,
-                        0,
-                        CLUSTER_TRANSITION_ZOOM + 0.01,
-                        ['get', 'isNotFiltered'],
-                    ],
+                    'icon-opacity': 1,
                 },
                 layout: {
                     'icon-image': 'observation-point-center',
                     'icon-size': 1,
+                },
+            };
+
+        case LayerId.SummaryPoints:
+            return {
+                id: LayerId.SummaryPoints,
+                type: LayerType.Circle,
+                source: SourceId.SummaryPoints,
+                paint: {
+                    'circle-color': '#1C76CA',
+                    'circle-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM,
+                        1,
+                    ],
+                    'circle-radius': 20,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#FFF',
+                    'circle-stroke-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM,
+                        1,
+                    ],
+                },
+
+                layout: {},
+            };
+        case SubLayerId.SummaryPointsSiteName:
+            return {
+                id: SubLayerId.SummaryPointsSiteName,
+                type: LayerType.Symbol,
+                source: SourceId.SummaryPoints,
+                layout: {
+                    'text-field': ['get', 'siteNames'],
+                    'text-size': 14,
+                    'text-offset': [
+                        'interpolate',
+                        ['linear'],
+                        ['length', ['get', 'siteNames']],
+                        1,
+                        [0, -2.2], // 0 characters
+                        30,
+                        [0, -3.8], // 27 characters
+                        60,
+                        [0, -4], // 54 characters
+                    ], // Positions the label above the point
+                    'text-anchor': 'top',
+                    'text-font': [
+                        'DIN Offc Pro Medium',
+                        'Arial Unicode MS Bold',
+                    ],
+                    'text-max-width': 30,
                     'icon-allow-overlap': true,
                     'icon-ignore-placement': true,
+                },
+                paint: {
+                    'text-color': '#000000',
+                    'text-halo-color': '#FFFFFF',
+                    'text-halo-width': 2,
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM,
+                        1,
+                    ],
+                },
+            };
+        case SubLayerId.SummaryPointsTotal:
+            return {
+                id: SubLayerId.SummaryPointsTotal,
+                type: LayerType.Symbol,
+                source: SourceId.SummaryPoints,
+                layout: {
+                    'text-field': ['get', 'totalDatasets'],
+                    'text-size': 14,
+                    'text-font': [
+                        'DIN Offc Pro Medium',
+                        'Arial Unicode MS Bold',
+                    ],
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
+                },
+                paint: {
+                    'text-color': '#FFFFFF',
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM - 1,
+                        1,
+                    ],
+                    // 'text-halo-color': '#FFFFFF',
+                    // 'text-halo-width': 2,
                 },
             };
         case LayerId.SpiderifyPoints:
@@ -768,6 +888,8 @@ export const getLayerClickFunction = (
                         layers: [SubLayerId.AssociatedDataClusters],
                     });
 
+                    console.log('here', features);
+
                     const feature = features?.[0];
                     if (feature && feature.properties) {
                         const clusterId = feature.properties
@@ -904,6 +1026,26 @@ export const layerDefinitions: MainLayerDefinition[] = [
         ],
     },
     {
+        id: LayerId.SummaryPoints,
+        controllable: false,
+        legend: false,
+        config: getLayerConfig(LayerId.SummaryPoints),
+        subLayers: [
+            {
+                id: SubLayerId.SummaryPointsSiteName,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.SummaryPointsSiteName),
+            },
+            {
+                id: SubLayerId.SummaryPointsTotal,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.SummaryPointsTotal),
+            },
+        ],
+    },
+    {
         id: LayerId.AssociatedData,
         controllable: false,
         legend: false,
@@ -930,15 +1072,15 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataClusterCount),
             },
-            {
-                id: SubLayerId.AssociatedDataUnclustered,
-                controllable: false,
-                legend: false,
-                config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
-                clickFunction: getLayerClickFunction(
-                    SubLayerId.AssociatedDataUnclustered
-                ),
-            },
+            // {
+            //     id: SubLayerId.AssociatedDataUnclustered,
+            //     controllable: false,
+            //     legend: false,
+            //     config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
+            //     clickFunction: getLayerClickFunction(
+            //         SubLayerId.AssociatedDataUnclustered
+            //     ),
+            // },
         ],
     },
     {

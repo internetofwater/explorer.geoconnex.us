@@ -32,6 +32,7 @@ import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
     getDatasets,
+    getDatasetsInBounds,
     reset,
     setFilter,
     setLayerVisibility,
@@ -39,7 +40,10 @@ import {
     setSelectedData,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import { spiderfyClusters } from '@/app/features/MainMap/utils';
+import {
+    createSummaryPoints,
+    spiderfyClusters,
+} from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { Feature, FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
@@ -134,7 +138,7 @@ export const MainMap: React.FC<Props> = (props) => {
                         SourceId.AssociatedData
                     ) as GeoJSONSource;
 
-                    spiderfyClusters(map, source, features).catch(
+                    createSummaryPoints(map, source, features).catch(
                         (error: ErrorEvent) =>
                             console.error(
                                 'Unable to spiderify clusters: ',
@@ -208,7 +212,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     SubLayerId.MainstemsLarge,
                     SubLayerId.AssociatedDataClusters,
                     SubLayerId.AssociatedDataClusterCount,
-                    SubLayerId.AssociatedDataUnclustered,
+                    LayerId.SummaryPoints,
+                    // SubLayerId.AssociatedDataUnclustered,
                     LayerId.SpiderifyPoints,
                 ],
             });
@@ -470,36 +475,36 @@ export const MainMap: React.FC<Props> = (props) => {
 
         if (clusterSource) {
             clusterSource.setData(datasets);
-            const spiderfySource = map.getSource(
-                SourceId.Spiderify
-            ) as GeoJSONSource;
-            const spiderfySourceData =
-                spiderfySource._data as FeatureCollection<Point, Dataset>;
+            // const spiderfySource = map.getSource(
+            //     SourceId.Spiderify
+            // ) as GeoJSONSource;
+            // const spiderfySourceData =
+            //     spiderfySource._data as FeatureCollection<Point, Dataset>;
 
-            if (spiderfySourceData.features.length > 0) {
-                let newData = JSON.parse(
-                    JSON.stringify(spiderfySourceData)
-                ) as FeatureCollection<Point, Dataset>;
-                newData = {
-                    type: 'FeatureCollection',
-                    features: newData.features.map((feature) => {
-                        return {
-                            ...feature,
-                            properties: {
-                                ...feature.properties,
-                                isNotFiltered: datasets.features.some(
-                                    (dataSetFeature) =>
-                                        dataSetFeature.id === feature.id
-                                )
-                                    ? 1
-                                    : 0.1,
-                            },
-                        };
-                    }),
-                };
+            // if (spiderfySourceData.features.length > 0) {
+            //     let newData = JSON.parse(
+            //         JSON.stringify(spiderfySourceData)
+            //     ) as FeatureCollection<Point, Dataset>;
+            //     newData = {
+            //         type: 'FeatureCollection',
+            //         features: newData.features.map((feature) => {
+            //             return {
+            //                 ...feature,
+            //                 properties: {
+            //                     ...feature.properties,
+            //                     isNotFiltered: datasets.features.some(
+            //                         (dataSetFeature) =>
+            //                             dataSetFeature.id === feature.id
+            //                     )
+            //                         ? 1
+            //                         : 0.1,
+            //                 },
+            //             };
+            //         }),
+            //     };
 
-                spiderfySource.setData(newData);
-            }
+            //     spiderfySource.setData(newData);
+            // }
         }
     }, [datasets]);
 
