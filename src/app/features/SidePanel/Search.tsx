@@ -26,7 +26,12 @@ const Search: React.FC<Props> = (props) => {
 
         if (_query) {
             try {
-                dispatch(setLoading(true));
+                dispatch(
+                    setLoading({
+                        item: 'search-results',
+                        loading: true,
+                    })
+                );
 
                 if (controller.current) {
                     controller.current.abort(
@@ -53,7 +58,12 @@ const Search: React.FC<Props> = (props) => {
                 if (isMounted.current) {
                     dispatch(setShowResults(true));
                     setResults(searchResults);
-                    dispatch(setLoading(false));
+                    dispatch(
+                        setLoading({
+                            item: 'search-results',
+                            loading: false,
+                        })
+                    );
                 }
             } catch (error) {
                 // Abort signals come in 2 variants
@@ -66,7 +76,12 @@ const Search: React.FC<Props> = (props) => {
                 } else {
                     console.error('Error fetching mainstems: ', error);
                     if (isMounted.current) {
-                        dispatch(setLoading(false));
+                        dispatch(
+                            setLoading({
+                                item: 'search-results',
+                                loading: false,
+                            })
+                        );
                     }
                 }
             }

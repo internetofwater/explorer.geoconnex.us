@@ -38,7 +38,6 @@ type InitialState = {
     showHelp: boolean;
     showResults: boolean;
     selectedMainstem: MainstemData | null;
-    selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
     mapMoved: number | null;
     hoverId: string | null;
@@ -47,7 +46,10 @@ type InitialState = {
     searchResultIds: string[];
     status: string;
     error: string | null;
-    loading: boolean;
+    loading: {
+        loading: boolean;
+        item: 'results-hover' | 'datasets' | 'search-results' | 'rendering';
+    };
     datasets: FeatureCollection<Point, Dataset>;
     view: 'map' | 'table';
     visibleLayers: {
@@ -79,7 +81,6 @@ const initialState: InitialState = {
     showHelp: false,
     showResults: false,
     selectedMainstem: null,
-    selectedMainstemId: null,
     selectedMainstemBBOX: null,
     mapMoved: null,
     hoverId: null,
@@ -88,7 +89,10 @@ const initialState: InitialState = {
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
-    loading: false,
+    loading: {
+        loading: false,
+        item: 'datasets',
+    },
     datasets: defaultGeoJson as FeatureCollection<Point, Dataset>,
     view: 'map',
     visibleLayers: {
@@ -113,9 +117,25 @@ const initialState: InitialState = {
     },
 };
 
+type FetchDatasetsSuccess = Feature<
+    Geometry,
+    Omit<MainstemData, 'id'> & { datasets?: Dataset[] }
+>;
+type FetchDatasetsNotFound = {
+    code: string;
+    type: string;
+    description: string;
+};
+
+function isFetchDatasetsSuccess(
+    payload: FetchDatasetsSuccess | FetchDatasetsNotFound
+): payload is FetchDatasetsSuccess {
+    return Boolean(payload && (payload as FetchDatasetsSuccess).properties);
+}
+
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
-    Feature<Geometry, Omit<MainstemData, 'id'> & { datasets: Dataset[] }>,
+    FetchDatasetsSuccess | FetchDatasetsNotFound,
     string
 >('main/fetchDatasets', async (id: string) => {
     const response = await fetch(
@@ -310,11 +330,11 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
-        setSelectedMainstemId: (
+        setSelectedMainstem: (
             state,
-            action: PayloadAction<InitialState['selectedMainstemId']>
+            action: PayloadAction<InitialState['selectedMainstem']>
         ) => {
-            state.selectedMainstemId = action.payload;
+            state.selectedMainstem = action.payload;
         },
         setSelectedData: (
             state,
@@ -367,7 +387,6 @@ export const mainSlice = createSlice({
 
         reset: (state) => {
             state.selectedMainstem = null;
-            state.selectedMainstemId = null;
             state.selectedMainstemBBOX = null;
             state.datasets = defaultGeoJson as FeatureCollection<
                 Point,
@@ -384,22 +403,14 @@ export const mainSlice = createSlice({
             })
             .addCase(fetchDatasets.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                if (action.payload) {
-                    // Create a summary for this mainstem
-                    const id = action.payload.id;
-
+                if (action.payload && isFetchDatasetsSuccess(action.payload)) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    const {
-                        datasets: _datasets,
-                        ...propertiesWithoutDatasets
-                    } = action.payload.properties;
 
-                    state.selectedMainstem = {
-                        ...propertiesWithoutDatasets,
-                        id: String(id),
-                    };
-
-                    state.filter = createFilters(_datasets);
+                    if (action.payload.properties.datasets) {
+                        state.filter = createFilters(
+                            action.payload.properties.datasets
+                        );
+                    }
 
                     // Get an appropriate buffer size based on drainage area
                     const buffer = getMainstemBuffer(
@@ -440,7 +451,6 @@ export const {
     setShowHelp,
     setShowResults,
     setSearchResultIds,
-    setSelectedMainstemId,
     setHoverId,
     setMapMoved,
     setDatasets,
@@ -448,6 +458,7 @@ export const {
     setSelectedData,
     setFilter,
     setView,
+    setSelectedMainstem,
     setSelectedMainstemBBOX,
     setLoading,
     reset,

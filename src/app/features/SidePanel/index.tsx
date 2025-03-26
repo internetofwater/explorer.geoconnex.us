@@ -28,7 +28,9 @@ const SidePanel: React.FC = () => {
 
     const { map } = useMap(MAIN_MAP_ID);
 
-    const { view, showResults } = useSelector((state: RootState) => state.main);
+    const { view, showResults, selectedMainstem } = useSelector(
+        (state: RootState) => state.main
+    );
 
     const datasetsLength = useSelector(getDatasetsLength);
     const datasets = useSelector(getFilteredDatasets);
@@ -140,14 +142,22 @@ const SidePanel: React.FC = () => {
                         </div>
                     </Collapsible>
                 )}
-                {selectedSummary && (
-                    <Collapsible title={selectedSummary.name} open={true}>
-                        <div className="p-4">
-                            <ComplexSummary
-                                summary={selectedSummary}
-                                exclusions={{ name: true }}
-                            />
-                        </div>
+                {selectedMainstem && (
+                    <Collapsible
+                        title={
+                            selectedMainstem.name_at_outlet ||
+                            'URI: ' + selectedMainstem.id
+                        }
+                        open={true}
+                    >
+                        {selectedSummary && (
+                            <div className="p-4">
+                                <ComplexSummary
+                                    summary={selectedSummary}
+                                    exclusions={{ name: true }}
+                                />
+                            </div>
+                        )}
                     </Collapsible>
                 )}
             </div>

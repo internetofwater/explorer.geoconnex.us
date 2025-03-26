@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import Table from '@/app/features/Table';
 import { FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
+import { render } from '@/utils/test-utils';
 
 const mockStore = configureStore([]);
 const datasets: FeatureCollection<Point, Dataset> = {

@@ -37,12 +37,13 @@ import {
     setLoading,
     setMapMoved,
     setSelectedData,
+    setSelectedMainstem,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
 import { spiderfyClusters } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { Feature, FeatureCollection, Point } from 'geojson';
-import { Dataset } from '@/app/types';
+import { Dataset, MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -63,6 +64,7 @@ export const MainMap: React.FC<Props> = (props) => {
         hoverId,
         selectedMainstem,
         selectedMainstemBBOX,
+        loading,
     } = useSelector((state: RootState) => state.main);
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
@@ -80,11 +82,22 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
-    const handleDatasetFetch = async (id: string) => {
+    const handleDatasetFetch = async (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            dispatch(setLoading(true));
-            await dispatch(fetchDatasets(id));
-            dispatch(setLoading(false));
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: true,
+                })
+            );
+            dispatch(setSelectedMainstem(mainstemData));
+            await dispatch(fetchDatasets(mainstemData.id));
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: false,
+                })
+            );
         }
     };
 
@@ -192,8 +205,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        const id = String(feature.properties.id);
-                        handleDatasetFetch(id); // eslint-disable-line @typescript-eslint/no-floating-promises
+                        handleDatasetFetch(feature.properties as MainstemData); // eslint-disable-line @typescript-eslint/no-floating-promises
                     }
                 }
             }
@@ -452,7 +464,14 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        dispatch(setLoading(true));
+        if (!(loading.item === 'datasets' && loading.loading)) {
+            dispatch(
+                setLoading({
+                    item: 'rendering',
+                    loading: true,
+                })
+            );
+        }
         const clusterSource = map.getSource(
             SourceId.AssociatedData
         ) as GeoJSONSource;
@@ -490,7 +509,14 @@ export const MainMap: React.FC<Props> = (props) => {
                 spiderfySource.setData(newData);
             }
         }
-        dispatch(setLoading(false));
+        if (!(loading.item === 'datasets' && loading.loading)) {
+            dispatch(
+                setLoading({
+                    item: 'rendering',
+                    loading: false,
+                })
+            );
+        }
     }, [datasets]);
 
     useEffect(() => {
@@ -499,7 +525,29 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         if (selectedMainstemBBOX) {
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: true,
+                })
+            );
             map.fitBounds(selectedMainstemBBOX);
+
+            const handleMoveEnd = () => {
+                // Give a slight delay to allow move events to process
+                const loadEndTimeout = setTimeout(() => {
+                    dispatch(
+                        setLoading({
+                            item: 'datasets',
+                            loading: false,
+                        })
+                    );
+                }, 200);
+
+                return () => clearTimeout(loadEndTimeout);
+            };
+
+            map.once('moveend', handleMoveEnd);
             dispatch(setSelectedMainstemBBOX(null));
         }
     }, [selectedMainstemBBOX]);

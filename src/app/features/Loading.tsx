@@ -7,8 +7,8 @@ export const LoadingBar: React.FC = () => {
 
     return (
         <>
-            {loading && (
-                <div id="loading-bar" className="absolute bottom-0 h-1 w-full">
+            {loading.loading && (
+                <div id="loading-bar" className="absolute top-0 h-1.5 w-full">
                     <Linear />
                 </div>
             )}

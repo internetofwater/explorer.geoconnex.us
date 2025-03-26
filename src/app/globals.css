@@ -114,8 +114,8 @@ a:active {
 
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 219px);
-        max-height: calc(100svh - 219px);
+        height: calc(100svh - 212px);
+        max-height: calc(100svh - 212px);
     }
 
     div#table-wrapper {

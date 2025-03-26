@@ -38,8 +38,8 @@ export const App: React.FC<Props> = (props) => {
                     id="side-panel-control"
                     className={`fixed left-2 ${
                         view === 'table'
-                            ? 'top-[unset] bottom-6 lg:top-2 lg:bottom-[unset]'
-                            : 'top-2'
+                            ? 'top-[unset] bottom-6 lg:top-3 lg:bottom-[unset]'
+                            : 'top-3'
                     }`}
                 >
                     {!showSidePanel && (
@@ -65,7 +65,7 @@ export const App: React.FC<Props> = (props) => {
                 >
                     <SidePanel />
                 </div>
-                <div id="tools" className={`fixed top-2 right-2`}>
+                <div id="tools" className={`fixed top-3 right-2`}>
                     {view === 'map' && <MapTools />}
                 </div>
                 <div
@@ -73,8 +73,8 @@ export const App: React.FC<Props> = (props) => {
                     className={`absolute  lg:relative
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
-                    <MainMap accessToken={accessToken} />
                     <LoadingBar />
+                    <MainMap accessToken={accessToken} />
                 </div>
                 <div
                     id="table"
@@ -82,8 +82,8 @@ export const App: React.FC<Props> = (props) => {
                         view === 'table' ? 'block' : 'hidden'
                     } w-full`}
                 >
-                    <Table />
                     <LoadingBar />
+                    <Table />
                 </div>
             </div>
         </>
