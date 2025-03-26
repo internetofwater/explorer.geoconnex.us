@@ -133,6 +133,17 @@ function isFetchDatasetsSuccess(
     return Boolean(payload && (payload as FetchDatasetsSuccess).properties);
 }
 
+function isFetchDatasetsNotFound(
+    payload: FetchDatasetsSuccess | FetchDatasetsNotFound
+): payload is FetchDatasetsNotFound {
+    return Boolean(
+        payload &&
+            (payload as FetchDatasetsNotFound).code &&
+            typeof (payload as FetchDatasetsNotFound).code === 'string' &&
+            (payload as FetchDatasetsNotFound).code === 'NotFound'
+    );
+}
+
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
     FetchDatasetsSuccess | FetchDatasetsNotFound,
@@ -158,14 +169,6 @@ const selectFilter = (state: RootState) => state.main.filter;
 export const getFilteredDatasets = createSelector(
     [selectDatasets, selectFilter],
     (datasets, filter): FeatureCollection<Point, Dataset> => {
-        if (
-            !filter.variables &&
-            !filter.startTemporalCoverage &&
-            !filter.endTemporalCoverage
-        ) {
-            return datasets;
-        }
-
         // Apply filter automatically to the main datasets obj
         const features = datasets.features.filter((feature) => {
             const {

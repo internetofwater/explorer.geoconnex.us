@@ -16,10 +16,7 @@ import {
     Popup,
 } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
-import {
-    hasPeristentPopupOpenToThisItem,
-    spiderfyClusters,
-} from '@/app/features/MainMap/utils';
+import { hasPeristentPopupOpenToThisItem } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
 import { Dataset } from '@/app/types';
@@ -35,6 +32,7 @@ export enum SourceId {
     AssociatedData = 'associated-data-source',
     Spiderify = 'spiderify',
     HUC2GeoJSON = 'huc-02-geojson',
+    SummaryPoints = 'summary-points',
 }
 
 export enum LayerId {
@@ -43,6 +41,7 @@ export enum LayerId {
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
     SpiderifyPoints = 'spiferified-clusters',
+    SummaryPoints = 'summary-points',
     MainstemsHighlight = 'mainstems-highlight',
 }
 
@@ -55,13 +54,15 @@ export enum SubLayerId {
     AssociatedDataClusters = 'associated-data-clusters',
     AssociatedDataClusterCount = 'associated-data-cluster-count',
     AssociatedDataUnclustered = 'associated-data-unclustered-point',
+    SummaryPointsSiteName = 'summary-points-site-name',
+    SummaryPointsTotal = 'summary-points-site-total',
 }
 export const allLayerIds = [
     ...Object.values(LayerId),
     ...Object.values(SubLayerId),
 ];
 
-export const CLUSTER_TRANSITION_ZOOM = 14;
+export const CLUSTER_TRANSITION_ZOOM = 17;
 export const MAINSTEM_DRAINAGE_SMALL = 160;
 export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
@@ -134,6 +135,18 @@ export const sourceConfigs: SourceConfig[] = [
     },
     {
         id: SourceId.Spiderify,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: [],
+            },
+            cluster: false,
+        },
+    },
+    {
+        id: SourceId.SummaryPoints,
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
@@ -221,7 +234,7 @@ export const getLayerColor = (
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';
         case SubLayerId.AssociatedDataUnclustered:
-            return '#11b4da';
+            return '#1C76CA';
         case LayerId.SpiderifyPoints:
             return '#46AB9D';
         default:
@@ -372,6 +385,8 @@ export const getLayerConfig = (
                     'text-field': ['get', 'name'],
                     'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
                     'text-size': 18,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 paint: {
                     'text-color': getLayerColor(LayerId.HUC2Boundaries),
@@ -414,6 +429,13 @@ export const getLayerConfig = (
                         10,
                         40,
                     ],
+                    'circle-opacity': [
+                        'step',
+                        ['zoom'],
+                        1,
+                        CLUSTER_TRANSITION_ZOOM,
+                        0,
+                    ],
                 },
             };
         case SubLayerId.AssociatedDataClusterCount:
@@ -421,7 +443,6 @@ export const getLayerConfig = (
                 id: SubLayerId.AssociatedDataClusterCount,
                 type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
-                filter: ['has', 'point_count'],
                 layout: {
                     'text-field': ['get', 'point_count_abbreviated'],
                     'text-font': [
@@ -429,25 +450,47 @@ export const getLayerConfig = (
                         'Arial Unicode MS Bold',
                     ],
                     'text-size': 12,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 paint: {
                     'text-color': getLayerColor(
                         SubLayerId.AssociatedDataClusterCount
                     ),
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        1,
+                        CLUSTER_TRANSITION_ZOOM,
+                        0,
+                    ],
                 },
             };
         case SubLayerId.AssociatedDataUnclustered:
             return {
                 id: SubLayerId.AssociatedDataUnclustered,
-                type: LayerType.Circle,
+                type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
+                filter: ['!', ['has', 'point_count']],
                 paint: {
-                    'circle-color': getLayerColor(
+                    'icon-color': getLayerColor(
                         SubLayerId.AssociatedDataUnclustered
                     ),
-                    'circle-radius': 4,
-                    'circle-stroke-width': 1,
-                    'circle-stroke-color': '#fff',
+                    'icon-opacity': 1,
+                },
+                layout: {
+                    'icon-image': 'observation-point-center',
+                    'icon-size': 1,
+                },
+            };
+
+        case LayerId.SummaryPoints:
+            return {
+                id: LayerId.SummaryPoints,
+                type: LayerType.Circle,
+                source: SourceId.SummaryPoints,
+                paint: {
+                    'circle-color': '#1C76CA',
                     'circle-opacity': [
                         'step',
                         ['zoom'],
@@ -455,6 +498,9 @@ export const getLayerConfig = (
                         CLUSTER_TRANSITION_ZOOM,
                         1,
                     ],
+                    'circle-radius': 20,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#FFF',
                     'circle-stroke-opacity': [
                         'step',
                         ['zoom'],
@@ -462,6 +508,77 @@ export const getLayerConfig = (
                         CLUSTER_TRANSITION_ZOOM,
                         1,
                     ],
+                },
+
+                layout: {},
+            };
+        case SubLayerId.SummaryPointsSiteName:
+            return {
+                id: SubLayerId.SummaryPointsSiteName,
+                type: LayerType.Symbol,
+                source: SourceId.SummaryPoints,
+                layout: {
+                    'text-field': ['get', 'siteNames'],
+                    'text-size': 14,
+                    'text-offset': [
+                        'interpolate',
+                        ['linear'],
+                        ['length', ['get', 'siteNames']],
+                        1,
+                        [0, -2.2], // 0 characters
+                        30,
+                        [0, -3.8], // 27 characters
+                        60,
+                        [0, -4], // 54 characters
+                    ], // Positions the label above the point
+                    'text-anchor': 'top',
+                    'text-font': [
+                        'DIN Offc Pro Medium',
+                        'Arial Unicode MS Bold',
+                    ],
+                    'text-max-width': 30,
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true,
+                },
+                paint: {
+                    'text-color': '#000000',
+                    'text-halo-color': '#FFFFFF',
+                    'text-halo-width': 2,
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM,
+                        1,
+                    ],
+                },
+            };
+        case SubLayerId.SummaryPointsTotal:
+            return {
+                id: SubLayerId.SummaryPointsTotal,
+                type: LayerType.Symbol,
+                source: SourceId.SummaryPoints,
+                layout: {
+                    'text-field': ['get', 'totalDatasets'],
+                    'text-size': 14,
+                    'text-font': [
+                        'DIN Offc Pro Medium',
+                        'Arial Unicode MS Bold',
+                    ],
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
+                },
+                paint: {
+                    'text-color': '#FFFFFF',
+                    'text-opacity': [
+                        'step',
+                        ['zoom'],
+                        0,
+                        CLUSTER_TRANSITION_ZOOM - 1,
+                        1,
+                    ],
+                    // 'text-halo-color': '#FFFFFF',
+                    // 'text-halo-width': 2,
                 },
             };
         case LayerId.SpiderifyPoints:
@@ -666,6 +783,30 @@ export const getLayerCustomHoverExitFunction = (
                     // Remove offset from shared object
                     hoverPopup.setOffset(0);
                 };
+            case SubLayerId.MainstemsSmall:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                    }
+                    hoverPopup.remove();
+                };
+            case SubLayerId.MainstemsMedium:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                    }
+                    hoverPopup.remove();
+                };
+            case SubLayerId.MainstemsLarge:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                    }
+                    hoverPopup.remove();
+                };
             case SubLayerId.HUC2BoundaryFill:
                 return () => {
                     map.getCanvas().style.cursor = '';
@@ -695,22 +836,20 @@ export const getLayerMouseMoveFunction = (
         switch (id) {
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
-                    map.getCanvas().style.cursor = 'pointer';
-                    const feature = e.features?.[0] as
-                        | Feature<LineString>
-                        | undefined;
                     const zoom = map.getZoom();
-                    if (
-                        feature &&
-                        feature.properties &&
-                        zoom < MAINSTEM_VISIBLE_ZOOM
-                    ) {
-                        const id = Number(feature.properties.HUC2);
-                        map.setPaintProperty(
-                            SubLayerId.HUC2BoundaryLabels,
-                            'text-opacity',
-                            ['case', ['==', ['get', 'id'], id], 1, 0]
-                        );
+                    if (zoom < MAINSTEM_VISIBLE_ZOOM) {
+                        const feature = e.features?.[0] as
+                            | Feature<LineString>
+                            | undefined;
+                        if (feature && feature.properties) {
+                            map.getCanvas().style.cursor = 'pointer';
+                            const id = Number(feature.properties.HUC2);
+                            map.setPaintProperty(
+                                SubLayerId.HUC2BoundaryLabels,
+                                'text-opacity',
+                                ['case', ['==', ['get', 'id'], id], 1, 0]
+                            );
+                        }
                     }
                 };
             case LayerId.SpiderifyPoints:
@@ -798,18 +937,6 @@ export const getLayerClickFunction = (
                                     .coordinates as [number, number];
 
                                 if (zoom) {
-                                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                                        spiderfyClusters(map, source, [
-                                            feature,
-                                        ]).catch((error: ErrorEvent) =>
-                                            console.error(
-                                                'Unable to spiderify cluster(s): ',
-                                                clusterId,
-                                                ', Error: ',
-                                                error
-                                            )
-                                        );
-                                    }
                                     map.easeTo({
                                         center: coordinates,
                                         zoom: zoom,
@@ -847,6 +974,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsSmall),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsSmall),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsSmall
+                ),
             },
             {
                 id: SubLayerId.MainstemsMedium,
@@ -856,6 +986,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 hoverFunction: getLayerHoverFunction(
                     SubLayerId.MainstemsMedium
                 ),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsMedium
+                ),
             },
             {
                 id: SubLayerId.MainstemsLarge,
@@ -863,6 +996,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsLarge),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsLarge),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsLarge
+                ),
             },
         ],
     },
@@ -885,12 +1021,6 @@ export const layerDefinitions: MainLayerDefinition[] = [
         config: getLayerConfig(LayerId.HUC2Boundaries),
         subLayers: [
             {
-                id: SubLayerId.HUC2BoundaryLabels,
-                controllable: true,
-                legend: false,
-                config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
-            },
-            {
                 id: SubLayerId.HUC2BoundaryFill,
                 controllable: false,
                 legend: false,
@@ -904,6 +1034,26 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 mouseMoveFunction: getLayerMouseMoveFunction(
                     SubLayerId.HUC2BoundaryFill
                 ),
+            },
+        ],
+    },
+    {
+        id: LayerId.SummaryPoints,
+        controllable: false,
+        legend: false,
+        config: getLayerConfig(LayerId.SummaryPoints),
+        subLayers: [
+            {
+                id: SubLayerId.SummaryPointsSiteName,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.SummaryPointsSiteName),
+            },
+            {
+                id: SubLayerId.SummaryPointsTotal,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.SummaryPointsTotal),
             },
         ],
     },
@@ -934,23 +1084,13 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataClusterCount),
             },
-            {
-                id: SubLayerId.AssociatedDataUnclustered,
-                controllable: false,
-                legend: false,
-                config: getLayerConfig(SubLayerId.AssociatedDataUnclustered),
-            },
         ],
     },
+    // Treat as a separate layer to allow draw over the datapoints
     {
-        id: LayerId.SpiderifyPoints,
-        controllable: false,
-        legend: true,
-        config: getLayerConfig(LayerId.SpiderifyPoints),
-        hoverFunction: getLayerHoverFunction(LayerId.SpiderifyPoints),
-        mouseMoveFunction: getLayerMouseMoveFunction(LayerId.SpiderifyPoints),
-        customHoverExitFunction: getLayerCustomHoverExitFunction(
-            LayerId.SpiderifyPoints
-        ),
+        id: SubLayerId.HUC2BoundaryLabels,
+        controllable: true,
+        legend: false,
+        config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
     },
 ];

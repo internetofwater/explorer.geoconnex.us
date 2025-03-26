@@ -28,11 +28,11 @@ import {
     LngLatBoundsLike,
     MapMouseEvent,
 } from 'mapbox-gl';
-import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
     getFilteredDatasets,
     reset,
+    setFilter,
     setLayerVisibility,
     setLoading,
     setMapMoved,
@@ -40,7 +40,10 @@ import {
     setSelectedMainstem,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import { spiderfyClusters } from '@/app/features/MainMap/utils';
+import {
+    createSummaryPoints,
+    deleteSummaryPoints,
+} from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { Feature, FeatureCollection, Point } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
@@ -101,12 +104,52 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
+    const createSummaryLayer = () => {
+        if (!map) {
+            return;
+        }
+
+        const zoom = map.getZoom();
+        if (zoom >= CLUSTER_TRANSITION_ZOOM) {
+            const features = map.queryRenderedFeatures({
+                layers: [SubLayerId.AssociatedDataClusters],
+            });
+            // Get unique ids
+            const uniqueIds = new Set<number>(
+                features.map(
+                    (feature) => feature.properties!.cluster_id as number
+                )
+            );
+            // Sort and convert to string
+            const clusterIds = Array.from(uniqueIds).sort().join();
+            // Check ids to prevent repeated spiderfy
+            if (features.length && clusterIds !== previousClusterIds.current) {
+                previousClusterIds.current = clusterIds;
+                const source = map.getSource(
+                    SourceId.AssociatedData
+                ) as GeoJSONSource;
+
+                createSummaryPoints(map, source, features).catch(
+                    (error: ErrorEvent) =>
+                        console.error(
+                            'Unable to spiderify clusters: ',
+                            clusterIds,
+                            ', Error: ',
+                            error
+                        )
+                );
+            }
+        }
+    };
+
     const debouncedHandleMapMove = debounce(handleMapMove, 150);
+    const debouncedCreateSummaryLayer = debounce(createSummaryLayer, 150);
 
     useEffect(() => {
         return () => {
             isMounted.current = false;
             debouncedHandleMapMove.cancel();
+            debouncedCreateSummaryLayer.cancel();
         };
     }, []);
 
@@ -131,55 +174,25 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         };
 
-        const createSpiderifiedClusters = () => {
-            const zoom = map.getZoom();
-            if (zoom >= CLUSTER_TRANSITION_ZOOM) {
-                const features = map.queryRenderedFeatures({
-                    layers: [SubLayerId.AssociatedDataClusters],
-                });
-                // Get unique ids
-                const uniqueIds = new Set<number>(
-                    features.map(
-                        (feature) => feature.properties!.cluster_id as number
-                    )
-                );
-                // Sort and convert to string
-                const clusterIds = Array.from(uniqueIds).sort().join();
-                // Check ids to prevent repeated spiderfy
-                if (
-                    features.length &&
-                    clusterIds !== previousClusterIds.current
-                ) {
-                    previousClusterIds.current = clusterIds;
-                    const source = map.getSource(
-                        SourceId.AssociatedData
-                    ) as GeoJSONSource;
-
-                    spiderfyClusters(map, source, features).catch(
-                        (error: ErrorEvent) =>
-                            console.error(
-                                'Unable to spiderify clusters: ',
-                                clusterIds,
-                                ', Error: ',
-                                error
-                            )
-                    );
-                }
-            }
-        };
-
         map.on('zoom', handleInitialZoom);
 
-        map.on('zoom', createSpiderifiedClusters);
+        map.on('zoom', debouncedCreateSummaryLayer);
 
-        map.on('drag', createSpiderifiedClusters);
+        map.on('drag', debouncedCreateSummaryLayer);
 
-        map.loadImage('dot-marker.png', (error, image) => {
+        map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
             if (!image) {
                 throw new Error('Image not found: dot-marker.png');
             }
             map.addImage('observation-point', image);
+        });
+        map.loadImage('/dot-marker-alt.png', (error, image) => {
+            if (error) throw error;
+            if (!image) {
+                throw new Error('Image not found: dot-marker-alt.png');
+            }
+            map.addImage('observation-point-center', image);
         });
 
         map.on('error', function (e) {
@@ -194,18 +207,53 @@ export const MainMap: React.FC<Props> = (props) => {
                 SubLayerId.MainstemsLarge,
             ],
             (e) => {
+                const zoom = map.getZoom();
+                if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
+                    const features = map.queryRenderedFeatures(e.point, {
+                        layers: [
+                            SubLayerId.MainstemsSmall,
+                            SubLayerId.MainstemsMedium,
+                            SubLayerId.MainstemsLarge,
+                        ],
+                    });
+
+                    if (features.length) {
+                        const feature = features[0];
+                        if (feature.properties) {
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            window.history.replaceState(
+                                {},
+                                '',
+                                `/mainstems/${feature.properties.id}`
+                            );
+                            void handleDatasetFetch(
+                                feature.properties as MainstemData
+                            );
+                        }
+                    }
+                }
+            }
+        );
+        map.on(
+            'click',
+            [
+                LayerId.SummaryPoints,
+                SubLayerId.SummaryPointsSiteName,
+                SubLayerId.SummaryPointsTotal,
+            ],
+            (e) => {
                 const features = map.queryRenderedFeatures(e.point, {
-                    layers: [
-                        SubLayerId.MainstemsSmall,
-                        SubLayerId.MainstemsMedium,
-                        SubLayerId.MainstemsLarge,
-                    ],
+                    layers: [LayerId.SummaryPoints],
                 });
 
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        handleDatasetFetch(feature.properties as MainstemData); // eslint-disable-line @typescript-eslint/no-floating-promises
+                        // eslint-disable-line @typescript-eslint/no-floating-promises
+                        const siteNamesString = feature.properties
+                            .siteNames as string;
+                        const siteNames = siteNamesString.split(', ');
+                        dispatch(setFilter({ siteNames }));
                     }
                 }
             }
@@ -219,12 +267,14 @@ export const MainMap: React.FC<Props> = (props) => {
                     SubLayerId.MainstemsLarge,
                     SubLayerId.AssociatedDataClusters,
                     SubLayerId.AssociatedDataClusterCount,
-                    SubLayerId.AssociatedDataUnclustered,
-                    LayerId.SpiderifyPoints,
+                    LayerId.SummaryPoints,
+                    // SubLayerId.AssociatedDataUnclustered,
                 ],
             });
-
-            if (!features.length) {
+            const zoom = map.getZoom();
+            if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
+                window.history.replaceState({}, '', '');
+                deleteSummaryPoints(map);
                 dispatch(reset());
             }
         });
@@ -240,11 +290,7 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         };
 
-        map.once(
-            'click',
-            SubLayerId.HUC2BoundaryFill,
-            HUC2BoundaryClickListener
-        );
+        map.on('click', SubLayerId.HUC2BoundaryFill, HUC2BoundaryClickListener);
 
         map.on('moveend', debouncedHandleMapMove);
         map.on('zoomend', debouncedHandleMapMove);
@@ -261,6 +307,15 @@ export const MainMap: React.FC<Props> = (props) => {
                     map.addImage('observation-point', image);
                 });
             }
+            if (!map.hasImage('observation-point-center')) {
+                map.loadImage('dot-marker-alt.png', (error, image) => {
+                    if (error) throw error;
+                    if (!image) {
+                        throw new Error('Image not found: dot-marker.png');
+                    }
+                    map.addImage('observation-point-center', image);
+                });
+            }
         });
     }, [map]);
 
@@ -268,51 +323,6 @@ export const MainMap: React.FC<Props> = (props) => {
         if (!map || !persistentPopup || !hoverPopup) {
             return;
         }
-
-        map.on('click', LayerId.SpiderifyPoints, (e) => {
-            const zoom = map.getZoom();
-            if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                const feature = e.features?.[0] as
-                    | Feature<Point, Dataset>
-                    | undefined;
-                if (feature && feature.properties) {
-                    if (persistentPopup.isOpen()) {
-                        persistentPopup.remove();
-                    }
-                    hoverPopup.remove();
-                    const itemId = feature.properties.distributionURL;
-                    const latLng = extractLatLng(feature.properties.wkt);
-                    const html = `<span style="color: black;" data-observationId="${itemId}"> 
-                <h6 style="font-weight:bold;">${
-                    feature.properties.siteName
-                }</h6>
-                <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${
-                    feature.properties.type
-                }</p></div>
-                <div style="display:flex;"><strong>Variable:</strong>&nbsp;<p>${
-                    feature.properties.variableMeasured.split(' / ')?.[0]
-                }</p></div>
-                <div style="display:flex;"><strong>Unit:</strong>&nbsp;<p>${
-                    feature.properties.variableUnit
-                }</p></div>
-                <div style="display:flex;"><strong>Latitude:</strong>&nbsp;<p>${
-                    latLng.lat
-                }</p></div>
-                <div style="display:flex;"><strong>Longitude:</strong>&nbsp;<p>${
-                    latLng.lng
-                }</p></div>
-                <a href="${
-                    feature.properties.url
-                }" target="_blank" style="margin:0 auto;">More Info</a>
-              </span>`;
-                    persistentPopup
-                        .setLngLat(e.lngLat)
-                        .setHTML(html)
-                        .addTo(map);
-                    dispatch(setSelectedData(feature.properties));
-                }
-            }
-        });
 
         map.on('zoom', () => {
             const zoom = map.getZoom();
@@ -478,36 +488,37 @@ export const MainMap: React.FC<Props> = (props) => {
 
         if (clusterSource) {
             clusterSource.setData(datasets);
-            const spiderfySource = map.getSource(
-                SourceId.Spiderify
-            ) as GeoJSONSource;
-            const spiderfySourceData =
-                spiderfySource._data as FeatureCollection<Point, Dataset>;
-
-            if (spiderfySourceData.features.length > 0) {
-                let newData = JSON.parse(
-                    JSON.stringify(spiderfySourceData)
-                ) as FeatureCollection<Point, Dataset>;
-                newData = {
-                    type: 'FeatureCollection',
-                    features: newData.features.map((feature) => {
-                        return {
-                            ...feature,
-                            properties: {
-                                ...feature.properties,
-                                isNotFiltered: datasets.features.some(
-                                    (dataSetFeature) =>
-                                        dataSetFeature.id === feature.id
+            const zoom = map.getZoom();
+            // Listen for the 'idle' event to ensure the source has updated
+            map.once('idle', () => {
+                // There has been an update to filters, reflect this in declustered points
+                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
+                    const features = map.queryRenderedFeatures({
+                        layers: [SubLayerId.AssociatedDataClusters],
+                    });
+                    // Get unique ids
+                    const uniqueIds = new Set<number>(
+                        features.map(
+                            (feature) =>
+                                feature.properties!.cluster_id as number
+                        )
+                    );
+                    // Sort and convert to string
+                    const clusterIds = Array.from(uniqueIds).sort().join();
+                    // Check ids to prevent repeated spiderfy
+                    if (features.length) {
+                        createSummaryPoints(map, clusterSource, features).catch(
+                            (error: ErrorEvent) =>
+                                console.error(
+                                    'Unable to spiderify clusters: ',
+                                    clusterIds,
+                                    ', Error: ',
+                                    error
                                 )
-                                    ? 1
-                                    : 0.1,
-                            },
-                        };
-                    }),
-                };
-
-                spiderfySource.setData(newData);
-            }
+                        );
+                    }
+                }
+            });
         }
         if (!(loading.item === 'datasets' && loading.loading)) {
             dispatch(
@@ -577,7 +588,7 @@ export const MainMap: React.FC<Props> = (props) => {
                     style: BASEMAP,
                     center: INITIAL_CENTER,
                     zoom: INITIAL_ZOOM,
-                    maxZoom: 15,
+                    maxZoom: 20,
                 }}
                 controls={{
                     scaleControl: true,

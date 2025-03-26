@@ -123,6 +123,7 @@ export const Results: React.FC<Props> = (props) => {
 
     const handleClick = async (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
+        window.history.replaceState({}, '', `/mainstems/${result.id}`);
         dispatch(setShowResults(true));
         dispatch(
             setLoading({

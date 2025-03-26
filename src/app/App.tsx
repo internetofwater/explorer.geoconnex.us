@@ -2,16 +2,18 @@
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { MainMap } from '@/app/features/MainMap';
 import store, { AppDispatch, RootState } from '@/lib/state/store';
-import { MapProvider } from '@/app/contexts/MapContexts';
+import { MapProvider, useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import SidePanel from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
-import { setShowSidePanel } from '@/lib/state/main/slice';
+import { fetchDatasets, setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/HelpModal';
 import { LoadingBar } from '@/app/features/Loading';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 type Props = {
     accessToken: string;
@@ -23,8 +25,28 @@ export const App: React.FC<Props> = (props) => {
     const { view, showSidePanel } = useSelector(
         (state: RootState) => state.main
     );
+    const pathname = usePathname();
 
     const dispatch: AppDispatch = useDispatch();
+
+    const { map } = useMap(MAIN_MAP_ID);
+
+    useEffect(() => {
+        // Ensure map is loaded
+        if (!map) {
+            return;
+        }
+
+        if (pathname && pathname.startsWith('/mainstems/')) {
+            const match = pathname.match(/\/mainstems\/(\d+)/);
+            const id = match ? match[1] : null;
+
+            if (id) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                dispatch(fetchDatasets(id));
+            }
+        }
+    }, [map, pathname]);
 
     const handleSidePanelControlClick = () => {
         dispatch(setShowSidePanel(true));
