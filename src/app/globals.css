@@ -47,6 +47,14 @@ div#tools {
     z-index: 1;
 }
 
+#modal-overlay {
+    z-index: 3;
+}
+
+#loading-bar {
+    z-index: 3;
+}
+
 div#scrollable-side-panel {
     max-height: calc(100svh - 250px);
 }
@@ -68,10 +76,6 @@ thead#table-header {
 button.mapboxgl-popup-close-button {
     font-size: x-large;
     right: 3px;
-}
-
-#modal-overlay {
-    z-index: 3;
 }
 
 input[type='checkbox'] {
@@ -110,8 +114,8 @@ a:active {
 
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 219px);
-        max-height: calc(100svh - 219px);
+        height: calc(100svh - 212px);
+        max-height: calc(100svh - 212px);
     }
 
     div#table-wrapper {
@@ -124,7 +128,7 @@ a:active {
 }
 
 .animate-linear {
-    animation: linear 2s linear infinite;
+    animation: linear 1s linear infinite;
 }
 
 .tooltip {

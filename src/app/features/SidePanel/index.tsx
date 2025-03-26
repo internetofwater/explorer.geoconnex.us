@@ -17,7 +17,6 @@ import CloseButton from '@/app/components/common/CloseButton';
 import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
-import { Linear } from '@/app/assets/Linear';
 import { Results } from '@/app/features/SidePanel/Results';
 import { MainstemData } from '@/app/types';
 import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
@@ -26,11 +25,12 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
-    const [loading, setLoading] = useState(false);
 
     const { map } = useMap(MAIN_MAP_ID);
 
-    const { view, showResults } = useSelector((state: RootState) => state.main);
+    const { view, showResults, selectedMainstem } = useSelector(
+        (state: RootState) => state.main
+    );
 
     const datasetsLength = useSelector(getDatasetsLength);
     const datasets = useSelector(getFilteredDatasets);
@@ -122,15 +122,14 @@ const SidePanel: React.FC = () => {
                 </div>
             </div>
             <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
-                <Search setLoading={setLoading} setResults={setResults} />
-                {loading ? <Linear /> : <div className="h-2" />}
+                <Search setResults={setResults} />
             </div>
 
             <div id="scrollable-side-panel" className="overflow-y-auto">
                 {/* Results makes async call, ensure mounting */}
                 <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
                     <Collapsible title="Results" open={showResults}>
-                        <Results results={results} setLoading={setLoading} />
+                        <Results results={results} />
                     </Collapsible>
                 </div>
                 {datasetsLength > 0 && (
@@ -143,14 +142,22 @@ const SidePanel: React.FC = () => {
                         </div>
                     </Collapsible>
                 )}
-                {selectedSummary && (
-                    <Collapsible title={selectedSummary.name} open={true}>
-                        <div className="p-4">
-                            <ComplexSummary
-                                summary={selectedSummary}
-                                exclusions={{ name: true }}
-                            />
-                        </div>
+                {selectedMainstem && (
+                    <Collapsible
+                        title={
+                            selectedMainstem.name_at_outlet ||
+                            'URI: ' + selectedMainstem.id
+                        }
+                        open={true}
+                    >
+                        {selectedSummary && (
+                            <div className="p-4">
+                                <ComplexSummary
+                                    summary={selectedSummary}
+                                    exclusions={{ name: true }}
+                                />
+                            </div>
+                        )}
                     </Collapsible>
                 )}
             </div>

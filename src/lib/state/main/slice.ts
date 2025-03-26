@@ -38,7 +38,6 @@ type InitialState = {
     showHelp: boolean;
     showResults: boolean;
     selectedMainstem: MainstemData | null;
-    selectedMainstemId: string | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
     mapMoved: number | null;
     hoverId: string | null;
@@ -47,8 +46,11 @@ type InitialState = {
     searchResultIds: string[];
     status: string;
     error: string | null;
+    loading: {
+        loading: boolean;
+        item: 'results-hover' | 'datasets' | 'search-results' | 'rendering';
+    };
     datasets: FeatureCollection<Point, Dataset>;
-    visibleDatasetIds: string[];
     view: 'map' | 'table';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
@@ -79,7 +81,6 @@ const initialState: InitialState = {
     showHelp: false,
     showResults: false,
     selectedMainstem: null,
-    selectedMainstemId: null,
     selectedMainstemBBOX: null,
     mapMoved: null,
     hoverId: null,
@@ -88,8 +89,11 @@ const initialState: InitialState = {
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
+    loading: {
+        loading: false,
+        item: 'datasets',
+    },
     datasets: defaultGeoJson as FeatureCollection<Point, Dataset>,
-    visibleDatasetIds: [],
     view: 'map',
     visibleLayers: {
         [LayerId.MajorRivers]: true,
@@ -115,7 +119,7 @@ const initialState: InitialState = {
 
 type FetchDatasetsSuccess = Feature<
     Geometry,
-    Omit<MainstemData, 'id'> & { datasets: Dataset[] }
+    Omit<MainstemData, 'id'> & { datasets?: Dataset[] }
 >;
 type FetchDatasetsNotFound = {
     code: string;
@@ -123,15 +127,10 @@ type FetchDatasetsNotFound = {
     description: string;
 };
 
-function isFetchDatasetsNotFound(
+function isFetchDatasetsSuccess(
     payload: FetchDatasetsSuccess | FetchDatasetsNotFound
-): payload is FetchDatasetsNotFound {
-    return Boolean(
-        payload &&
-            (payload as FetchDatasetsNotFound).code &&
-            typeof (payload as FetchDatasetsNotFound).code === 'string' &&
-            (payload as FetchDatasetsNotFound).code === 'NotFound'
-    );
+): payload is FetchDatasetsSuccess {
+    return Boolean(payload && (payload as FetchDatasetsSuccess).properties);
 }
 
 // Good candidate for caching
@@ -151,8 +150,6 @@ export const fetchDatasets = createAsyncThunk<
 
 export const getDatasetsLength = (state: RootState) =>
     state.main.datasets.features.length;
-export const getVisibleDatasetsLength = (state: RootState) =>
-    state.main.visibleDatasetIds.length;
 
 const selectDatasets = (state: RootState) => state.main.datasets;
 const selectFilter = (state: RootState) => state.main.filter;
@@ -325,23 +322,17 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
-        setSelectedMainstemId: (
+        setSelectedMainstem: (
             state,
-            action: PayloadAction<InitialState['selectedMainstemId']>
+            action: PayloadAction<InitialState['selectedMainstem']>
         ) => {
-            state.selectedMainstemId = action.payload;
+            state.selectedMainstem = action.payload;
         },
         setSelectedData: (
             state,
             action: PayloadAction<InitialState['selectedData']>
         ) => {
             state.selectedData = action.payload;
-        },
-        setVisibleDatasetIds: (
-            state,
-            action: PayloadAction<InitialState['visibleDatasetIds']>
-        ) => {
-            state.visibleDatasetIds = action.payload;
         },
         setLayerVisibility: (
             state,
@@ -382,9 +373,12 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedMainstemBBOX = action.payload;
         },
+        setLoading: (state, action: PayloadAction<InitialState['loading']>) => {
+            state.loading = action.payload;
+        },
+
         reset: (state) => {
             state.selectedMainstem = null;
-            state.selectedMainstemId = null;
             state.selectedMainstemBBOX = null;
             state.datasets = defaultGeoJson as FeatureCollection<
                 Point,
@@ -401,26 +395,23 @@ export const mainSlice = createSlice({
             })
             .addCase(fetchDatasets.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-
-                if (
-                    action.payload &&
-                    !isFetchDatasetsNotFound(action.payload)
-                ) {
-                    // Create a summary for this mainstem
-                    const id = action.payload.id;
-
+                if (action.payload && isFetchDatasetsSuccess(action.payload)) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
                     const {
                         datasets: _datasets,
                         ...propertiesWithoutDatasets
                     } = action.payload.properties;
 
+                    // Redundant, but covers load from route param
                     state.selectedMainstem = {
                         ...propertiesWithoutDatasets,
-                        id: String(id),
+                        id: String(action.payload.id),
                     };
 
-                    state.filter = createFilters(_datasets);
+                    if (_datasets) {
+                        state.filter = createFilters(_datasets);
+                    }
 
                     // Get an appropriate buffer size based on drainage area
                     const buffer = getMainstemBuffer(
@@ -461,16 +452,16 @@ export const {
     setShowHelp,
     setShowResults,
     setSearchResultIds,
-    setSelectedMainstemId,
     setHoverId,
     setMapMoved,
     setDatasets,
     setLayerVisibility,
     setSelectedData,
-    setVisibleDatasetIds,
     setFilter,
     setView,
+    setSelectedMainstem,
     setSelectedMainstemBBOX,
+    setLoading,
     reset,
 } = mainSlice.actions;
 

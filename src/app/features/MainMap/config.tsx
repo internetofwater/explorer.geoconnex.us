@@ -629,7 +629,10 @@ export const getLayerHoverFunction = (
 
                             const feature = e.features?.[0];
                             if (feature && feature.properties) {
-                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                                const html = `<strong style="color:black;">${
+                                    feature.properties.name_at_outlet ||
+                                    'URI: ' + feature.properties.id
+                                }</strong>`;
                                 hoverPopup
                                     .setLngLat(e.lngLat)
                                     .setHTML(html)
@@ -647,7 +650,10 @@ export const getLayerHoverFunction = (
 
                             const feature = e.features?.[0];
                             if (feature && feature.properties) {
-                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                                const html = `<strong style="color:black;">${
+                                    feature.properties.name_at_outlet ||
+                                    'URI: ' + feature.properties.id
+                                }</strong>`;
 
                                 hoverPopup
                                     .setLngLat(e.lngLat)
@@ -666,7 +672,10 @@ export const getLayerHoverFunction = (
 
                             const feature = e.features?.[0];
                             if (feature && feature.properties) {
-                                const html = `<strong style="color:black;">${feature.properties.name_at_outlet}</strong>`;
+                                const html = `<strong style="color:black;">${
+                                    feature.properties.name_at_outlet ||
+                                    'URI: ' + feature.properties.id
+                                }</strong>`;
 
                                 hoverPopup
                                     .setLngLat(e.lngLat)

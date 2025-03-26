@@ -34,7 +34,9 @@ import {
     reset,
     setFilter,
     setLayerVisibility,
+    setLoading,
     setMapMoved,
+    setSelectedMainstem,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
 import {
@@ -42,6 +44,7 @@ import {
     deleteSummaryPoints,
 } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
+import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -62,6 +65,7 @@ export const MainMap: React.FC<Props> = (props) => {
         hoverId,
         selectedMainstem,
         selectedMainstemBBOX,
+        loading,
     } = useSelector((state: RootState) => state.main);
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
@@ -75,7 +79,26 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const handleMapMove = () => {
         if (isMounted.current) {
-            dispatch(setMapMoved(Math.random()));
+            dispatch(setMapMoved(Date.now()));
+        }
+    };
+
+    const handleDatasetFetch = async (mainstemData: MainstemData) => {
+        if (isMounted.current) {
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: true,
+                })
+            );
+            dispatch(setSelectedMainstem(mainstemData));
+            await dispatch(fetchDatasets(mainstemData.id));
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: false,
+                })
+            );
         }
     };
 
@@ -195,14 +218,15 @@ export const MainMap: React.FC<Props> = (props) => {
                     if (features.length) {
                         const feature = features[0];
                         if (feature.properties) {
-                            const id = feature.properties.id as string;
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             window.history.replaceState(
                                 {},
                                 '',
-                                `/mainstems/${id}`
+                                `/mainstems/${feature.properties.id}`
                             );
-                            dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
+                            void handleDatasetFetch(
+                                feature.properties as MainstemData
+                            );
                         }
                     }
                 }
@@ -223,6 +247,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
+                        // eslint-disable-line @typescript-eslint/no-floating-promises
                         const siteNamesString = feature.properties
                             .siteNames as string;
                         const siteNames = siteNamesString.split(', ');
@@ -447,6 +472,14 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
+        if (!(loading.item === 'datasets' && loading.loading)) {
+            dispatch(
+                setLoading({
+                    item: 'rendering',
+                    loading: true,
+                })
+            );
+        }
         const clusterSource = map.getSource(
             SourceId.AssociatedData
         ) as GeoJSONSource;
@@ -483,6 +516,14 @@ export const MainMap: React.FC<Props> = (props) => {
                         );
                     }
                 }
+                if (!(loading.item === 'datasets' && loading.loading)) {
+                    dispatch(
+                        setLoading({
+                            item: 'rendering',
+                            loading: false,
+                        })
+                    );
+                }
             });
         }
     }, [datasets]);
@@ -493,7 +534,29 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         if (selectedMainstemBBOX) {
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: true,
+                })
+            );
             map.fitBounds(selectedMainstemBBOX);
+
+            const handleMoveEnd = () => {
+                // Give a slight delay to allow move events to process
+                const loadEndTimeout = setTimeout(() => {
+                    dispatch(
+                        setLoading({
+                            item: 'datasets',
+                            loading: false,
+                        })
+                    );
+                }, 250);
+
+                return () => clearTimeout(loadEndTimeout);
+            };
+
+            map.once('moveend', handleMoveEnd);
             dispatch(setSelectedMainstemBBOX(null));
         }
     }, [selectedMainstemBBOX]);

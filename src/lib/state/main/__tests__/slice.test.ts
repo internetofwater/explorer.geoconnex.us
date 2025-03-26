@@ -1,7 +1,6 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import mainReducer, {
     setSearchResultIds,
-    setSelectedMainstemId,
     setHoverId,
     setDatasets,
     setLayerVisibility,
@@ -26,13 +25,6 @@ describe('mainSlice', () => {
         store.dispatch(setSearchResultIds(searchResultIds));
         const state = store.getState().main;
         expect(state.searchResultIds).toEqual(searchResultIds);
-    });
-
-    test('should handle setSelectedMainstemId', () => {
-        const selectedMainstemId = '';
-        store.dispatch(setSelectedMainstemId(selectedMainstemId));
-        const state = store.getState().main;
-        expect(state.selectedMainstemId).toEqual(selectedMainstemId);
     });
 
     test('should handle setHoverId', () => {
@@ -81,10 +73,10 @@ describe('mainSlice', () => {
     });
 
     test('should handle setFilter', () => {
-        const filter = { selectedTypes: ['type1'] };
+        const filter = { types: ['type1'] };
         store.dispatch(setFilter(filter));
         const state = store.getState().main;
-        expect(state.filter.selectedTypes).toEqual(['type1']);
+        expect(state.filter.types).toEqual(['type1']);
     });
 
     test('should handle setView', () => {
