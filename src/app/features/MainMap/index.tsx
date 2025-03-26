@@ -31,7 +31,7 @@ import {
 import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
-    getDatasets,
+    getFilteredDatasets,
     reset,
     setLayerVisibility,
     setLoading,
@@ -67,7 +67,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
 
-    const datasets = useSelector(getDatasets);
+    const datasets = useSelector(getFilteredDatasets);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 

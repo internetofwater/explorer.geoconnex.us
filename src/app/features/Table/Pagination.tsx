@@ -32,6 +32,7 @@ const Pagination: React.FC<Props> = (props) => {
                     className="border rounded p-1 text-lg disabled:opacity-70"
                     onClick={() => paginationFunctions.firstPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
+                    title="Go to first page"
                 >
                     {' ⏮ '}
                 </button>
@@ -39,6 +40,7 @@ const Pagination: React.FC<Props> = (props) => {
                     className="border rounded p-1 disabled:opacity-70"
                     onClick={() => paginationFunctions.previousPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
+                    title="Go to previous page"
                 >
                     {' ◀ '}
                 </button>
@@ -47,6 +49,7 @@ const Pagination: React.FC<Props> = (props) => {
                     className="border rounded p-1 disabled:opacity-70"
                     onClick={() => paginationFunctions.nextPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
+                    title="Go to next page"
                 >
                     {' ▶ '}
                 </button>
@@ -54,6 +57,7 @@ const Pagination: React.FC<Props> = (props) => {
                     className="border rounded p-1 text-lg disabled:opacity-70"
                     onClick={() => paginationFunctions.lastPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
+                    title="Go to last page"
                 >
                     {'  ⏭  '}
                 </button>
