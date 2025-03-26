@@ -51,7 +51,7 @@ type InitialState = {
         item: 'results-hover' | 'datasets' | 'search-results' | 'rendering';
     };
     datasets: FeatureCollection<Point, Dataset>;
-    view: 'map' | 'table';
+    view: 'map' | 'table' | 'about';
     visibleLayers: {
         [LayerId.MajorRivers]: boolean;
         [LayerId.HUC2Boundaries]: boolean;

@@ -17,6 +17,7 @@ const IconButton: React.FC<Props> = (props) => {
             title={title}
             disabled={disabled}
             className={`bg-white hover:bg-gray-100
+                border border-gray-300
                 rounded-full p-2 shadow-md 
                 w-11 h-11
                 flex justify-center items-center

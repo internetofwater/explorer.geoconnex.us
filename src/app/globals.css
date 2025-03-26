@@ -36,7 +36,7 @@ body {
 }
 
 div#side-panel {
-    z-index: 1;
+    z-index: 3;
 }
 
 div#side-panel-control {
@@ -48,11 +48,11 @@ div#tools {
 }
 
 #modal-overlay {
-    z-index: 3;
+    z-index: 4;
 }
 
 #loading-bar {
-    z-index: 3;
+    z-index: 4;
 }
 
 div#scrollable-side-panel {
@@ -60,7 +60,7 @@ div#scrollable-side-panel {
 }
 
 div#table-wrapper {
-    max-height: calc(100svh - 90px);
+    max-height: calc(100svh - 166px);
 }
 
 thead#table-header {
@@ -114,12 +114,12 @@ a:active {
 
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 212px);
-        max-height: calc(100svh - 212px);
+        height: calc(100svh - 206px);
+        max-height: calc(100svh - 206px);
     }
 
     div#table-wrapper {
-        max-height: calc(100svh - 75px);
+        max-height: calc(100svh - 115px);
     }
 }
 

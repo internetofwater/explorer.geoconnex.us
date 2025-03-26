@@ -22,13 +22,15 @@ import { MainstemData } from '@/app/types';
 import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
 import { useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
+import Button from '@/app/components/common/Button';
+import Image from 'next/image';
 
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
 
     const { map } = useMap(MAIN_MAP_ID);
 
-    const { view, showResults, selectedMainstem } = useSelector(
+    const { showResults, selectedMainstem } = useSelector(
         (state: RootState) => state.main
     );
 
@@ -51,12 +53,23 @@ const SidePanel: React.FC = () => {
     };
 
     return (
-        <div className="w-full mt-1">
-            <div className="mt-1 flex flex-col justify-between border-b border-gray-300 shadow-lg">
+        <div className="w-full">
+            <div className="pt-2 flex flex-col justify-between bg-primary">
                 <div className="flex justify-between" id="attribution">
-                    {/* Mock-height to account for logo */}
-                    <div className="ml-4 flex items-center h-16">
-                        <Typography variant="h4" as="h1">
+                    <div className="ml-4 flex items-center gap-x-4 h-16">
+                        <a
+                            href="https://internetofwater.org/"
+                            aria-label="Link to Internet of Water site"
+                            target="_blank"
+                        >
+                            <Image
+                                src={'/IoWCoalitionLogoMark.png'}
+                                alt="Internet of Water Logo"
+                                width={35}
+                                height={50}
+                            />
+                        </a>
+                        <Typography variant="h3" as="h1">
                             Geoconnex Explorer
                         </Typography>
                     </div>
@@ -82,43 +95,29 @@ const SidePanel: React.FC = () => {
                         </button>
                     </div>
                 </div>
-                <div className="flex w-[60%] mt-2">
-                    <button
-                        title="Map Tab"
-                        aria-label="Tab to show map"
+                <div className="flex mt-2 mb-1 ml-2 gap-x-2">
+                    <Button
+                        title="Switch to Map View"
                         onClick={() => dispatch(setView('map'))}
-                        className={`${
-                            view === 'map'
-                                ? 'bg-primary -mb-px border-b-transparent'
-                                : 'bg-primary-darker text-gray-900'
-                        } hover:bg-primary 
-                        border-t border-x border-gray-300 
-                        py-3 px-4 mx-2 
-                        text-black hover:text-black font-bold 
-                        rounded-t-lg
-                        w-[50%] `}
+                        className="min-w-24 min-h-10"
                     >
                         Map
-                    </button>
-                    <button
-                        title="Table Tab"
-                        aria-label="Tab to show table"
+                    </Button>
+                    <Button
+                        title="Switch to Table View"
                         onClick={() => dispatch(setView('table'))}
+                        className="min-w-24 min-h-10"
                         disabled={datasetsLength === 0}
-                        className={`${
-                            view === 'table'
-                                ? 'bg-primary -mb-px border-b-transparent'
-                                : 'bg-primary-darker text-gray-900'
-                        } hover:enabled:bg-primary 
-                        disabled:opacity-50
-                        border-t border-x border-gray-300
-                        py-3 px-4
-                      text-black hover::enabled:text-black font-bold 
-                        rounded-t-lg
-                        w-[50%]`}
                     >
                         Table
-                    </button>
+                    </Button>
+                    <Button
+                        title="Switch to About View"
+                        onClick={() => dispatch(setView('about'))}
+                        className="min-w-24 min-h-10"
+                    >
+                        About
+                    </Button>
                 </div>
             </div>
             <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">

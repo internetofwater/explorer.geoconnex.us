@@ -12,11 +12,12 @@ import {
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
-import { getFilteredDatasetsInBounds } from '@/lib/state/main/slice';
+import { getFilteredDatasetsInBounds, setView } from '@/lib/state/main/slice';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/state/store';
 import { useMap } from '@/app/contexts/MapContexts';
+import CloseButton from '@/app/components/common/CloseButton';
 
 export enum HeaderKey {
     SiteName = 'siteName',
@@ -67,6 +68,12 @@ const TableWrapper: React.FC = () => {
     const datasets = useSelector((state: RootState) =>
         getFilteredDatasetsInBounds(state, map)
     );
+
+    const dispatch = useDispatch();
+
+    const handleCloseClick = () => {
+        dispatch(setView('map'));
+    };
 
     const columns = React.useMemo<ColumnDef<Dataset>[]>(
         () => [
@@ -208,6 +215,11 @@ const TableWrapper: React.FC = () => {
 
     return (
         <div className="h-full w-full bg-primary p-0 lg:pt-2">
+            <CloseButton
+                onClick={handleCloseClick}
+                className="block pt-3 ml-auto mr-2 mb-2 text-gray-900 hover:text-gray-700 text-md"
+                closeIconClassName="w-8 h-8"
+            />
             <Table
                 getHeaderGroups={table.getHeaderGroups}
                 getRowModel={table.getRowModel}
