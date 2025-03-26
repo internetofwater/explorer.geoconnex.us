@@ -79,7 +79,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const handleMapMove = () => {
         if (isMounted.current) {
-            dispatch(setMapMoved(Math.random()));
+            dispatch(setMapMoved(Date.now()));
         }
     };
 
