@@ -452,7 +452,6 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        console.log('useEffect');
         dispatch(setLoading(true));
         const clusterSource = map.getSource(
             SourceId.AssociatedData
