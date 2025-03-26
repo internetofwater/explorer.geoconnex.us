@@ -36,7 +36,6 @@ import {
     setLayerVisibility,
     setLoading,
     setMapMoved,
-    setSelectedData,
     setSelectedMainstem,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
@@ -45,8 +44,7 @@ import {
     deleteSummaryPoints,
 } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Point } from 'geojson';
-import { Dataset, MainstemData } from '@/app/types';
+import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -518,15 +516,15 @@ export const MainMap: React.FC<Props> = (props) => {
                         );
                     }
                 }
+                if (!(loading.item === 'datasets' && loading.loading)) {
+                    dispatch(
+                        setLoading({
+                            item: 'rendering',
+                            loading: false,
+                        })
+                    );
+                }
             });
-        }
-        if (!(loading.item === 'datasets' && loading.loading)) {
-            dispatch(
-                setLoading({
-                    item: 'rendering',
-                    loading: false,
-                })
-            );
         }
     }, [datasets]);
 
@@ -553,7 +551,7 @@ export const MainMap: React.FC<Props> = (props) => {
                             loading: false,
                         })
                     );
-                }, 200);
+                }, 250);
 
                 return () => clearTimeout(loadEndTimeout);
             };

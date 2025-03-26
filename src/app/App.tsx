@@ -46,7 +46,7 @@ export const App: React.FC<Props> = (props) => {
                 dispatch(fetchDatasets(id));
             }
         }
-    }, [map, pathname]);
+    }, [map]);
 
     const handleSidePanelControlClick = () => {
         dispatch(setShowSidePanel(true));

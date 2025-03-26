@@ -133,17 +133,6 @@ function isFetchDatasetsSuccess(
     return Boolean(payload && (payload as FetchDatasetsSuccess).properties);
 }
 
-function isFetchDatasetsNotFound(
-    payload: FetchDatasetsSuccess | FetchDatasetsNotFound
-): payload is FetchDatasetsNotFound {
-    return Boolean(
-        payload &&
-            (payload as FetchDatasetsNotFound).code &&
-            typeof (payload as FetchDatasetsNotFound).code === 'string' &&
-            (payload as FetchDatasetsNotFound).code === 'NotFound'
-    );
-}
-
 // Good candidate for caching
 export const fetchDatasets = createAsyncThunk<
     FetchDatasetsSuccess | FetchDatasetsNotFound,
@@ -409,10 +398,19 @@ export const mainSlice = createSlice({
                 if (action.payload && isFetchDatasetsSuccess(action.payload)) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-                    if (action.payload.properties.datasets) {
-                        state.filter = createFilters(
-                            action.payload.properties.datasets
-                        );
+                    const {
+                        datasets: _datasets,
+                        ...propertiesWithoutDatasets
+                    } = action.payload.properties;
+
+                    // Redundant, but covers load from route param
+                    state.selectedMainstem = {
+                        ...propertiesWithoutDatasets,
+                        id: String(action.payload.id),
+                    };
+
+                    if (_datasets) {
+                        state.filter = createFilters(_datasets);
                     }
 
                     // Get an appropriate buffer size based on drainage area
