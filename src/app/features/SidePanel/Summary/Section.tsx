@@ -103,8 +103,8 @@ export const SummarySection: React.FC<Props> = (props) => {
         if (chart) {
             const tooltip = chart.tooltip;
             if (tooltip) {
-                chart.update('active');
                 tooltip.setActiveElements([], { x: 0, y: 0 });
+                chart.update('active');
             }
         }
     };
