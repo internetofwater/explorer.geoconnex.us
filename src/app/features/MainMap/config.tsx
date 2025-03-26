@@ -385,6 +385,8 @@ export const getLayerConfig = (
                     'text-field': ['get', 'name'],
                     'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
                     'text-size': 18,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 paint: {
                     'text-color': getLayerColor(LayerId.HUC2Boundaries),
@@ -448,8 +450,8 @@ export const getLayerConfig = (
                         'Arial Unicode MS Bold',
                     ],
                     'text-size': 12,
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 paint: {
                     'text-color': getLayerColor(
@@ -777,24 +779,24 @@ export const getLayerCustomHoverExitFunction = (
                     const zoom = map.getZoom();
                     if (zoom > MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = '';
-                        hoverPopup.remove();
                     }
+                    hoverPopup.remove();
                 };
             case SubLayerId.MainstemsMedium:
                 return () => {
                     const zoom = map.getZoom();
                     if (zoom > MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = '';
-                        hoverPopup.remove();
                     }
+                    hoverPopup.remove();
                 };
             case SubLayerId.MainstemsLarge:
                 return () => {
                     const zoom = map.getZoom();
                     if (zoom > MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = '';
-                        hoverPopup.remove();
                     }
+                    hoverPopup.remove();
                 };
             case SubLayerId.HUC2BoundaryFill:
                 return () => {
@@ -1010,12 +1012,6 @@ export const layerDefinitions: MainLayerDefinition[] = [
         config: getLayerConfig(LayerId.HUC2Boundaries),
         subLayers: [
             {
-                id: SubLayerId.HUC2BoundaryLabels,
-                controllable: true,
-                legend: false,
-                config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
-            },
-            {
                 id: SubLayerId.HUC2BoundaryFill,
                 controllable: false,
                 legend: false,
@@ -1080,5 +1076,12 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 config: getLayerConfig(SubLayerId.AssociatedDataClusterCount),
             },
         ],
+    },
+    // Treat as a separate layer to allow draw over the datapoints
+    {
+        id: SubLayerId.HUC2BoundaryLabels,
+        controllable: true,
+        legend: false,
+        config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
     },
 ];
