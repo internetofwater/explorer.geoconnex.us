@@ -772,6 +772,30 @@ export const getLayerCustomHoverExitFunction = (
                     // Remove offset from shared object
                     hoverPopup.setOffset(0);
                 };
+            case SubLayerId.MainstemsSmall:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                        hoverPopup.remove();
+                    }
+                };
+            case SubLayerId.MainstemsMedium:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                        hoverPopup.remove();
+                    }
+                };
+            case SubLayerId.MainstemsLarge:
+                return () => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = '';
+                        hoverPopup.remove();
+                    }
+                };
             case SubLayerId.HUC2BoundaryFill:
                 return () => {
                     map.getCanvas().style.cursor = '';
@@ -801,22 +825,20 @@ export const getLayerMouseMoveFunction = (
         switch (id) {
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
-                    map.getCanvas().style.cursor = 'pointer';
-                    const feature = e.features?.[0] as
-                        | Feature<LineString>
-                        | undefined;
                     const zoom = map.getZoom();
-                    if (
-                        feature &&
-                        feature.properties &&
-                        zoom < MAINSTEM_VISIBLE_ZOOM
-                    ) {
-                        const id = Number(feature.properties.HUC2);
-                        map.setPaintProperty(
-                            SubLayerId.HUC2BoundaryLabels,
-                            'text-opacity',
-                            ['case', ['==', ['get', 'id'], id], 1, 0]
-                        );
+                    if (zoom < MAINSTEM_VISIBLE_ZOOM) {
+                        const feature = e.features?.[0] as
+                            | Feature<LineString>
+                            | undefined;
+                        if (feature && feature.properties) {
+                            map.getCanvas().style.cursor = 'pointer';
+                            const id = Number(feature.properties.HUC2);
+                            map.setPaintProperty(
+                                SubLayerId.HUC2BoundaryLabels,
+                                'text-opacity',
+                                ['case', ['==', ['get', 'id'], id], 1, 0]
+                            );
+                        }
                     }
                 };
             case LayerId.SpiderifyPoints:
@@ -885,8 +907,6 @@ export const getLayerClickFunction = (
                         layers: [SubLayerId.AssociatedDataClusters],
                     });
 
-                    console.log('here', features);
-
                     const feature = features?.[0];
                     if (feature && feature.properties) {
                         const clusterId = feature.properties
@@ -916,13 +936,6 @@ export const getLayerClickFunction = (
                         );
                     }
                 };
-            case SubLayerId.AssociatedDataUnclustered:
-                return (e) => {
-                    const features = map.queryRenderedFeatures(e.point, {
-                        layers: [SubLayerId.AssociatedDataUnclustered],
-                    });
-                    console.log(e, features);
-                };
             default:
                 return (e) => {
                     console.log('Click Event Triggered: ', e);
@@ -950,6 +963,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsSmall),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsSmall),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsSmall
+                ),
             },
             {
                 id: SubLayerId.MainstemsMedium,
@@ -959,6 +975,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 hoverFunction: getLayerHoverFunction(
                     SubLayerId.MainstemsMedium
                 ),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsMedium
+                ),
             },
             {
                 id: SubLayerId.MainstemsLarge,
@@ -966,6 +985,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsLarge),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsLarge),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsLarge
+                ),
             },
         ],
     },

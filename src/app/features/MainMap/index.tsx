@@ -37,7 +37,10 @@ import {
     setMapMoved,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import { createSummaryPoints } from '@/app/features/MainMap/utils';
+import {
+    createSummaryPoints,
+    deleteSummaryPoints,
+} from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import debounce from 'lodash.debounce';
 
@@ -237,7 +240,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
             if (!features.length) {
                 window.history.replaceState({}, '', '');
-
+                deleteSummaryPoints(map);
                 dispatch(reset());
             }
         });

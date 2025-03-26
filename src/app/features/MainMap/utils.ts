@@ -345,3 +345,15 @@ export const createSummaryPoints = async (
         console.error('Error processing cluster leaves:', error);
     }
 };
+
+export const deleteSummaryPoints = (map: Map) => {
+    if (!map) return;
+    const summarySource = map.getSource(
+        SourceId.SummaryPoints
+    ) as GeoJSONSource;
+    if (!summarySource) return;
+    summarySource.setData({
+        type: 'FeatureCollection',
+        features: [],
+    });
+};
