@@ -182,21 +182,28 @@ export const MainMap: React.FC<Props> = (props) => {
                 SubLayerId.MainstemsLarge,
             ],
             (e) => {
-                const features = map.queryRenderedFeatures(e.point, {
-                    layers: [
-                        SubLayerId.MainstemsSmall,
-                        SubLayerId.MainstemsMedium,
-                        SubLayerId.MainstemsLarge,
-                    ],
-                });
+                const zoom = map.getZoom();
+                if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
+                    const features = map.queryRenderedFeatures(e.point, {
+                        layers: [
+                            SubLayerId.MainstemsSmall,
+                            SubLayerId.MainstemsMedium,
+                            SubLayerId.MainstemsLarge,
+                        ],
+                    });
 
-                if (features.length) {
-                    const feature = features[0];
-                    if (feature.properties) {
-                        const id = feature.properties.id as string;
-                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                        window.history.replaceState({}, '', `/mainstems/${id}`);
-                        dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
+                    if (features.length) {
+                        const feature = features[0];
+                        if (feature.properties) {
+                            const id = feature.properties.id as string;
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            window.history.replaceState(
+                                {},
+                                '',
+                                `/mainstems/${id}`
+                            );
+                            dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
+                        }
                     }
                 }
             }
@@ -237,8 +244,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     // SubLayerId.AssociatedDataUnclustered,
                 ],
             });
-
-            if (!features.length) {
+            const zoom = map.getZoom();
+            if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
                 window.history.replaceState({}, '', '');
                 deleteSummaryPoints(map);
                 dispatch(reset());
@@ -256,11 +263,7 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         };
 
-        map.once(
-            'click',
-            SubLayerId.HUC2BoundaryFill,
-            HUC2BoundaryClickListener
-        );
+        map.on('click', SubLayerId.HUC2BoundaryFill, HUC2BoundaryClickListener);
 
         map.on('moveend', debouncedHandleMapMove);
         map.on('zoomend', debouncedHandleMapMove);
