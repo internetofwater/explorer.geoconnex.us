@@ -33,6 +33,7 @@ import {
     fetchDatasets,
     getFilteredDatasets,
     reset,
+    setFilter,
     setLayerVisibility,
     setMapMoved,
     setSelectedData,
@@ -79,12 +80,52 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
+    const createSummaryLayer = () => {
+        if (!map) {
+            return;
+        }
+
+        const zoom = map.getZoom();
+        if (zoom >= CLUSTER_TRANSITION_ZOOM) {
+            const features = map.queryRenderedFeatures({
+                layers: [SubLayerId.AssociatedDataClusters],
+            });
+            // Get unique ids
+            const uniqueIds = new Set<number>(
+                features.map(
+                    (feature) => feature.properties!.cluster_id as number
+                )
+            );
+            // Sort and convert to string
+            const clusterIds = Array.from(uniqueIds).sort().join();
+            // Check ids to prevent repeated spiderfy
+            if (features.length && clusterIds !== previousClusterIds.current) {
+                previousClusterIds.current = clusterIds;
+                const source = map.getSource(
+                    SourceId.AssociatedData
+                ) as GeoJSONSource;
+
+                createSummaryPoints(map, source, features).catch(
+                    (error: ErrorEvent) =>
+                        console.error(
+                            'Unable to spiderify clusters: ',
+                            clusterIds,
+                            ', Error: ',
+                            error
+                        )
+                );
+            }
+        }
+    };
+
     const debouncedHandleMapMove = debounce(handleMapMove, 150);
+    const debouncedCreateSummaryLayer = debounce(createSummaryLayer, 150);
 
     useEffect(() => {
         return () => {
             isMounted.current = false;
             debouncedHandleMapMove.cancel();
+            debouncedCreateSummaryLayer.cancel();
         };
     }, []);
 
@@ -109,48 +150,11 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         };
 
-        const createSummaryLayer = () => {
-            const zoom = map.getZoom();
-            if (zoom >= CLUSTER_TRANSITION_ZOOM) {
-                const features = map.queryRenderedFeatures({
-                    layers: [SubLayerId.AssociatedDataClusters],
-                });
-                // Get unique ids
-                const uniqueIds = new Set<number>(
-                    features.map(
-                        (feature) => feature.properties!.cluster_id as number
-                    )
-                );
-                // Sort and convert to string
-                const clusterIds = Array.from(uniqueIds).sort().join();
-                // Check ids to prevent repeated spiderfy
-                if (
-                    features.length &&
-                    clusterIds !== previousClusterIds.current
-                ) {
-                    previousClusterIds.current = clusterIds;
-                    const source = map.getSource(
-                        SourceId.AssociatedData
-                    ) as GeoJSONSource;
-
-                    createSummaryPoints(map, source, features).catch(
-                        (error: ErrorEvent) =>
-                            console.error(
-                                'Unable to spiderify clusters: ',
-                                clusterIds,
-                                ', Error: ',
-                                error
-                            )
-                    );
-                }
-            }
-        };
-
         map.on('zoom', handleInitialZoom);
 
-        map.on('zoom', createSummaryLayer);
+        map.on('zoom', debouncedCreateSummaryLayer);
 
-        map.on('drag', createSummaryLayer);
+        map.on('drag', debouncedCreateSummaryLayer);
 
         map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
@@ -194,6 +198,29 @@ export const MainMap: React.FC<Props> = (props) => {
                         // eslint-disable-next-line @typescript-eslint/no-floating-promises
                         window.history.replaceState({}, '', `/mainstems/${id}`);
                         dispatch(fetchDatasets(id)); // eslint-disable-line @typescript-eslint/no-floating-promises
+                    }
+                }
+            }
+        );
+        map.on(
+            'click',
+            [
+                LayerId.SummaryPoints,
+                SubLayerId.SummaryPointsSiteName,
+                SubLayerId.SummaryPointsTotal,
+            ],
+            (e) => {
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: [LayerId.SummaryPoints],
+                });
+
+                if (features.length) {
+                    const feature = features[0];
+                    if (feature.properties) {
+                        const siteNamesString = feature.properties
+                            .siteNames as string;
+                        const siteNames = siteNamesString.split(', ');
+                        dispatch(setFilter({ siteNames }));
                     }
                 }
             }

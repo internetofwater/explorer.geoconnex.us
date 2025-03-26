@@ -16,10 +16,7 @@ import {
     Popup,
 } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
-import {
-    hasPeristentPopupOpenToThisItem,
-    spiderfyClusters,
-} from '@/app/features/MainMap/utils';
+import { hasPeristentPopupOpenToThisItem } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
 import { Dataset } from '@/app/types';
@@ -909,18 +906,6 @@ export const getLayerClickFunction = (
                                     .coordinates as [number, number];
 
                                 if (zoom) {
-                                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                                        spiderfyClusters(map, source, [
-                                            feature,
-                                        ]).catch((error: ErrorEvent) =>
-                                            console.error(
-                                                'Unable to spiderify cluster(s): ',
-                                                clusterId,
-                                                ', Error: ',
-                                                error
-                                            )
-                                        );
-                                    }
                                     map.easeTo({
                                         center: coordinates,
                                         zoom: zoom,
