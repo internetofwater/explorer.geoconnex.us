@@ -28,7 +28,6 @@ import {
     LngLatBoundsLike,
     MapMouseEvent,
 } from 'mapbox-gl';
-import { extractLatLng } from '@/lib/state/utils';
 import {
     fetchDatasets,
     getFilteredDatasets,
@@ -36,13 +35,10 @@ import {
     setFilter,
     setLayerVisibility,
     setMapMoved,
-    setSelectedData,
     setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
 import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
-import { Feature, Point } from 'geojson';
-import { Dataset } from '@/app/types';
 import debounce from 'lodash.debounce';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -236,7 +232,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     SubLayerId.AssociatedDataClusterCount,
                     LayerId.SummaryPoints,
                     // SubLayerId.AssociatedDataUnclustered,
-                    LayerId.SpiderifyPoints,
                 ],
             });
 
@@ -295,51 +290,6 @@ export const MainMap: React.FC<Props> = (props) => {
         if (!map || !persistentPopup || !hoverPopup) {
             return;
         }
-
-        map.on('click', LayerId.SpiderifyPoints, (e) => {
-            const zoom = map.getZoom();
-            if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                const feature = e.features?.[0] as
-                    | Feature<Point, Dataset>
-                    | undefined;
-                if (feature && feature.properties) {
-                    if (persistentPopup.isOpen()) {
-                        persistentPopup.remove();
-                    }
-                    hoverPopup.remove();
-                    const itemId = feature.properties.distributionURL;
-                    const latLng = extractLatLng(feature.properties.wkt);
-                    const html = `<span style="color: black;" data-observationId="${itemId}"> 
-                <h6 style="font-weight:bold;">${
-                    feature.properties.siteName
-                }</h6>
-                <div style="display:flex;"><strong>Type:</strong>&nbsp;<p>${
-                    feature.properties.type
-                }</p></div>
-                <div style="display:flex;"><strong>Variable:</strong>&nbsp;<p>${
-                    feature.properties.variableMeasured.split(' / ')?.[0]
-                }</p></div>
-                <div style="display:flex;"><strong>Unit:</strong>&nbsp;<p>${
-                    feature.properties.variableUnit
-                }</p></div>
-                <div style="display:flex;"><strong>Latitude:</strong>&nbsp;<p>${
-                    latLng.lat
-                }</p></div>
-                <div style="display:flex;"><strong>Longitude:</strong>&nbsp;<p>${
-                    latLng.lng
-                }</p></div>
-                <a href="${
-                    feature.properties.url
-                }" target="_blank" style="margin:0 auto;">More Info</a>
-              </span>`;
-                    persistentPopup
-                        .setLngLat(e.lngLat)
-                        .setHTML(html)
-                        .addTo(map);
-                    dispatch(setSelectedData(feature.properties));
-                }
-            }
-        });
 
         map.on('zoom', () => {
             const zoom = map.getZoom();
