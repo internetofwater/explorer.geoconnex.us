@@ -50,7 +50,7 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                     <hr />
                     <div className="my-4">
                         <SummarySection
-                            title="Types"
+                            title="Site Types"
                             total={summary.totalDatasets}
                             data={summary.types}
                         />

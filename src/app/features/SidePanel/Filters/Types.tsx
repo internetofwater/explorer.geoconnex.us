@@ -53,9 +53,9 @@ export const Types: React.FC<Props> = (props) => {
 
     return (
         <>
-            <Typography variant="h6">Type</Typography>
+            <Typography variant="h6">Site Type</Typography>
             <label id="type-select-label" className="sr-only">
-                Filter datasets by type
+                Filter datasets by site type
             </label>
             <MultiSelect
                 id="types"

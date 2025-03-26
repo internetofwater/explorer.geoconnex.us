@@ -50,7 +50,7 @@ export const SummaryTable: React.FC<Props> = (props) => {
                                     <th className="px-4 py-1 text-left font-normal">
                                         <Typography
                                             variant="body"
-                                            className="max-w-[45%]"
+                                            className="max-w-[45%] text-center"
                                         >
                                             <strong>{title}</strong>
                                         </Typography>
@@ -61,9 +61,9 @@ export const SummaryTable: React.FC<Props> = (props) => {
                                     >
                                         <Typography
                                             variant="body"
-                                            className="max-w-[27.5%]"
+                                            className="max-w-[27.5%] text-center"
                                         >
-                                            <strong>Count</strong>
+                                            <strong>Site Count</strong>
                                         </Typography>
                                     </th>
                                 </tr>

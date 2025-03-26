@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     useReactTable,
     getCoreRowModel,
@@ -7,6 +7,7 @@ import {
     getFilteredRowModel,
     ColumnDef,
     PaginationState,
+    VisibilityState,
 } from '@tanstack/react-table';
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
@@ -16,6 +17,49 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/state/store';
 import { useMap } from '@/app/contexts/MapContexts';
+
+export enum HeaderKey {
+    SiteName = 'siteName',
+    Type = 'type',
+    VariableMeasured = 'variableMeasured',
+    VariableUnit = 'variableUnit',
+    MeasurementTechnique = 'measurementTechnique',
+    TemporalCoverage = 'temporalCoverage',
+    MonitoringLocation = 'monitoringLocation',
+    DistributionFormat = 'distributionFormat',
+    DistributionName = 'distributionName',
+    DistributionURL = 'distributionURL',
+    URL = 'url',
+}
+
+export const getHeaderTooltipText = (headerKey: HeaderKey) => {
+    switch (headerKey) {
+        case HeaderKey.SiteName:
+            return 'The name of the site where measurements are taken.';
+        case HeaderKey.Type:
+            return 'The type of site or measurement.';
+        case HeaderKey.VariableMeasured:
+            return 'The specific variable that is being measured.';
+        case HeaderKey.VariableUnit:
+            return 'The unit of measurement for the variable.';
+        case HeaderKey.MeasurementTechnique:
+            return 'The technique used to measure the variable.';
+        case HeaderKey.TemporalCoverage:
+            return 'The time period over which measurements are taken.';
+        case HeaderKey.MonitoringLocation:
+            return 'The location where monitoring is conducted.';
+        case HeaderKey.DistributionFormat:
+            return 'The format in which data is distributed.';
+        case HeaderKey.DistributionName:
+            return 'The name of the distribution.';
+        case HeaderKey.DistributionURL:
+            return 'The URL where the distribution can be accessed.';
+        case HeaderKey.URL:
+            return 'The URL for more information.';
+        default:
+            return 'No tooltip available.';
+    }
+};
 
 const TableWrapper: React.FC = () => {
     const { map } = useMap(MAIN_MAP_ID);
@@ -27,39 +71,39 @@ const TableWrapper: React.FC = () => {
     const columns = React.useMemo<ColumnDef<Dataset>[]>(
         () => [
             {
-                id: 'siteName',
+                id: HeaderKey.SiteName,
                 header: 'Site Name',
-                accessorKey: 'siteName',
+                accessorKey: HeaderKey.SiteName,
             },
             {
-                id: 'type',
-                header: 'Type',
-                accessorKey: 'type',
+                id: HeaderKey.Type,
+                header: 'Site Type',
+                accessorKey: HeaderKey.Type,
             },
             {
-                id: 'variableMeasured',
+                id: HeaderKey.VariableMeasured,
                 header: 'Variable Measured',
-                accessorKey: 'variableMeasured',
+                accessorKey: HeaderKey.VariableMeasured,
             },
             {
-                id: 'variableUnit',
+                id: HeaderKey.VariableUnit,
                 header: 'Variable Unit',
-                accessorKey: 'variableUnit',
+                accessorKey: HeaderKey.VariableUnit,
             },
             {
-                id: 'measurementTechnique',
+                id: HeaderKey.MeasurementTechnique,
                 header: 'Measurement Technique',
-                accessorKey: 'measurementTechnique',
+                accessorKey: HeaderKey.MeasurementTechnique,
             },
             {
-                id: 'temporalCoverage',
+                id: HeaderKey.TemporalCoverage,
                 header: 'Temporal Coverage',
-                accessorKey: 'temporalCoverage',
+                accessorKey: HeaderKey.TemporalCoverage,
             },
             {
-                id: 'monitoringLocation',
+                id: HeaderKey.MonitoringLocation,
                 header: 'Monitoring Location',
-                accessorKey: 'monitoringLocation',
+                accessorKey: HeaderKey.MonitoringLocation,
                 cell: (info) => (
                     <a
                         href={info.getValue() as string}
@@ -71,25 +115,20 @@ const TableWrapper: React.FC = () => {
                 ),
                 disableSortBy: true,
             },
-            // {
-            //     id: 'datasetDescription',
-            //     header: 'Dataset Description',
-            //     accessorKey: 'datasetDescription',
-            // },
             {
-                id: 'distributionFormat',
+                id: HeaderKey.DistributionFormat,
                 header: 'Distribution Format',
-                accessorKey: 'distributionFormat',
+                accessorKey: HeaderKey.DistributionFormat,
             },
             {
-                id: 'distributionName',
+                id: HeaderKey.DistributionName,
                 header: 'Distribution Name',
-                accessorKey: 'distributionName',
+                accessorKey: HeaderKey.DistributionName,
             },
             {
-                id: 'distributionURL',
+                id: HeaderKey.DistributionURL,
                 header: 'Distribution URL',
-                accessorKey: 'distributionURL',
+                accessorKey: HeaderKey.DistributionURL,
                 cell: (info) => (
                     <a
                         href={info.getValue() as string}
@@ -102,9 +141,9 @@ const TableWrapper: React.FC = () => {
                 disableSortBy: true,
             },
             {
-                id: 'url',
+                id: HeaderKey.URL,
                 header: 'URL',
-                accessorKey: 'url',
+                accessorKey: HeaderKey.URL,
                 cell: (info) => (
                     <a
                         href={info.getValue() as string}
@@ -130,6 +169,20 @@ const TableWrapper: React.FC = () => {
         pageSize: 100,
     });
 
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+        [HeaderKey.SiteName]: true,
+        [HeaderKey.Type]: true,
+        [HeaderKey.VariableMeasured]: true,
+        [HeaderKey.VariableUnit]: true,
+        [HeaderKey.MeasurementTechnique]: true,
+        [HeaderKey.TemporalCoverage]: true,
+        [HeaderKey.MonitoringLocation]: true,
+        [HeaderKey.DistributionFormat]: true,
+        [HeaderKey.DistributionName]: true,
+        [HeaderKey.DistributionURL]: true,
+        [HeaderKey.URL]: true,
+    });
+
     const table = useReactTable({
         columns,
         data,
@@ -138,7 +191,9 @@ const TableWrapper: React.FC = () => {
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
+        onColumnVisibilityChange: setColumnVisibility,
         state: {
+            columnVisibility,
             pagination,
         },
         initialState: {
