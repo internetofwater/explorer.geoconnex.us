@@ -7,15 +7,11 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import SidePanel from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
-import {
-    fetchDatasets,
-    setShowSidePanel,
-    setView,
-} from '@/lib/state/main/slice';
+import { fetchDatasets, setShowSidePanel } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/HelpModal';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 type Props = {
@@ -40,7 +36,7 @@ export const App: React.FC<Props> = (props) => {
             return;
         }
 
-        if (pathname.startsWith('/mainstems/')) {
+        if (pathname && pathname.startsWith('/mainstems/')) {
             const match = pathname.match(/\/mainstems\/(\d+)/);
             const id = match ? match[1] : null;
 
