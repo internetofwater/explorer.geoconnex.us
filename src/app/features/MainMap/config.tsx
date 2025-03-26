@@ -1059,15 +1059,4 @@ export const layerDefinitions: MainLayerDefinition[] = [
             },
         ],
     },
-    {
-        id: LayerId.SpiderifyPoints,
-        controllable: false,
-        legend: true,
-        config: getLayerConfig(LayerId.SpiderifyPoints),
-        hoverFunction: getLayerHoverFunction(LayerId.SpiderifyPoints),
-        mouseMoveFunction: getLayerMouseMoveFunction(LayerId.SpiderifyPoints),
-        customHoverExitFunction: getLayerCustomHoverExitFunction(
-            LayerId.SpiderifyPoints
-        ),
-    },
 ];
