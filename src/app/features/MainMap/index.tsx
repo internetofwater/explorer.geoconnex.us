@@ -140,7 +140,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 createSummaryPoints(map, source, features).catch(
                     (error: ErrorEvent) =>
                         console.error(
-                            'Unable to spiderify clusters: ',
+                            'Unable to create summary points for clusters: ',
                             clusterIds,
                             ', Error: ',
                             error
@@ -517,7 +517,7 @@ export const MainMap: React.FC<Props> = (props) => {
                         createSummaryPoints(map, clusterSource, features).catch(
                             (error: ErrorEvent) =>
                                 console.error(
-                                    'Unable to spiderify clusters: ',
+                                    'Unable to create summary points for clusters: ',
                                     clusterIds,
                                     ', Error: ',
                                     error

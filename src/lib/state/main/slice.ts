@@ -60,7 +60,6 @@ type InitialState = {
         [SubLayerId.MainstemsLarge]: boolean;
         [SubLayerId.HUC2BoundaryLabels]: boolean;
         [LayerId.AssociatedData]: boolean;
-        [LayerId.SpiderifyPoints]: boolean;
         [SubLayerId.AssociatedDataClusterCount]: boolean;
         [SubLayerId.AssociatedDataClusters]: boolean;
         [SubLayerId.AssociatedDataUnclustered]: boolean;
@@ -102,7 +101,6 @@ const initialState: InitialState = {
         [SubLayerId.MainstemsLarge]: true,
         [SubLayerId.HUC2BoundaryLabels]: true,
         [LayerId.AssociatedData]: true,
-        [LayerId.SpiderifyPoints]: true,
         [SubLayerId.AssociatedDataClusterCount]: true,
         [SubLayerId.AssociatedDataClusters]: true,
         [SubLayerId.AssociatedDataUnclustered]: true,

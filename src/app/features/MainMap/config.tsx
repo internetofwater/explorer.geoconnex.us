@@ -16,10 +16,8 @@ import {
     Popup,
 } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
-import { hasPeristentPopupOpenToThisItem } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
-import { Dataset } from '@/app/types';
 
 export const MAP_ID = 'main';
 
@@ -30,7 +28,6 @@ export enum SourceId {
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
     AssociatedData = 'associated-data-source',
-    Spiderify = 'spiderify',
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
 }
@@ -40,7 +37,6 @@ export enum LayerId {
     HUC2Boundaries = 'huc-2-boundaries',
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
-    SpiderifyPoints = 'spiferified-clusters',
     SummaryPoints = 'summary-points',
     MainstemsHighlight = 'mainstems-highlight',
 }
@@ -167,18 +163,6 @@ export const sourceConfigs: SourceConfig[] = [
         },
     },
     {
-        id: SourceId.Spiderify,
-        type: Sources.GeoJSON,
-        definition: {
-            type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
-            cluster: false,
-        },
-    },
-    {
         id: SourceId.SummaryPoints,
         type: Sources.GeoJSON,
         definition: {
@@ -280,17 +264,17 @@ export const getLayerColor = (
                 'step',
                 ['get', 'point_count'],
                 '#91bfdb', // Less than 5
-                5,
+                50,
                 '#ffffbf', // GTE 5
-                10,
+                200,
                 '#fc8d59', // GTE 10
             ];
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';
         case SubLayerId.AssociatedDataUnclustered:
             return '#1C76CA';
-        case LayerId.SpiderifyPoints:
-            return '#46AB9D';
+        case LayerId.SummaryPoints:
+            return '#1C76CA';
         default:
             return '#FFF';
     }
@@ -556,7 +540,7 @@ export const getLayerConfig = (
                 type: LayerType.Circle,
                 source: SourceId.SummaryPoints,
                 paint: {
-                    'circle-color': '#1C76CA',
+                    'circle-color': getLayerColor(LayerId.SummaryPoints),
                     'circle-opacity': [
                         'step',
                         ['zoom'],
@@ -643,34 +627,6 @@ export const getLayerConfig = (
                         CLUSTER_TRANSITION_ZOOM - 1,
                         1,
                     ],
-                    // 'text-halo-color': '#FFFFFF',
-                    // 'text-halo-width': 2,
-                },
-            };
-        case LayerId.SpiderifyPoints:
-            return {
-                id: LayerId.SpiderifyPoints,
-                type: LayerType.Symbol,
-                source: SourceId.Spiderify,
-                filter: ['!', ['has', 'point_count']],
-                paint: {
-                    'icon-color': getLayerColor(LayerId.SpiderifyPoints),
-                    'icon-opacity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        CLUSTER_TRANSITION_ZOOM,
-                        0,
-                        CLUSTER_TRANSITION_ZOOM + 0.01,
-                        ['get', 'isNotFiltered'],
-                    ],
-                },
-                layout: {
-                    'icon-image': 'observation-point',
-                    'icon-size': 1,
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true,
-                    'icon-offset': ['get', 'iconOffset'],
                 },
             };
         default:
@@ -751,51 +707,6 @@ export const getLayerHoverFunction = (
                         }
                     }
                 };
-
-            case LayerId.SpiderifyPoints:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-
-                        const feature = e.features?.[0] as
-                            | Feature<Point, Dataset & { iconOffset: string }>
-                            | undefined;
-                        if (feature && feature.properties) {
-                            const itemId: string =
-                                feature.properties.distributionURL;
-                            if (
-                                !hasPeristentPopupOpenToThisItem(
-                                    persistentPopup,
-                                    itemId
-                                )
-                            ) {
-                                hoverPopup.remove();
-                                const variableMeasured =
-                                    feature.properties.variableMeasured.split(
-                                        ' / '
-                                    )[0];
-                                const offset = JSON.parse(
-                                    feature.properties.iconOffset
-                                ) as [number, number];
-                                const coordinates = feature.geometry
-                                    .coordinates as [number, number];
-                                const html = `<span style="color: black;"> 
-                                <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                <div style="display:flex;">
-                                    <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                </div>
-                              </span>`;
-
-                                hoverPopup
-                                    .setLngLat(coordinates)
-                                    .setOffset(offset)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
             case SubLayerId.AssociatedDataClusters:
                 return () => {
                     hoverOnCluster = true;
@@ -853,13 +764,6 @@ export const getLayerCustomHoverExitFunction = (
             case SubLayerId.AssociatedDataClusters:
                 return () => {
                     hoverOnCluster = false;
-                };
-            case LayerId.SpiderifyPoints:
-                return () => {
-                    map.getCanvas().style.cursor = '';
-                    hoverPopup.remove();
-                    // Remove offset from shared object
-                    hoverPopup.setOffset(0);
                 };
             case SubLayerId.MainstemsSmall:
                 return () => {
@@ -938,48 +842,6 @@ export const getLayerMouseMoveFunction = (
                                 'text-opacity',
                                 ['case', ['==', ['get', 'id'], id], 1, 0]
                             );
-                        }
-                    }
-                };
-            case LayerId.SpiderifyPoints:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-                        const feature = e.features?.[0] as
-                            | Feature<Point, Dataset & { iconOffset: string }>
-                            | undefined;
-                        if (feature && feature.properties) {
-                            const itemId = feature.properties.distributionURL;
-                            if (
-                                !hasPeristentPopupOpenToThisItem(
-                                    persistentPopup,
-                                    itemId
-                                )
-                            ) {
-                                hoverPopup.remove();
-                                const variableMeasured =
-                                    feature.properties.variableMeasured.split(
-                                        ' / '
-                                    )[0];
-                                const offset = JSON.parse(
-                                    feature.properties.iconOffset
-                                ) as [number, number];
-                                const coordinates = feature.geometry
-                                    .coordinates as [number, number];
-                                const html = `<span style="color: black;"> 
-                                            <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                            <div style="display:flex;">
-                                                <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                        </div>
-                                        </span>`;
-
-                                hoverPopup
-                                    .setLngLat(coordinates)
-                                    .setOffset(offset)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
                         }
                     }
                 };

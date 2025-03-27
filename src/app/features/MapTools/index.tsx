@@ -143,16 +143,16 @@ export const MapTools: React.FC = () => {
                                         Dataset Clusters
                                     </span>
                                     <span className="flex">
-                                        <CircleIcon color="#51bbd6" />
-                                        &lt; 5
+                                        <CircleIcon color="#91bfdb" />
+                                        &lt; 50
                                     </span>
                                     <span className="flex">
-                                        <CircleIcon color="#f1f075" />
-                                        &gt; 5
+                                        <CircleIcon color="#ffffbf" />
+                                        &gt; 50
                                     </span>
                                     <span className="flex">
-                                        <CircleIcon color="#f28cb1" />
-                                        &gt; 10
+                                        <CircleIcon color="#fc8d59" />
+                                        &gt; 200
                                     </span>
                                 </div>
                             </>
