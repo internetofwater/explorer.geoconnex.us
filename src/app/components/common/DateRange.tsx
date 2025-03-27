@@ -36,7 +36,7 @@ export const DateRange: React.FC<Props> = (props) => {
                         id="start-date"
                         value={startDate}
                         onChange={handleStartDateChange}
-                        className="p-2 text-text-default border border-gray-300 rounded-md"
+                        className="p-2 text-black border border-gray-300 rounded-md"
                     />
                 </div>
                 <div className="flex flex-col">
@@ -48,7 +48,7 @@ export const DateRange: React.FC<Props> = (props) => {
                         id="end-date"
                         value={endDate}
                         onChange={handleEndDateChange}
-                        className="p-2 text-text-default border border-gray-300 rounded-md"
+                        className="p-2 text-black border border-gray-300 rounded-md"
                     />
                 </div>
             </div>

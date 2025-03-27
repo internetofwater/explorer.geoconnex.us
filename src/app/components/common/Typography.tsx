@@ -86,9 +86,7 @@ export const Typography = ({
     const Tag = as || tags[variant];
 
     return (
-        <Tag
-            className={`${sizeClasses} ${className} flex-grow text-text-default`}
-        >
+        <Tag className={`${sizeClasses} ${className} flex-grow text-black`}>
             {children}
         </Tag>
     );

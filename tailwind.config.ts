@@ -23,11 +23,6 @@ export default {
                     DEFAULT: '#1C76CA',
                     hover: '#155A9A',
                 },
-                text: {
-                    DEFAULT: '#000000',
-                    light: '#333333', // Lighter black text color
-                    dark: '#000000', // Darker black text color
-                },
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
             },

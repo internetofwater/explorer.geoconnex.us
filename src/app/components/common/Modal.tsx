@@ -41,7 +41,7 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className="bg-primary-opaque text-text-default rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
+                        className="bg-primary-opaque text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
                     >
                         <div
                             id="modal-header"

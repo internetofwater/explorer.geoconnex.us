@@ -14,7 +14,8 @@ type Props = {
  *
  * Props:
  * - title: string - The title of the collapsible section.
- * - open?: boolean - Optional boolean to set the initial open state (default is false).
+ * - open?: boolean - Optional boolean to set the initial open state (default is false) and
+ *  programmatically close/open the collapsible.
  * - children: React.ReactNode - The content to be rendered within the collapsible section.
  *
  * @component
@@ -33,7 +34,7 @@ const Collapsible: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="bg-primary text-text-default ">
+        <div className="bg-primary text-black ">
             <button
                 title={`${isOpen ? 'Hide' : 'Show'} ${title}`}
                 className={`sticky top-0 w-full -mt-1

@@ -73,7 +73,7 @@ const SidePanel: React.FC = () => {
                     <div className="flex flex-col justify-center">
                         <div
                             id="side-panel-close"
-                            className="block lg:hidden mr-2 text-text-default"
+                            className="block lg:hidden mr-2 text-black"
                         >
                             <CloseButton
                                 onClick={() =>
@@ -106,7 +106,7 @@ const SidePanel: React.FC = () => {
                                 : 'bg-primary-darker text-gray-900'
                         } hover:bg-primary 
                         border-t border-x border-gray-300 
-                        text-text-default hover:text-text-default font-bold 
+                        text-black hover:text-black font-bold 
                         rounded-t-lg`}
                     >
                         Map
@@ -126,7 +126,7 @@ const SidePanel: React.FC = () => {
                         } hover:enabled:bg-primary 
                         border-t border-x border-gray-300
                         disabled:opacity-50
-                      text-text-default hover::enabled:text-text-default font-bold 
+                      text-black hover::enabled:text-black font-bold 
                         rounded-t-lg`}
                     >
                         Table
@@ -139,7 +139,7 @@ const SidePanel: React.FC = () => {
                 py-3 px-2 
                 flex flex-col justify-center 
                 bg-primary-opaque
-                text-text-default  
+                text-black  
                 border-b border-gray-300`}
             >
                 <Search setResults={setResults} />

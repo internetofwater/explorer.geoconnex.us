@@ -36,7 +36,7 @@ export const Toggles: React.FC<Props> = ({
             .map((layer) => (
                 <li
                     key={`layer-control-${layer.id}`}
-                    className="p-1 text-text-default"
+                    className="p-1 text-black"
                 >
                     <div className="flex items-center justify-between">
                         <label

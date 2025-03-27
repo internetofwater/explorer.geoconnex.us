@@ -99,7 +99,7 @@ const MultiSelect: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="w-100 mt-1 mb-1 text-text-default" ref={dropdownRef}>
+        <div className="w-100 mt-1 mb-1 text-black" ref={dropdownRef}>
             <div className="relative">
                 {searchable ? (
                     <div

@@ -105,7 +105,7 @@ export const Legend: React.FC<Props> = (props) => {
             return (
                 <li
                     key={`legend-entry-${layer.id}`}
-                    className="py-1 text-text-default"
+                    className="py-1 text-black"
                 >
                     {layer.legend && (
                         <div className="flex items-center">
