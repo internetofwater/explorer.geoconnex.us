@@ -15,6 +15,20 @@ type Props = {
     custom?: React.ReactNode;
 };
 
+/**
+ * Renders a legend for map layers, displaying layer names, colors, and symbols.
+ *
+ * Props:
+ * - getLayerName: (id: string) => string - Function to get the name of a layer by its ID.
+ * - getLayerColor: (id: string) => string - Function to get the color of a layer by its ID.
+ * - getLayerConfig: (id: string) => null | LayerSpecification - Function to get the configuration of a layer by its ID.
+ * - visibleLayers: { [key in string]: boolean } - Object representing the visibility of layers.
+ * - layerDefinitions: MainLayerDefinition[] - Array of layer definitions.
+ * - symbols?: { [key in string]: React.ReactNode } - Optional object representing custom symbols for layers.
+ * - custom?: React.ReactNode - Optional custom React node to be rendered.
+ *
+ * @component
+ */
 export const Legend: React.FC<Props> = (props) => {
     const {
         visibleLayers,
@@ -91,7 +105,7 @@ export const Legend: React.FC<Props> = (props) => {
             return (
                 <li
                     key={`legend-entry-${layer.id}`}
-                    className="py-1 text-black"
+                    className="py-1 text-text-default"
                 >
                     {layer.legend && (
                         <div className="flex items-center">

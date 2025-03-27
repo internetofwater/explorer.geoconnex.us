@@ -17,7 +17,7 @@ const Table: React.FC<Props> = (props) => {
             className="
                             lg:mt-2 mx-4 overflow-auto 
                             border border-gray-200 
-                            text-black text-sm
+                            text-text-default text-sm
                             lg:rounded-lg lg:shadow-lg
                             "
         >

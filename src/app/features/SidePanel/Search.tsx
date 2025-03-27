@@ -11,6 +11,16 @@ type Props = {
     setResults: (results: MainstemData[]) => void;
 };
 
+/**
+ * This component performs debounced searches for mainstem data based on user input.
+ * It manages the search query state and handles fetch requests with abort control.
+ * The component updates the search results and loading state in Redux.
+ *
+ * Props:
+ * - setResults: Function to update the search results state.
+ *
+ * @component
+ */
 const Search: React.FC<Props> = (props) => {
     const { setResults } = props;
 
@@ -70,7 +80,8 @@ const Search: React.FC<Props> = (props) => {
                 if (
                     (error as Error)?.name === 'AbortError' ||
                     (typeof error === 'string' &&
-                        error.includes('New search request for:'))
+                        error.includes('New search request for:')) ||
+                    error === 'Component unmount'
                 ) {
                     console.log('Fetch request canceled');
                 } else {
@@ -113,7 +124,7 @@ const Search: React.FC<Props> = (props) => {
     }, [debouncedSearch]);
 
     useEffect(() => {
-        debouncedSearch(query); // eslint-disable-line @typescript-eslint/no-floating-promises
+        void debouncedSearch(query);
     }, [query]);
 
     return (

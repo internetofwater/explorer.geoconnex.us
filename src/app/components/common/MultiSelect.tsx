@@ -14,6 +14,23 @@ type Props = {
     handleSelectAll?: (allSelected: boolean) => void;
 };
 
+/**
+ * Renders a multi-select dropdown with optional search functionality and a select-all feature.
+ * It allows users to select multiple options from a list, with the ability to filter options through a search input.
+ *
+ * Props:
+ * - id: string - The unique identifier for the component.
+ * - ariaLabel?: string - Optional ARIA label for accessibility.
+ * - options: string[] - The list of options to display in the dropdown.
+ * - selectedOptions: string[] | undefined - The list of currently selected options.
+ * - handleOptionClick: (type: string) => void - Function to handle option selection.
+ * - limit?: number - Optional limit on the number of options to display.
+ * - searchable?: boolean - Optional boolean to enable search functionality (default is false).
+ * - selectAll?: boolean - Optional boolean to enable select-all functionality (default is false).
+ * - handleSelectAll?: (allSelected: boolean) => void - Optional function to handle select-all action.
+ *
+ * @component
+ */
 const MultiSelect: React.FC<Props> = (props) => {
     const {
         id,
@@ -82,12 +99,20 @@ const MultiSelect: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="w-100 mt-1 mb-1 text-black" ref={dropdownRef}>
+        <div className="w-100 mt-1 mb-1 text-text-default" ref={dropdownRef}>
             <div className="relative">
                 {searchable ? (
                     <div
                         data-testid="searchable-input"
-                        className="flex justify-between w-full bg-white border border-gray-300 rounded-md shadow-sm px-3 py-2 text-left cursor-default sm:text-sm"
+                        className={`
+                            w-full 
+                            px-3 py-2 
+                            flex justify-between 
+                            bg-primary-opaque 
+                            border border-gray-300 
+                            text-left sm:text-sm
+                            rounded-md shadow-sm  
+                            cursor-default `}
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
@@ -124,7 +149,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                     </div>
                 ) : (
                     <button
-                        className="flex justify-between w-full bg-white border border-gray-300 rounded-md shadow-sm px-3 py-2 text-left cursor-default sm:text-sm"
+                        className="flex justify-between w-full bg-primary-opaque border border-gray-300 rounded-md shadow-sm px-3 py-2 text-left cursor-default sm:text-sm"
                         aria-haspopup="listbox"
                         aria-expanded={showOptions}
                         aria-labelledby={ariaLabel}
@@ -143,9 +168,16 @@ const MultiSelect: React.FC<Props> = (props) => {
                 )}
 
                 <div
-                    className={`mt-1 w-full max-h-96 overflow-y-auto text-center rounded-md bg-white border border-gray-300 shadow-lg ${
-                        showOptions ? 'block' : 'hidden'
-                    }`}
+                    className={`
+                        w-full max-h-96 
+                        mt-1 
+                        bg-primary-opaque 
+                        overflow-y-auto 
+                        text-center 
+                        rounded-md shadow-lg 
+                        border border-gray-300 ${
+                            showOptions ? 'block' : 'hidden'
+                        }`}
                     aria-live="polite"
                 >
                     {limit && limitedOptions.length === limit && (
@@ -154,7 +186,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                         </Typography>
                     )}
                     <ul
-                        className=" py-1 text-base overflow-auto sm:text-sm"
+                        className="py-1 overflow-auto text-base sm:text-sm"
                         role="listbox"
                         aria-labelledby={ariaLabel}
                     >

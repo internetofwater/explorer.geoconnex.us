@@ -20,6 +20,12 @@ import LegendIcon from '@/app/assets/icons/Legend';
 import CircleIcon from '@/app/assets/icons/Circle';
 import Square from '@/app/assets/icons/Square';
 
+/**
+ * This component provides tools for interacting with the map, including toggles for layer visibility and a legend.
+ * It allows users to show or hide map tools, layer toggles, and the legend.
+ *
+ * @component
+ */
 export const MapTools: React.FC = () => {
     const { visibleLayers } = useSelector((state: RootState) => state.main);
 

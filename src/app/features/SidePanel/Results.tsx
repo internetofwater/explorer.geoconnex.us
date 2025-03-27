@@ -7,7 +7,6 @@ import {
     setHoverId,
     setLoading,
     setSelectedMainstem,
-    setShowResults,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
 import { createSummary } from '@/lib/state/utils';
@@ -20,6 +19,16 @@ type Props = {
     results: MainstemData[];
 };
 
+/**
+ * This component fetches and displays datasets for mainstem search results.
+ * It uses debounced fetching to optimize performance and avoid unnecessary requests.
+ * The component handles hover and focus events to fetch and display summary data.
+ *
+ * Props:
+ * - results: Array of MainstemData objects representing the search results.
+ *
+ * @component
+ */
 export const Results: React.FC<Props> = (props) => {
     const { results } = props;
 
@@ -55,6 +64,7 @@ export const Results: React.FC<Props> = (props) => {
             }
             controller.current = new AbortController();
 
+            // Fetch the complete mainstem data with included datasets
             const response = await fetch(
                 `https://reference.geoconnex.dev/collections/mainstems/items/${id}`,
                 { signal: controller.current.signal }
@@ -81,7 +91,8 @@ export const Results: React.FC<Props> = (props) => {
             if (
                 (error as Error)?.name === 'AbortError' ||
                 (typeof error === 'string' &&
-                    error.includes('New request for id:'))
+                    error.includes('New request for id:')) ||
+                error === 'Component unmount'
             ) {
                 console.log('Fetch request canceled');
             } else {
@@ -124,7 +135,6 @@ export const Results: React.FC<Props> = (props) => {
     const handleClick = async (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
-        dispatch(setShowResults(true));
         dispatch(
             setLoading({
                 item: 'datasets',
@@ -154,18 +164,18 @@ export const Results: React.FC<Props> = (props) => {
                         <li
                             key={index}
                             tabIndex={0}
-                            className="p-3.5 border-b cursor-pointer hover:bg-gray-100"
+                            className="p-3.5 cursor-pointer hover:bg-gray-100 border-b"
                             onClick={() => {
                                 void handleClick(result);
                             }}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));
-                                debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
+                                void debouncedGetDatasets(id);
                             }}
                             onMouseLeave={handleMouseLeave}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
-                                debouncedGetDatasets(id); // eslint-disable-line @typescript-eslint/no-floating-promises
+                                void debouncedGetDatasets(id);
                             }}
                             onBlur={() => {
                                 debouncedGetDatasets.cancel();

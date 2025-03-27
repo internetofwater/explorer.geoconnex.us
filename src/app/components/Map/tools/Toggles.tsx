@@ -12,6 +12,18 @@ type Props = {
     layerDefinitions: MainLayerDefinition[];
 };
 
+/**
+ * Renders a list of toggle switches for controlling the visibility of map layers.
+ *
+ * Props:
+ * - handleChange: (event: React.ChangeEvent<HTMLInputElement>, isPrimary: boolean) => void - Function to handle changes in the toggle switches.
+ * - getLayerName: (id: string) => string - Function to get the name of a layer by its ID.
+ * - getLayerColor: (id: string) => string - Function to get the color of a layer by its ID.
+ * - visibleLayers: { [key in string]: boolean } - Object representing the visibility of layers.
+ * - layerDefinitions: MainLayerDefinition[] - Array of layer definitions.
+ *
+ * @component
+ */
 export const Toggles: React.FC<Props> = ({
     visibleLayers,
     layerDefinitions,
@@ -24,7 +36,7 @@ export const Toggles: React.FC<Props> = ({
             .map((layer) => (
                 <li
                     key={`layer-control-${layer.id}`}
-                    className="p-1 text-black"
+                    className="p-1 text-text-default"
                 >
                     <div className="flex items-center justify-between">
                         <label

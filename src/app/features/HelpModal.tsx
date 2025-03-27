@@ -6,6 +6,13 @@ import { AppDispatch, RootState } from '@/lib/state/store';
 import { setShowHelp } from '@/lib/state/main/slice';
 import Button from '@/app/components/common/Button';
 
+/**
+ * This component displays a modal with instructions on how to use the Geoconnex Explorer application.
+ * It includes a welcome message, usage instructions, and an option to not show the help modal again.
+ * It ties into local storage to remember user choices.
+ *
+ * @component
+ */
 export const HelpModal: React.FC = () => {
     const { showHelp } = useSelector((state: RootState) => state.main);
 

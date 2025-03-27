@@ -23,6 +23,12 @@ import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
 import { useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 
+/**
+ * This component manages the state and display of search results, filter component, and selected
+ * mainstem summaries.
+ *
+ *  @component
+ */
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
 
@@ -32,9 +38,12 @@ const SidePanel: React.FC = () => {
         (state: RootState) => state.main
     );
 
+    // Total length of unfiltered features from datasets feature collection
     const datasetsLength = useSelector(getDatasetsLength);
+    // Filtered datasets within map bounds
     const datasets = useSelector(getFilteredDatasets);
 
+    // Summary information for filtered datasets within map bounds
     const selectedSummary = useSelector((state: RootState) =>
         getSelectedSummary(state, map)
     );
@@ -43,6 +52,7 @@ const SidePanel: React.FC = () => {
 
     useEffect(() => {
         const ids = results.map((result) => result.id);
+        // Pass ids to redux state to enable
         dispatch(setSearchResultIds(ids));
     }, [results]);
 
@@ -55,7 +65,7 @@ const SidePanel: React.FC = () => {
             <div className="mt-1 flex flex-col justify-between border-b border-gray-300 shadow-lg">
                 <div className="flex justify-between" id="attribution">
                     {/* Mock-height to account for logo */}
-                    <div className="ml-4 flex items-center h-16">
+                    <div className="h-16 ml-4 flex items-center">
                         <Typography variant="h4" as="h1">
                             Geoconnex Explorer
                         </Typography>
@@ -63,7 +73,7 @@ const SidePanel: React.FC = () => {
                     <div className="flex flex-col justify-center">
                         <div
                             id="side-panel-close"
-                            className="mr-2 text-black block lg:hidden"
+                            className="block lg:hidden mr-2 text-text-default"
                         >
                             <CloseButton
                                 onClick={() =>
@@ -87,16 +97,17 @@ const SidePanel: React.FC = () => {
                         title="Map Tab"
                         aria-label="Tab to show map"
                         onClick={() => dispatch(setView('map'))}
-                        className={`${
+                        className={`
+                        w-[50%] 
+                        py-3 px-4 mx-2 
+                        ${
                             view === 'map'
                                 ? 'bg-primary -mb-px border-b-transparent'
                                 : 'bg-primary-darker text-gray-900'
                         } hover:bg-primary 
                         border-t border-x border-gray-300 
-                        py-3 px-4 mx-2 
-                        text-black hover:text-black font-bold 
-                        rounded-t-lg
-                        w-[50%] `}
+                        text-text-default hover:text-text-default font-bold 
+                        rounded-t-lg`}
                     >
                         Map
                     </button>
@@ -105,23 +116,32 @@ const SidePanel: React.FC = () => {
                         aria-label="Tab to show table"
                         onClick={() => dispatch(setView('table'))}
                         disabled={datasetsLength === 0}
-                        className={`${
+                        className={`
+                        w-[50%]
+                        py-3 px-4
+                        ${
                             view === 'table'
                                 ? 'bg-primary -mb-px border-b-transparent'
                                 : 'bg-primary-darker text-gray-900'
                         } hover:enabled:bg-primary 
-                        disabled:opacity-50
                         border-t border-x border-gray-300
-                        py-3 px-4
-                      text-black hover::enabled:text-black font-bold 
-                        rounded-t-lg
-                        w-[50%]`}
+                        disabled:opacity-50
+                      text-text-default hover::enabled:text-text-default font-bold 
+                        rounded-t-lg`}
                     >
                         Table
                     </button>
                 </div>
             </div>
-            <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
+            <div
+                className={`
+                w-full 
+                py-3 px-2 
+                flex flex-col justify-center 
+                bg-primary-opaque
+                text-text-default  
+                border-b border-gray-300`}
+            >
                 <Search setResults={setResults} />
             </div>
 
@@ -152,10 +172,7 @@ const SidePanel: React.FC = () => {
                     >
                         {selectedSummary && (
                             <div className="p-4">
-                                <ComplexSummary
-                                    summary={selectedSummary}
-                                    exclusions={{ name: true }}
-                                />
+                                <ComplexSummary summary={selectedSummary} />
                             </div>
                         )}
                     </Collapsible>

@@ -9,6 +9,20 @@ type Props = {
     action: React.ReactNode;
 };
 
+/**
+ * Renders a modal dialog with a title, body content, and action buttons.
+ * It supports closing the modal by clicking outside of the content area.
+ *
+ * Props:
+ * - open: boolean - Whether the modal is open.
+ * - title: string - The title of the modal.
+ * - handleClose: () => void - Function to handle closing the modal.
+ * - children: React.ReactNode - The content to be rendered within the modal body.
+ * - action: React.ReactNode - The action buttons to be rendered within the modal footer.
+ *
+ *
+ * @component
+ */
 const Modal: React.FC<Props> = (props) => {
     const { open, title, handleClose } = props;
 
@@ -27,11 +41,11 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className="bg-white text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
+                        className="bg-primary-opaque text-text-default rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
                     >
                         <div
                             id="modal-header"
-                            className="border-b border-gray-300 md sticky top-0 bg-white flex items-center justify-center p-6 "
+                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-center justify-center p-6 "
                         >
                             <Typography
                                 variant="h3"
@@ -50,7 +64,7 @@ const Modal: React.FC<Props> = (props) => {
                         </div>
                         <div
                             id="modal-action"
-                            className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-white p-4"
+                            className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-primary-opaque p-4"
                         >
                             {props.action}
                         </div>

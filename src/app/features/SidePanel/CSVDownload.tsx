@@ -7,6 +7,14 @@ type Props = {
     datasets: FeatureCollection<Point, Dataset>;
 };
 
+/**
+ * Renders a button that when clicked generates a CSV file from the provided datasets
+ *
+ * Props:
+ * - datasets: FeatureCollection<Point, Dataset> - Datasets to convert from feature collection to CSV file.
+ *
+ * @component
+ */
 export const CSVDownload: React.FC<Props> = (props) => {
     const { datasets } = props;
 
