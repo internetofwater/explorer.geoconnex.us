@@ -35,30 +35,30 @@ export enum HeaderKey {
 
 export const getHeaderTooltipText = (headerKey: HeaderKey) => {
     switch (headerKey) {
-        case HeaderKey.SiteName:
-            return 'The name of the site where measurements are taken.';
-        case HeaderKey.Type:
-            return 'The type of site or measurement.';
-        case HeaderKey.VariableMeasured:
-            return 'The specific variable that is being measured.';
-        case HeaderKey.VariableUnit:
-            return 'The unit of measurement for the variable.';
-        case HeaderKey.MeasurementTechnique:
-            return 'The technique used to measure the variable.';
-        case HeaderKey.TemporalCoverage:
-            return 'The time period over which measurements are taken.';
-        case HeaderKey.MonitoringLocation:
-            return 'The location where monitoring is conducted.';
-        case HeaderKey.DistributionFormat:
-            return 'The format in which data is distributed.';
-        case HeaderKey.DistributionName:
-            return 'The name of the distribution.';
-        case HeaderKey.DistributionURL:
-            return 'The URL where the distribution can be accessed.';
-        case HeaderKey.URL:
-            return 'The URL for more information.';
+        // case HeaderKey.SiteName:
+        //     return 'The name of the site where measurements are taken.';
+        // case HeaderKey.Type:
+        //     return 'The type of site or measurement.';
+        // case HeaderKey.VariableMeasured:
+        //     return 'The specific variable that is being measured.';
+        // case HeaderKey.VariableUnit:
+        //     return 'The unit of measurement for the variable.';
+        // case HeaderKey.MeasurementTechnique:
+        //     return 'The technique used to measure the variable.';
+        // case HeaderKey.TemporalCoverage:
+        //     return 'The time period over which measurements are taken.';
+        // case HeaderKey.MonitoringLocation:
+        //     return 'The location where monitoring is conducted.';
+        // case HeaderKey.DistributionFormat:
+        //     return 'The format in which data is distributed.';
+        // case HeaderKey.DistributionName:
+        //     return 'The name of the distribution.';
+        // case HeaderKey.DistributionURL:
+        //     return 'The URL where the distribution can be accessed.';
+        // case HeaderKey.URL:
+        //     return 'The URL for more information.';
         default:
-            return 'No tooltip available.';
+            return '';
     }
 };
 

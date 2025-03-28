@@ -111,13 +111,13 @@ const SidePanel: React.FC = () => {
                     >
                         Table
                     </Button>
-                    <Button
+                    {/* <Button
                         title="Switch to About View"
                         onClick={() => dispatch(setView('about'))}
                         className="min-w-24 min-h-10"
                     >
                         About
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
             <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
