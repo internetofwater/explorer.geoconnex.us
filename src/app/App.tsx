@@ -49,6 +49,14 @@ export const App: React.FC<Props> = (props) => {
         }
     }, [map]);
 
+    useEffect(() => {
+        if (!map) {
+            return;
+        }
+
+        map.resize();
+    }, [view]);
+
     const handleSidePanelControlClick = () => {
         dispatch(setShowSidePanel(true));
     };
