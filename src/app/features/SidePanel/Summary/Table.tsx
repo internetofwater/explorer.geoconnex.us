@@ -47,23 +47,23 @@ export const SummaryTable: React.FC<Props> = (props) => {
                         <table className="w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
-                                    <th className="px-4 py-1 text-left font-normal">
+                                    <th className="px-4 py-1 font-normal">
                                         <Typography
                                             variant="body"
-                                            className="max-w-[45%]"
+                                            className="text-center"
                                         >
                                             <strong>{title}</strong>
                                         </Typography>
                                     </th>
                                     <th
-                                        className="px-4 py-1 text-center font-normal"
+                                        className="px-4 py-1 font-normal"
                                         style={{ width: '27.5%' }}
                                     >
                                         <Typography
                                             variant="body"
-                                            className="max-w-[27.5%]"
+                                            className="text-center"
                                         >
-                                            <strong>Count</strong>
+                                            <strong>Site Count</strong>
                                         </Typography>
                                     </th>
                                 </tr>

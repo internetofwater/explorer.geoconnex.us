@@ -26,7 +26,7 @@ const Pagination: React.FC<Props> = (props) => {
     const { paginationFunctions, recordCount } = props;
 
     return (
-        <div className=" flex flex-col lg:flex-row items-center gap-4 justify-center py-2 ml-6 lg:ml-0">
+        <div className="min-h-[118px] lg:min-h-[unset] flex flex-col lg:flex-row items-center gap-4 justify-center py-2 ml-6 lg:ml-0">
             <div className="flex gap-2">
                 <button
                     className="border rounded p-1 text-lg disabled:opacity-70"
@@ -103,10 +103,14 @@ const Pagination: React.FC<Props> = (props) => {
                         of {paginationFunctions.getPageCount().toLocaleString()}
                     </strong>
                 </Typography>
-
-                <Typography variant="body-small" className="flex-grow-0">
-                    | <strong>Total Datasets:</strong> {recordCount} |
+                |
+                <Typography
+                    variant="body-small"
+                    className="flex-grow-0 text-center"
+                >
+                    <strong>Total Datasets:</strong> {recordCount}
                 </Typography>
+                |
                 <select
                     aria-label="Select Page Size"
                     disabled={recordCount <= 100}
