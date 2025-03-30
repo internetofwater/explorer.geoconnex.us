@@ -144,11 +144,11 @@ export const MapTools: React.FC = () => {
                                     </span>
                                     <span className="flex">
                                         <CircleIcon color="#91bfdb" />
-                                        &lt; 50
+                                        &lt;= 50
                                     </span>
                                     <span className="flex">
                                         <CircleIcon color="#ffffbf" />
-                                        &gt; 50
+                                        &gt;= 50
                                     </span>
                                     <span className="flex">
                                         <CircleIcon color="#fc8d59" />

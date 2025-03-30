@@ -263,11 +263,11 @@ export const getLayerColor = (
             return [
                 'step',
                 ['get', 'point_count'],
-                '#91bfdb', // Less than 5
+                '#91bfdb', // Less than 50
                 50,
-                '#ffffbf', // GTE 5
+                '#ffffbf', // GTE 50
                 200,
-                '#fc8d59', // GTE 10
+                '#fc8d59', // GTE 200
             ];
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';
