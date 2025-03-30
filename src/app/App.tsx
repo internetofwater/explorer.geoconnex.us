@@ -53,8 +53,9 @@ export const App: React.FC<Props> = (props) => {
         if (!map) {
             return;
         }
-
-        map.resize();
+        if (view === 'map') {
+            map.resize();
+        }
     }, [view]);
 
     const handleSidePanelControlClick = () => {
