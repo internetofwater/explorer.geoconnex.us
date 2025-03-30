@@ -150,6 +150,26 @@ const SidePanel: React.FC<Props> = (props) => {
                 {/* Results makes async call, ensure mounting */}
                 <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
                     <Collapsible title="Results" open={showResults}>
+                        <div className="py-2 border-b border-gray-300">
+                            {results.length && (
+                                <Typography
+                                    variant="body-small"
+                                    className="text-center"
+                                >
+                                    Results sorted by{' '}
+                                    <strong>Outlet Drainage Area</strong>.
+                                    {results.length === 500 && (
+                                        <>
+                                            <br />
+                                            Showing top <strong>
+                                                500
+                                            </strong>{' '}
+                                            results.
+                                        </>
+                                    )}
+                                </Typography>
+                            )}
+                        </div>
                         <Results results={results} />
                     </Collapsible>
                 </div>

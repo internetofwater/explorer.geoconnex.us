@@ -11,6 +11,7 @@ type Props = {
     limit?: number;
     searchable?: boolean;
     selectAll?: boolean;
+    strictSearch?: boolean;
     handleSelectAll?: (allSelected: boolean) => void;
 };
 
@@ -27,6 +28,7 @@ type Props = {
  * - limit?: number - Optional limit on the number of options to display.
  * - searchable?: boolean - Optional boolean to enable search functionality (default is false).
  * - selectAll?: boolean - Optional boolean to enable select-all functionality (default is false).
+ * - strictSearch?: boolean - Optional boolean to make search account for capital letters.
  * - handleSelectAll?: (allSelected: boolean) => void - Optional function to handle select-all action.
  *
  * @component
@@ -41,6 +43,7 @@ const MultiSelect: React.FC<Props> = (props) => {
         limit,
         searchable = false,
         selectAll = false,
+        strictSearch = false,
         handleSelectAll,
     } = props;
 
@@ -69,15 +72,35 @@ const MultiSelect: React.FC<Props> = (props) => {
         };
     }, []);
 
-    const filteredOptions = useMemo(
-        () =>
-            options.filter(
-                (option) =>
-                    !searchable ||
-                    option.toLowerCase().includes(searchTerm.toLowerCase())
-            ),
-        [options, searchTerm]
-    );
+    const filteredOptions = useMemo(() => {
+        if (strictSearch) {
+            const strictOptions = options.filter(
+                (option) => !searchable || option.includes(searchTerm)
+            );
+
+            // Place strict discoveries before soft discoveries, use set to ensure unique
+            const filteredOptions = Array.from(
+                new Set([
+                    ...strictOptions,
+                    ...options.filter(
+                        (option) =>
+                            !searchable ||
+                            option
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                    ),
+                ])
+            );
+
+            return filteredOptions;
+        }
+
+        return options.filter(
+            (option) =>
+                !searchable ||
+                option.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [options, searchTerm]);
 
     const limitedOptions = useMemo(
         () => filteredOptions.slice(0, limit ?? filteredOptions.length),
@@ -95,6 +118,14 @@ const MultiSelect: React.FC<Props> = (props) => {
     const handleSelectAllClick = () => {
         if (handleSelectAll) {
             handleSelectAll(!allSelected);
+        }
+    };
+
+    const refocus = () => {
+        if (inputRef.current) {
+            inputRef.current.focus({
+                preventScroll: true,
+            });
         }
     };
 
@@ -136,6 +167,7 @@ const MultiSelect: React.FC<Props> = (props) => {
                                 showOptions ? '-rotate-90' : 'rotate-90'
                             }`}
                             onClick={(e) => {
+                                // Dont propagate click to input
                                 e.stopPropagation();
                                 setShowOptions(!showOptions);
                             }}
@@ -213,11 +245,8 @@ const MultiSelect: React.FC<Props> = (props) => {
                                         checked={allSelected}
                                         onChange={() => {
                                             handleSelectAllClick();
-                                            if (inputRef.current) {
-                                                inputRef.current.focus({
-                                                    preventScroll: true,
-                                                });
-                                            }
+                                            // After selection refocus on search
+                                            refocus();
                                         }}
                                         className="h-4 w-4 min-w-4 rounded cursor-pointer"
                                     />
@@ -250,11 +279,8 @@ const MultiSelect: React.FC<Props> = (props) => {
                                         )}
                                         onChange={() => {
                                             handleOptionClick(option);
-                                            if (inputRef.current) {
-                                                inputRef.current.focus({
-                                                    preventScroll: true,
-                                                });
-                                            }
+                                            // After selection refocus on search
+                                            refocus();
                                         }}
                                         className="h-4 w-4 min-w-4 rounded cursor-pointer"
                                     />

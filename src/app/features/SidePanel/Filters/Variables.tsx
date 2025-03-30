@@ -73,6 +73,7 @@ export const Variables: React.FC<Props> = (props) => {
                 handleOptionClick={handleTypeOptionClick}
                 searchable
                 selectAll
+                strictSearch
                 limit={100}
                 handleSelectAll={handleSelectAll}
             />
