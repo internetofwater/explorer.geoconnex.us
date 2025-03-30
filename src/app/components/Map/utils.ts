@@ -14,6 +14,13 @@ import {
 } from '@/app/components/Map/types';
 import { FeatureServiceOptions } from '@hansdo/mapbox-gl-arcgis-featureserver';
 
+/**
+ * Adds sources to the map based on the provided source configurations.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {SourceConfig[]} sourceConfigs - Array of source configurations.
+ * @param {function(string, Map, FeatureServiceOptions): void} featureService - Function to add ESRI feature services to the map.
+ */
 export const addSources = (
     map: Map,
     sourceConfigs: SourceConfig[],
@@ -56,6 +63,12 @@ export const addSources = (
     });
 };
 
+/**
+ * Adds layers to the map based on the provided layer definitions.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {MainLayerDefinition[]} layerDefinitions - Array of layer definitions.
+ */
 export const addLayers = (
     map: Map,
     layerDefinitions: MainLayerDefinition[]
@@ -74,6 +87,14 @@ export const addLayers = (
     });
 };
 
+/**
+ * Adds hover functions to the map layers based on the provided layer definitions.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {MainLayerDefinition[]} layerDefinitions - Array of layer definitions.
+ * @param {Popup} hoverPopup - Popup instance for hover interactions.
+ * @param {Popup} persistentPopup - Popup instance for persistent interactions.
+ */
 export const addHoverFunctions = (
     map: Map,
     layerDefinitions: MainLayerDefinition[],
@@ -134,6 +155,14 @@ export const addHoverFunctions = (
     });
 };
 
+/**
+ * Adds mouse move functions to the map layers based on the provided layer definitions.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {MainLayerDefinition[]} layerDefinitions - Array of layer definitions.
+ * @param {Popup} hoverPopup - Popup instance for hover interactions.
+ * @param {Popup} persistentPopup - Popup instance for persistent interactions.
+ */
 export const addMouseMoveFunctions = (
     map: Map,
     layerDefinitions: MainLayerDefinition[],
@@ -166,6 +195,14 @@ export const addMouseMoveFunctions = (
     });
 };
 
+/**
+ * Adds click functions to the map layers based on the provided layer definitions.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {MainLayerDefinition[]} layerDefinitions - Array of layer definitions.
+ * @param {Popup} hoverPopup - Popup instance for hover interactions.
+ * @param {Popup} persistentPopup - Popup instance for persistent interactions.
+ */
 export const addClickFunctions = (
     map: Map,
     layerDefinitions: MainLayerDefinition[],
@@ -194,6 +231,12 @@ export const addClickFunctions = (
     });
 };
 
+/**
+ * Adds controls to the map based on the provided control configurations.
+ *
+ * @param {Map} map - The Mapbox map instance.
+ * @param {MapComponentProps['controls']} controls - Object representing the control configurations.
+ */
 export const addControls = (
     map: Map,
     controls: MapComponentProps['controls']

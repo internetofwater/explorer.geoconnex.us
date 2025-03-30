@@ -10,6 +10,12 @@ import { useMap } from '@/app/contexts/MapContexts';
 import { SiteNames } from '@/app/features/SidePanel/Filters/SiteNames';
 import { DistributionNames } from '@/app/features/SidePanel/Filters/DistributionNames';
 
+/**
+ * This component displays various filters for datasets, including site names, variables, types, distribution names, and temporal coverage.
+ * It fetches unfiltered datasets within the map bounds and updates the filter options based on the dataset properties.
+ *
+ * @component
+ */
 export const Filters: React.FC = () => {
     const { map } = useMap(MAIN_MAP_ID);
 

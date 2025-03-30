@@ -42,7 +42,20 @@ export const colors = [
     [139, 69, 19], // Saddle Brown
 ];
 
-export const PieChart: React.FC<Props> = (props) => {
+/**
+ * This component renders a doughnut chart using the Chart.js library and react-chartjs-2 wrapper.
+ * It displays a chart with the provided labels and values, and supports optional legend display.
+ *
+ * Props:
+ * - labels: string[] - The labels for the chart segments.
+ * - values: number[] - The values for the chart segments.
+ * - top: number - The number of top values to display in the chart.
+ * - showLegend?: boolean - Optional boolean to show or hide the legend (default is false).
+ * - ref?: RefObject<Chart<'doughnut', number[], string> | null> - Optional ref to the Chart.js instance.
+ *
+ * @component
+ */
+export const DoughnutChart: React.FC<Props> = (props) => {
     const { ref = null, labels, values, top, showLegend = false } = props;
 
     const data: ChartData<'doughnut', number[], string> = {

@@ -6,6 +6,16 @@ type Props = {
     handleStyleChange: (style: BasemapStyles) => void;
 };
 
+/**
+ * Renders a list of radio buttons for selecting a basemap style.
+ * It allows users to change the map style by selecting one of the available basemap options.
+ *
+ * Props:
+ * - style: BasemapStyles - The currently selected basemap style.
+ * - handleStyleChange: (style: BasemapStyles) => void - Function to handle changes to the basemap style.
+ *
+ * @component
+ */
 export const BasemapSelector: React.FC<Props> = (props) => {
     const { style, handleStyleChange } = props;
 

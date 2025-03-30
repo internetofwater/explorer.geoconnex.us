@@ -53,6 +53,16 @@ const INITIAL_ZOOM = 4;
 type Props = {
     accessToken: string;
 };
+
+/**
+ * This component renders the main map for the application, allowing users to interact with all layers defined in config.tsx.
+ * It handles all map events that interact with redux state, including clicks on mainstem and updates to the data in the cluster layer.
+ *
+ * Props:
+ * - accessToken: string - The access token for the map service.
+ *
+ * @component
+ */
 export const MainMap: React.FC<Props> = (props) => {
     const { accessToken } = props;
 
@@ -130,7 +140,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 createSummaryPoints(map, source, features).catch(
                     (error: ErrorEvent) =>
                         console.error(
-                            'Unable to spiderify clusters: ',
+                            'Unable to create summary points for clusters: ',
                             clusterIds,
                             ', Error: ',
                             error
@@ -266,7 +276,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     SubLayerId.AssociatedDataClusters,
                     SubLayerId.AssociatedDataClusterCount,
                     LayerId.SummaryPoints,
-                    // SubLayerId.AssociatedDataUnclustered,
                 ],
             });
             const zoom = map.getZoom();
@@ -508,7 +517,7 @@ export const MainMap: React.FC<Props> = (props) => {
                         createSummaryPoints(map, clusterSource, features).catch(
                             (error: ErrorEvent) =>
                                 console.error(
-                                    'Unable to spiderify clusters: ',
+                                    'Unable to create summary points for clusters: ',
                                     clusterIds,
                                     ', Error: ',
                                     error

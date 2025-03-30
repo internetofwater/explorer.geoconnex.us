@@ -7,7 +7,11 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import SidePanel from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
-import { fetchDatasets, setShowSidePanel } from '@/lib/state/main/slice';
+import {
+    fetchDatasets,
+    setLoading,
+    setShowSidePanel,
+} from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/HelpModal';
@@ -20,6 +24,14 @@ type Props = {
     accessToken: string;
 };
 
+/**
+ * This component manages the state and display of the map, table, and side panel.
+ * Also handles fetch when accessing app with /mainstems/[uri] route.
+ *
+ * Props:
+ * - accessToken: The access token required for accessing the map.
+ * @component
+ */
 export const App: React.FC<Props> = (props) => {
     const { accessToken } = props;
 
@@ -38,11 +50,18 @@ export const App: React.FC<Props> = (props) => {
             return;
         }
 
+        // Get the mainstem id on initial load and fetch data from geoconnex
         if (pathname && pathname.startsWith('/mainstems/')) {
             const match = pathname.match(/\/mainstems\/(\d+)/);
             const id = match ? match[1] : null;
 
             if (id) {
+                dispatch(
+                    setLoading({
+                        item: 'datasets',
+                        loading: true,
+                    })
+                );
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 dispatch(fetchDatasets(id));
             }
@@ -82,8 +101,8 @@ export const App: React.FC<Props> = (props) => {
                      min-w-[300px] sm:min-w-[400px]
                     md:max-w-[400px]
                      flex overflow-hidden bg-primary
-                     border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      m-2 lg:m-0
+                     border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      rounded-lg lg:rounded-none
                      shadow-lg
                      ${showSidePanel ? 'block' : 'hidden'}`}
@@ -107,8 +126,13 @@ export const App: React.FC<Props> = (props) => {
                         view === 'table' ? 'block' : 'hidden'
                     } w-full`}
                 >
-                    <LoadingBar />
-                    <Table />
+                    {/* Conserve memory, only render table on view */}
+                    {view === 'table' && (
+                        <>
+                            <LoadingBar />
+                            <Table />
+                        </>
+                    )}
                 </div>
                 <div
                     id="about"
@@ -123,6 +147,14 @@ export const App: React.FC<Props> = (props) => {
     );
 };
 
+/**
+ * This component wraps the main App component with Redux and Map context providers
+ * to allow access to the global state and map context across the application.
+ *
+ * Props:
+ * - accessToken: The access token required for accessing the map.
+ * @component
+ */
 export const AppProvider: React.FC<Props> = (props) => {
     const { accessToken } = props;
 

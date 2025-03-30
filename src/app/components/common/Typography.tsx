@@ -42,8 +42,40 @@ const sizes: Record<Variant, string> = {
     small: 'text-sm sm:text-xs',
 };
 
+/**
+ * This function returns the CSS class names for a given typographic variant.
+ * It maps the variant to predefined CSS classes that control the text size and styling.
+ *
+ * Parameters:
+ * - variant: Variant - The typographic variant to get the styling for (e.g., 'h1', 'h2', 'body', etc.).
+ *
+ * Returns:
+ * - string - The CSS class names corresponding to the specified variant.
+ *
+ * @function
+ */
 export const getTextStyling = (variant: Variant) => sizes[variant];
 
+/**
+ * Renders text with various typographic styles based on the provided variant.
+ * It supports different HTML tags and custom class names for styling.
+ *
+ * Props:
+ * - variant: Variant - The typographic variant to apply (e.g., 'h1', 'h2', 'body', etc.).
+ * - children: React.ReactNode - The content to be rendered within the component.
+ * - className?: string - Optional custom class names for additional styling.
+ * - as?: ElementType - Optional HTML tag to use for rendering the text (default is based on the variant).
+ *
+ *
+ * Example Usage:
+ * ```tsx
+ * <Typography variant="h1">Heading 1</Typography>
+ * <Typography variant="body" className="text-blue-200">Body <strong>Text</strong></Typography>
+ * <Typography variant="small" as="span">Small Text</Typography>
+ * ```
+ *
+ * @component
+ */
 export const Typography = ({
     variant,
     children,

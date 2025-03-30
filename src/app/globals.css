@@ -35,6 +35,10 @@ body {
     max-height: 100svh;
 }
 
+/* Z Indexes across app */
+/* Collapsible component button also manages its own z index
+   currently set at 2
+*/
 div#side-panel {
     z-index: 3;
 }
@@ -87,31 +91,34 @@ input[type='checkbox']:active {
     accent-color: var(--secondary-hover);
 }
 
+/* Readded hyperlink styling to match web defautls */
 a {
-    color: blue; /* Default link color */
-    text-decoration: underline; /* Underline the link */
-    cursor: pointer; /* Pointer cursor on hover */
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 a:visited {
-    color: purple; /* Color for visited links */
+    color: purple;
 }
 
 a:hover {
-    color: darkblue; /* Color when hovering over the link */
-    text-decoration: underline; /* Keep underline on hover */
+    color: darkblue;
+    text-decoration: underline;
 }
 
 a:active {
-    color: red; /* Color when the link is active (clicked) */
+    color: red;
 }
 
+/* Custom width for when date range inputs need to switch row -> column */
 @media (min-width: 1450px) {
     #date-range-columns {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
+/* lg width */
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
         height: calc(100svh - 206px);
@@ -123,10 +130,21 @@ a:active {
     }
 }
 
+/* Animation for Spinner.tsx */
 .animate-spin {
     animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Animation for Linear.tsx */
 .animate-linear {
     animation: linear 1s linear infinite;
 }
@@ -232,14 +250,5 @@ a:active {
     }
     100% {
         transform: translateX(100%);
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
     }
 }

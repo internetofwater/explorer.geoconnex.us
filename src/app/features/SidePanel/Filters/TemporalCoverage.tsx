@@ -10,6 +10,16 @@ type Props = {
     maxTime: Date | null;
 };
 
+/**
+ * Filter component with date range selectors for setting start/end
+ * of temporal coverage range
+ *
+ * Props:
+ * - minTime: Date | null - Start of date range.
+ * - maxTime: Date | null - End of date range.
+ *
+ * @component
+ */
 export const TemporalCoverage: React.FC<Props> = (props) => {
     const { minTime, maxTime } = props;
 

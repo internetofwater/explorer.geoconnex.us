@@ -25,6 +25,12 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import Button from '@/app/components/common/Button';
 import Image from 'next/image';
 
+/**
+ * This component manages the state and display of search results, filter component, and selected
+ * mainstem summaries.
+ *
+ *  @component
+ */
 const SidePanel: React.FC = () => {
     const [results, setResults] = useState<MainstemData[]>([]);
 
@@ -34,9 +40,12 @@ const SidePanel: React.FC = () => {
         (state: RootState) => state.main
     );
 
+    // Total length of unfiltered features from datasets feature collection
     const datasetsLength = useSelector(getDatasetsLength);
+    // Filtered datasets within map bounds
     const datasets = useSelector(getFilteredDatasets);
 
+    // Summary information for filtered datasets within map bounds
     const selectedSummary = useSelector((state: RootState) =>
         getSelectedSummary(state, map)
     );
@@ -45,6 +54,7 @@ const SidePanel: React.FC = () => {
 
     useEffect(() => {
         const ids = results.map((result) => result.id);
+        // Pass ids to redux state to enable
         dispatch(setSearchResultIds(ids));
     }, [results]);
 
@@ -76,7 +86,7 @@ const SidePanel: React.FC = () => {
                     <div className="flex flex-col justify-center">
                         <div
                             id="side-panel-close"
-                            className="mr-2 text-black block lg:hidden"
+                            className="block lg:hidden mr-2 text-black"
                         >
                             <CloseButton
                                 onClick={() =>
@@ -120,7 +130,15 @@ const SidePanel: React.FC = () => {
                     </Button> */}
                 </div>
             </div>
-            <div className="w-full py-3 px-2 bg-white flex flex-col justify-center border-b border-gray-300  text-black ">
+            <div
+                className={`
+                w-full 
+                py-3 px-2 
+                flex flex-col justify-center 
+                bg-primary-opaque
+                text-black  
+                border-b border-gray-300`}
+            >
                 <Search setResults={setResults} />
             </div>
 
@@ -151,10 +169,7 @@ const SidePanel: React.FC = () => {
                     >
                         {selectedSummary && (
                             <div className="p-4">
-                                <ComplexSummary
-                                    summary={selectedSummary}
-                                    exclusions={{ name: true }}
-                                />
+                                <ComplexSummary summary={selectedSummary} />
                             </div>
                         )}
                     </Collapsible>

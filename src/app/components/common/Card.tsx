@@ -7,12 +7,22 @@ type Props = {
     className?: string;
 };
 
+/**
+ * Renders a card with optional close functionality, supporting custom styles and content.
+ *
+ * Props:
+ * - handleClose?: () => void - Optional function to handle closing the card.
+ * - children: React.ReactNode - The content to be rendered within the card.
+ * - className?: string - Optional custom class names for additional styling.
+ *
+ * @component
+ */
 const Card: React.FC<Props> = (props) => {
     const { handleClose = null, className = '' } = props;
 
     return (
         <div className={`flex items-center text-black ${className}`}>
-            <div className="relative bg-white rounded-lg shadow-lg p-6 w-[100%]">
+            <div className="relative bg-primary-opaque rounded-lg shadow-lg p-6 w-[100%]">
                 {handleClose && (
                     <span className="absolute top-2 right-2">
                         <CloseButton

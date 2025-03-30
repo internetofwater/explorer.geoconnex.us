@@ -8,6 +8,14 @@ type Props = {
     siteNames: string[];
 };
 
+/**
+ * Filter component with multiselect for selecting/deselecting site names
+ *
+ * Props:
+ * - siteNames: string[] - List of site names
+ *
+ * @component
+ */
 export const SiteNames: React.FC<Props> = (props) => {
     const { siteNames } = props;
     const { filter } = useSelector((state: RootState) => state.main);

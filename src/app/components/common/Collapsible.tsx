@@ -8,6 +8,18 @@ type Props = {
     children: React.ReactNode;
 };
 
+/**
+ * Renders a collapsible section with a title that can be toggled open or closed.
+ * It supports an initial open state and handles state changes to show or hide the content.
+ *
+ * Props:
+ * - title: string - The title of the collapsible section.
+ * - open?: boolean - Optional boolean to set the initial open state (default is false) and
+ *  programmatically close/open the collapsible.
+ * - children: React.ReactNode - The content to be rendered within the collapsible section.
+ *
+ * @component
+ */
 const Collapsible: React.FC<Props> = (props) => {
     const { title, open = false } = props;
 

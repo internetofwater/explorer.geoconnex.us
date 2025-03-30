@@ -1,5 +1,8 @@
 import { Typography } from '@/app/components/common/Typography';
-import { colors, PieChart } from '@/app/features/SidePanel/Summary/PieChart';
+import {
+    colors,
+    DoughnutChart,
+} from '@/app/features/SidePanel/Summary/DoughnutChart';
 import {
     ChangeEvent,
     useEffect,
@@ -55,6 +58,17 @@ type Props = {
     data: SummaryData;
 };
 
+/**
+ * This component displays a summary section with a title, pie chart, and table for the given data.
+ * It includes functionality to toggle the visibility of the legend and table, and to change the number of top values displayed in the pie chart.
+ *
+ * Props:
+ * - title: string - The title of the summary section.
+ * - total: number - The total count used to calculate percentages.
+ * - data: SummaryData - The data entries to be displayed in the pie chart and table.
+ *
+ * @component
+ */
 export const SummarySection: React.FC<Props> = (props) => {
     const { title, total, data } = props;
 
@@ -83,6 +97,7 @@ export const SummarySection: React.FC<Props> = (props) => {
         setTop(Number(event.target.value));
     };
 
+    // Display popup on chart when hovering over corresponding table row
     const handleTableMouseEnter = (index: number) => {
         const chart = chartRef.current;
         if (index <= top - 1 && chart) {
@@ -98,6 +113,7 @@ export const SummarySection: React.FC<Props> = (props) => {
         }
     };
 
+    // Remove tooltip on mouse leave
     const handleTableMouseLeave = () => {
         const chart = chartRef.current;
         if (chart) {
@@ -112,14 +128,14 @@ export const SummarySection: React.FC<Props> = (props) => {
     return (
         <>
             <Typography variant="h6">{title}</Typography>
-            <div className="flex flex-col justify-center items-center h-64 w-full mt-4 mx-2 mb-1">
+            <div className="h-64 w-full mt-4 mx-2 mb-1 flex flex-col justify-center items-center">
                 <div className="flex justify-center h-64 w-full">
                     <div
                         className={`flex justify-center items-center ${
                             showLegend ? 'w-1/2' : 'w-full'
                         } h-64`}
                     >
-                        <PieChart
+                        <DoughnutChart
                             labels={Object.keys(data).slice(0, top)}
                             values={Object.values(data).slice(0, top)}
                             top={top}

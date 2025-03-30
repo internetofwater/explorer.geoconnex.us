@@ -29,7 +29,7 @@ const Pagination: React.FC<Props> = (props) => {
         <div className="min-h-[118px] lg:min-h-[unset] flex flex-col lg:flex-row items-center gap-4 justify-center py-2 ml-6 lg:ml-0">
             <div className="flex gap-2">
                 <button
-                    className="border rounded p-1 text-lg disabled:opacity-70"
+                    className="border rounded p-1 text-lg text-black disabled:opacity-70"
                     onClick={() => paginationFunctions.firstPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
                     title="Go to first page"
@@ -37,7 +37,7 @@ const Pagination: React.FC<Props> = (props) => {
                     {' ⏮ '}
                 </button>
                 <button
-                    className="border rounded p-1 disabled:opacity-70"
+                    className="border rounded p-1 text-black disabled:opacity-70"
                     onClick={() => paginationFunctions.previousPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
                     title="Go to previous page"
@@ -46,7 +46,7 @@ const Pagination: React.FC<Props> = (props) => {
                 </button>
                 <button
                     data-testid="next-button"
-                    className="border rounded p-1 disabled:opacity-70"
+                    className="border rounded p-1 text-black disabled:opacity-70"
                     onClick={() => paginationFunctions.nextPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
                     title="Go to next page"
@@ -54,7 +54,7 @@ const Pagination: React.FC<Props> = (props) => {
                     {' ▶ '}
                 </button>
                 <button
-                    className="border rounded p-1 text-lg disabled:opacity-70"
+                    className="border rounded p-1 text-lg text-black disabled:opacity-70"
                     onClick={() => paginationFunctions.lastPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
                     title="Go to last page"
@@ -77,7 +77,7 @@ const Pagination: React.FC<Props> = (props) => {
                                 ? paginationFunctions.getPageCount()
                                 : '1'
                         }
-                        defaultValue={
+                        value={
                             paginationFunctions.getState().pagination
                                 .pageIndex + 1
                         }
@@ -87,7 +87,7 @@ const Pagination: React.FC<Props> = (props) => {
                                 : 0;
                             paginationFunctions.setPageIndex(page);
                         }}
-                        className="border p-1 rounded w-16"
+                        className="border p-1 rounded w-16 text-black"
                     />
                 </span>
             </div>
@@ -118,7 +118,9 @@ const Pagination: React.FC<Props> = (props) => {
                     onChange={(e) => {
                         paginationFunctions.setPageSize(Number(e.target.value));
                     }}
-                    className={`${getTextStyling('body-small')} bg-transparent`}
+                    className={`${getTextStyling(
+                        'body-small'
+                    )} bg-transparent text-black`}
                 >
                     {[100, 500, 1000].map((pageSize) => (
                         <option key={pageSize} value={pageSize}>

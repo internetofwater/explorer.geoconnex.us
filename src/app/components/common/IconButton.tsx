@@ -8,6 +8,18 @@ type Props = {
     title?: string;
 };
 
+/**
+ * Renders a button with an icon, supporting custom styles, disabled state, and a title for accessibility.
+ *
+ * Props:
+ * - onClick: () => void - Function to handle the button click event.
+ * - children: React.ReactNode - The icon or content to be rendered within the button.
+ * - className?: string - Optional custom class names for additional styling.
+ * - disabled?: boolean - Optional boolean to disable the button (default is false).
+ * - title?: string - Optional title for the button, used for accessibility.
+ *
+ * @component
+ */
 const IconButton: React.FC<Props> = (props) => {
     const { onClick, className = '', disabled = false, title = '' } = props;
 
@@ -16,8 +28,7 @@ const IconButton: React.FC<Props> = (props) => {
             onClick={onClick}
             title={title}
             disabled={disabled}
-            className={`bg-white hover:bg-gray-100
-                border border-gray-300
+            className={`bg-primary-opaque hover:bg-gray-100
                 rounded-full p-2 shadow-md 
                 w-11 h-11
                 flex justify-center items-center

@@ -16,10 +16,8 @@ import {
     Popup,
 } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
-import { hasPeristentPopupOpenToThisItem } from '@/app/features/MainMap/utils';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
-import { Dataset } from '@/app/types';
 
 export const MAP_ID = 'main';
 
@@ -30,7 +28,6 @@ export enum SourceId {
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
     AssociatedData = 'associated-data-source',
-    Spiderify = 'spiderify',
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
 }
@@ -40,7 +37,6 @@ export enum LayerId {
     HUC2Boundaries = 'huc-2-boundaries',
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
-    SpiderifyPoints = 'spiferified-clusters',
     SummaryPoints = 'summary-points',
     MainstemsHighlight = 'mainstems-highlight',
 }
@@ -62,13 +58,39 @@ export const allLayerIds = [
     ...Object.values(SubLayerId),
 ];
 
+/**
+ * Zoom level to transition from clusters to summary points
+ *
+ * @constant
+ */
 export const CLUSTER_TRANSITION_ZOOM = 17;
+/**
+ * Define outlet_drainagearea_sqkm value that determines upper limit of small mainstems.
+ *
+ * @constant
+ */
 export const MAINSTEM_DRAINAGE_SMALL = 160;
+/**
+ * Define outlet_drainagearea_sqkm value that determines upper limit of medium mainstems.
+ * Any values larger than this are considered large mainstems
+ *
+ * @constant
+ */
 export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
 export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
 export const MAINSTEM_LARGE_LINE_WIDTH = 6;
+/**
+ * Zoom level to render mainstems after initial load.
+ *
+ * @constant
+ */
 export const MAINSTEM_VISIBLE_ZOOM = 5;
+/**
+ * Zoom level for when mainstems should become more opaque.
+ *
+ * @constant
+ */
 export const MAINSTEM_OPACITY_ZOOM = 6;
 
 export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
@@ -79,6 +101,7 @@ export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
     0.8,
 ];
 
+// HUC Ids for boundaries outside continental US
 const filteredHucs = ['19', '20', '21', '22'];
 const hucFilterExpression: ExpressionSpecification = [
     'match',
@@ -91,6 +114,12 @@ const hucFilterExpression: ExpressionSpecification = [
 /**********************************************************************
  * Define the various datasources this map will use
  **********************************************************************/
+
+/**
+ * Configurations for sources in the map. Supports GeoJSON, VectorTile, and Esri Feature Service sources
+ *
+ * @constant
+ */
 export const sourceConfigs: SourceConfig[] = [
     {
         id: SourceId.Mainstems,
@@ -134,18 +163,6 @@ export const sourceConfigs: SourceConfig[] = [
         },
     },
     {
-        id: SourceId.Spiderify,
-        type: Sources.GeoJSON,
-        definition: {
-            type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
-            cluster: false,
-        },
-    },
-    {
         id: SourceId.SummaryPoints,
         type: Sources.GeoJSON,
         definition: {
@@ -171,27 +188,37 @@ export const sourceConfigs: SourceConfig[] = [
 /**********************************************************************
  * Create helper functions to group layer logic
  **********************************************************************/
-
+/**
+ * Returns the display name for a given layer or sublayer based on its identifier.
+ *
+ * Parameters:
+ * - layerId: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - string - The display name for the specified layer or sublayer.
+ *
+ * @function
+ */
 export const getLayerName = (layerId: LayerId | SubLayerId): string => {
     switch (layerId) {
         case LayerId.Mainstems:
-            return 'Mainstems'; // TODO determine if names are accurate
+            return 'Mainstems';
         case SubLayerId.MainstemsSmall:
-            return 'Small'; // TODO determine if names are accurate
+            return 'Small';
         case SubLayerId.MainstemsMedium:
-            return 'Medium'; // TODO determine if names are accurate
+            return 'Medium';
         case SubLayerId.MainstemsLarge:
-            return 'Large'; // TODO determine if names are accurate
+            return 'Large';
         case LayerId.MajorRivers:
-            return 'Major Rivers'; // TODO determine if names are accurate
+            return 'Major Rivers';
         case LayerId.HUC2Boundaries:
-            return 'HUC2 Boundaries'; // TODO determine if names are accurate
+            return 'HUC2 Boundaries';
         case SubLayerId.HUC2BoundaryLabels:
-            return 'Labels'; // TODO determine if names are accurate
+            return 'Labels';
         case SubLayerId.HUC2BoundaryFill:
-            return 'HUC2 Boundaries'; // TODO determine if names are accurate
+            return 'HUC2 Boundaries';
         case LayerId.AssociatedData:
-            return 'Associated Data'; // TODO determine if names are accurate
+            return 'Associated Data';
         case SubLayerId.AssociatedDataClusters:
             return 'Dataset Clusters';
         default:
@@ -202,7 +229,18 @@ export const getLayerName = (layerId: LayerId | SubLayerId): string => {
 export const MAINSTEMS_SEARCH_COLOR = '#FAC60F';
 export const MAINSTEMS_SELECTED_COLOR = '#F500FF';
 
-// Define the palette in a shared location
+/**
+ * Returns the color for a given layer or sublayer based on its identifier.
+ * It defines the color values for each layer, including special cases for data-driven properties.
+ *
+ * Parameters:
+ * - id: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - DataDrivenPropertyValueSpecification<string> - The color value or expression for the specified layer or sublayer.
+ *
+ * @function
+ */
 export const getLayerColor = (
     id: LayerId | SubLayerId
 ): DataDrivenPropertyValueSpecification<string> => {
@@ -226,26 +264,38 @@ export const getLayerColor = (
                 'step',
                 ['get', 'point_count'],
                 '#91bfdb', // Less than 5
-                5,
+                50,
                 '#ffffbf', // GTE 5
-                10,
+                200,
                 '#fc8d59', // GTE 10
             ];
         case SubLayerId.AssociatedDataClusterCount:
             return '#000';
         case SubLayerId.AssociatedDataUnclustered:
             return '#1C76CA';
-        case LayerId.SpiderifyPoints:
-            return '#46AB9D';
+        case LayerId.SummaryPoints:
+            return '#1C76CA';
         default:
             return '#FFF';
     }
 };
 
-// Group layer and sublayer configurations together
+/**
+ * Returns the configuration for a given layer or sublayer in the map.
+ * It defines the properties such as id, type, source, layout, filter, and paint for each layer.
+ *
+ * Parameters:
+ * - id: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - LayerSpecification | null - The configuration object for the specified layer or sublayer, or null if no configuration is needed.
+ *
+ * @function
+ */
 export const getLayerConfig = (
     id: LayerId | SubLayerId
 ): null | LayerSpecification => {
+    // Group layer and sublayer configurations together
     switch (id) {
         case LayerId.Mainstems:
             return null;
@@ -490,7 +540,7 @@ export const getLayerConfig = (
                 type: LayerType.Circle,
                 source: SourceId.SummaryPoints,
                 paint: {
-                    'circle-color': '#1C76CA',
+                    'circle-color': getLayerColor(LayerId.SummaryPoints),
                     'circle-opacity': [
                         'step',
                         ['zoom'],
@@ -577,34 +627,6 @@ export const getLayerConfig = (
                         CLUSTER_TRANSITION_ZOOM - 1,
                         1,
                     ],
-                    // 'text-halo-color': '#FFFFFF',
-                    // 'text-halo-width': 2,
-                },
-            };
-        case LayerId.SpiderifyPoints:
-            return {
-                id: LayerId.SpiderifyPoints,
-                type: LayerType.Symbol,
-                source: SourceId.Spiderify,
-                filter: ['!', ['has', 'point_count']],
-                paint: {
-                    'icon-color': getLayerColor(LayerId.SpiderifyPoints),
-                    'icon-opacity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        CLUSTER_TRANSITION_ZOOM,
-                        0,
-                        CLUSTER_TRANSITION_ZOOM + 0.01,
-                        ['get', 'isNotFiltered'],
-                    ],
-                },
-                layout: {
-                    'icon-image': 'observation-point',
-                    'icon-size': 1,
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true,
-                    'icon-offset': ['get', 'iconOffset'],
                 },
             };
         default:
@@ -685,51 +707,6 @@ export const getLayerHoverFunction = (
                         }
                     }
                 };
-
-            case LayerId.SpiderifyPoints:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-
-                        const feature = e.features?.[0] as
-                            | Feature<Point, Dataset & { iconOffset: string }>
-                            | undefined;
-                        if (feature && feature.properties) {
-                            const itemId: string =
-                                feature.properties.distributionURL;
-                            if (
-                                !hasPeristentPopupOpenToThisItem(
-                                    persistentPopup,
-                                    itemId
-                                )
-                            ) {
-                                hoverPopup.remove();
-                                const variableMeasured =
-                                    feature.properties.variableMeasured.split(
-                                        ' / '
-                                    )[0];
-                                const offset = JSON.parse(
-                                    feature.properties.iconOffset
-                                ) as [number, number];
-                                const coordinates = feature.geometry
-                                    .coordinates as [number, number];
-                                const html = `<span style="color: black;"> 
-                                <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                <div style="display:flex;">
-                                    <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                </div>
-                              </span>`;
-
-                                hoverPopup
-                                    .setLngLat(coordinates)
-                                    .setOffset(offset)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
             case SubLayerId.AssociatedDataClusters:
                 return () => {
                     hoverOnCluster = true;
@@ -767,6 +744,18 @@ export const getLayerHoverFunction = (
     };
 };
 
+/**
+ * Custom functionality for when the `mouseleave` event fires on this layer.
+ * If not defined, defaults to unsetting the cursor and removing the hoverpopup
+ *
+ * Parameters:
+ * - id: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - CustomListenerFunction - A function that handles the hover exit event for the specified layer or sublayer.
+ *
+ * @function
+ */
 export const getLayerCustomHoverExitFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
@@ -775,13 +764,6 @@ export const getLayerCustomHoverExitFunction = (
             case SubLayerId.AssociatedDataClusters:
                 return () => {
                     hoverOnCluster = false;
-                };
-            case LayerId.SpiderifyPoints:
-                return () => {
-                    map.getCanvas().style.cursor = '';
-                    hoverPopup.remove();
-                    // Remove offset from shared object
-                    hoverPopup.setOffset(0);
                 };
             case SubLayerId.MainstemsSmall:
                 return () => {
@@ -828,7 +810,18 @@ export const getLayerCustomHoverExitFunction = (
     };
 };
 
-// Mousemove functions, handle changes when moving between features in the same layer
+/**
+ * Custom functionality for when the `mousemove` event fires on this layer. This event is triggered when
+ * hovering over features without the cursor leaving the layer.
+ *
+ * Parameters:
+ * - id: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - CustomListenerFunction - A function that handles the mouse move event for the specified layer or sublayer.
+ *
+ * @function
+ */
 export const getLayerMouseMoveFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
@@ -852,48 +845,6 @@ export const getLayerMouseMoveFunction = (
                         }
                     }
                 };
-            case LayerId.SpiderifyPoints:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > CLUSTER_TRANSITION_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-                        const feature = e.features?.[0] as
-                            | Feature<Point, Dataset & { iconOffset: string }>
-                            | undefined;
-                        if (feature && feature.properties) {
-                            const itemId = feature.properties.distributionURL;
-                            if (
-                                !hasPeristentPopupOpenToThisItem(
-                                    persistentPopup,
-                                    itemId
-                                )
-                            ) {
-                                hoverPopup.remove();
-                                const variableMeasured =
-                                    feature.properties.variableMeasured.split(
-                                        ' / '
-                                    )[0];
-                                const offset = JSON.parse(
-                                    feature.properties.iconOffset
-                                ) as [number, number];
-                                const coordinates = feature.geometry
-                                    .coordinates as [number, number];
-                                const html = `<span style="color: black;"> 
-                                            <h6 style="font-weight:bold;">${feature.properties.siteName}</h6>
-                                            <div style="display:flex;">
-                                                <strong>Type:</strong>&nbsp;<p>${variableMeasured} in ${feature.properties.variableUnit}</p>
-                                        </div>
-                                        </span>`;
-
-                                hoverPopup
-                                    .setLngLat(coordinates)
-                                    .setOffset(offset)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
             default:
                 return (e) => {
                     console.log('Hover Exit Event Triggered: ', e);
@@ -906,7 +857,17 @@ export const getLayerMouseMoveFunction = (
     };
 };
 
-// Click handlers
+/**
+ * Custom functionality for when the `click` event fires on this layer.
+ *
+ * Parameters:
+ * - id: LayerId | SubLayerId - The identifier for the layer or sublayer.
+ *
+ * Returns:
+ * - CustomListenerFunction - A function that handles the click event for the specified layer or sublayer.
+ *
+ * @function
+ */
 export const getLayerClickFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
@@ -959,9 +920,31 @@ export const getLayerClickFunction = (
     };
 };
 
-// Use this as the master object to define layer hierarchies. Sublayers are nested layer definitions,
-// meaning they have their own click and hover listeners
+/**
+ * Contains the definitions for main layers and sublayers in the map.
+ * Each layer definition includes properties such as id, controllable, legend, config, and optional event handler functions.
+ *
+ * LayerDefinition Type:
+ * - id: string - The identifier for the layer or sublayer.
+ * - controllable: boolean - Whether the layer is controllable by the user.
+ * - legend: boolean - Whether the layer should be displayed in the legend.
+ * - config: LayerSpecification | null - The configuration object for the layer or sublayer.
+ * - hoverFunction?: CustomListenerFunction - Optional function to handle hover events.
+ * - customHoverExitFunction?: CustomListenerFunction - Optional function to handle hover exit events.
+ * - clickFunction?: CustomListenerFunction - Optional function to handle click events.
+ * - mouseMoveFunction?: CustomListenerFunction - Optional function to handle mouse move events.
+ *
+ * MainLayerDefinition Type:
+ * Contains the above type values and an additional optional array
+ * - subLayers?: LayerDefinition[] - Optional array of sublayer definitions.
+ *
+ *
+ * @constant
+ */
 export const layerDefinitions: MainLayerDefinition[] = [
+    // Use this as the master object to define layer hierarchies. Sublayers are nested layer definitions,
+    // meaning they have their own click and hover listeners. The order of layers and sublayers dictates the draw
+    // order on the map.
     {
         id: LayerId.Mainstems,
         controllable: true,
@@ -1035,6 +1018,13 @@ export const layerDefinitions: MainLayerDefinition[] = [
                     SubLayerId.HUC2BoundaryFill
                 ),
             },
+            // Hack to allow layer toggles to turn the labels on/off
+            {
+                id: SubLayerId.HUC2BoundaryLabels,
+                controllable: true,
+                legend: false,
+                config: null,
+            },
         ],
     },
     {
@@ -1089,7 +1079,7 @@ export const layerDefinitions: MainLayerDefinition[] = [
     // Treat as a separate layer to allow draw over the datapoints
     {
         id: SubLayerId.HUC2BoundaryLabels,
-        controllable: true,
+        controllable: false,
         legend: false,
         config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
     },

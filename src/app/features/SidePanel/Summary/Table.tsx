@@ -10,6 +10,20 @@ interface Props {
     handleMouseLeave: () => void;
 }
 
+/**
+ * This component displays a summary table with a title, count, and percentage for each data entry.
+ * It includes functionality to show more or less data entries based on user interaction.
+ *
+ * Props:
+ * - total: number - The total count used to calculate percentages.
+ * - title: string - The title of the table.
+ * - length: number - The length of the data entries.
+ * - data: Record<string, number> - The data entries to be displayed in the table.
+ * - handleMouseEnter: (index: number) => void - Function to handle mouse enter events on table rows.
+ * - handleMouseLeave: () => void - Function to handle mouse leave events on table rows.
+ *
+ * @component
+ */
 export const SummaryTable: React.FC<Props> = (props) => {
     const { total, title, length, data, handleMouseEnter, handleMouseLeave } =
         props;

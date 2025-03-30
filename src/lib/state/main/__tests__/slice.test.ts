@@ -4,7 +4,6 @@ import mainReducer, {
     setHoverId,
     setDatasets,
     setLayerVisibility,
-    setSelectedData,
     setFilter,
     setView,
     setSelectedMainstemBBOX,
@@ -49,27 +48,6 @@ describe('mainSlice', () => {
         store.dispatch(setLayerVisibility(visibleLayers));
         const state = store.getState().main;
         expect(state.visibleLayers[LayerId.MajorRivers]).toEqual(false);
-    });
-
-    test('should handle setSelectedData', () => {
-        const selectedData = {
-            datasetDescription: '',
-            distributionFormat: '',
-            distributionName: '',
-            distributionURL: '',
-            measurementTechnique: '',
-            monitoringLocation: '',
-            siteName: '',
-            temporalCoverage: '',
-            type: '',
-            url: '',
-            variableMeasured: '',
-            variableUnit: '',
-            wkt: '',
-        };
-        store.dispatch(setSelectedData(selectedData));
-        const state = store.getState().main;
-        expect(state.selectedData).toEqual(selectedData);
     });
 
     test('should handle setFilter', () => {

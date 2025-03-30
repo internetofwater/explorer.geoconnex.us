@@ -8,6 +8,18 @@ type Props = {
     handleEndDateChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
+/**
+ * Renders a date range input with start and end dates.
+ * It includes labels and input fields for selecting the dates, and handles changes to the date values.
+ *
+ * Props:
+ * - startDate: string - The selected start date.
+ * - handleStartDateChange: (e: ChangeEvent<HTMLInputElement>) => void - Function to handle changes to the start date.
+ * - endDate: string - The selected end date.
+ * - handleEndDateChange: (e: ChangeEvent<HTMLInputElement>) => void - Function to handle changes to the end date.
+ *
+ * @component
+ */
 export const DateRange: React.FC<Props> = (props) => {
     const { startDate, handleStartDateChange, endDate, handleEndDateChange } =
         props;

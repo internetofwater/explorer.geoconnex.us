@@ -8,6 +8,14 @@ type Props = {
     variables: string[];
 };
 
+/**
+ * Filter component with multiselect for selecting/deselecting variables measured
+ *
+ * Props:
+ * - variables: string[] - List of variables measured
+ *
+ * @component
+ */
 export const Variables: React.FC<Props> = (props) => {
     const { variables } = props;
 

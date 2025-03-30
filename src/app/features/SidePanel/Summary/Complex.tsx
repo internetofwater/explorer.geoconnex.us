@@ -16,13 +16,21 @@ export type Exclusions = {
 
 type Props = {
     summary: SummaryObj;
-    exclusions?: Exclusions;
 };
 
+/**
+ * This component displays a detailed summary of a dataset, including its name, length, total sites, total datasets, types, and variables measured.
+ * Shows a loading spinner when data is being fetched.
+ *
+ * Props:
+ * - summary: SummaryObj - The summary object from redux slice containing dataset details.
+ *
+ * @component
+ */
 export const ComplexSummary: React.FC<Props> = (props) => {
     const { loading } = useSelector((state: RootState) => state.main);
 
-    const { summary, exclusions = {} } = props;
+    const { summary } = props;
 
     return (
         <>
@@ -32,10 +40,6 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                 </div>
             ) : (
                 <div className="mt-1" aria-label="dataset-summary">
-                    {!exclusions['name'] && (
-                        <Typography variant="h5">{summary.name}</Typography>
-                    )}
-
                     {summary.totalDatasets > 0 ? (
                         <>
                             <ul className="pl-8 mb-2">

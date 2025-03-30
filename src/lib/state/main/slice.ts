@@ -41,7 +41,6 @@ type InitialState = {
     selectedMainstemBBOX: LngLatBoundsLike | null;
     mapMoved: number | null;
     hoverId: string | null;
-    selectedData: Dataset | null;
     selectedSummary: Summary | null;
     searchResultIds: string[];
     status: string;
@@ -61,7 +60,6 @@ type InitialState = {
         [SubLayerId.MainstemsLarge]: boolean;
         [SubLayerId.HUC2BoundaryLabels]: boolean;
         [LayerId.AssociatedData]: boolean;
-        [LayerId.SpiderifyPoints]: boolean;
         [SubLayerId.AssociatedDataClusterCount]: boolean;
         [SubLayerId.AssociatedDataClusters]: boolean;
         [SubLayerId.AssociatedDataUnclustered]: boolean;
@@ -84,7 +82,6 @@ const initialState: InitialState = {
     selectedMainstemBBOX: null,
     mapMoved: null,
     hoverId: null,
-    selectedData: null,
     selectedSummary: null,
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
@@ -104,7 +101,6 @@ const initialState: InitialState = {
         [SubLayerId.MainstemsLarge]: true,
         [SubLayerId.HUC2BoundaryLabels]: true,
         [LayerId.AssociatedData]: true,
-        [LayerId.SpiderifyPoints]: true,
         [SubLayerId.AssociatedDataClusterCount]: true,
         [SubLayerId.AssociatedDataClusters]: true,
         [SubLayerId.AssociatedDataUnclustered]: true,
@@ -328,12 +324,6 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedMainstem = action.payload;
         },
-        setSelectedData: (
-            state,
-            action: PayloadAction<InitialState['selectedData']>
-        ) => {
-            state.selectedData = action.payload;
-        },
         setLayerVisibility: (
             state,
             action: PayloadAction<Partial<InitialState['visibleLayers']>>
@@ -456,7 +446,6 @@ export const {
     setMapMoved,
     setDatasets,
     setLayerVisibility,
-    setSelectedData,
     setFilter,
     setView,
     setSelectedMainstem,

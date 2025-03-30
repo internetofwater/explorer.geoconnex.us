@@ -8,6 +8,14 @@ type Props = {
     distributionNames: string[];
 };
 
+/**
+ * Filter component with multiselect for selecting/deselecting distribution names
+ *
+ * Props:
+ * - distributionNames: string[] - List of distribution names
+ *
+ * @component
+ */
 export const DistributionNames: React.FC<Props> = (props) => {
     const { distributionNames } = props;
     const { filter } = useSelector((state: RootState) => state.main);

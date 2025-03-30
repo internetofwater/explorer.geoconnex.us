@@ -1,3 +1,5 @@
+// Center point of each huc boundary for drawing labels
+// Some adjustments for better position
 import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
 
 export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {

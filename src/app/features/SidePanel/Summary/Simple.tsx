@@ -15,6 +15,16 @@ type Props = {
     exclusions?: Exclusions;
 };
 
+/**
+ * This component displays a summary of a dataset, including its name, length, total sites, total datasets, types, and variables measured.
+ * It supports optional exclusions for each of these fields.
+ *
+ * Props:
+ * - summary: SummaryObj - The summary object containing dataset details.
+ * - exclusions?: Exclusions - Optional exclusions to hide specific fields.
+ *
+ * @component
+ */
 export const SimpleSummary: React.FC<Props> = (props) => {
     const { summary, exclusions = {} } = props;
 
