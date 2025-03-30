@@ -1,10 +1,11 @@
 import Button from '@/app/components/common/Button';
-import { Dataset } from '@/app/types';
+import { Dataset, MainstemData } from '@/app/types';
 import { convertGeoJSONToCSV } from '@/app/utils/csv';
 import { FeatureCollection, Point } from 'geojson';
 
 type Props = {
     datasets: FeatureCollection<Point, Dataset>;
+    selectedMainstem: MainstemData;
 };
 
 /**
@@ -12,11 +13,16 @@ type Props = {
  *
  * Props:
  * - datasets: FeatureCollection<Point, Dataset> - Datasets to convert from feature collection to CSV file.
+ * - selectedMainstem: MainstemData - Properties of the current selected mainstem for determining the CSV file name.
  *
  * @component
  */
 export const CSVDownload: React.FC<Props> = (props) => {
-    const { datasets } = props;
+    const { datasets, selectedMainstem } = props;
+
+    // Exclude `:`, invalid sheet and file name char
+    const fileName =
+        selectedMainstem.name_at_outlet || 'URI ' + selectedMainstem.id;
 
     return (
         <>
@@ -24,7 +30,7 @@ export const CSVDownload: React.FC<Props> = (props) => {
                 <div id="csvButton">
                     <Button
                         title="Download filtered datasets as CSV"
-                        onClick={() => convertGeoJSONToCSV(datasets)}
+                        onClick={() => convertGeoJSONToCSV(datasets, fileName)}
                     >
                         <span>Download CSV</span>
                     </Button>

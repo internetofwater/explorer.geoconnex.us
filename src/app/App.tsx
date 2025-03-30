@@ -9,6 +9,7 @@ import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
 import {
     fetchDatasets,
+    getFilteredDatasetsInBounds,
     setLoading,
     setShowSidePanel,
 } from '@/lib/state/main/slice';
@@ -43,6 +44,10 @@ export const App: React.FC<Props> = (props) => {
     const dispatch: AppDispatch = useDispatch();
 
     const { map } = useMap(MAIN_MAP_ID);
+
+    const datasets = useSelector((state: RootState) =>
+        getFilteredDatasetsInBounds(state, map)
+    );
 
     useEffect(() => {
         // Ensure map is loaded
@@ -97,9 +102,9 @@ export const App: React.FC<Props> = (props) => {
                 <div
                     id="side-panel"
                     className={`
-                    w-full lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
+                     w-full lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
                      min-w-[300px] sm:min-w-[400px]
-                    md:max-w-[400px]
+                     md:max-w-[400px]
                      flex overflow-hidden bg-primary
                      m-2 lg:m-0
                      border lg:border-l-0 lg:border-t-0 lg:border-b-0
@@ -107,7 +112,7 @@ export const App: React.FC<Props> = (props) => {
                      shadow-lg
                      ${showSidePanel ? 'block' : 'hidden'}`}
                 >
-                    <SidePanel />
+                    <SidePanel datasets={datasets} />
                 </div>
                 <div id="tools" className={`fixed top-3 right-2`}>
                     {view === 'map' && <MapTools />}
@@ -130,7 +135,7 @@ export const App: React.FC<Props> = (props) => {
                     {view === 'table' && (
                         <>
                             <LoadingBar />
-                            <Table />
+                            <Table datasets={datasets} />
                         </>
                     )}
                 </div>

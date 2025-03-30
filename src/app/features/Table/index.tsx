@@ -12,12 +12,10 @@ import {
 import { Dataset } from '@/app/types';
 import Pagination from '@/app/features/Table/Pagination';
 import Table from '@/app/features/Table/Table';
-import { getFilteredDatasetsInBounds, setView } from '@/lib/state/main/slice';
-import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/lib/state/store';
-import { useMap } from '@/app/contexts/MapContexts';
+import { setView } from '@/lib/state/main/slice';
+import { useDispatch } from 'react-redux';
 import CloseButton from '@/app/components/common/CloseButton';
+import { FeatureCollection, Point } from 'geojson';
 
 export enum HeaderKey {
     SiteName = 'siteName',
@@ -62,12 +60,12 @@ export const getHeaderTooltipText = (headerKey: HeaderKey) => {
     }
 };
 
-const TableWrapper: React.FC = () => {
-    const { map } = useMap(MAIN_MAP_ID);
+type Props = {
+    datasets: FeatureCollection<Point, Dataset>;
+};
 
-    const datasets = useSelector((state: RootState) =>
-        getFilteredDatasetsInBounds(state, map)
-    );
+const TableWrapper: React.FC<Props> = (props) => {
+    const { datasets } = props;
 
     const dispatch = useDispatch();
 

@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import {
-    getFilteredDatasets,
     getDatasetsLength,
     getSelectedSummary,
     setSearchResultIds,
@@ -18,12 +17,17 @@ import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
 import { useEffect, useState } from 'react';
 import { Results } from '@/app/features/SidePanel/Results';
-import { MainstemData } from '@/app/types';
+import { Dataset, MainstemData } from '@/app/types';
 import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
 import { useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import Button from '@/app/components/common/Button';
 import Image from 'next/image';
+import { FeatureCollection, Point } from 'geojson';
+
+type Props = {
+    datasets: FeatureCollection<Point, Dataset>;
+};
 
 /**
  * This component manages the state and display of search results, filter component, and selected
@@ -31,7 +35,9 @@ import Image from 'next/image';
  *
  *  @component
  */
-const SidePanel: React.FC = () => {
+const SidePanel: React.FC<Props> = (props) => {
+    const { datasets } = props;
+
     const [results, setResults] = useState<MainstemData[]>([]);
 
     const { map } = useMap(MAIN_MAP_ID);
@@ -42,8 +48,6 @@ const SidePanel: React.FC = () => {
 
     // Total length of unfiltered features from datasets feature collection
     const datasetsLength = useSelector(getDatasetsLength);
-    // Filtered datasets within map bounds
-    const datasets = useSelector(getFilteredDatasets);
 
     // Summary information for filtered datasets within map bounds
     const selectedSummary = useSelector((state: RootState) =>
@@ -149,12 +153,15 @@ const SidePanel: React.FC = () => {
                         <Results results={results} />
                     </Collapsible>
                 </div>
-                {datasetsLength > 0 && (
+                {selectedMainstem && datasetsLength > 0 && (
                     <Collapsible title="Filters">
                         <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
-                                <CSVDownload datasets={datasets} />
+                                <CSVDownload
+                                    datasets={datasets}
+                                    selectedMainstem={selectedMainstem}
+                                />
                             </div>
                         </div>
                     </Collapsible>

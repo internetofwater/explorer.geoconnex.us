@@ -37,8 +37,8 @@ const datasets: FeatureCollection<Point, Dataset> = {
 };
 
 const filter = {
-    selectedVariables: ['Variable 1'],
-    selectedTypes: ['Type 1'],
+    variables: ['Variable 1'],
+    types: ['Type 1'],
     startTemporalCoverage: '1969-01-01',
     endTemporalCoverage: '2030-01-01',
 };
@@ -54,7 +54,7 @@ describe('Table', () => {
     test('renders table headers correctly', () => {
         render(
             <Provider store={store}>
-                <Table />
+                <Table datasets={datasets} />
             </Provider>
         );
 
@@ -64,7 +64,7 @@ describe('Table', () => {
     test('renders table rows correctly', () => {
         render(
             <Provider store={store}>
-                <Table />
+                <Table datasets={datasets} />
             </Provider>
         );
 
@@ -74,7 +74,7 @@ describe('Table', () => {
     test('handles pagination correctly', () => {
         render(
             <Provider store={store}>
-                <Table />
+                <Table datasets={datasets} />
             </Provider>
         );
 

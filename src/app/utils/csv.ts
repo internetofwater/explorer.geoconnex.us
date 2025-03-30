@@ -6,9 +6,13 @@ import { Dataset } from '@/app/types';
  * Converts a GeoJSON FeatureCollection to a CSV file and triggers a download.
  *
  * @param geojson - The GeoJSON FeatureCollection containing Point features with Dataset properties.
+ * @param fileName - Name of CSV file
+ *
+ *@function
  */
 export const convertGeoJSONToCSV = (
-    geojson: FeatureCollection<Point, Dataset>
+    geojson: FeatureCollection<Point, Dataset>,
+    fileName: string
 ) => {
     const datasets = geojson.features.map((feature) => feature.properties);
 
@@ -25,7 +29,7 @@ export const convertGeoJSONToCSV = (
     // Create a link element
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'datasets.csv';
+    link.download = fileName + '.csv';
 
     // Append the link to the body
     document.body.appendChild(link);
