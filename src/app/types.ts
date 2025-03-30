@@ -1,12 +1,13 @@
 /**
- * Primary mainstem data type.
- * When requesting from /items contains just below.
- * When requesting from /items/[uri] contains an additional optional
- * key 'datasets' containing 0 -> 100,000 objects containing the properties
- * in type Datasets.
+ * Primary mainstem data type. Excluding datasets property.
+ *
  *
  * @interface
  */
+// When requesting from /items contains just below.
+// When requesting from /items/[uri] contains an additional optional
+// key 'datasets' containing 0 -> 100,000 objects containing the properties
+// in type Datasets.
 export interface MainstemData {
     downstream_mainstem_id: string;
     encompassing_mainstem_basins: string[];
@@ -33,7 +34,7 @@ export interface MainstemData {
 }
 
 /**
- * Dataset type containing properties for datasets.
+ * Type containing properties of datasets.
  *
  * @type
  */

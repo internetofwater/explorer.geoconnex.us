@@ -926,7 +926,7 @@ export const getLayerClickFunction = (
  *
  * LayerDefinition Type:
  * - id: string - The identifier for the layer or sublayer.
- * - controllable: boolean - Whether the layer is controllable by the user.
+ * - controllable: boolean - Whether the layers visibility can be toggled by the user.
  * - legend: boolean - Whether the layer should be displayed in the legend.
  * - config: LayerSpecification | null - The configuration object for the layer or sublayer.
  * - hoverFunction?: CustomListenerFunction - Optional function to handle hover events.
