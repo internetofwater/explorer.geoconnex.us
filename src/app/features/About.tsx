@@ -130,8 +130,34 @@ export const About: React.FC = () => {
                         href="https://github.com/internetofwater/explorer.geoconnex.us"
                         target="_blank"
                         aria-label="GitHub link to repository for this website"
+                        className="no-underline"
                     >
-                        <GitHub />
+                        <div className="pt-3 flex flex-col items-center justify-center">
+                            <GitHub />
+                            <Typography
+                                variant="small"
+                                className="text-secondary no-underline"
+                            >
+                                Explorer
+                            </Typography>
+                        </div>
+                    </a>{' '}
+                    <span className="text-gray-300 text-4xl">|</span>
+                    <a
+                        href="https://github.com/internetofwater/geoconnex.us"
+                        target="_blank"
+                        aria-label="GitHub link to main Geoconnex repository"
+                        className="no-underline"
+                    >
+                        <div className="pt-3 flex flex-col items-center justify-center">
+                            <GitHub />
+                            <Typography
+                                variant="small"
+                                className="text-secondary no-underline"
+                            >
+                                Geoconnex
+                            </Typography>
+                        </div>
                     </a>{' '}
                     <span className="text-gray-300 text-4xl">|</span>
                     <a
