@@ -1,7 +1,11 @@
 import { setView } from '@/lib/state/main/slice';
 import { useDispatch } from 'react-redux';
 import CloseButton from '@/app/components/common/CloseButton';
-import { Typography } from '../components/common/Typography';
+import { Typography } from '@/app/components/common/Typography';
+import Email from '@/app/assets/icons/Email';
+import X from '@/app/assets/logos/X';
+import GitHub from '@/app/assets/logos/GitHub';
+import LinkedIn from '@/app/assets/logos/LinkedIn';
 
 export const About: React.FC = () => {
     const dispatch = useDispatch();
@@ -18,92 +22,135 @@ export const About: React.FC = () => {
                 closeIconClassName="w-8 h-8"
             />
             <div className="p-4 lg:p-8">
-                <Typography
+                {/* <Typography
                     variant="h1"
                     as="h2"
                     className="text-2xl font-bold mb-4"
                 >
                     About Us
-                </Typography>
+                </Typography> */}
 
                 <section className="mb-8">
                     <Typography variant="h2" as="h3" className="mb-2">
-                        Our Mission
+                        Geoconnex
                     </Typography>
                     <Typography variant="body" className="mb-4">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua. Ut enim ad minim veniam, quis nostrud
-                        exercitation ullamco laboris nisi ut aliquip ex ea
-                        commodo consequat.
+                        The Geoconnex project provides technical infrastructure
+                        and guidance for creating an open,
+                        community-contribution model for a knowledge graph
+                        linking hydrologic features in the United States,
+                        published in accordance with{' '}
+                        <a href="https://www.w3.org/TR/sdw-bp/" target="_blank">
+                            Spatial Data on the Web
+                        </a>{' '}
+                        best practices as an implementation of{' '}
+                        <a
+                            href="https://github.com/opengeospatial/SELFIE/blob/master/docs/demo/internet_of_water.md"
+                            target="_blank"
+                        >
+                            Internet of Water
+                        </a>{' '}
+                        principles.
+                        <br />
+                        <br />
+                        This project is supported by{' '}
+                        <strong>USGS Cooperative Agreement G25AS00104</strong>
                     </Typography>
-                    <a href="#" className="text-blue-500 hover:underline">
-                        Learn more about our mission
+                    <a
+                        href="https://docs.geoconnex.us/about/intro"
+                        target="_blank"
+                        aria-label="Geoconnex about page"
+                    >
+                        Learn More
+                        <span className="sr-only">Learn More - Geoconnex</span>
                     </a>
                 </section>
-
                 <section className="mb-8">
                     <Typography variant="h2" as="h3" className="mb-2">
-                        Our Values
+                        Internet of Water
                     </Typography>
                     <Typography variant="body" className="mb-4">
-                        Duis aute irure dolor in reprehenderit in voluptate
-                        velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
+                        The Internet of Water is a multi-stakeholder project to
+                        create an ecosystem of water data providers that publish
+                        their data in a FAIR (Findable, Accessible,
+                        Interoperable, and Reusable) manner. The Internet of
+                        Water includes a suite of open source software
+                        development and data curation activities to assist in
+                        the publication and indexing of water data. These
+                        activities are managed by the Center for Geospatial
+                        Solutions at the Lincoln Institute of Land Policy
                     </Typography>
-                    <a href="#" className="text-blue-500 hover:underline">
-                        Explore our values
+                    <a
+                        href="https://internetofwater.org/"
+                        target="_blank"
+                        aria-label="Internet of Water site"
+                    >
+                        Learn More
+                        <span className="sr-only">
+                            Learn More - Internet of Water
+                        </span>
                     </a>
                 </section>
-
                 <section className="mb-8">
                     <Typography variant="h2" as="h3" className="mb-2">
-                        Our History
+                        Center for Geospatial Solutions
                     </Typography>
                     <Typography variant="body" className="mb-4">
-                        Curabitur pretium tincidunt lacus. Nulla gravida orci a
-                        odio. Nullam varius, turpis et commodo pharetra, est
-                        eros bibendum elit, nec luctus magna felis sollicitudin
-                        mauris. Integer in mauris eu nibh euismod gravida.
+                        Established in 2020, the Center for Geospatial Solutions
+                        (CGS) works to ensure that organizations of all sizes
+                        have access to data and advanced technologies to improve
+                        decision-making for land and water conservation, climate
+                        action, and other efforts to promote social equity. We
+                        extract better insights from data through a combination
+                        of geographic information systems (GIS), earth
+                        observations, artificial intelligence, machine learning,
+                        and advanced analytics. We deliver products and services
+                        that support decision-making, track impacts, and tell
+                        powerful stories.
                     </Typography>
-                    <a href="#" className="text-blue-500 hover:underline">
-                        Read about our history
+                    <a
+                        href="https://www.lincolninst.edu/centers-initiatives/center-geospatial-solutions/"
+                        target="_blank"
+                    >
+                        Learn More
+                        <span className="sr-only">
+                            Learn More - Center for Geospatial Solutions
+                        </span>
                     </a>
                 </section>
-
-                <section className="mb-8">
-                    <Typography variant="h2" as="h3" className="mb-2">
-                        Our Team
-                    </Typography>
-                    <Typography variant="body" className="mb-4">
-                        Duis ac tellus et risus vulputate vehicula. Donec
-                        lobortis risus a elit. Etiam tempor. Ut ullamcorper,
-                        ligula eu tempor congue, eros est euismod turpis, id
-                        tincidunt sapien risus a quam. Maecenas fermentum
-                        consequat mi. Donec fermentum.
-                    </Typography>
-                    <a href="#" className="text-blue-500 hover:underline">
-                        Meet our team
+                <div className="flex items-center gap-x-2">
+                    <a
+                        href="mailto:internetofwater@lincolninst.edu"
+                        aria-label="Mail to link for internet of water contact email"
+                    >
+                        <Email />
                     </a>
-                </section>
-
-                <section className="mb-8">
-                    <Typography variant="h2" as="h3" className="mb-2">
-                        Contact Us
-                    </Typography>
-                    <Typography variant="body" className="mb-4">
-                        Pellentesque malesuada nulla a mi. Duis sapien sem,
-                        aliquet nec, commodo eget, consequat quis, neque.
-                        Aliquam faucibus, elit ut dictum aliquet, felis nisl
-                        adipiscing sapien, sed malesuada diam lacus eget erat.
-                        Cras mollis scelerisque nunc. Nullam arcu. Aliquam
-                        consequat.
-                    </Typography>
-                    <a href="#" className="text-blue-500 hover:underline">
-                        Get in touch
+                    <span className="text-gray-300 text-4xl">|</span>
+                    <a
+                        href="https://github.com/internetofwater/explorer.geoconnex.us"
+                        target="_blank"
+                        aria-label="GitHub link to repository for this website"
+                    >
+                        <GitHub />
+                    </a>{' '}
+                    <span className="text-gray-300 text-4xl">|</span>
+                    <a
+                        href="https://www.linkedin.com/company/internetofwater/"
+                        target="_blank"
+                        aria-label="LinkedIn account for Internet of Water"
+                    >
+                        <LinkedIn />
                     </a>
-                </section>
+                    <span className="text-gray-300 text-4xl">|</span>
+                    <a
+                        href="https://twitter.com/internetofh2o"
+                        target="_blank"
+                        aria-label="X account for Internet of Water"
+                    >
+                        <X />
+                    </a>
+                    |
+                </div>
             </div>
         </div>
     );
