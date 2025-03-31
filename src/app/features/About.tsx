@@ -45,7 +45,7 @@ export const About: React.FC = () => {
                         </a>{' '}
                         best practices as an implementation of{' '}
                         <a
-                            href="https://github.com/opengeospatial/SELFIE/blob/master/docs/demo/internet_of_water.md"
+                            href="https://internetofwater.org/internet-of-water-principles"
                             target="_blank"
                         >
                             Internet of Water
