@@ -764,6 +764,7 @@ export const getLayerCustomHoverExitFunction = (
             case SubLayerId.AssociatedDataClusters:
                 return () => {
                     hoverOnCluster = false;
+                    map.getCanvas().style.cursor = '';
                 };
             case SubLayerId.MainstemsSmall:
                 return () => {
@@ -827,6 +828,11 @@ export const getLayerMouseMoveFunction = (
 ): CustomListenerFunction => {
     return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
         switch (id) {
+            case SubLayerId.AssociatedDataClusters:
+                return () => {
+                    hoverOnCluster = true;
+                    map.getCanvas().style.cursor = 'pointer';
+                };
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
                     const zoom = map.getZoom();
@@ -1059,6 +1065,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.AssociatedDataClusters),
                 clickFunction: getLayerClickFunction(
+                    SubLayerId.AssociatedDataClusters
+                ),
+                mouseMoveFunction: getLayerMouseMoveFunction(
                     SubLayerId.AssociatedDataClusters
                 ),
                 hoverFunction: getLayerHoverFunction(
