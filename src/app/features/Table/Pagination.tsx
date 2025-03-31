@@ -29,7 +29,7 @@ const Pagination: React.FC<Props> = (props) => {
         <div className="min-h-[118px] lg:min-h-[unset] flex flex-col lg:flex-row items-center gap-4 justify-center py-2 ml-6 lg:ml-0">
             <div className="flex gap-2">
                 <button
-                    className="border rounded p-1 text-lg text-black disabled:opacity-70"
+                    className="border rounded p-1 text-lg text-black text-md disabled:opacity-70"
                     onClick={() => paginationFunctions.firstPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
                     title="Go to first page"
@@ -37,7 +37,7 @@ const Pagination: React.FC<Props> = (props) => {
                     {' ⏮ '}
                 </button>
                 <button
-                    className="border rounded p-1 text-black disabled:opacity-70"
+                    className="border rounded p-1 text-black text-md disabled:opacity-70"
                     onClick={() => paginationFunctions.previousPage()}
                     disabled={!paginationFunctions.getCanPreviousPage()}
                     title="Go to previous page"
@@ -46,7 +46,7 @@ const Pagination: React.FC<Props> = (props) => {
                 </button>
                 <button
                     data-testid="next-button"
-                    className="border rounded p-1 text-black disabled:opacity-70"
+                    className="border rounded p-1 text-black text-md disabled:opacity-70"
                     onClick={() => paginationFunctions.nextPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
                     title="Go to next page"
@@ -54,7 +54,7 @@ const Pagination: React.FC<Props> = (props) => {
                     {' ▶ '}
                 </button>
                 <button
-                    className="border rounded p-1 text-lg text-black disabled:opacity-70"
+                    className="border rounded p-1 text-lg text-black text-md disabled:opacity-70"
                     onClick={() => paginationFunctions.lastPage()}
                     disabled={!paginationFunctions.getCanNextPage()}
                     title="Go to last page"
