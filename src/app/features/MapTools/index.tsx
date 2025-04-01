@@ -1,6 +1,6 @@
 import Card from '@/app/components/common/Card';
 import { Toggles } from '@/app/components/Map/tools/Toggles';
-import { setLayerVisibility } from '@/lib/state/main/slice';
+import { setLayerVisibility, setSelectedBasemap } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +19,9 @@ import ControlsIcon from '@/app/assets/icons/Controls';
 import LegendIcon from '@/app/assets/icons/Legend';
 import CircleIcon from '@/app/assets/icons/Circle';
 import Square from '@/app/assets/icons/Square';
+import { BasemapStyles } from '@/app/components/Map/types';
+import BasemapSelector from '@/app/components/Map/tools/BasemapSelector';
+import BasemapIcon from '@/app/assets/icons/Basemap';
 
 /**
  * This component provides tools for interacting with the map, including toggles for layer visibility and a legend.
@@ -27,13 +30,16 @@ import Square from '@/app/assets/icons/Square';
  * @component
  */
 export const MapTools: React.FC = () => {
-    const { visibleLayers } = useSelector((state: RootState) => state.main);
+    const { visibleLayers, selectedBasemap } = useSelector(
+        (state: RootState) => state.main
+    );
 
     const dispatch: AppDispatch = useDispatch();
 
     const [showTools, setShowTools] = useState(false);
     const [showLayerToggle, setShowLayerToggle] = useState(false);
     const [showLegend, setShowLegend] = useState(false);
+    const [showBasemap, setShowBasemap] = useState(false);
 
     const handleLayerVizChange = (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -57,6 +63,10 @@ export const MapTools: React.FC = () => {
         }
     };
 
+    const handleBasemapChange = (style: BasemapStyles) => {
+        dispatch(setSelectedBasemap(style));
+    };
+
     return (
         <>
             <div className="flex flex-col items-end lg:items-center lg:flex-row-reverse space-x-0 lg:space-x-2 space-y-2 lg:space-y-0">
@@ -65,6 +75,7 @@ export const MapTools: React.FC = () => {
                     onClick={() => {
                         setShowLegend(false);
                         setShowLayerToggle(false);
+                        setShowBasemap(false);
                         setShowTools(!showTools);
                     }}
                     className="ml-2"
@@ -78,6 +89,7 @@ export const MapTools: React.FC = () => {
                                 showLayerToggle ? 'Hide' : 'Show'
                             } Layer Toggles`}
                             onClick={() => {
+                                setShowBasemap(false);
                                 setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
                             }}
@@ -87,11 +99,25 @@ export const MapTools: React.FC = () => {
                         <IconButton
                             title={`${showLegend ? 'Hide' : 'Show'} Legend`}
                             onClick={() => {
+                                setShowBasemap(false);
                                 setShowLayerToggle(false);
                                 setShowLegend(!showLegend);
                             }}
                         >
                             <LegendIcon />
+                        </IconButton>
+                        <IconButton
+                            title={`${
+                                showBasemap ? 'Hide' : 'Show'
+                            } Basemap Selector`}
+                            onClick={() => {
+                                setShowLegend(false);
+                                setShowLayerToggle(false);
+                                setShowBasemap(!showBasemap);
+                            }}
+                            className="pb-3"
+                        >
+                            <BasemapIcon />
                         </IconButton>
                         {/* Add legend and other tools here */}
                     </>
@@ -157,6 +183,17 @@ export const MapTools: React.FC = () => {
                                 </div>
                             </>
                         }
+                    />
+                </Card>
+            )}
+            {showBasemap && (
+                <Card
+                    className="mt-2 w-60"
+                    handleClose={() => setShowBasemap(false)}
+                >
+                    <BasemapSelector
+                        style={selectedBasemap}
+                        handleStyleChange={handleBasemapChange}
                     />
                 </Card>
             )}
