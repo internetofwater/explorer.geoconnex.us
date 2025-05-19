@@ -21,8 +21,8 @@ export const BasemapSelector: React.FC<Props> = (props) => {
 
     return (
         <>
-            <h6 className="text-lg font-bold mb-1">Basemaps</h6>
-            <div className="flex flex-col space-y-2 p-4">
+            <h6 className="text-lg font-bold">Basemaps</h6>
+            <div className="flex flex-col space-y-2 p-1">
                 {Object.keys(basemaps).map((key) => (
                     <label key={key} className="flex items-center space-x-2">
                         <input
