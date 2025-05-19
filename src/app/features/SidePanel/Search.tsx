@@ -51,7 +51,7 @@ const Search: React.FC<Props> = (props) => {
                 controller.current = new AbortController();
 
                 const response = await fetch(
-                    `https://reference.geoconnex.dev/collections/mainstems/items?sortby=-outlet_drainagearea_sqkm&filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
+                    `https://reference.geoconnex.us/collections/mainstems/items?sortby=-outlet_drainagearea_sqkm&filter=name_at_outlet+ILIKE+'%${query}%'+OR+uri+ILIKE+'%mainstems/${query}%'&f=json&skipGeometry=true`,
                     { signal: controller.current.signal }
                 );
                 const data = (await response.json()) as FeatureCollection<
