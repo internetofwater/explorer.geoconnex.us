@@ -66,7 +66,7 @@ export const Results: React.FC<Props> = (props) => {
 
             // Fetch the complete mainstem data with included datasets
             const response = await fetch(
-                `https://reference.geoconnex.dev/collections/mainstems/items/${id}`,
+                `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
                 { signal: controller.current.signal }
             );
             const feature = (await response.json()) as Feature<
