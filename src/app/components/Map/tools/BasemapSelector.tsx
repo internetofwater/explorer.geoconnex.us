@@ -20,29 +20,34 @@ export const BasemapSelector: React.FC<Props> = (props) => {
     const { style, handleStyleChange } = props;
 
     return (
-        <div className="flex flex-col space-y-2 p-4">
-            {Object.keys(basemaps).map((key) => (
-                <label key={key} className="flex items-center space-x-2">
-                    <input
-                        type="radio"
-                        name="basemap"
-                        value={basemaps[key as keyof typeof basemaps]}
-                        checked={
-                            style === basemaps[key as keyof typeof basemaps]
-                        }
-                        onChange={() =>
-                            handleStyleChange(
-                                basemaps[key as keyof typeof basemaps]
-                            )
-                        }
-                        className="form-radio text-blue-600"
-                    />
-                    <span className="text-gray-700 capitalize">
-                        {key.replace(/-/g, ' ')}
-                    </span>
-                </label>
-            ))}
-        </div>
+        <>
+            <h6 className="text-lg font-bold mb-1">Basemaps</h6>
+            <div className="flex flex-col space-y-2 p-4">
+                {Object.keys(basemaps).map((key) => (
+                    <label key={key} className="flex items-center space-x-2">
+                        <input
+                            id={`basemap-selector-${key}`}
+                            type="radio"
+                            name={basemaps[key as keyof typeof basemaps]}
+                            value={basemaps[key as keyof typeof basemaps]}
+                            checked={
+                                style === basemaps[key as keyof typeof basemaps]
+                            }
+                            onChange={() =>
+                                handleStyleChange(
+                                    basemaps[key as keyof typeof basemaps]
+                                )
+                            }
+                            className="form-radio text-blue-600"
+                            tabIndex={0}
+                        />
+                        <span className="text-gray-700 capitalize">
+                            {key.replace(/-/g, ' ')}
+                        </span>
+                    </label>
+                ))}
+            </div>
+        </>
     );
 };
 

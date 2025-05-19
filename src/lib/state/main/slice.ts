@@ -19,7 +19,8 @@ import { LngLatBoundsLike, Map } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
-import { BasemapStyles } from '@/app/components/Map/types';
+import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
+import { basemaps } from '@/app/components/Map/consts';
 
 export type SummaryData = Record<string, number>;
 
@@ -80,7 +81,7 @@ const initialState: InitialState = {
     showSidePanel: true,
     showHelp: false,
     showResults: false,
-    selectedBasemap: 'mapbox://styles/mapbox/dark-v11',
+    selectedBasemap: basemaps[BasemapId.Dark],
     selectedMainstem: null,
     selectedMainstemBBOX: null,
     mapMoved: null,
