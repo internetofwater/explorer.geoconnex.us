@@ -137,7 +137,7 @@ export const HelpModal: React.FC = () => {
                 <li className="list-disc break-words whitespace-normal">
                     <Typography variant="body-small">
                         View datasets either <strong>on the map</strong> or in
-                        the <strong>Table view</strong>.
+                        the <strong>table</strong>.
                     </Typography>
                 </li>
             </ul>
