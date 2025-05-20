@@ -85,18 +85,6 @@ export const MapTools: React.FC = () => {
                 {showTools && (
                     <>
                         <IconButton
-                            title={`${
-                                showLayerToggle ? 'Hide' : 'Show'
-                            } Layer Toggles`}
-                            onClick={() => {
-                                setShowBasemap(false);
-                                setShowLegend(false);
-                                setShowLayerToggle(!showLayerToggle);
-                            }}
-                        >
-                            <LayerIcon />
-                        </IconButton>
-                        <IconButton
                             title={`${showLegend ? 'Hide' : 'Show'} Legend`}
                             onClick={() => {
                                 setShowBasemap(false);
@@ -115,9 +103,21 @@ export const MapTools: React.FC = () => {
                                 setShowLayerToggle(false);
                                 setShowBasemap(!showBasemap);
                             }}
-                            className="pb-3"
+                            className="p-2"
                         >
                             <BasemapIcon />
+                        </IconButton>
+                        <IconButton
+                            title={`${
+                                showLayerToggle ? 'Hide' : 'Show'
+                            } Layer Toggles`}
+                            onClick={() => {
+                                setShowBasemap(false);
+                                setShowLegend(false);
+                                setShowLayerToggle(!showLayerToggle);
+                            }}
+                        >
+                            <LayerIcon />
                         </IconButton>
                         {/* Add legend and other tools here */}
                     </>
@@ -188,7 +188,7 @@ export const MapTools: React.FC = () => {
             )}
             {showBasemap && (
                 <Card
-                    className="mt-2 w-60"
+                    className="mt-2 w-72"
                     handleClose={() => setShowBasemap(false)}
                 >
                     <BasemapSelector

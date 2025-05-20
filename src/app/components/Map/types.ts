@@ -167,7 +167,6 @@ export interface MapComponentProps {
  * @enum
  */
 export enum BasemapId {
-    Standard = 'standard',
     Streets = 'streets',
     Light = 'light',
     Dark = 'dark',
@@ -189,7 +188,6 @@ export enum BasemapId {
  * @type
  */
 export type BasemapStyles =
-    | 'mapbox://styles/mapbox/standard'
     | 'mapbox://styles/mapbox/streets-v12'
     | 'mapbox://styles/mapbox/light-v11'
     | 'mapbox://styles/mapbox/dark-v11'

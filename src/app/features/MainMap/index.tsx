@@ -153,7 +153,6 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const loadDatasets = () => {
         if (!map || !datasets) {
-            console.log('reject', map, datasets);
             return;
         }
 
