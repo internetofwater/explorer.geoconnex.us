@@ -158,29 +158,20 @@ export interface MapComponentProps {
  *
  * Values:
  * - Standard: Represents the standard basemap style.
- * - StandardSatellite: Represents the standard satellite basemap style.
  * - Streets: Represents the streets basemap style.
- * - Outdoors: Represents the outdoors basemap style.
  * - Light: Represents the light basemap style.
  * - Dark: Represents the dark basemap style.
  * - Satellite: Represents the satellite basemap style.
  * - SatelliteStreets: Represents the satellite streets basemap style.
- * - NavigationDay: Represents the navigation day basemap style.
- * - NavigationNight: Represents the navigation night basemap style.
  *
  * @enum
  */
 export enum BasemapId {
-    Standard = 'standard',
-    StandardSatellite = 'standard-satellite',
     Streets = 'streets',
-    Outdoors = 'outdoors',
     Light = 'light',
     Dark = 'dark',
     Satellite = 'satellite',
     SatelliteStreets = 'satellite-streets',
-    NavigationDay = 'navigation-day',
-    NavigationNight = 'navigation-night',
 }
 
 /**
@@ -188,29 +179,20 @@ export enum BasemapId {
  *
  * Values:
  * - 'mapbox://styles/mapbox/standard'
- * - 'mapbox://styles/mapbox/standard-satellite'
  * - 'mapbox://styles/mapbox/streets-v12'
- * - 'mapbox://styles/mapbox/outdoors-v12'
  * - 'mapbox://styles/mapbox/light-v11'
  * - 'mapbox://styles/mapbox/dark-v11'
  * - 'mapbox://styles/mapbox/satellite-v9'
  * - 'mapbox://styles/mapbox/satellite-streets-v12'
- * - 'mapbox://styles/mapbox/navigation-day-v1'
- * - 'mapbox://styles/mapbox/navigation-night-v1'
  *
  * @type
  */
 export type BasemapStyles =
-    | 'mapbox://styles/mapbox/standard'
-    | 'mapbox://styles/mapbox/standard-satellite'
     | 'mapbox://styles/mapbox/streets-v12'
-    | 'mapbox://styles/mapbox/outdoors-v12'
     | 'mapbox://styles/mapbox/light-v11'
     | 'mapbox://styles/mapbox/dark-v11'
     | 'mapbox://styles/mapbox/satellite-v9'
-    | 'mapbox://styles/mapbox/satellite-streets-v12'
-    | 'mapbox://styles/mapbox/navigation-day-v1'
-    | 'mapbox://styles/mapbox/navigation-night-v1';
+    | 'mapbox://styles/mapbox/satellite-streets-v12';
 
 /**
  * Defines the mapping of basemap identifiers to their corresponding styles.

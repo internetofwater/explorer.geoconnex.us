@@ -76,6 +76,7 @@ export const MainMap: React.FC<Props> = (props) => {
         selectedMainstem,
         selectedMainstemBBOX,
         loading,
+        selectedBasemap,
     } = useSelector((state: RootState) => state.main);
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
@@ -147,6 +148,67 @@ export const MainMap: React.FC<Props> = (props) => {
                         )
                 );
             }
+        }
+    };
+
+    const loadDatasets = () => {
+        if (!map || !datasets) {
+            return;
+        }
+
+        if (!(loading.item === 'datasets' && loading.loading)) {
+            dispatch(
+                setLoading({
+                    item: 'rendering',
+                    loading: true,
+                })
+            );
+        }
+        const clusterSource = map.getSource(
+            SourceId.AssociatedData
+        ) as GeoJSONSource;
+
+        if (clusterSource) {
+            clusterSource.setData(datasets);
+            const zoom = map.getZoom();
+            // Listen for the 'idle' event to ensure the source has updated
+            map.once('idle', () => {
+                // There has been an update to filters, reflect this in declustered points
+                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
+                    const features = map.queryRenderedFeatures({
+                        layers: [SubLayerId.AssociatedDataClusters],
+                    });
+                    // Get unique ids
+                    const uniqueIds = new Set<number>(
+                        features.map(
+                            (feature) =>
+                                feature.properties!.cluster_id as number
+                        )
+                    );
+                    // Sort and convert to string
+                    const clusterIds = Array.from(uniqueIds).sort().join();
+                    // Check ids to prevent repeated spiderfy
+                    if (features.length) {
+                        createSummaryPoints(map, clusterSource, features).catch(
+                            (error: ErrorEvent) =>
+                                console.error(
+                                    'Unable to create summary points for clusters: ',
+                                    clusterIds,
+                                    ', Error: ',
+                                    error
+                                )
+                        );
+                    }
+                }
+                if (!(loading.item === 'datasets' && loading.loading)) {
+                    dispatch(
+                        setLoading({
+                            item: 'rendering',
+                            loading: false,
+                        })
+                    );
+                }
+            });
         }
     };
 
@@ -304,9 +366,9 @@ export const MainMap: React.FC<Props> = (props) => {
 
         // Temp hack to force Vector Tile layers to reload without breaking cache
         map.on('style.load', () => {
-            setReloadFlag(Math.random());
+            setReloadFlag(Date.now());
             if (!map.hasImage('observation-point')) {
-                map.loadImage('dot-marker.png', (error, image) => {
+                map.loadImage('/dot-marker.png', (error, image) => {
                     if (error) throw error;
                     if (!image) {
                         throw new Error('Image not found: dot-marker.png');
@@ -315,7 +377,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 });
             }
             if (!map.hasImage('observation-point-center')) {
-                map.loadImage('dot-marker-alt.png', (error, image) => {
+                map.loadImage('/dot-marker-alt.png', (error, image) => {
                     if (error) throw error;
                     if (!image) {
                         throw new Error('Image not found: dot-marker.png');
@@ -474,68 +536,11 @@ export const MainMap: React.FC<Props> = (props) => {
                 null,
             ]);
         }
-    }, [searchResultIds, selectedMainstemId, hoverId]);
+    }, [searchResultIds, selectedMainstemId, hoverId, reloadFlag]);
 
     useEffect(() => {
-        if (!map || !datasets) {
-            return;
-        }
-
-        if (!(loading.item === 'datasets' && loading.loading)) {
-            dispatch(
-                setLoading({
-                    item: 'rendering',
-                    loading: true,
-                })
-            );
-        }
-        const clusterSource = map.getSource(
-            SourceId.AssociatedData
-        ) as GeoJSONSource;
-
-        if (clusterSource) {
-            clusterSource.setData(datasets);
-            const zoom = map.getZoom();
-            // Listen for the 'idle' event to ensure the source has updated
-            map.once('idle', () => {
-                // There has been an update to filters, reflect this in declustered points
-                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
-                    const features = map.queryRenderedFeatures({
-                        layers: [SubLayerId.AssociatedDataClusters],
-                    });
-                    // Get unique ids
-                    const uniqueIds = new Set<number>(
-                        features.map(
-                            (feature) =>
-                                feature.properties!.cluster_id as number
-                        )
-                    );
-                    // Sort and convert to string
-                    const clusterIds = Array.from(uniqueIds).sort().join();
-                    // Check ids to prevent repeated spiderfy
-                    if (features.length) {
-                        createSummaryPoints(map, clusterSource, features).catch(
-                            (error: ErrorEvent) =>
-                                console.error(
-                                    'Unable to create summary points for clusters: ',
-                                    clusterIds,
-                                    ', Error: ',
-                                    error
-                                )
-                        );
-                    }
-                }
-                if (!(loading.item === 'datasets' && loading.loading)) {
-                    dispatch(
-                        setLoading({
-                            item: 'rendering',
-                            loading: false,
-                        })
-                    );
-                }
-            });
-        }
-    }, [datasets]);
+        loadDatasets();
+    }, [reloadFlag, datasets]);
 
     useEffect(() => {
         if (!map) {
@@ -569,6 +574,14 @@ export const MainMap: React.FC<Props> = (props) => {
             dispatch(setSelectedMainstemBBOX(null));
         }
     }, [selectedMainstemBBOX]);
+
+    useEffect(() => {
+        if (!map) {
+            return;
+        }
+
+        map.setStyle(selectedBasemap);
+    }, [selectedBasemap]);
 
     useEffect(() => {
         if (!map) {

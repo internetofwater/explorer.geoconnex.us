@@ -19,6 +19,8 @@ import { LngLatBoundsLike, Map } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
+import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
+import { basemaps } from '@/app/components/Map/consts';
 
 export type SummaryData = Record<string, number>;
 
@@ -37,6 +39,7 @@ type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
+    selectedBasemap: BasemapStyles;
     selectedMainstem: MainstemData | null;
     selectedMainstemBBOX: LngLatBoundsLike | null;
     mapMoved: number | null;
@@ -78,6 +81,7 @@ const initialState: InitialState = {
     showSidePanel: true,
     showHelp: false,
     showResults: false,
+    selectedBasemap: basemaps[BasemapId.Dark],
     selectedMainstem: null,
     selectedMainstemBBOX: null,
     mapMoved: null,
@@ -318,6 +322,12 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
+        setSelectedBasemap: (
+            state,
+            action: PayloadAction<InitialState['selectedBasemap']>
+        ) => {
+            state.selectedBasemap = action.payload;
+        },
         setSelectedMainstem: (
             state,
             action: PayloadAction<InitialState['selectedMainstem']>
@@ -448,6 +458,7 @@ export const {
     setLayerVisibility,
     setFilter,
     setView,
+    setSelectedBasemap,
     setSelectedMainstem,
     setSelectedMainstemBBOX,
     setLoading,

@@ -1,5 +1,6 @@
 import { BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
+import Image from 'next/image';
 
 type Props = {
     style: BasemapStyles;
@@ -20,29 +21,55 @@ export const BasemapSelector: React.FC<Props> = (props) => {
     const { style, handleStyleChange } = props;
 
     return (
-        <div className="flex flex-col space-y-2 p-4">
-            {Object.keys(basemaps).map((key) => (
-                <label key={key} className="flex items-center space-x-2">
-                    <input
-                        type="radio"
-                        name="basemap"
-                        value={basemaps[key as keyof typeof basemaps]}
-                        checked={
-                            style === basemaps[key as keyof typeof basemaps]
-                        }
-                        onChange={() =>
+        <>
+            <h6 className="text-lg font-bold mb-1">Basemaps</h6>
+            <ul className="grid grid-cols-2 gap-2">
+                {Object.keys(basemaps).map((key) => (
+                    <li
+                        role="radio"
+                        id={basemaps[key as keyof typeof basemaps]}
+                        key={key}
+                        onClick={() =>
                             handleStyleChange(
                                 basemaps[key as keyof typeof basemaps]
                             )
                         }
-                        className="form-radio text-blue-600"
-                    />
-                    <span className="text-gray-700 capitalize">
-                        {key.replace(/-/g, ' ')}
-                    </span>
-                </label>
-            ))}
-        </div>
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                handleStyleChange(
+                                    basemaps[key as keyof typeof basemaps]
+                                );
+                            }
+                        }}
+                        tabIndex={0}
+                        className={`p-2 pb-1
+                                border ${
+                                    style ===
+                                    basemaps[key as keyof typeof basemaps]
+                                        ? 'border-gray-600'
+                                        : 'border-gray-300'
+                                }
+                                text-center cursor-pointer 
+                                bg-primary-opaque hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover
+                                hover:border-gray-500 focus:border-gray-500`}
+                    >
+                        <Image
+                            id={key}
+                            alt={`Image for ${key.replace(/-/g, ' ')}`}
+                            src={`/basemaps/${key}.png`}
+                            width={240}
+                            height={120}
+                        />
+                        <label
+                            htmlFor={key}
+                            className="capitalize mt-1 text-sm"
+                        >
+                            {key.replace(/-/g, ' ')}
+                        </label>
+                    </li>
+                ))}
+            </ul>
+        </>
     );
 };
 
