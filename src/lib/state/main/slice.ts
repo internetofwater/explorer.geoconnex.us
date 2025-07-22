@@ -231,6 +231,7 @@ export const getFilteredDatasets = createSelector(
             return true;
         });
 
+        console.log('its me', datasets, filter, features);
         return {
             type: 'FeatureCollection',
             features: features,

@@ -23,6 +23,7 @@
         "chart.js": "^4.4.8",
         "fetch-mock": "^12.3.0",
         "geojson": "^0.5.0",
+        "is-stream": "^4.0.1",
         "lodash.debounce": "^4.0.8",
         "mapbox-gl": "^3.9.4",
         "next": "15.2.4",
@@ -30,7 +31,10 @@
         "react-chartjs-2": "^5.3.0",
         "react-dom": "^19.0.0",
         "react-redux": "^9.2.0",
+        "readable-from-web": "^1.0.0",
         "redux-mock-store": "^1.5.5",
+        "sparql-http-client": "^3.0.1",
+        "stream-to-string": "^1.2.1",
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
     },
     "devDependencies": {
@@ -43,6 +47,7 @@
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "@types/redux-mock-store": "^1.5.0",
+        "@types/sparql-http-client": "^3.0.5",
         "@types/testing-library__jest-dom": "^6.0.0",
         "@typescript-eslint/eslint-plugin": "^8.26.1",
         "@typescript-eslint/parser": "^8.26.1",

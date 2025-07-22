@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
-    fetchDatasets,
     setHoverId,
     setLoading,
     setSelectedMainstem,
@@ -14,6 +13,7 @@ import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
+import { fetchDatasets } from '@/lib/state/main/thunks';
 
 type Props = {
     results: MainstemData[];
@@ -134,6 +134,7 @@ export const Results: React.FC<Props> = (props) => {
 
     const handleClick = async (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
+        console.log('result', result);
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         dispatch(
             setLoading({
@@ -141,7 +142,9 @@ export const Results: React.FC<Props> = (props) => {
                 loading: true,
             })
         );
-        await dispatch(fetchDatasets(result.id));
+        // const res = await datasetService.getDatasets(result.uri);
+        // console.log('res', res);
+        dispatch(fetchDatasets(result.uri));
         // Let the camera move end the datasets loading event
     };
 

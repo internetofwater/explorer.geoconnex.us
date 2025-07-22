@@ -169,6 +169,7 @@ export const MainMap: React.FC<Props> = (props) => {
         ) as GeoJSONSource;
 
         if (clusterSource) {
+            console.log('loading datasets', datasets);
             clusterSource.setData(datasets);
             const zoom = map.getZoom();
             // Listen for the 'idle' event to ensure the source has updated

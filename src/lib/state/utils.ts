@@ -55,6 +55,33 @@ export const transformDatasets = (
     return defaultGeoJson as FeatureCollection<Point, Dataset>;
 };
 
+export const _transformDatasets = (
+    datasets: Dataset[]
+): FeatureCollection<Point, Dataset> => {
+    const features = datasets.map((dataset: Dataset, index) => {
+        const { lat, lng } = extractLatLng(dataset.wkt);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const geometry = { type: 'Point', coordinates: [lng, lat] };
+            return {
+                type: 'Feature',
+                id: index,
+                geometry,
+                properties: {
+                    ...dataset,
+                },
+            };
+        } else {
+            console.log('Error in dataset: ', dataset);
+            console.log('Unable to extract lat lng from wkt: ', dataset.wkt);
+        }
+    });
+    console.log('features', features, datasets);
+    return {
+        type: 'FeatureCollection',
+        features: features as Feature<Point, Dataset>[],
+    };
+};
+
 export const extractLatLng = (wkt: string) => {
     const coordinates = wkt.replace('POINT (', '').replace(')', '');
     const [lng, lat] = coordinates.split(' ').map(Number);
