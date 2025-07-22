@@ -86,7 +86,7 @@ export const HelpModal: React.FC = () => {
             <p className="mb-6 ml-4">
                 This application allows users to explore{' '}
                 <strong>Mainstem Rivers</strong> in the{' '}
-                <strong>Continental United States</strong> and discover various{' '}
+                <strong>contiguous United States</strong> and discover various{' '}
                 <strong>datasets</strong> from across the web with a single
                 click.
             </p>
