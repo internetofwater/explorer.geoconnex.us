@@ -189,8 +189,8 @@ export const HelpModal: React.FC = () => {
                 Questions{' '}
             </Typography>
             <p className="ml-4">
-               Questions or issues with the explorer? Let us know by opening a
-                <a href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new">GitHub issue</a>
+               Questions or issues with the explorer? Let us know by opening a 
+               <a href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new">GitHub issue</a>
             </p>
         </Modal>
     );
