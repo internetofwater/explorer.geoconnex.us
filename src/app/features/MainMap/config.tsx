@@ -721,7 +721,7 @@ export const getLayerHoverFunction = (
                             | Feature<LineString>
                             | undefined;
                         if (feature && feature.properties) {
-                            const id = Number(feature.properties.HUC2);
+                            const id = String(feature.properties.id);
                             map.setPaintProperty(
                                 SubLayerId.HUC2BoundaryLabels,
                                 'text-opacity',
@@ -842,7 +842,7 @@ export const getLayerMouseMoveFunction = (
                             | undefined;
                         if (feature && feature.properties) {
                             map.getCanvas().style.cursor = 'pointer';
-                            const id = Number(feature.properties.HUC2);
+                            const id = String(feature.properties.id);
                             map.setPaintProperty(
                                 SubLayerId.HUC2BoundaryLabels,
                                 'text-opacity',

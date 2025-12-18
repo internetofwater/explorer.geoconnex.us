@@ -86,7 +86,7 @@ export const HelpModal: React.FC = () => {
             <p className="mb-6 ml-4">
                 This application allows users to explore{' '}
                 <strong>Mainstem Rivers</strong> in the{' '}
-                <strong>Continental United States</strong> and discover various{' '}
+                <strong>contiguous United States</strong> and discover various{' '}
                 <strong>datasets</strong> from across the web with a single
                 click.
             </p>
@@ -184,6 +184,13 @@ export const HelpModal: React.FC = () => {
                 Try searching for a Mainstem using the{' '}
                 <strong>Search Bar</strong> or selecting a{' '}
                 <strong>Hydrologic Region</strong> to begin exploring!
+            </p>
+            <Typography variant="h6" className="mt-4">
+                Questions{' '}
+            </Typography>
+            <p className="ml-4">
+               Questions or issues with the explorer? Let us know by opening a{' '}
+               <a href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new">GitHub issue</a>
             </p>
         </Modal>
     );

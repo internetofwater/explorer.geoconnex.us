@@ -8,7 +8,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 1,
+                id: '01',
                 name: 'New England Region',
             },
             geometry: {
@@ -19,7 +19,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 2,
+                id: '02',
                 name: 'Mid Atlantic Region',
             },
             geometry: {
@@ -30,7 +30,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 3,
+                id: '03',
                 name: 'South Atlantic-Gulf Region',
             },
             geometry: {
@@ -41,7 +41,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 4,
+                id: '04',
                 name: 'Great Lakes Region',
             },
             geometry: {
@@ -52,7 +52,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 5,
+                id: '05',
                 name: 'Ohio Region',
             },
             geometry: {
@@ -63,7 +63,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 6,
+                id: '06',
                 name: 'Tennessee Region',
             },
             geometry: {
@@ -74,7 +74,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 7,
+                id: '07',
                 name: 'Upper Mississippi Region',
             },
             geometry: {
@@ -85,7 +85,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 8,
+                id: '08',
                 name: 'Lower Mississippi Region',
             },
             geometry: {
@@ -96,7 +96,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 9,
+                id: '09',
                 name: 'Souris-Red-Rainy Region',
             },
             geometry: {
@@ -107,7 +107,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 9,
+                id: '09',
                 name: 'Souris-Red-Rainy Region',
             },
             geometry: {
@@ -118,7 +118,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 10,
+                id: '10',
                 name: 'Missouri Region',
             },
             geometry: {
@@ -129,7 +129,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 11,
+                id: '11',
                 name: 'Arkansas-White-Red Region',
             },
             geometry: {
@@ -140,7 +140,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 12,
+                id: '12',
                 name: 'Texas-Gulf Region',
             },
             geometry: {
@@ -151,7 +151,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 13,
+                id: '13',
                 name: 'Rio Grande Region',
             },
             geometry: {
@@ -162,7 +162,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 14,
+                id: '14',
                 name: 'Upper Colorado Region',
             },
             geometry: {
@@ -173,7 +173,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 15,
+                id: '15',
                 name: 'Lower Colorado Region',
             },
             geometry: {
@@ -184,7 +184,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 16,
+                id: '16',
                 name: 'Great Basin Region',
             },
             geometry: {
@@ -195,7 +195,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 17,
+                id: '17',
                 name: 'Pacific Northwest Region',
             },
             geometry: {
@@ -206,7 +206,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 18,
+                id: '18',
                 name: 'California Region',
             },
             geometry: {
@@ -217,7 +217,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 19,
+                id: '19',
                 name: 'Alaska Region',
             },
             geometry: {
@@ -228,7 +228,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 20,
+                id: '20',
                 name: 'Hawaii Region',
             },
             geometry: {
@@ -239,7 +239,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 21,
+                id: '21',
                 name: 'Caribbean Region',
             },
             geometry: {
@@ -250,7 +250,7 @@ export const huc02Centers: FeatureCollection<Geometry, GeoJsonProperties> = {
         {
             type: 'Feature',
             properties: {
-                id: 22,
+                id: '22',
                 name: 'South Pacific Region',
             },
             geometry: {
