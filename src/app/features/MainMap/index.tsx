@@ -235,6 +235,7 @@ export const MainMap: React.FC<Props> = (props) => {
                         [SubLayerId.MainstemsSmall]: true,
                         [SubLayerId.MainstemsMedium]: true,
                         [SubLayerId.MainstemsLarge]: true,
+                        [LayerId.Mainstems]: true,
                         [LayerId.MajorRivers]: false,
                     })
                 );
@@ -290,7 +291,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     if (features.length) {
                         const feature = features[0];
                         if (feature.properties) {
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             window.history.replaceState(
                                 {},
                                 '',
