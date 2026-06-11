@@ -138,9 +138,7 @@ export const fetchDatasets = createAsyncThunk<
     FetchDatasetsSuccess | FetchDatasetsNotFound,
     string
 >('main/fetchDatasets', async (id: string) => {
-    const response = await fetch(
-        `https://reference.geoconnex.us/collections/mainstems/items/${id}`
-    );
+    const response = await fetch(`https://geoconnex.us/ref/mainstems/${id}`);
     const data = (await response.json()) as Feature<
         Geometry,
         Omit<MainstemData, 'id'> & { datasets: Dataset[] }

@@ -24,7 +24,7 @@ export const MAP_ID = 'main';
 export const BASEMAP = basemaps[BasemapId.Dark];
 
 export enum SourceId {
-    Mainstems = 'mainstems',
+    Mainstems = 'mainstems_v3',
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
     AssociatedData = 'associated-data-source',
@@ -127,7 +127,7 @@ export const sourceConfigs: SourceConfig[] = [
         definition: {
             type: 'vector',
             tiles: [
-                `https://reference.geoconnex.us/collections/mainstems/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
+                `https://reference.geoconnex.us/collections/mainstems_v3/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
 
