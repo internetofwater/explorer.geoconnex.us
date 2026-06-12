@@ -2,8 +2,8 @@ import {
     getLayerColor,
     getLayerConfig,
     getLayerName,
+    getMainstemLineWidthExpression,
     LayerId,
-    MAINSTEM_SMALL_LINE_WIDTH,
     SourceId,
     SubLayerId,
 } from '@/app/features/MainMap//config';
@@ -51,7 +51,7 @@ describe('MainMap: Config', () => {
                     0.8, // Default to 0.1
                 ],
                 'line-color': getLayerColor(SubLayerId.MainstemsSmall),
-                'line-width': MAINSTEM_SMALL_LINE_WIDTH,
+                'line-width': getMainstemLineWidthExpression(),
             },
         });
     });

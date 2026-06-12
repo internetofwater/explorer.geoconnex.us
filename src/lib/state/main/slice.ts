@@ -54,6 +54,7 @@ type InitialState = {
         [LayerId.MajorRivers]: boolean;
         [LayerId.HUC2Boundaries]: boolean;
         [LayerId.Mainstems]: boolean;
+        [SubLayerId.MainstemsMini]: boolean;
         [SubLayerId.MainstemsSmall]: boolean;
         [SubLayerId.MainstemsMedium]: boolean;
         [SubLayerId.MainstemsLarge]: boolean;
@@ -92,6 +93,7 @@ const initialState: InitialState = {
         [LayerId.MajorRivers]: true,
         [LayerId.HUC2Boundaries]: true,
         [LayerId.Mainstems]: true,
+        [SubLayerId.MainstemsMini]: false,
         [SubLayerId.MainstemsSmall]: true,
         [SubLayerId.MainstemsMedium]: true,
         [SubLayerId.MainstemsLarge]: true,
