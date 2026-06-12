@@ -292,9 +292,9 @@ export const getLayerColor = (
  *
  * @returns Mapbox  for line-width
  */
-function getMainstemLineWidthExpression(
+export const getMainstemLineWidthExpression = (
     property = 'outlet_drainagearea_sqkm'
-): mapboxgl.ExpressionSpecification {
+): mapboxgl.ExpressionSpecification => {
     return [
         'interpolate',
         ['linear'],
@@ -336,7 +336,7 @@ function getMainstemLineWidthExpression(
             12,
         ],
     ];
-}
+};
 
 /**
  * Returns the configuration for a given layer or sublayer in the map.
