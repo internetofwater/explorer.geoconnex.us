@@ -87,6 +87,28 @@ export const MAINSTEM_VISIBLE_ZOOM = 5;
  * @constant
  */
 export const MAINSTEM_OPACITY_ZOOM = 6;
+/**
+ * Mainstem zoom level steps.
+ *
+ * @constant
+ */
+const smallScaleStops = [
+    [1, 0.2],
+    [2, 0.5],
+    [3, 1],
+    [4, 2],
+    [5, 4],
+    [6, 6],
+];
+
+const largeScaleStops = [
+    [1, 1],
+    [2, 2],
+    [3, 4],
+    [4, 6],
+    [5, 8],
+    [6, 12],
+];
 
 export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
     'step',
@@ -293,7 +315,7 @@ export const getLayerColor = (
  * @returns Mapbox  for line-width
  */
 export const getMainstemLineWidthExpression = (
-    property = 'outlet_drainagearea_sqkm'
+    property: string = 'outlet_drainagearea_sqkm'
 ): mapboxgl.ExpressionSpecification => {
     return [
         'interpolate',
@@ -304,36 +326,14 @@ export const getMainstemLineWidthExpression = (
             'interpolate',
             ['linear'],
             ['log10', ['get', property]],
-            1,
-            0.2,
-            2,
-            0.5,
-            3,
-            1,
-            4,
-            2,
-            5,
-            4,
-            6,
-            6,
+            ...smallScaleStops.flat(),
         ],
         8,
         [
             'interpolate',
             ['linear'],
             ['log10', ['get', property]],
-            1,
-            0.5,
-            2,
-            1,
-            3,
-            2,
-            4,
-            4,
-            5,
-            8,
-            6,
-            12,
+            ...largeScaleStops.flat(),
         ],
     ];
 };
