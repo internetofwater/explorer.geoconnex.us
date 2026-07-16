@@ -56,8 +56,12 @@ export const transformDatasets = (
 };
 
 export const extractLatLng = (wkt: string) => {
-    const coordinates = wkt.replace('POINT (', '').replace(')', '');
+    const coordinates = wkt
+        .replace('POINT(', '')
+        .replace('POINT (', '')
+        .replace(')', '');
     const [lng, lat] = coordinates.split(' ').map(Number);
+
     return { lat: lat || NaN, lng: lng || NaN };
 };
 
