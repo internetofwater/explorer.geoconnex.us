@@ -7,6 +7,7 @@ import {
     MAP_ID,
     SubLayerId,
     getLayerColor,
+    getMainstemLineWidthExpression,
     LayerId,
     SourceId,
     BASEMAP,
@@ -14,9 +15,6 @@ import {
     MAINSTEMS_SELECTED_COLOR,
     MAINSTEMS_SEARCH_COLOR,
     MAINSTEM_OPACITY_EXPRESSION,
-    MAINSTEM_SMALL_LINE_WIDTH,
-    MAINSTEM_MEDIUM_LINE_WIDTH,
-    MAINSTEM_LARGE_LINE_WIDTH,
     MAINSTEM_VISIBLE_ZOOM,
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
@@ -505,21 +503,20 @@ export const MainMap: React.FC<Props> = (props) => {
             'case',
             ['==', ['get', 'id'], selectedMainstemId],
             4,
-            MAINSTEM_SMALL_LINE_WIDTH,
+            getMainstemLineWidthExpression(),
         ]);
 
         map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-width', [
             'case',
             ['==', ['get', 'id'], selectedMainstemId],
-            4,
-            MAINSTEM_MEDIUM_LINE_WIDTH,
+            getMainstemLineWidthExpression(),
         ]);
 
         map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-width', [
             'case',
             ['==', ['get', 'id'], selectedMainstemId],
             4,
-            MAINSTEM_LARGE_LINE_WIDTH,
+            getMainstemLineWidthExpression(),
         ]);
 
         // Allow selected feature in highlight layer

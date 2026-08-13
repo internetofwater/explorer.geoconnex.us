@@ -24,7 +24,7 @@ export const MAP_ID = 'main';
 export const BASEMAP = basemaps[BasemapId.Dark];
 
 export enum SourceId {
-    Mainstems = 'mainstems',
+    Mainstems = 'mainstems_v3',
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
     AssociatedData = 'associated-data-source',
@@ -42,6 +42,7 @@ export enum LayerId {
 }
 
 export enum SubLayerId {
+    MainstemsMini = 'mainstems-mini',
     MainstemsSmall = 'mainstems-small',
     MainstemsMedium = 'mainstems-medium',
     MainstemsLarge = 'mainstems-large',
@@ -65,21 +66,15 @@ export const allLayerIds = [
  */
 export const CLUSTER_TRANSITION_ZOOM = 17;
 /**
- * Define outlet_drainagearea_sqkm value that determines upper limit of small mainstems.
+ * Define outlet_drainagearea_sqkm value that determines limit of mainstems.
  *
  * @constant
  */
-export const MAINSTEM_DRAINAGE_SMALL = 160;
-/**
- * Define outlet_drainagearea_sqkm value that determines upper limit of medium mainstems.
- * Any values larger than this are considered large mainstems
- *
- * @constant
- */
-export const MAINSTEM_DRAINAGE_MEDIUM = 1600;
-export const MAINSTEM_SMALL_LINE_WIDTH = 3;
-export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
-export const MAINSTEM_LARGE_LINE_WIDTH = 6;
+export const MAINSTEM_DRAINAGE_MINI = 100;
+export const MAINSTEM_DRAINAGE_SMALL = 1000;
+export const MAINSTEM_DRAINAGE_MEDIUM = 10000;
+export const MAINSTEM_DRAINAGE_LARGE = 100000;
+
 /**
  * Zoom level to render mainstems after initial load.
  *
@@ -92,6 +87,28 @@ export const MAINSTEM_VISIBLE_ZOOM = 5;
  * @constant
  */
 export const MAINSTEM_OPACITY_ZOOM = 6;
+/**
+ * Mainstem zoom level steps.
+ *
+ * @constant
+ */
+const smallScaleStops = [
+    [1, 0.2],
+    [2, 0.5],
+    [3, 1],
+    [4, 2],
+    [5, 4],
+    [6, 6],
+];
+
+const largeScaleStops = [
+    [1, 1],
+    [2, 2],
+    [3, 4],
+    [4, 6],
+    [5, 8],
+    [6, 12],
+];
 
 export const MAINSTEM_OPACITY_EXPRESSION: ExpressionSpecification = [
     'step',
@@ -127,11 +144,11 @@ export const sourceConfigs: SourceConfig[] = [
         definition: {
             type: 'vector',
             tiles: [
-                `https://reference.geoconnex.us/collections/mainstems/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
+                `https://reference.geoconnex.us/collections/mainstems_v3/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
 
-            maxzoom: 10,
+            maxzoom: 16,
             tileSize: 512,
             bounds: [-124.707777, 25.190876, -67.05824, 49.376613],
         },
@@ -203,14 +220,16 @@ export const getLayerName = (layerId: LayerId | SubLayerId): string => {
     switch (layerId) {
         case LayerId.Mainstems:
             return 'Mainstems';
+        case SubLayerId.MainstemsMini:
+            return 'Headwaters';
         case SubLayerId.MainstemsSmall:
-            return 'Small';
+            return 'Small Rivers';
         case SubLayerId.MainstemsMedium:
-            return 'Medium';
+            return 'Regional Rivers';
         case SubLayerId.MainstemsLarge:
-            return 'Large';
-        case LayerId.MajorRivers:
             return 'Major Rivers';
+        case LayerId.MajorRivers:
+            return 'Continental-Scale Rivers';
         case LayerId.HUC2Boundaries:
             return 'HUC2 Boundaries';
         case SubLayerId.HUC2BoundaryLabels:
@@ -247,6 +266,8 @@ export const getLayerColor = (
     switch (id) {
         case LayerId.Mainstems:
             return '#7A9939';
+        case SubLayerId.MainstemsMini:
+            return '#e0e0e0';
         case SubLayerId.MainstemsSmall:
             return '#e0f3db';
         case SubLayerId.MainstemsMedium:
@@ -254,7 +275,7 @@ export const getLayerColor = (
         case SubLayerId.MainstemsLarge:
             return '#08589e';
         case LayerId.MajorRivers:
-            return '#536663';
+            return '#1b335f';
         case LayerId.HUC2Boundaries:
             return '#FFF';
         case LayerId.AssociatedData:
@@ -281,6 +302,43 @@ export const getLayerColor = (
 };
 
 /**
+ * Returns a Mapbox line-width expression that scales river width
+ * based on drainage area using log interpolation.
+ *
+ * Parameters:
+ * - property: string - The feature property containing drainage area values
+ *   (defaults to 'outlet_drainagearea_sqkm').
+ *
+ * Returns:
+ * - mapboxgl.ExpressionSpecification - A Mapbox expression for `line-width`.
+ *
+ * @returns Mapbox  for line-width
+ */
+export const getMainstemLineWidthExpression = (
+    property: string = 'outlet_drainagearea_sqkm'
+): mapboxgl.ExpressionSpecification => {
+    return [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        3,
+        [
+            'interpolate',
+            ['linear'],
+            ['log10', ['get', property]],
+            ...smallScaleStops.flat(),
+        ],
+        8,
+        [
+            'interpolate',
+            ['linear'],
+            ['log10', ['get', property]],
+            ...largeScaleStops.flat(),
+        ],
+    ];
+};
+
+/**
  * Returns the configuration for a given layer or sublayer in the map.
  * It defines the properties such as id, type, source, layout, filter, and paint for each layer.
  *
@@ -299,6 +357,28 @@ export const getLayerConfig = (
     switch (id) {
         case LayerId.Mainstems:
             return null;
+        case SubLayerId.MainstemsMini:
+            return {
+                id: SubLayerId.MainstemsMini,
+                type: LayerType.Line,
+                source: SourceId.Mainstems,
+                'source-layer': SourceId.Mainstems,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                    visibility: 'none',
+                },
+                filter: [
+                    '<',
+                    ['get', 'outlet_drainagearea_sqkm'],
+                    MAINSTEM_DRAINAGE_MINI,
+                ],
+                paint: {
+                    'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
+                    'line-color': getLayerColor(SubLayerId.MainstemsMini),
+                    'line-width': getMainstemLineWidthExpression(),
+                },
+            };
         case SubLayerId.MainstemsSmall:
             return {
                 id: SubLayerId.MainstemsSmall,
@@ -311,14 +391,22 @@ export const getLayerConfig = (
                     visibility: 'none',
                 },
                 filter: [
-                    '<',
-                    ['get', 'outlet_drainagearea_sqkm'],
-                    MAINSTEM_DRAINAGE_SMALL,
+                    'all',
+                    [
+                        '>=',
+                        ['get', 'outlet_drainagearea_sqkm'],
+                        MAINSTEM_DRAINAGE_MINI,
+                    ],
+                    [
+                        '<',
+                        ['get', 'outlet_drainagearea_sqkm'],
+                        MAINSTEM_DRAINAGE_SMALL,
+                    ],
                 ],
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsSmall),
-                    'line-width': MAINSTEM_SMALL_LINE_WIDTH,
+                    'line-width': getMainstemLineWidthExpression(),
                 },
             };
         case SubLayerId.MainstemsMedium:
@@ -348,7 +436,7 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsMedium),
-                    'line-width': MAINSTEM_MEDIUM_LINE_WIDTH,
+                    'line-width': getMainstemLineWidthExpression(),
                 },
             };
         case SubLayerId.MainstemsLarge:
@@ -370,7 +458,7 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': getLayerColor(SubLayerId.MainstemsLarge),
-                    'line-width': MAINSTEM_LARGE_LINE_WIDTH,
+                    'line-width': getMainstemLineWidthExpression(),
                 },
             };
         case LayerId.MainstemsHighlight:
@@ -398,15 +486,19 @@ export const getLayerConfig = (
                 type: LayerType.Line,
                 source: SourceId.Mainstems,
                 'source-layer': SourceId.Mainstems,
-                filter: ['>=', ['get', 'outlet_drainagearea_sqkm'], 50000],
+                filter: [
+                    '>=',
+                    ['get', 'outlet_drainagearea_sqkm'],
+                    MAINSTEM_DRAINAGE_LARGE,
+                ],
                 layout: {
                     'line-cap': 'round',
                     'line-join': 'round',
                 },
                 paint: {
-                    'line-opacity': ['step', ['zoom'], 0.6, 7, 0.1],
+                    'line-opacity': ['step', ['zoom'], 0.8, 7, 0.1],
                     'line-color': getLayerColor(LayerId.MajorRivers),
-                    'line-width': 4,
+                    'line-width': getMainstemLineWidthExpression(),
                 },
             };
         case LayerId.HUC2Boundaries:
@@ -642,50 +734,9 @@ export const getLayerHoverFunction = (
 ): CustomListenerFunction => {
     return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
         switch (id) {
-            case SubLayerId.MainstemsSmall:
-                return (e) => {
-                    if (!hoverOnCluster) {
-                        const zoom = map.getZoom();
-                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                            map.getCanvas().style.cursor = 'pointer';
-
-                            const feature = e.features?.[0];
-                            if (feature && feature.properties) {
-                                const html = `<strong style="color:black;">${
-                                    feature.properties.name_at_outlet ||
-                                    'URI: ' + feature.properties.id
-                                }</strong>`;
-                                hoverPopup
-                                    .setLngLat(e.lngLat)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
-            case SubLayerId.MainstemsMedium:
-                return (e) => {
-                    if (!hoverOnCluster) {
-                        const zoom = map.getZoom();
-                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                            map.getCanvas().style.cursor = 'pointer';
-
-                            const feature = e.features?.[0];
-                            if (feature && feature.properties) {
-                                const html = `<strong style="color:black;">${
-                                    feature.properties.name_at_outlet ||
-                                    'URI: ' + feature.properties.id
-                                }</strong>`;
-
-                                hoverPopup
-                                    .setLngLat(e.lngLat)
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
-            case SubLayerId.MainstemsLarge:
+            case SubLayerId.MainstemsSmall ||
+                SubLayerId.MainstemsMedium ||
+                SubLayerId.MainstemsLarge:
                 return (e) => {
                     if (!hoverOnCluster) {
                         const zoom = map.getZoom();
@@ -766,23 +817,10 @@ export const getLayerCustomHoverExitFunction = (
                     hoverOnCluster = false;
                     map.getCanvas().style.cursor = '';
                 };
-            case SubLayerId.MainstemsSmall:
-                return () => {
-                    const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                        map.getCanvas().style.cursor = '';
-                    }
-                    hoverPopup.remove();
-                };
-            case SubLayerId.MainstemsMedium:
-                return () => {
-                    const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                        map.getCanvas().style.cursor = '';
-                    }
-                    hoverPopup.remove();
-                };
-            case SubLayerId.MainstemsLarge:
+            case SubLayerId.MainstemsMini ||
+                SubLayerId.MainstemsSmall ||
+                SubLayerId.MainstemsMedium ||
+                SubLayerId.MainstemsLarge:
                 return () => {
                     const zoom = map.getZoom();
                     if (zoom > MAINSTEM_VISIBLE_ZOOM) {
@@ -958,6 +996,16 @@ export const layerDefinitions: MainLayerDefinition[] = [
         config: getLayerConfig(LayerId.Mainstems),
         subLayers: [
             {
+                id: SubLayerId.MainstemsMini,
+                controllable: true,
+                legend: true,
+                config: getLayerConfig(SubLayerId.MainstemsMini),
+                hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsMini),
+                customHoverExitFunction: getLayerCustomHoverExitFunction(
+                    SubLayerId.MainstemsMini
+                ),
+            },
+            {
                 id: SubLayerId.MainstemsSmall,
                 controllable: true,
                 legend: true,
@@ -989,13 +1037,13 @@ export const layerDefinitions: MainLayerDefinition[] = [
                     SubLayerId.MainstemsLarge
                 ),
             },
+            {
+                id: LayerId.MajorRivers,
+                controllable: true,
+                legend: true,
+                config: getLayerConfig(LayerId.MajorRivers),
+            },
         ],
-    },
-    {
-        id: LayerId.MajorRivers,
-        controllable: true,
-        legend: true,
-        config: getLayerConfig(LayerId.MajorRivers),
     },
     {
         id: LayerId.MainstemsHighlight,
