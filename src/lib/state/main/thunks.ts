@@ -1,58 +1,107 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
 import datasetService from '@/services/init/dataset.init';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { setDatasets, setFilter } from './slice';
-import { _transformDatasets, createFilters } from '../utils';
+import { addDatasets, setDatasets, setFilter } from './slice';
+import {
+    _transformDatasets,
+    appendFilters,
+    createFilters,
+    getDefaultGeojson,
+} from '../utils';
 import { AppDispatch } from '../store';
+import { BatchTransform } from '@/services/batch.service';
+import { BATCH_SIZE } from '../consts';
+import { Point } from 'geojson';
+import { Readable } from 'stream';
 
-// export const getDatasets = createAsyncThunk<any, string>(
-//     'main/getDatasets',
-//     async (mainstemIri: string, signal: AbortSignal) => {
-//         const stream = datasetService.getDatasets(mainstemIri);
-
-//         let results = [];
-//         stream.on('data', (row) => {
-//             console.log('row', row);
-//             results.push(dataset);
-//         });
-//     }
-// );
+let stream: Readable | null = null;
+let batcher: BatchTransform<SparqlResult> | null = null;
+let requestGeneration = 0;
 
 export const fetchDatasets =
-    (mainstemIri: string, signal?: AbortSignal) => (dispatch: AppDispatch) => {
-        const stream = datasetService.getDatasets(mainstemIri);
+    (mainstemURI: string, signal?: AbortSignal) => (dispatch: AppDispatch) => {
+        const generation = ++requestGeneration;
 
-        // const reader = stream.getReader();
-        // const decoder = new TextDecoder();
+        stream?.destroy();
+        batcher?.destroy();
 
-        // // eslint-disable-next-line no-constant-condition
-        // while (true) {
-        //     const { done, value } = await reader.read();
-        //     if (done) break;
-        //     const result = decoder.decode(value, { stream: true });
-        //     console.log('Chunk:', result);
-        // }
+        dispatch(setDatasets(getDefaultGeojson<Point, Dataset>()));
 
-        const results: Dataset[] = [];
+        stream = datasetService.getDatasets(mainstemURI);
+        batcher = new BatchTransform<SparqlResult>(BATCH_SIZE);
 
-        stream.on('data', (result: SparqlResult) => {
-            console.log('row', result);
+        let processingIndex = 0;
+        let filters = createFilters([]);
 
-            const parsedDataset = JSON.parse(result.datasets.value) as Dataset;
+        const currentStream = stream;
+        const currentBatcher = batcher;
 
-            results.push(parsedDataset);
+        let previousFilters = '';
 
-            // for (const [key, value] of Object.entries(row)) {
-            //     console.log(`${key}: ${value.value} (${value.termType})`);
-            // }
+        const cleanup = () => {
+            if (stream === currentStream) {
+                stream = null;
+            }
+
+            if (batcher === currentBatcher) {
+                batcher = null;
+            }
+        };
+
+        signal?.addEventListener(
+            'abort',
+            () => {
+                currentStream.destroy();
+                currentBatcher.destroy();
+                cleanup();
+            },
+            { once: true }
+        );
+
+        currentStream.once('error', (err) => {
+            console.error('Dataset stream error', err);
+            cleanup();
         });
 
-        stream.on('end', () => {
-            console.log('DONE', results);
-            const filters = createFilters(results);
-            const datasets = _transformDatasets(results);
-            dispatch(setDatasets(datasets));
-            dispatch(setFilter(filters));
+        currentBatcher.once('error', (err) => {
+            console.error('Batcher error', err);
+            cleanup();
+        });
+
+        currentStream.once('close', cleanup);
+        currentBatcher.once('close', cleanup);
+
+        currentStream.once('end', () => {
+            cleanup();
+        });
+
+        currentStream.pipe(currentBatcher);
+
+        currentBatcher.on('data', (batch: SparqlResult[]) => {
+            // Ignore batches from an old request
+            if (generation !== requestGeneration) {
+                return;
+            }
+
+            const datasets = batch.map(
+                (result) => JSON.parse(result.datasets.value) as Dataset
+            );
+
+            const newFilters = createFilters(
+                datasets.flatMap((dataset) => dataset)
+            );
+
+            filters = appendFilters(filters, newFilters);
+            const stringFilters = JSON.stringify(filters);
+            if (stringFilters !== previousFilters) {
+                previousFilters = stringFilters;
+                dispatch(setFilter(filters));
+            }
+
+            dispatch(
+                addDatasets(_transformDatasets(datasets, processingIndex))
+            );
+
+            processingIndex++;
         });
     };

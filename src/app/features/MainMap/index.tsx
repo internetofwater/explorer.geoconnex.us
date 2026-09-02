@@ -29,7 +29,6 @@ import {
     MapMouseEvent,
 } from 'mapbox-gl';
 import {
-    fetchDatasets,
     getFilteredDatasets,
     reset,
     setFilter,
@@ -46,6 +45,7 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
+import { fetchDatasets } from '@/lib/state/main/thunks';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -94,7 +94,7 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
-    const handleDatasetFetch = async (mainstemData: MainstemData) => {
+    const handleDatasetFetch = (mainstemData: MainstemData) => {
         if (isMounted.current) {
             dispatch(
                 setLoading({
@@ -103,7 +103,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 })
             );
             dispatch(setSelectedMainstem(mainstemData));
-            await dispatch(fetchDatasets(mainstemData.id));
+            dispatch(fetchDatasets(mainstemData.uri));
             dispatch(
                 setLoading({
                     item: 'datasets',
@@ -169,7 +169,6 @@ export const MainMap: React.FC<Props> = (props) => {
         ) as GeoJSONSource;
 
         if (clusterSource) {
-            console.log('loading datasets', datasets);
             clusterSource.setData(datasets);
             const zoom = map.getZoom();
             // Listen for the 'idle' event to ensure the source has updated

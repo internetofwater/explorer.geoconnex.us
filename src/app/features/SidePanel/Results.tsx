@@ -132,9 +132,8 @@ export const Results: React.FC<Props> = (props) => {
         };
     }, [debouncedGetDatasets]);
 
-    const handleClick = async (result: MainstemData) => {
+    const handleClick = (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
-        console.log('result', result);
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         dispatch(
             setLoading({

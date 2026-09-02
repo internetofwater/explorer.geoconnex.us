@@ -72,11 +72,7 @@ export class DatasetService {
             }
     `;
 
-        console.log('result', query);
-        // const result = await this.get(query, signal);
         const stream = this.stream(query);
-
-        console.log('result', query);
 
         return stream;
     }
