@@ -44,6 +44,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/redux-mock-store": "^1.5.0",
+    "@types/sparql-http-client": "^3.1.0",
     "@types/testing-library__jest-dom": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
