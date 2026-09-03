@@ -1,7 +1,7 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
 import datasetService from '@/services/init/dataset.init';
-import { addDatasets, setDatasets, setFilter } from './slice';
+import { addDatasets, setDatasets, setFilter, setLoading } from './slice';
 import {
     _transformDatasets,
     appendFilters,
@@ -25,6 +25,13 @@ export const fetchDatasets =
         stream?.destroy();
         batcher?.destroy();
 
+        dispatch(
+            setLoading({
+                item: 'datasets',
+                loading: true,
+            })
+        );
+
         dispatch(setDatasets(getDefaultGeojson<Point, Dataset>()));
 
         stream = datasetService.getDatasets(mainstemURI);
@@ -46,6 +53,12 @@ export const fetchDatasets =
             if (batcher === currentBatcher) {
                 batcher = null;
             }
+            dispatch(
+                setLoading({
+                    item: 'datasets',
+                    loading: false,
+                })
+            );
         };
 
         signal?.addEventListener(

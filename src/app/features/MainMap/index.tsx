@@ -96,20 +96,8 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const handleDatasetFetch = (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: true,
-                })
-            );
             dispatch(setSelectedMainstem(mainstemData));
             dispatch(fetchDatasets(mainstemData.uri));
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: false,
-                })
-            );
         }
     };
 
@@ -341,8 +329,9 @@ export const MainMap: React.FC<Props> = (props) => {
                 ],
             });
             const zoom = map.getZoom();
+
             if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
-                window.history.replaceState({}, '', '');
+                window.history.replaceState({}, '', window.location.origin);
                 deleteSummaryPoints(map);
                 dispatch(reset());
             }
