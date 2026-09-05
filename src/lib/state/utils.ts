@@ -11,7 +11,7 @@ import {
     Point,
 } from 'geojson';
 import { Summary, SummaryData } from '@/lib/state/main/slice';
-import { defaultGeoJson } from '@/lib/state/consts';
+import { BATCH_SIZE } from '@/lib/state/consts';
 import { Map } from 'mapbox-gl';
 import * as turf from '@turf/turf';
 
@@ -52,7 +52,28 @@ export const transformDatasets = (
         };
     }
 
-    return defaultGeoJson as FeatureCollection<Point, Dataset>;
+    return getDefaultGeojson<Point, Dataset>();
+};
+
+export const _transformDatasets = (
+    datasets: Dataset[],
+    chunk: number
+): Feature<Point, Dataset>[] => {
+    return datasets.flatMap((dataset: Dataset, index) => {
+        const { lat, lng } = extractLatLng(dataset.wkt);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            return turf.point<Dataset>(
+                [lng, lat],
+                { ...dataset },
+                { id: index + chunk * BATCH_SIZE }
+            );
+        } else {
+            console.log('Error in dataset: ', dataset);
+            console.log('Unable to extract lat lng from wkt: ', dataset.wkt);
+        }
+
+        return [];
+    });
 };
 
 export const extractLatLng = (wkt: string) => {
@@ -166,14 +187,14 @@ export const getDatasetsInBounds = (
     return datasets;
 };
 
-export const createFilters = (
-    datasets: Dataset[]
-): {
+export type TFilters = {
     distributionNames: string[];
     siteNames: string[];
     types: string[];
     variables: string[];
-} => {
+};
+
+export const createFilters = (datasets: Dataset[]): TFilters => {
     const distributionNames: string[] = [];
     const siteNames: string[] = [];
     const variables: string[] = [];
@@ -203,3 +224,20 @@ export const createFilters = (
         variables,
     };
 };
+
+export const appendFilters = (current: TFilters, other: TFilters): TFilters => {
+    return {
+        distributionNames: [
+            ...current.distributionNames,
+            ...other.distributionNames,
+        ].sort(),
+        siteNames: [...current.siteNames, ...other.siteNames].sort(),
+        types: [...current.types, ...other.types].sort(),
+        variables: [...current.variables, ...other.variables].sort(),
+    };
+};
+
+export const getDefaultGeojson = <
+    T extends Geometry,
+    V extends GeoJsonProperties = GeoJsonProperties,
+>() => turf.featureCollection<T, V>([]);

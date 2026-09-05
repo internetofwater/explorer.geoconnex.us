@@ -29,7 +29,6 @@ import {
     MapMouseEvent,
 } from 'mapbox-gl';
 import {
-    fetchDatasets,
     getFilteredDatasets,
     reset,
     setFilter,
@@ -46,6 +45,7 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
+import { fetchDatasets } from '@/lib/state/main/thunks';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -94,22 +94,10 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
-    const handleDatasetFetch = async (mainstemData: MainstemData) => {
+    const handleDatasetFetch = (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: true,
-                })
-            );
             dispatch(setSelectedMainstem(mainstemData));
-            await dispatch(fetchDatasets(mainstemData.id));
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: false,
-                })
-            );
+            dispatch(fetchDatasets(mainstemData.uri));
         }
     };
 
@@ -341,8 +329,9 @@ export const MainMap: React.FC<Props> = (props) => {
                 ],
             });
             const zoom = map.getZoom();
+
             if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
-                window.history.replaceState({}, '', '');
+                window.history.replaceState({}, '', window.location.origin);
                 deleteSummaryPoints(map);
                 dispatch(reset());
             }
