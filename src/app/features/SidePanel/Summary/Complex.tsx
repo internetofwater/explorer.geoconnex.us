@@ -1,9 +1,8 @@
 import { Typography } from '@/app/components/common/Typography';
 import { Summary as SummaryObj } from '@/lib/state/main/slice';
 import { SummarySection } from '@/app/features/SidePanel/Summary/Section';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/state/store';
 import { Spinner } from '@/app/assets/Spinner';
+import { useLoading } from '@/app/hooks/useLoading';
 
 export type Exclusions = {
     name?: boolean;
@@ -28,13 +27,13 @@ type Props = {
  * @component
  */
 export const ComplexSummary: React.FC<Props> = (props) => {
-    const { loading } = useSelector((state: RootState) => state.main);
-
     const { summary } = props;
+
+    const { isFetchingMainstemDatasets } = useLoading();
 
     return (
         <>
-            {loading.item === 'datasets' && loading.loading ? (
+            {isFetchingMainstemDatasets ? (
                 <div className="flex justify-center">
                     <Spinner />
                 </div>

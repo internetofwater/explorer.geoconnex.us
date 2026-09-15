@@ -1,14 +1,9 @@
-import { LoadingItem } from '@/lib/state/loading/types';
+import { LoadingType } from '@/lib/state/loading/types';
 import { RootState } from '@/lib/state/store';
 import { loadingManager } from '@/managers/init';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-// export const LoadingItem = {
-//     ResultsHover: 'results-hover',
-//     Datasets: 'datasets',
-//     SearchResults: 'search-results',
-//     Rendering: 'rendering',
-// };
+
 export const useLoading = () => {
     const loadingInstances = useSelector(
         (state: RootState) => state.loading.loadingInstances
@@ -24,15 +19,15 @@ export const useLoading = () => {
 
     useEffect(() => {
         setIsFetchingMainstemSummary(
-            loadingManager.has({ item: LoadingItem.ResultsHover })
+            loadingManager.has({ type: LoadingType.ResultsHover })
         );
         setIsFetchingMainstemDatasets(
-            loadingManager.has({ item: LoadingItem.Datasets })
+            loadingManager.has({ type: LoadingType.Datasets })
         );
         setIsFetchingSearchResults(
-            loadingManager.has({ item: LoadingItem.SearchResults })
+            loadingManager.has({ type: LoadingType.SearchResults })
         );
-        setIsRendering(loadingManager.has({ item: LoadingItem.Rendering }));
+        setIsRendering(loadingManager.has({ type: LoadingType.Rendering }));
     }, [loadingInstances]);
 
     return {

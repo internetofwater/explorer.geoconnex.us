@@ -1,16 +1,16 @@
-export const LoadingItem = {
+export const LoadingType = {
     ResultsHover: 'results-hover',
     Datasets: 'datasets',
     SearchResults: 'search-results',
     Rendering: 'rendering',
 };
 
-type TLoadingItem = (typeof LoadingItem)[keyof typeof LoadingItem];
+type TLoadingType = (typeof LoadingType)[keyof typeof LoadingType];
 
 export type TLoadingInstance = {
     id: string;
     message: string;
-    item: TLoadingItem;
+    type: TLoadingType;
 };
 
 export type InitialState = {

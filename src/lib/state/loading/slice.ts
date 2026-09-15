@@ -5,7 +5,6 @@ import {
     initialState,
     TLoadingInstance,
 } from '@/lib/state/loading/types';
-import { randomUUID } from 'crypto';
 
 export const loadingSlice = createSlice({
     name: 'main',
@@ -15,14 +14,7 @@ export const loadingSlice = createSlice({
             state,
             action: PayloadAction<TLoadingInstance>
         ) => {
-            const id = randomUUID();
-
-            const loadingInstance: TLoadingInstance = {
-                ...action.payload,
-                id,
-            };
-
-            state.loadingInstances.push(loadingInstance);
+            state.loadingInstances.push(action.payload);
         },
         removeLoadingInstance: (
             state,

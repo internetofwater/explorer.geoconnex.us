@@ -1,10 +1,10 @@
 import { Store } from '@/lib/state/store';
 import { TLoadingInstance } from '@/lib/state/loading/types';
-import { randomUUID } from 'crypto';
 import {
     addLoadingInstance,
     removeLoadingInstance,
 } from '@/lib/state/loading/slice';
+import { v4 } from 'uuid';
 
 class LoadingManager {
     private store: Store;
@@ -14,16 +14,16 @@ class LoadingManager {
     }
 
     private createUUID(): TLoadingInstance['id'] {
-        return randomUUID();
+        return v4();
     }
 
     add(
         message: TLoadingInstance['message'],
-        item: TLoadingInstance['item']
+        item: TLoadingInstance['type']
     ): TLoadingInstance['id'] {
         const loadingInstance: TLoadingInstance = {
             id: this.createUUID(),
-            item,
+            type: item,
             message,
         };
 
@@ -40,10 +40,10 @@ class LoadingManager {
 
     has({
         message,
-        item,
+        type,
     }: {
         message?: TLoadingInstance['message'];
-        item?: TLoadingInstance['item'];
+        type?: TLoadingInstance['type'];
     }): boolean {
         const loadingInstances = this.store.getState().loading.loadingInstances;
 
@@ -53,8 +53,8 @@ class LoadingManager {
             );
         }
 
-        if (item) {
-            return loadingInstances.some((instance) => instance.item === item);
+        if (type) {
+            return loadingInstances.some((instance) => instance.type === type);
         }
 
         return false;

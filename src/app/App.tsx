@@ -10,7 +10,6 @@ import { MapTools } from '@/app/features/MapTools';
 import {
     fetchDatasets,
     getFilteredDatasetsInBounds,
-    setLoading,
     setShowSidePanel,
 } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
@@ -61,14 +60,10 @@ export const App: React.FC<Props> = (props) => {
             const id = match ? match[1] : null;
 
             if (id) {
-                dispatch(
-                    setLoading({
-                        item: 'datasets',
-                        loading: true,
-                    })
-                );
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                dispatch(fetchDatasets(id));
+                // TODO: self contain this loading instance and handle end result here
+                // const loadingInstance =
+
+                void dispatch(fetchDatasets(id));
             }
         }
     }, [map]);

@@ -34,7 +34,6 @@ import {
     reset,
     setFilter,
     setLayerVisibility,
-    setLoading,
     setMapMoved,
     setSelectedMainstem,
     setSelectedMainstemBBOX,
@@ -46,6 +45,8 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
+import { loadingManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -75,7 +76,6 @@ export const MainMap: React.FC<Props> = (props) => {
         hoverId,
         selectedMainstem,
         selectedMainstemBBOX,
-        loading,
         selectedBasemap,
     } = useSelector((state: RootState) => state.main);
 
@@ -96,20 +96,15 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const handleDatasetFetch = async (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: true,
-                })
+            const loadingInstance = loadingManager.add(
+                `Fetching datasets for clicked mainstem: ${mainstemData.name_at_outlet}`,
+                LoadingType.Datasets
             );
+
             dispatch(setSelectedMainstem(mainstemData));
             await dispatch(fetchDatasets(mainstemData.id));
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: false,
-                })
-            );
+
+            loadingManager.remove(loadingInstance);
         }
     };
 
@@ -156,14 +151,11 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        if (!(loading.item === 'datasets' && loading.loading)) {
-            dispatch(
-                setLoading({
-                    item: 'rendering',
-                    loading: true,
-                })
-            );
-        }
+        const loadingInstance = loadingManager.add(
+            'Updating dataset cluster layer',
+            LoadingType.Rendering
+        );
+
         const clusterSource = map.getSource(
             SourceId.AssociatedData
         ) as GeoJSONSource;
@@ -200,14 +192,8 @@ export const MainMap: React.FC<Props> = (props) => {
                         );
                     }
                 }
-                if (!(loading.item === 'datasets' && loading.loading)) {
-                    dispatch(
-                        setLoading({
-                            item: 'rendering',
-                            loading: false,
-                        })
-                    );
-                }
+
+                loadingManager.remove(loadingInstance);
             });
         }
     };
@@ -548,23 +534,17 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         if (selectedMainstemBBOX) {
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: true,
-                })
+            const loadingInstance = loadingManager.add(
+                'Fitting map instance to mainstem',
+                LoadingType.Rendering
             );
+
             map.fitBounds(selectedMainstemBBOX);
 
             const handleMoveEnd = () => {
                 // Give a slight delay to allow move events to process
                 const loadEndTimeout = setTimeout(() => {
-                    dispatch(
-                        setLoading({
-                            item: 'datasets',
-                            loading: false,
-                        })
-                    );
+                    loadingManager.remove(loadingInstance);
                 }, 250);
 
                 return () => clearTimeout(loadEndTimeout);
