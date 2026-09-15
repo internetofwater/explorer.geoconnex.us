@@ -7,7 +7,7 @@ import {
 } from '@/lib/state/loading/types';
 
 export const loadingSlice = createSlice({
-    name: 'main',
+    name: 'loading',
     initialState: initialState,
     reducers: {
         addLoadingInstance: (

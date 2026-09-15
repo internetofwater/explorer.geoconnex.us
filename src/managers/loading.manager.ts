@@ -4,7 +4,7 @@ import {
     addLoadingInstance,
     removeLoadingInstance,
 } from '@/lib/state/loading/slice';
-import { v4 } from 'uuid';
+import { v6 } from 'uuid';
 
 class LoadingManager {
     private store: Store;
@@ -14,7 +14,7 @@ class LoadingManager {
     }
 
     private createUUID(): TLoadingInstance['id'] {
-        return v4();
+        return v6();
     }
 
     add(

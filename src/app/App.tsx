@@ -19,6 +19,7 @@ import { LoadingBar } from '@/app/features/Loading';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from './features/About';
+import { Notifications } from './features/Notifications';
 
 type Props = {
     accessToken: string;
@@ -143,6 +144,7 @@ export const App: React.FC<Props> = (props) => {
                     <About />
                 </div>
             </div>
+            <Notifications />
         </>
     );
 };
