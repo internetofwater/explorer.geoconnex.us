@@ -138,7 +138,6 @@ export const createSummary = (
             totalSites: wkts.size,
             variables: sortObjectByCount(variables),
             types: sortObjectByCount(types),
-            techniques: sortObjectByCount(techniques),
         };
     } else {
         // No datasets, placeholder to prevent additional fetches
@@ -150,7 +149,6 @@ export const createSummary = (
             totalSites: 0,
             variables: {},
             types: {},
-            techniques: {},
         };
     }
 };

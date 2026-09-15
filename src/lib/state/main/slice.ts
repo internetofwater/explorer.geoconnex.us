@@ -32,7 +32,6 @@ export type Summary = {
     totalSites: number;
     variables: SummaryData;
     types: SummaryData;
-    techniques: SummaryData;
 };
 
 type InitialState = {
