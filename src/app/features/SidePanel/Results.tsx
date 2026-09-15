@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
-    fetchDatasets,
     setHoverId,
     setLoading,
     setSelectedMainstem,
@@ -14,6 +13,8 @@ import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch, RootState } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
+import { fetchDatasets } from '@/lib/state/main/thunks';
+import datasetService from '@/services/init/dataset.init';
 
 type Props = {
     results: MainstemData[];
@@ -41,6 +42,9 @@ export const Results: React.FC<Props> = (props) => {
     const controller = useRef<AbortController>(null);
     const isMounted = useRef(true);
 
+    const test = async (uri: string) => {
+        console.log(await datasetService.getSummary(uri));
+    };
     const getDatasets = async (id: string) => {
         if (
             (summary && summary.id === id) ||
@@ -77,6 +81,7 @@ export const Results: React.FC<Props> = (props) => {
             if (isMounted.current) {
                 const summary = createSummary(id, feature.properties);
                 setSummary(summary);
+                console.log('summary', summary);
                 if (!(loading.item === 'datasets' && loading.loading)) {
                     dispatch(
                         setLoading({
@@ -132,7 +137,7 @@ export const Results: React.FC<Props> = (props) => {
         };
     }, [debouncedGetDatasets]);
 
-    const handleClick = async (result: MainstemData) => {
+    const handleClick = (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         dispatch(
@@ -141,7 +146,9 @@ export const Results: React.FC<Props> = (props) => {
                 loading: true,
             })
         );
-        await dispatch(fetchDatasets(result.id));
+        // const res = await datasetService.getDatasets(result.uri);
+        // console.log('res', res);
+        dispatch(fetchDatasets(result.uri));
         // Let the camera move end the datasets loading event
     };
 
@@ -149,6 +156,8 @@ export const Results: React.FC<Props> = (props) => {
         dispatch(setHoverId(null));
         debouncedGetDatasets.cancel();
     };
+
+    console.log('results', results);
 
     return (
         <div
@@ -170,17 +179,19 @@ export const Results: React.FC<Props> = (props) => {
                             }}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(id);
+                                void debouncedGetDatasets(result.id);
+                                void test(result.uri);
                             }}
                             onMouseLeave={handleMouseLeave}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(id);
+                                void debouncedGetDatasets(result.id);
+                                void test(result.uri);
                             }}
                             onBlur={() => {
                                 debouncedGetDatasets.cancel();
                             }}
-                            title={`${result.name_at_outlet} - ${result.uri}`}
+                            title={`${result.name_at_outlet} - ${result.id}`}
                             role="option"
                             aria-selected={
                                 summary !== null && summary.id === id

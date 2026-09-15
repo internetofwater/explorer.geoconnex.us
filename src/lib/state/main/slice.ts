@@ -32,7 +32,6 @@ export type Summary = {
     totalSites: number;
     variables: SummaryData;
     types: SummaryData;
-    techniques: SummaryData;
 };
 
 type InitialState = {
@@ -322,6 +321,12 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
+        addDatasets: (
+            state,
+            action: PayloadAction<InitialState['datasets']['features']>
+        ) => {
+            state.datasets.features.push(...action.payload);
+        },
         setSelectedBasemap: (
             state,
             action: PayloadAction<InitialState['selectedBasemap']>
@@ -384,6 +389,12 @@ export const mainSlice = createSlice({
                 Point,
                 Dataset
             >;
+            state.filter = {
+                distributionNames: [],
+                siteNames: [],
+                types: [],
+                variables: [],
+            };
             state.selectedSummary = null;
         },
     },
@@ -454,6 +465,7 @@ export const {
     setSearchResultIds,
     setHoverId,
     setMapMoved,
+    addDatasets,
     setDatasets,
     setLayerVisibility,
     setFilter,
