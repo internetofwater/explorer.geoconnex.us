@@ -13,8 +13,9 @@ import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 
 type Props = {
     results: MainstemData[];
@@ -115,12 +116,17 @@ export const Results: React.FC<Props> = (props) => {
         dispatch(setSelectedMainstem(result));
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         const loadingInstance = loadingManager.add(
-            `Fetching summary for mainstem: ${result.name_at_outlet}`,
+            `Fetching datasets for mainstem: ${result.name_at_outlet}`,
             LoadingType.ResultsHover
         );
 
         await dispatch(fetchDatasets(result.id));
         loadingManager.remove(loadingInstance);
+        notificationManager.show(
+            `Datasets loaded for mainstem: ${result.name_at_outlet}`,
+            NotificationType.Success,
+            5000
+        );
 
         // TODO: review this approach
         // Let the camera move end the datasets loading event
