@@ -4,8 +4,10 @@ import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
-import { setLoading, setShowResults } from '@/lib/state/main/slice';
+import { setShowResults } from '@/lib/state/main/slice';
 import { MainstemData } from '@/app/types';
+import { loadingManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
 
 type Props = {
     setResults: (results: MainstemData[]) => void;
@@ -35,14 +37,11 @@ const Search: React.FC<Props> = (props) => {
         const _query = query.toLowerCase();
 
         if (_query) {
+            const loadingInstance = loadingManager.add(
+                `Search request for: ${query}`,
+                LoadingType.SearchResults
+            );
             try {
-                dispatch(
-                    setLoading({
-                        item: 'search-results',
-                        loading: true,
-                    })
-                );
-
                 if (controller.current) {
                     controller.current.abort(
                         `New search request for: ${_query}`
@@ -63,17 +62,11 @@ const Search: React.FC<Props> = (props) => {
                         ({
                             ...feature.properties,
                             id: feature.id,
-                        } as MainstemData)
+                        }) as MainstemData
                 );
                 if (isMounted.current) {
                     dispatch(setShowResults(true));
                     setResults(searchResults);
-                    dispatch(
-                        setLoading({
-                            item: 'search-results',
-                            loading: false,
-                        })
-                    );
                 }
             } catch (error) {
                 // Abort signals come in 2 variants
@@ -86,15 +79,9 @@ const Search: React.FC<Props> = (props) => {
                     console.log('Fetch request canceled');
                 } else {
                     console.error('Error fetching mainstems: ', error);
-                    if (isMounted.current) {
-                        dispatch(
-                            setLoading({
-                                item: 'search-results',
-                                loading: false,
-                            })
-                        );
-                    }
                 }
+            } finally {
+                loadingManager.remove(loadingInstance);
             }
         } else {
             if (isMounted.current) {

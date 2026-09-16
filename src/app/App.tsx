@@ -10,7 +10,6 @@ import { MapTools } from '@/app/features/MapTools';
 import {
     fetchDatasets,
     getFilteredDatasetsInBounds,
-    setLoading,
     setShowSidePanel,
 } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
@@ -19,7 +18,11 @@ import { HelpModal } from '@/app/features/HelpModal';
 import { LoadingBar } from '@/app/features/Loading';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { About } from './features/About';
+import { About } from '@/app/features/About';
+import { Notifications } from '@/app/features/Notifications';
+import { loadingManager, notificationManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 
 type Props = {
     accessToken: string;
@@ -61,14 +64,19 @@ export const App: React.FC<Props> = (props) => {
             const id = match ? match[1] : null;
 
             if (id) {
-                dispatch(
-                    setLoading({
-                        item: 'datasets',
-                        loading: true,
-                    })
-                );
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                dispatch(fetchDatasets(id));
+                void (async () => {
+                    const loadingInstance = loadingManager.add(
+                        `Loading datasets associated with mainstem id: ${id}`,
+                        LoadingType.Datasets
+                    );
+                    await dispatch(fetchDatasets(id));
+                    loadingManager.remove(loadingInstance);
+                    notificationManager.show(
+                        'Datasets loaded for selected mainstem',
+                        NotificationType.Success,
+                        5000
+                    );
+                })();
             }
         }
     }, [map]);
@@ -148,6 +156,7 @@ export const App: React.FC<Props> = (props) => {
                     <About />
                 </div>
             </div>
+            <Notifications />
         </>
     );
 };
