@@ -5,7 +5,7 @@ import {
 } from '@/lib/state/notifications/types';
 import Notification from '@/app/components/common/Notification';
 import { notificationManager } from '@/managers/init';
-import { History } from './History';
+import { History } from '@/app/features/Notifications/History';
 import { useState } from 'react';
 
 export const Notifications: React.FC = () => {

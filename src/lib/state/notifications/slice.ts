@@ -1,7 +1,11 @@
 'use client';
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { InitialState, initialState, TNotification } from './types';
+import {
+    InitialState,
+    initialState,
+    TNotification,
+} from '@/lib/state/notifications/types';
 
 export const notificationsSlice = createSlice({
     name: 'notifications',

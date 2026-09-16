@@ -105,7 +105,7 @@ export const MainMap: React.FC<Props> = (props) => {
             dispatch(setSelectedMainstem(mainstemData));
             await dispatch(fetchDatasets(mainstemData.id));
             notificationManager.show(
-                `Datasets retrieved for mainstem: ${mainstemData.name_at_outlet}`,
+                `Datasets loaded for mainstem: ${mainstemData.name_at_outlet}`,
                 NotificationType.Success,
                 5000
             );

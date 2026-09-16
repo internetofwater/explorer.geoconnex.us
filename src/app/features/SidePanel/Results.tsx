@@ -123,7 +123,7 @@ export const Results: React.FC<Props> = (props) => {
         await dispatch(fetchDatasets(result.id));
         loadingManager.remove(loadingInstance);
         notificationManager.show(
-            `Datasets retrieved for mainstem: ${result.name_at_outlet}`,
+            `Datasets loaded for mainstem: ${result.name_at_outlet}`,
             NotificationType.Success,
             5000
         );

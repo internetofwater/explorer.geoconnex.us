@@ -18,8 +18,8 @@ import { HelpModal } from '@/app/features/HelpModal';
 import { LoadingBar } from '@/app/features/Loading';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { About } from './features/About';
-import { Notifications } from './features/Notifications';
+import { About } from '@/app/features/About';
+import { Notifications } from '@/app/features/Notifications';
 import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { NotificationType } from '@/lib/state/notifications/types';
@@ -72,7 +72,7 @@ export const App: React.FC<Props> = (props) => {
                     await dispatch(fetchDatasets(id));
                     loadingManager.remove(loadingInstance);
                     notificationManager.show(
-                        'Datasets retrieved for selected mainstem',
+                        'Datasets loaded for selected mainstem',
                         NotificationType.Success,
                         5000
                     );
