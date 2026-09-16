@@ -1,7 +1,7 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
 import datasetService from '@/services/init/dataset.init';
-import { addDatasets, setDatasets, setFilter, setLoading } from './slice';
+import { addDatasets, setDatasets, setFilter } from './slice';
 import {
     _transformDatasets,
     appendFilters,
@@ -13,6 +13,8 @@ import { BatchTransform } from '@/services/batch.service';
 import { BATCH_SIZE } from '../consts';
 import { Point } from 'geojson';
 import { Readable } from 'stream';
+import { loadingManager } from '@/managers/init';
+import { LoadingType } from '../loading/types';
 
 let stream: Readable | null = null;
 let batcher: BatchTransform<SparqlResult> | null = null;
@@ -25,14 +27,12 @@ export const fetchDatasets =
         stream?.destroy();
         batcher?.destroy();
 
-        dispatch(
-            setLoading({
-                item: 'datasets',
-                loading: true,
-            })
-        );
-
         dispatch(setDatasets(getDefaultGeojson<Point, Dataset>()));
+
+        const loadingInstance = loadingManager.add(
+            `Loading datsets for URI: ${mainstemURI}`,
+            LoadingType.Datasets
+        );
 
         stream = datasetService.getDatasets(mainstemURI);
         batcher = new BatchTransform<SparqlResult>(BATCH_SIZE);
@@ -53,12 +53,8 @@ export const fetchDatasets =
             if (batcher === currentBatcher) {
                 batcher = null;
             }
-            dispatch(
-                setLoading({
-                    item: 'datasets',
-                    loading: false,
-                })
-            );
+
+            loadingManager.remove(loadingInstance);
         };
 
         signal?.addEventListener(

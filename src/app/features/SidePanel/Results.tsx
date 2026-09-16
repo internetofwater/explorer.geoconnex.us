@@ -1,20 +1,22 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
     setHoverId,
-    setLoading,
     setSelectedMainstem,
     Summary as SummaryObject,
 } from '@/lib/state/main/slice';
 import { createSummary } from '@/lib/state/utils';
 import { Feature, Geometry } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
-import { AppDispatch, RootState } from '@/lib/state/store';
+import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { fetchDatasets } from '@/lib/state/main/thunks';
 import datasetService from '@/services/init/dataset.init';
+import { loadingManager, notificationManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 
 type Props = {
     results: MainstemData[];
@@ -33,8 +35,6 @@ type Props = {
 export const Results: React.FC<Props> = (props) => {
     const { results } = props;
 
-    const { loading } = useSelector((state: RootState) => state.main);
-
     const [summary, setSummary] = useState<SummaryObject | null>(null);
 
     const dispatch: AppDispatch = useDispatch();
@@ -48,21 +48,17 @@ export const Results: React.FC<Props> = (props) => {
     const getDatasets = async (id: string) => {
         if (
             (summary && summary.id === id) ||
-            (loading.item === 'datasets' && loading.loading)
+            loadingManager.has({ type: LoadingType.Datasets }) // TODO: is this needed?
         ) {
             return;
         }
 
-        try {
-            if (!(loading.item === 'datasets' && loading.loading)) {
-                dispatch(
-                    setLoading({
-                        item: 'results-hover',
-                        loading: true,
-                    })
-                );
-            }
+        const loadingInstance = loadingManager.add(
+            `Fetching summary for mainstem with identifier: ${id}`,
+            LoadingType.ResultsHover
+        );
 
+        try {
             if (controller.current) {
                 controller.current.abort(`New request for id: ${id}`);
             }
@@ -82,14 +78,6 @@ export const Results: React.FC<Props> = (props) => {
                 const summary = createSummary(id, feature.properties);
                 setSummary(summary);
                 console.log('summary', summary);
-                if (!(loading.item === 'datasets' && loading.loading)) {
-                    dispatch(
-                        setLoading({
-                            item: 'results-hover',
-                            loading: false,
-                        })
-                    );
-                }
             }
         } catch (error) {
             // Abort signals can come in 2 variants
@@ -102,17 +90,9 @@ export const Results: React.FC<Props> = (props) => {
                 console.log('Fetch request canceled');
             } else {
                 console.error('Error fetching datasets: ', error);
-                if (isMounted.current) {
-                    if (!(loading.item === 'datasets' && loading.loading)) {
-                        dispatch(
-                            setLoading({
-                                item: 'results-hover',
-                                loading: false,
-                            })
-                        );
-                    }
-                }
             }
+        } finally {
+            loadingManager.remove(loadingInstance);
         }
     };
 
@@ -140,15 +120,22 @@ export const Results: React.FC<Props> = (props) => {
     const handleClick = (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
-        dispatch(
-            setLoading({
-                item: 'datasets',
-                loading: true,
-            })
+        const loadingInstance = loadingManager.add(
+            `Fetching datasets for mainstem: ${result.name_at_outlet}`,
+            LoadingType.ResultsHover
         );
         // const res = await datasetService.getDatasets(result.uri);
         // console.log('res', res);
         dispatch(fetchDatasets(result.uri));
+
+        loadingManager.remove(loadingInstance);
+        notificationManager.show(
+            `Datasets loaded for mainstem: ${result.name_at_outlet}`,
+            NotificationType.Success,
+            5000
+        );
+
+        // TODO: review this approach
         // Let the camera move end the datasets loading event
     };
 
