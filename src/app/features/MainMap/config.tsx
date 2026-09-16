@@ -285,6 +285,23 @@ export const getLayerColor = (
     }
 };
 
+type TGhostLayers =
+    | SubLayerId.MainstemsSmallGhost
+    | SubLayerId.MainstemsMediumGhost
+    | SubLayerId.MainstemsLargeGhost;
+const BASE_PADDING = 20;
+
+const getPadding = (id: TGhostLayers): number => {
+    switch (id) {
+        case SubLayerId.MainstemsSmallGhost:
+            return BASE_PADDING;
+        case SubLayerId.MainstemsMediumGhost:
+            return BASE_PADDING * 1.2;
+        case SubLayerId.MainstemsLargeGhost:
+            return BASE_PADDING * 1.5;
+    }
+};
+
 /**
  * Returns the configuration for a given layer or sublayer in the map.
  * It defines the properties such as id, type, source, layout, filter, and paint for each layer.
@@ -314,6 +331,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     '<',
@@ -336,6 +354,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     '<',
@@ -345,7 +364,9 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': 0.000001,
                     'line-color': '#FFF',
-                    'line-width': MAINSTEM_SMALL_LINE_WIDTH + 20,
+                    'line-width':
+                        MAINSTEM_SMALL_LINE_WIDTH +
+                        getPadding(SubLayerId.MainstemsSmallGhost),
                 },
             };
         case SubLayerId.MainstemsMedium:
@@ -358,6 +379,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     'all',
@@ -388,6 +410,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     'all',
@@ -405,7 +428,9 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': 0.000001,
                     'line-color': '#FFF',
-                    'line-width': MAINSTEM_MEDIUM_LINE_WIDTH + 20,
+                    'line-width':
+                        MAINSTEM_MEDIUM_LINE_WIDTH +
+                        getPadding(SubLayerId.MainstemsMediumGhost),
                 },
             };
         case SubLayerId.MainstemsLarge:
@@ -418,6 +443,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     '>=',
@@ -440,6 +466,7 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'none',
+                    'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
                 },
                 filter: [
                     '>=',
@@ -449,7 +476,9 @@ export const getLayerConfig = (
                 paint: {
                     'line-opacity': 0.000001,
                     'line-color': '#FFF',
-                    'line-width': MAINSTEM_LARGE_LINE_WIDTH + 20,
+                    'line-width':
+                        MAINSTEM_LARGE_LINE_WIDTH +
+                        getPadding(SubLayerId.MainstemsLargeGhost),
                 },
             };
         case LayerId.MainstemsHighlight:
@@ -464,6 +493,11 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'visible',
+                    'line-sort-key': [
+                        '-',
+                        ['get', 'outlet_drainagearea_sqkm'],
+                        1,
+                    ],
                 },
                 paint: {
                     'line-width': 12,
@@ -726,7 +760,9 @@ export const getLayerHoverFunction = (
                     const zoom = map.getZoom();
                     if (zoom > MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = 'pointer';
-                        const padding = 20;
+                        const padding = getPadding(
+                            SubLayerId.MainstemsSmallGhost
+                        );
                         const screenBBox: [PointLike, PointLike] = [
                             [e.point.x - padding, e.point.y - padding],
                             [e.point.x + padding, e.point.y + padding],
@@ -786,7 +822,6 @@ export const getLayerHoverFunction = (
                         }
                     }
                 };
-
             case SubLayerId.MainstemsSmall:
                 return (e) => {
                     if (!hoverOnCluster) {
@@ -802,6 +837,74 @@ export const getLayerHoverFunction = (
                                 }</strong>`;
                                 hoverPopup
                                     .setLngLat(e.lngLat)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
+                        }
+                    }
+                };
+
+            case SubLayerId.MainstemsMediumGhost:
+                return (e) => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = 'pointer';
+                        const padding = getPadding(
+                            SubLayerId.MainstemsMediumGhost
+                        );
+                        const screenBBox: [PointLike, PointLike] = [
+                            [e.point.x - padding, e.point.y - padding],
+                            [e.point.x + padding, e.point.y + padding],
+                        ];
+
+                        const ghostFeatures = map.queryRenderedFeatures(
+                            screenBBox,
+                            {
+                                layers: [SubLayerId.MainstemsMediumGhost],
+                            }
+                        );
+
+                        const ghostFeature = ghostFeatures[0];
+
+                        if (ghostFeature?.properties?.id) {
+                            const visibleFeatures = map.queryRenderedFeatures(
+                                screenBBox,
+                                {
+                                    layers: [SubLayerId.MainstemsMedium],
+                                }
+                            );
+
+                            const visibleFeature = visibleFeatures.find(
+                                (f) =>
+                                    f.properties?.id ===
+                                    ghostFeature.properties?.id
+                            );
+
+                            if (
+                                visibleFeature &&
+                                visibleFeature.geometry.type === 'LineString'
+                            ) {
+                                const safeFeature = visibleFeature as Feature<
+                                    LineString,
+                                    Record<string, string | number>
+                                >;
+
+                                const snapped = nearestPointOnLine(
+                                    safeFeature,
+                                    point([e.lngLat.lng, e.lngLat.lat])
+                                );
+                                const html = `<strong style="color:black;">${
+                                    safeFeature.properties.name_at_outlet ||
+                                    'URI: ' + safeFeature.properties.id
+                                }</strong>`;
+
+                                hoverPopup
+                                    .setLngLat(
+                                        snapped.geometry.coordinates as [
+                                            number,
+                                            number,
+                                        ]
+                                    )
                                     .setHTML(html)
                                     .addTo(map);
                             }
@@ -824,6 +927,73 @@ export const getLayerHoverFunction = (
 
                                 hoverPopup
                                     .setLngLat(e.lngLat)
+                                    .setHTML(html)
+                                    .addTo(map);
+                            }
+                        }
+                    }
+                };
+            case SubLayerId.MainstemsLargeGhost:
+                return (e) => {
+                    const zoom = map.getZoom();
+                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        map.getCanvas().style.cursor = 'pointer';
+                        const padding = getPadding(
+                            SubLayerId.MainstemsLargeGhost
+                        );
+                        const screenBBox: [PointLike, PointLike] = [
+                            [e.point.x - padding, e.point.y - padding],
+                            [e.point.x + padding, e.point.y + padding],
+                        ];
+
+                        const ghostFeatures = map.queryRenderedFeatures(
+                            screenBBox,
+                            {
+                                layers: [SubLayerId.MainstemsLargeGhost],
+                            }
+                        );
+
+                        const ghostFeature = ghostFeatures[0];
+
+                        if (ghostFeature?.properties?.id) {
+                            const visibleFeatures = map.queryRenderedFeatures(
+                                screenBBox,
+                                {
+                                    layers: [SubLayerId.MainstemsLarge],
+                                }
+                            );
+
+                            const visibleFeature = visibleFeatures.find(
+                                (f) =>
+                                    f.properties?.id ===
+                                    ghostFeature.properties?.id
+                            );
+
+                            if (
+                                visibleFeature &&
+                                visibleFeature.geometry.type === 'LineString'
+                            ) {
+                                const safeFeature = visibleFeature as Feature<
+                                    LineString,
+                                    Record<string, string | number>
+                                >;
+
+                                const snapped = nearestPointOnLine(
+                                    safeFeature,
+                                    point([e.lngLat.lng, e.lngLat.lat])
+                                );
+                                const html = `<strong style="color:black;">${
+                                    safeFeature.properties.name_at_outlet ||
+                                    'URI: ' + safeFeature.properties.id
+                                }</strong>`;
+
+                                hoverPopup
+                                    .setLngLat(
+                                        snapped.geometry.coordinates as [
+                                            number,
+                                            number,
+                                        ]
+                                    )
                                     .setHTML(html)
                                     .addTo(map);
                             }
@@ -1108,6 +1278,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsSmall),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsSmall),
+                mouseMoveFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsSmall
+                ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsSmall
                 ),
@@ -1118,6 +1291,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.MainstemsSmallGhost),
                 hoverFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsSmallGhost
+                ),
+                mouseMoveFunction: getLayerHoverFunction(
                     SubLayerId.MainstemsSmallGhost
                 ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
@@ -1132,6 +1308,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 hoverFunction: getLayerHoverFunction(
                     SubLayerId.MainstemsMedium
                 ),
+                mouseMoveFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsMedium
+                ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsMedium
                 ),
@@ -1142,7 +1321,10 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: false,
                 config: getLayerConfig(SubLayerId.MainstemsMediumGhost),
                 hoverFunction: getLayerHoverFunction(
-                    SubLayerId.MainstemsMedium
+                    SubLayerId.MainstemsMediumGhost
+                ),
+                mouseMoveFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsMediumGhost
                 ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsMedium
@@ -1154,6 +1336,9 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 legend: true,
                 config: getLayerConfig(SubLayerId.MainstemsLarge),
                 hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsLarge),
+                mouseMoveFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsLarge
+                ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsLarge
                 ),
@@ -1163,7 +1348,12 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 controllable: false,
                 legend: false,
                 config: getLayerConfig(SubLayerId.MainstemsLargeGhost),
-                hoverFunction: getLayerHoverFunction(SubLayerId.MainstemsLarge),
+                hoverFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsLargeGhost
+                ),
+                mouseMoveFunction: getLayerHoverFunction(
+                    SubLayerId.MainstemsLargeGhost
+                ),
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsLarge
                 ),
