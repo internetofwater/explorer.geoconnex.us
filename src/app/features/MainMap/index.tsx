@@ -45,8 +45,9 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -103,7 +104,11 @@ export const MainMap: React.FC<Props> = (props) => {
 
             dispatch(setSelectedMainstem(mainstemData));
             await dispatch(fetchDatasets(mainstemData.id));
-
+            notificationManager.show(
+                `Datasets retrieved for mainstem: ${mainstemData.name_at_outlet}`,
+                NotificationType.Success,
+                5000
+            );
             loadingManager.remove(loadingInstance);
         }
     };

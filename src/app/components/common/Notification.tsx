@@ -26,9 +26,10 @@ const Notification: React.FC<PropsWithChildren<Props>> = (props) => {
                 className="w-2 self-stretch rounded-md"
                 style={{ backgroundColor: color }}
             />
-            <Typography variant="body">{props.children}</Typography>
+            <Typography variant="body-small">{props.children}</Typography>
             <CloseButton
-                className="text-gray-900 hover:text-gray-700 text-md ml-auto mb-auto"
+                className="text-gray-900 hover:text-gray-700 text-xs ml-auto"
+                closeIconClassName="w-5 h-5"
                 onClick={onClose}
                 title="Hide this notification"
             />

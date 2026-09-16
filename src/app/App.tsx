@@ -20,6 +20,9 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from './features/About';
 import { Notifications } from './features/Notifications';
+import { loadingManager, notificationManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 
 type Props = {
     accessToken: string;
@@ -61,10 +64,19 @@ export const App: React.FC<Props> = (props) => {
             const id = match ? match[1] : null;
 
             if (id) {
-                // TODO: self contain this loading instance and handle end result here
-                // const loadingInstance =
-
-                void dispatch(fetchDatasets(id));
+                void (async () => {
+                    const loadingInstance = loadingManager.add(
+                        `Loading datasets associated with mainstem id: ${id}`,
+                        LoadingType.Datasets
+                    );
+                    await dispatch(fetchDatasets(id));
+                    loadingManager.remove(loadingInstance);
+                    notificationManager.show(
+                        'Datasets retrieved for selected mainstem',
+                        NotificationType.Success,
+                        5000
+                    );
+                })();
             }
         }
     }, [map]);
