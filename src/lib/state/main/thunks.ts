@@ -13,8 +13,9 @@ import { BatchTransform } from '@/services/batch.service';
 import { BATCH_SIZE } from '../consts';
 import { Point } from 'geojson';
 import { Readable } from 'stream';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '../loading/types';
+import { NotificationType } from '../notifications/types';
 
 let stream: Readable | null = null;
 let batcher: BatchTransform<SparqlResult> | null = null;
@@ -69,11 +70,21 @@ export const fetchDatasets =
 
         currentStream.once('error', (err) => {
             console.error('Dataset stream error', err);
+            notificationManager.show(
+                `An error occured loading datasets`,
+                NotificationType.Error,
+                5000
+            );
             cleanup();
         });
 
         currentBatcher.once('error', (err) => {
             console.error('Batcher error', err);
+            notificationManager.show(
+                `An error occured loading datasets`,
+                NotificationType.Error,
+                5000
+            );
             cleanup();
         });
 
@@ -82,6 +93,11 @@ export const fetchDatasets =
 
         currentStream.once('end', () => {
             cleanup();
+            notificationManager.show(
+                `Datasets loaded for mainstem`,
+                NotificationType.Success,
+                5000
+            );
         });
 
         currentStream.pipe(currentBatcher);

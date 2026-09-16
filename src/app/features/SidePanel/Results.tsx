@@ -14,9 +14,8 @@ import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { fetchDatasets } from '@/lib/state/main/thunks';
 import datasetService from '@/services/init/dataset.init';
-import { loadingManager, notificationManager } from '@/managers/init';
+import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
 
 type Props = {
     results: MainstemData[];
@@ -120,20 +119,9 @@ export const Results: React.FC<Props> = (props) => {
     const handleClick = (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
-        const loadingInstance = loadingManager.add(
-            `Fetching datasets for mainstem: ${result.name_at_outlet}`,
-            LoadingType.ResultsHover
-        );
         // const res = await datasetService.getDatasets(result.uri);
         // console.log('res', res);
         dispatch(fetchDatasets(result.uri));
-
-        loadingManager.remove(loadingInstance);
-        notificationManager.show(
-            `Datasets loaded for mainstem: ${result.name_at_outlet}`,
-            NotificationType.Success,
-            5000
-        );
 
         // TODO: review this approach
         // Let the camera move end the datasets loading event
