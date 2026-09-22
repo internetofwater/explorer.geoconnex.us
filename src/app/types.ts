@@ -7,6 +7,9 @@
 // When requesting from /items contains just below.
 // When requesting from /items/[uri] contains an additional optional
 // key 'datasets' containing 0 -> 100,000 objects containing the properties
+
+import type { LngLatBoundsLike } from 'mapbox-gl';
+
 // in type Datasets.
 export interface MainstemData {
     downstream_mainstem_id: string;
@@ -53,3 +56,40 @@ export type Dataset = {
     variableUnit: string;
     wkt: string;
 };
+
+export interface StateData {
+    affgeoid: string;
+    census_profile: string;
+    fid: number;
+    geoid: string;
+    lsad: string;
+    name: string;
+    statefp: string;
+    statens: string;
+    stusps: string;
+    uri: string;
+}
+
+export interface HydratedStateData extends StateData {
+    bounds: LngLatBoundsLike;
+    id: string;
+}
+
+export interface CountyData {
+    affgeoid: string;
+    census_profile: string;
+    countyfp: string;
+    countyns: string;
+    fid: number;
+    geoid: string;
+    lsad: string;
+    name: string;
+    statefp: string;
+    uri: string;
+}
+
+export interface HydratedCountyData extends CountyData {
+    bounds: LngLatBoundsLike;
+    id: string;
+    stateName: string;
+}
