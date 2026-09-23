@@ -1,3 +1,5 @@
+import Queries from '@/queries';
+
 export type TBasicOptions = {
     limit?: number;
 };
@@ -12,3 +14,7 @@ export type TMainstemQuery = ((
 ) => string) & {
     example: () => string;
 };
+
+export type TQueries = typeof Queries;
+
+export type TQuery = keyof typeof Queries;

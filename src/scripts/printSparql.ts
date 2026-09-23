@@ -5,11 +5,7 @@
 
 import Queries from '@/queries';
 
-const examples = {
-    getVariablesMeasured: Queries.getVariablesMeasured,
-};
-
-for (const [name, query] of Object.entries(examples)) {
+for (const [name, query] of Object.entries(Queries)) {
     console.log('='.repeat(80));
     console.log(name);
     console.log('='.repeat(80));

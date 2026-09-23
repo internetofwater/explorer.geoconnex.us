@@ -7,21 +7,18 @@ const build = (uri: string) =>
             ${HYF_PREFIX}
             ${SCHEMA_PREFIX}
 
-            SELECT ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
+            SELECT ?type (COUNT(DISTINCT ?dataset) AS ?datasets)
             WHERE {
                 VALUES ?mainstem { <${uri}> }
 
                 ?monitoringLocation
                     ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
+                    ${HYF}:HydroLocationType ?type ;
                     ${SCHEMA}:subjectOf ?dataset .
-
-                ?dataset ${SCHEMA}:variableMeasured ?var .
-                ?var ${SCHEMA}:name ?variableMeasured .
             }
-            GROUP BY ?variableMeasured
-            ORDER BY DESC(?datasets)
-`);
+            GROUP BY ?type
+            ORDER BY DESC(?datasets)`);
 
-export const getVariablesMeasured: TMainstemQuery = Object.assign(build, {
+export const getTypes: TMainstemQuery = Object.assign(build, {
     example: () => build('https://geoconnex.us/ref/mainstems/1'),
 });

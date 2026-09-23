@@ -27,6 +27,7 @@ export class DatasetService {
 
     constructor(uri: string, deps: TDatasetServiceDependencies) {
         this.url = uri;
+        // Dependency?
         this.client = new SparqlClient({ endpointUrl: uri });
         this.deps = deps;
     }
@@ -79,102 +80,26 @@ export class DatasetService {
     }
 
     async getTypes(mainstemURI: string) {
-        const query = `
-            PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
-            PREFIX schema: <https://schema.org/>
-
-            SELECT ?type (COUNT(DISTINCT ?dataset) AS ?datasets)
-            WHERE {
-                VALUES ?mainstem { <${mainstemURI}> }
-
-                ?monitoringLocation
-                    hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement ?mainstem ;
-                    hyf:HydroLocationType ?type ;
-                    schema:subjectOf ?dataset .
-            }
-            GROUP BY ?type
-            ORDER BY DESC(?datasets)`;
+        const query = this.deps.factoryService.createGetTypes(mainstemURI);
 
         return this.fetch(query);
     }
 
     async getDatasetCount(mainstemURI: string) {
-        const query = `
-            PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
-            PREFIX schema: <https://schema.org/>
-
-            SELECT (COUNT(DISTINCT ?dataset) AS ?count)
-            WHERE {
-                VALUES ?mainstem { <${mainstemURI}> }
-
-                ?monitoringLocation
-                    hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement ?mainstem ;
-                    schema:subjectOf ?dataset .
-            }`;
+        const query =
+            this.deps.factoryService.createGetDatasetCount(mainstemURI);
 
         return this.fetch(query);
     }
 
     async getTotalSites(mainstemURI: string) {
-        const query = `
-            PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
-            PREFIX schema: <https://schema.org/>
-            PREFIX gsp: <http://www.opengis.net/ont/geosparql#>
-
-            SELECT (COUNT(DISTINCT STR(?wkt)) AS ?totalSites)
-            WHERE {
-                VALUES ?mainstem { <${mainstemURI}> }
-
-                ?monitoringLocation
-                    hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement ?mainstem .
-                ?monitoringLocation gsp:hasGeometry/gsp:asWKT ?wkt .
-            }`;
+        const query = this.deps.factoryService.createGetTotalSites(mainstemURI);
 
         return this.fetch(query);
     }
 
-    getDatasets(mainstemIRI: string): Readable {
-        const query = `
-            PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
-            PREFIX schema: <https://schema.org/>
-            PREFIX gsp: <http://www.opengis.net/ont/geosparql#>
-
-            SELECT DISTINCT ?mainstem ?datasets
-            WHERE {
-                VALUES ?mainstem { <${mainstemIRI}> }
-                ?monitoringLocation hyf:HydroLocationType ?type .
-                ?monitoringLocation hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement ?mainstem .
-                ?monitoringLocation schema:subjectOf ?dataset .
-                ?monitoringLocation gsp:hasGeometry/gsp:asWKT ?wkt .
-                ?dataset schema:variableMeasured ?var .
-                ?dataset schema:url ?url .
-                ?dataset schema:distribution ?distribution .
-                ?dataset schema:description ?datasetDescription .
-                ?dataset schema:temporalCoverage ?temporalCoverage .
-                ?dataset schema:name ?siteName .
-                ?var schema:name ?variableMeasured .
-                ?var schema:unitText ?variableUnit .
-                ?var schema:measurementTechnique ?measurementTechnique .
-                ?distribution schema:name ?distributionName .
-                ?distribution schema:contentUrl ?distributionURL .
-                ?distribution schema:encodingFormat ?distributionFormat .
-                BIND(CONCAT(
-                    '{"monitoringLocation":"', STR(?monitoringLocation),
-                    '","siteName":"', STR(?siteName),
-                    '","datasetDescription":"', STR(?datasetDescription),
-                    '","type":"', STR(?type),
-                    '","url":"', STR(?url),
-                    '","variableMeasured":"', STR(?variableMeasured),
-                    '","variableUnit":"', STR(?variableUnit),
-                    '","measurementTechnique":"', STR(?measurementTechnique),
-                    '","temporalCoverage":"', STR(?temporalCoverage),
-                    '","distributionName":"', STR(?distributionName),
-                    '","distributionURL":"', STR(?distributionURL),
-                    '","distributionFormat":"', STR(?distributionFormat),
-                    '","wkt":"', STR(?wkt), '"}'
-                ) AS ?datasets)
-            }
-    `;
+    getDatasets(mainstemURI: string): Readable {
+        const query = this.deps.factoryService.createGetDatasets(mainstemURI);
 
         console.log('query', query);
 
