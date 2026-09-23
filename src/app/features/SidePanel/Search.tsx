@@ -49,10 +49,29 @@ const Search: React.FC<Props> = (props) => {
                 }
                 controller.current = new AbortController();
 
+                const escapedQuery = query.replace(/'/g, "''");
+
+                const params = {
+                    sortby: '-outlet_drainagearea_sqkm',
+                    'filter-lang': 'cql2-text',
+                    filter: `CASEI(name_at_outlet) LIKE CASEI('%${escapedQuery}%') OR CASEI(uri) LIKE CASEI('https://geoconnex.us/ref/mainstems/${escapedQuery}%')`,
+                    f: 'json',
+                    skipGeometry: 'true',
+                };
+
+                const queryString = new URLSearchParams(params).toString();
+
                 const response = await fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items?sortby=-outlet_drainagearea_sqkm&filter-lang=cql2-text&filter=CASEI(name_at_outlet)+LIKE+CASEI('%${query}%')+OR+CASEI(uri)+LIKE+CASEI('mainstems/${query}%')&f=json&skipGeometry=true`,
+                    `https://reference.geoconnex.us/collections/mainstems/items?${queryString}`,
                     { signal: controller.current.signal }
                 );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Search failed (${response.status}): ${await response.text()}`
+                    );
+                }
+
                 const data = (await response.json()) as FeatureCollection<
                     Geometry,
                     MainstemData
