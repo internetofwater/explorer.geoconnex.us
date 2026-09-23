@@ -49,12 +49,10 @@ const Search: React.FC<Props> = (props) => {
                 }
                 controller.current = new AbortController();
 
-                const escapedQuery = query.replace(/'/g, "''");
-
                 const params = {
                     sortby: '-outlet_drainagearea_sqkm',
                     'filter-lang': 'cql2-text',
-                    filter: `CASEI(name_at_outlet) LIKE CASEI('%${escapedQuery}%') OR CASEI(uri) LIKE CASEI('https://geoconnex.us/ref/mainstems/${escapedQuery}%')`,
+                    filter: `CASEI(name_at_outlet) LIKE CASEI('%${query}%') OR CASEI(uri) LIKE CASEI('https://geoconnex.us/ref/mainstems/${query}%')`,
                     f: 'json',
                     skipGeometry: 'true',
                 };
