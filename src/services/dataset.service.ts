@@ -1,5 +1,6 @@
-import SparqlClient, { SimpleClient } from 'sparql-http-client';
+import SparqlClient from 'sparql-http-client';
 import { Readable } from 'stream';
+import type { FactoryService } from '@/services/factory.service';
 
 export type SparqlResult = {
     datasets: {
@@ -15,15 +16,19 @@ export type SparqlResult = {
     };
 };
 
+export type TDatasetServiceDependencies = {
+    factoryService: FactoryService;
+};
+
 export class DatasetService {
     private url: string;
     private client: SparqlClient;
-    private simple: SimpleClient;
+    private deps: TDatasetServiceDependencies;
 
-    constructor(uri: string) {
+    constructor(uri: string, deps: TDatasetServiceDependencies) {
         this.url = uri;
         this.client = new SparqlClient({ endpointUrl: uri });
-        this.simple = new SimpleClient({ endpointUrl: uri });
+        this.deps = deps;
     }
 
     private stream(query: string): Readable {
@@ -48,6 +53,8 @@ export class DatasetService {
     }
 
     async getSummary(mainstemURI: string) {
+        console.log('mainstemURI', mainstemURI);
+
         const [datasetCount, totalSites, variablesMeasured, types] =
             await Promise.all([
                 this.getDatasetCount(mainstemURI),
@@ -65,24 +72,8 @@ export class DatasetService {
     }
 
     async getVariablesMeasured(mainstemURI: string) {
-        const query = `
-            PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
-            PREFIX schema: <https://schema.org/>
-            PREFIX gsp: <http://www.opengis.net/ont/geosparql#>
-
-            SELECT ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
-            WHERE {
-                VALUES ?mainstem { <${mainstemURI}> }
-
-                ?monitoringLocation
-                    hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement ?mainstem ;
-                    schema:subjectOf ?dataset .
-
-                ?dataset schema:variableMeasured ?var .
-                ?var schema:name ?variableMeasured .
-            }
-            GROUP BY ?variableMeasured
-            ORDER BY DESC(?datasets)`;
+        const query =
+            this.deps.factoryService.createGetVariablesMeasured(mainstemURI);
 
         return this.fetch(query);
     }

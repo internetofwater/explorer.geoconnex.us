@@ -1,6 +1,5 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
-import datasetService from '@/services/init/dataset.init';
 import { addDatasets, setDatasets, setFilter } from './slice';
 import {
     _transformDatasets,
@@ -16,6 +15,7 @@ import { Readable } from 'stream';
 import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '../loading/types';
 import { NotificationType } from '../notifications/types';
+import { datasetService } from '@/services/init/init';
 
 let stream: Readable | null = null;
 let batcher: BatchTransform<SparqlResult> | null = null;

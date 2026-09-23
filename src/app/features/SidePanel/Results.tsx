@@ -13,9 +13,9 @@ import { Dataset, MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { fetchDatasets } from '@/lib/state/main/thunks';
-import datasetService from '@/services/init/dataset.init';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
+import { datasetService } from '@/services/init/init';
 
 type Props = {
     results: MainstemData[];
@@ -42,7 +42,7 @@ export const Results: React.FC<Props> = (props) => {
     const isMounted = useRef(true);
 
     const test = async (uri: string) => {
-        console.log(await datasetService.getSummary(uri));
+        console.log('datasetservice', await datasetService.getSummary(uri));
     };
     const getDatasets = async (id: string) => {
         if (
@@ -130,6 +130,9 @@ export const Results: React.FC<Props> = (props) => {
     const handleMouseLeave = () => {
         dispatch(setHoverId(null));
         debouncedGetDatasets.cancel();
+        if (controller.current) {
+            controller.current.abort('Row no longer hovered');
+        }
     };
 
     console.log('results', results);
