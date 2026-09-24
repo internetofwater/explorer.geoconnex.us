@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import Queries from '@/queries';
+import Queries from '@/sparql/queries';
 
 for (const [name, query] of Object.entries(Queries)) {
     console.log('='.repeat(80));

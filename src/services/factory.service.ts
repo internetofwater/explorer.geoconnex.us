@@ -1,4 +1,4 @@
-import Queries from '@/queries';
+import Queries from '@/sparql/queries';
 
 export class FactoryService {
     createGetVariablesMeasured(uri: string): string {

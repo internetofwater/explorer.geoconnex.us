@@ -1,6 +1,23 @@
-import { HYF, HYF_PREFIX, SCHEMA, SCHEMA_PREFIX } from '@/queries/consts';
-import { TMainstemQuery } from '@/queries/types';
-import { format } from '@/queries/utils/format';
+import {
+    HYF,
+    HYF_PREFIX,
+    SCHEMA,
+    SCHEMA_PREFIX,
+} from '@/sparql/queries/consts';
+import { TMainstemQuery } from '@/sparql/queries/types';
+import { format } from '@/sparql/queries/utils/format';
+import * as z from 'zod';
+
+export type TRawGetTypes = { datasets: string; type: string };
+
+export const Types = z.array(
+    z.object({
+        datasets: z.coerce.number(),
+        type: z.string(),
+    })
+);
+
+export type TTypes = z.infer<typeof Types>;
 
 const build = (uri: string) =>
     format(`

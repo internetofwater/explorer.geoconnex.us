@@ -35,7 +35,8 @@
         "redux-mock-store": "^1.5.5",
         "sparql-http-client": "^3.1.0",
         "uuid": "^14.0.2",
-        "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
+        "zod": "^4.6.5"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",

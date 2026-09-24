@@ -5,9 +5,9 @@ import {
     HYF_PREFIX,
     SCHEMA,
     SCHEMA_PREFIX,
-} from '@/queries/consts';
-import { TMainstemQuery } from '@/queries/types';
-import { format } from '@/queries/utils/format';
+} from '@/sparql/queries/consts';
+import { TMainstemQuery } from '@/sparql/queries/types';
+import { format } from '@/sparql/queries/utils/format';
 
 const build = (uri: string) =>
     format(`
