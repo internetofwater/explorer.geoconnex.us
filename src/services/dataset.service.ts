@@ -48,7 +48,8 @@ export class DatasetService {
     }
 
     private async fetch<T extends Record<string, unknown>>(
-        query: string
+        query: string,
+        signal: AbortSignal
     ): Promise<TGraphResponse<T>> {
         const response = await fetch(
             `${this.url}?query=${encodeURIComponent(query)}`,
@@ -56,63 +57,66 @@ export class DatasetService {
                 headers: {
                     Accept: 'application/sparql-results+json',
                 },
+                signal,
             }
         );
 
         return (await response.json()) as TGraphResponse<T>;
     }
 
-    async getSummary(mainstemURI: string) {
-        console.log('mainstemURI', mainstemURI);
+    async getSummary(uri: string, signal: AbortSignal) {
+        console.log('uri', uri);
 
-        const [datasetCount, totalSites, variablesMeasured, types] =
-            await Promise.all([
-                this.getDatasetCount(mainstemURI),
-                this.getTotalSites(mainstemURI),
-                this.getVariablesMeasured(mainstemURI),
-                this.getTypes(mainstemURI),
-            ]);
+        const [datasetCount, totalSites, variables, types] = await Promise.all([
+            this.getDatasetCount(uri, signal),
+            this.getTotalSites(uri, signal),
+            this.getVariablesMeasured(uri, signal),
+            this.getTypes(uri, signal),
+        ]);
 
         return {
             datasetCount,
             totalSites,
-            variablesMeasured,
+            variables,
             types,
         };
     }
 
     async getVariablesMeasured(
-        mainstemURI: string
+        uri: string,
+        signal: AbortSignal
     ): Promise<TVariablesMeasured> {
-        const query =
-            this.deps.factoryService.createGetVariablesMeasured(mainstemURI);
+        const query = this.deps.factoryService.createGetVariablesMeasured(uri);
 
-        return parseGetVariablesMeasured(await this.fetch(query));
+        return parseGetVariablesMeasured(await this.fetch(query, signal));
     }
 
-    async getTypes(mainstemURI: string): Promise<TTypes> {
-        const query = this.deps.factoryService.createGetTypes(mainstemURI);
+    async getTypes(uri: string, signal: AbortSignal): Promise<TTypes> {
+        const query = this.deps.factoryService.createGetTypes(uri);
 
-        return parseGetTypes(await this.fetch(query));
+        return parseGetTypes(await this.fetch(query, signal));
     }
 
-    async getDatasetCount(mainstemURI: string): Promise<TDatasetCount> {
-        const query =
-            this.deps.factoryService.createGetDatasetCount(mainstemURI);
+    async getDatasetCount(
+        uri: string,
+        signal: AbortSignal
+    ): Promise<TDatasetCount> {
+        const query = this.deps.factoryService.createGetDatasetCount(uri);
 
-        return parseGetDatasetCount(await this.fetch(query));
+        return parseGetDatasetCount(await this.fetch(query, signal));
     }
 
-    async getTotalSites(mainstemURI: string): Promise<TTotalSites> {
-        const query = this.deps.factoryService.createGetTotalSites(mainstemURI);
+    async getTotalSites(
+        uri: string,
+        signal: AbortSignal
+    ): Promise<TTotalSites> {
+        const query = this.deps.factoryService.createGetTotalSites(uri);
 
-        return parseGetTotalSites(await this.fetch(query));
+        return parseGetTotalSites(await this.fetch(query, signal));
     }
 
-    getDatasets(mainstemURI: string): Readable {
-        const query = this.deps.factoryService.createGetDatasets(mainstemURI);
-
-        console.log('query', query);
+    getDatasets(uri: string): Readable {
+        const query = this.deps.factoryService.createGetDatasets(uri);
 
         const stream = this.stream(query);
 

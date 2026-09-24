@@ -21,6 +21,10 @@ import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
+import { TDatasetCount } from '@/sparql/queries/getDatasetCount';
+import { TTotalSites } from '@/sparql/queries/getTotalSites';
+import { TVariablesMeasured } from '@/sparql/queries/getVariablesMeasured';
+import { TTypes } from '@/sparql/queries/getTypes';
 
 export type SummaryData = Record<string, number>;
 
@@ -28,10 +32,10 @@ export type Summary = {
     id: string;
     name: string;
     length: number;
-    totalDatasets: number;
-    totalSites: number;
-    variables: SummaryData;
-    types: SummaryData;
+    datasetCount: TDatasetCount;
+    totalSites: TTotalSites;
+    variables: TVariablesMeasured;
+    types: TTypes;
 };
 
 type InitialState = {

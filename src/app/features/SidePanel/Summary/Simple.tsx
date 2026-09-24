@@ -28,15 +28,17 @@ type Props = {
 export const SimpleSummary: React.FC<Props> = (props) => {
     const { summary, exclusions = {} } = props;
 
-    const types = Object.keys(summary.types);
-    const variables = Object.keys(summary.variables);
+    const types = summary.types.map(({ type }) => type);
+    const variables = summary.variables.map(
+        ({ variableMeasured }) => variableMeasured
+    );
 
     return (
         <div className="mt-1" aria-label="dataset-summary">
             {!exclusions['name'] && (
                 <Typography variant="h5">{summary.name}</Typography>
             )}
-            {summary.totalDatasets > 0 ? (
+            {summary.datasetCount.count > 0 ? (
                 <ul className="pl-8">
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
@@ -45,13 +47,14 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
-                            <strong>Total Sites:</strong> {summary.totalSites}
+                            <strong>Total Sites:</strong>{' '}
+                            {summary.totalSites.count}
                         </Typography>
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
                             <strong>Total Datasets:</strong>{' '}
-                            {summary.totalDatasets}
+                            {summary.datasetCount.count}
                         </Typography>
                     </li>
                     {types.length > 0 && (
