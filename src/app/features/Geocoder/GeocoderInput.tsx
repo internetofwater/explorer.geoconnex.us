@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { useGeocoder } from '@/app/hooks/useGeocoder';
+import {
+    MIN_GEOCODER_QUERY_LENGTH,
+    useGeocoder,
+} from '@/app/hooks/useGeocoder';
 
 import { GeocoderResults } from '@/app/features/Geocoder/GeocoderResults';
 
@@ -10,7 +13,7 @@ import type { GeocoderResult } from '@/app/hooks/useGeocoder';
 
 /**
  * Renders the geocoder search input and results, when applicable. The search
- * request lifecycle is managed by useGeocoder and synced with component state.
+ * request lifecycle is managed by useGeocoder.
  */
 export const GeocoderInput: React.FC = () => {
     const [results, setResults] = useState<GeocoderResult[]>([]);
@@ -33,6 +36,8 @@ export const GeocoderInput: React.FC = () => {
         }
     }, [setResults, state]);
 
+    const isLoading = state.status === 'searching';
+
     return (
         <div className="flex flex-col gap-1">
             <label htmlFor="search-input" className="sr-only">
@@ -51,7 +56,7 @@ export const GeocoderInput: React.FC = () => {
                 />
 
                 <div className="absolute inset-y-0 right-2 flex items-center gap-1">
-                    <Loader isLoading={state.status === 'searching'} />
+                    <Loader isLoading={isLoading} />
 
                     <button
                         title="Clear geocoder"
@@ -65,7 +70,11 @@ export const GeocoderInput: React.FC = () => {
                 </div>
             </div>
 
-            {results.length > 0 && <GeocoderResults results={results} />}
+            {results.length > 0 ? (
+                <GeocoderResults results={results} />
+            ) : (
+                <EmptyState query={query} isLoading={isLoading} />
+            )}
         </div>
     );
 };
@@ -113,3 +122,26 @@ const Loader = ({ isLoading }: { isLoading: boolean }) => (
         </circle>
     </svg>
 );
+
+const EmptyState = ({
+    query,
+    isLoading,
+}: {
+    query: string;
+    isLoading: boolean;
+}) => {
+    return (
+        query.length > 0 && (
+            <div
+                aria-live="polite"
+                className="w-full bg-background border-b border-gray-300 rounded px-3 py-2 text-gray-600 italic"
+            >
+                {query.length < MIN_GEOCODER_QUERY_LENGTH
+                    ? `Enter at least ${MIN_GEOCODER_QUERY_LENGTH} characters.`
+                    : isLoading
+                      ? 'Searching...'
+                      : 'No results.'}
+            </div>
+        )
+    );
+};

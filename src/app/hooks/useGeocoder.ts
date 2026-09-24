@@ -35,7 +35,7 @@ type UseGeocoderReturns = {
 };
 
 const GEOCODER_DEBOUNCE_MS = 800;
-const MIN_GEOCODER_QUERY_LENGTH = 3;
+export const MIN_GEOCODER_QUERY_LENGTH = 3;
 
 const STATES_URL = 'https://reference.geoconnex.us/collections/states/items';
 
