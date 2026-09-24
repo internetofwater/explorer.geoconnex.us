@@ -29,7 +29,6 @@ import {
     MapMouseEvent,
 } from 'mapbox-gl';
 import {
-    fetchDatasets,
     getFilteredDatasets,
     reset,
     setFilter,
@@ -45,9 +44,9 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { loadingManager, notificationManager } from '@/managers/init';
+import { fetchDatasets } from '@/lib/state/main/thunks';
+import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -95,21 +94,10 @@ export const MainMap: React.FC<Props> = (props) => {
         }
     };
 
-    const handleDatasetFetch = async (mainstemData: MainstemData) => {
+    const handleDatasetFetch = (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            const loadingInstance = loadingManager.add(
-                `Fetching datasets for clicked mainstem: ${mainstemData.name_at_outlet}`,
-                LoadingType.Datasets
-            );
-
             dispatch(setSelectedMainstem(mainstemData));
-            await dispatch(fetchDatasets(mainstemData.id));
-            notificationManager.show(
-                `Datasets loaded for mainstem: ${mainstemData.name_at_outlet}`,
-                NotificationType.Success,
-                5000
-            );
-            loadingManager.remove(loadingInstance);
+            dispatch(fetchDatasets(mainstemData.uri));
         }
     };
 
@@ -332,8 +320,9 @@ export const MainMap: React.FC<Props> = (props) => {
                 ],
             });
             const zoom = map.getZoom();
+
             if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
-                window.history.replaceState({}, '', '');
+                window.history.replaceState({}, '', window.location.origin);
                 deleteSummaryPoints(map);
                 dispatch(reset());
             }

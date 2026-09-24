@@ -21,6 +21,10 @@ import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
+import { TDatasetCount } from '@/sparql/queries/getDatasetCount';
+import { TTotalSites } from '@/sparql/queries/getTotalSites';
+import { TVariablesMeasured } from '@/sparql/queries/getVariablesMeasured';
+import { TTypes } from '@/sparql/queries/getTypes';
 
 export type SummaryData = Record<string, number>;
 
@@ -28,11 +32,10 @@ export type Summary = {
     id: string;
     name: string;
     length: number;
-    totalDatasets: number;
-    totalSites: number;
-    variables: SummaryData;
-    types: SummaryData;
-    techniques: SummaryData;
+    datasetCount: TDatasetCount;
+    totalSites: TTotalSites;
+    variables: TVariablesMeasured;
+    types: TTypes;
 };
 
 type InitialState = {
@@ -314,6 +317,12 @@ export const mainSlice = createSlice({
         ) => {
             state.datasets = action.payload;
         },
+        addDatasets: (
+            state,
+            action: PayloadAction<InitialState['datasets']['features']>
+        ) => {
+            state.datasets.features.push(...action.payload);
+        },
         setSelectedBasemap: (
             state,
             action: PayloadAction<InitialState['selectedBasemap']>
@@ -373,6 +382,12 @@ export const mainSlice = createSlice({
                 Point,
                 Dataset
             >;
+            state.filter = {
+                distributionNames: [],
+                siteNames: [],
+                types: [],
+                variables: [],
+            };
             state.selectedSummary = null;
         },
     },
@@ -443,6 +458,7 @@ export const {
     setSearchResultIds,
     setHoverId,
     setMapMoved,
+    addDatasets,
     setDatasets,
     setLayerVisibility,
     setFilter,
