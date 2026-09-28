@@ -1,9 +1,8 @@
 import { Typography } from '@/app/components/common/Typography';
-import { Summary as SummaryObj } from '@/lib/state/main/slice';
+import type { Summary } from '@/lib/state/main/slice';
 import { SummarySection } from '@/app/features/SidePanel/Summary/Section';
 import { Spinner } from '@/app/assets/Spinner';
 import { useLoading } from '@/app/hooks/useLoading';
-import { useMemo } from 'react';
 
 export type Exclusions = {
     name?: boolean;
@@ -15,7 +14,7 @@ export type Exclusions = {
 };
 
 type Props = {
-    summary: SummaryObj;
+    summary: Summary;
 };
 
 /**
@@ -32,28 +31,6 @@ export const ComplexSummary: React.FC<Props> = (props) => {
 
     const { isFetchingMainstemDatasets } = useLoading();
 
-    const types = useMemo(
-        () =>
-            summary.types.reduce<
-                Record<string, (typeof summary.types)[number]['datasets']>
-            >((acc, { datasets, type }) => {
-                acc[type] = datasets;
-                return acc;
-            }, {}),
-        [summary.types]
-    );
-
-    const variables = useMemo(
-        () =>
-            summary.variables.reduce<
-                Record<string, (typeof summary.types)[number]['datasets']>
-            >((acc, { datasets, variableMeasured }) => {
-                acc[variableMeasured] = datasets;
-                return acc;
-            }, {}),
-        [summary.variables]
-    );
-
     return (
         <>
             {isFetchingMainstemDatasets ? (
@@ -62,7 +39,7 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                 </div>
             ) : (
                 <div className="mt-1" aria-label="dataset-summary">
-                    {summary.datasetCount.count > 0 ? (
+                    {summary.totalDatasets > 0 ? (
                         <>
                             <ul className="pl-8 mb-2">
                                 <li className="list-disc break-words whitespace-normal">
@@ -74,13 +51,13 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                                 <li className="list-disc break-words whitespace-normal">
                                     <Typography variant="body">
                                         <strong>Visible Sites:</strong>{' '}
-                                        {summary.totalSites.count}
+                                        {summary.totalSites}
                                     </Typography>
                                 </li>
                                 <li className="list-disc break-words whitespace-normal">
                                     <Typography variant="body">
                                         <strong>Visible Datasets:</strong>{' '}
-                                        {summary.datasetCount.count}
+                                        {summary.totalDatasets}
                                     </Typography>
                                 </li>
                             </ul>
@@ -88,16 +65,16 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                             <div className="my-4">
                                 <SummarySection
                                     title="Site Types"
-                                    total={summary.datasetCount.count}
-                                    data={types}
+                                    total={summary.totalDatasets}
+                                    data={summary.types}
                                 />
                             </div>
                             <hr />
                             <div className="my-4">
                                 <SummarySection
                                     title="Variables Measured"
-                                    total={summary.datasetCount.count}
-                                    data={variables}
+                                    total={summary.totalDatasets}
+                                    data={summary.variables}
                                 />
                             </div>
                         </>

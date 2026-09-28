@@ -138,10 +138,11 @@ export const createSummary = (
             id,
             name,
             length,
-            datasetCount: totalDatasets,
+            totalDatasets,
             totalSites: wkts.size,
             variables: sortObjectByCount(variables),
             types: sortObjectByCount(types),
+            techniques: sortObjectByCount(techniques),
         };
     } else {
         // No datasets, placeholder to prevent additional fetches
@@ -149,10 +150,11 @@ export const createSummary = (
             id,
             name,
             length,
-            datasetCount: 0,
+            totalDatasets: 0,
             totalSites: 0,
             variables: {},
             types: {},
+            techniques: {},
         };
     }
 };

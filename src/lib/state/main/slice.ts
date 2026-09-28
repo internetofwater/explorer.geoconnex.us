@@ -28,7 +28,7 @@ import { TTypes } from '@/sparql/queries/getTypes';
 
 export type SummaryData = Record<string, number>;
 
-export type Summary = {
+export type MainstemMetrics = {
     id: string;
     name: string;
     length: number;
@@ -36,6 +36,17 @@ export type Summary = {
     totalSites: TTotalSites;
     variables: TVariablesMeasured;
     types: TTypes;
+};
+
+export type Summary = {
+    id: string;
+    name: string;
+    length: number;
+    totalDatasets: number;
+    totalSites: number;
+    variables: SummaryData;
+    types: SummaryData;
+    techniques: SummaryData;
 };
 
 type InitialState = {
@@ -47,7 +58,7 @@ type InitialState = {
     selectedMainstemBBOX: LngLatBoundsLike | null;
     mapMoved: number | null;
     hoverId: string | null;
-    selectedSummary: Summary | null;
+    mainstemMetrics: MainstemMetrics | null;
     searchResultIds: string[];
     status: string;
     error: string | null;
@@ -85,7 +96,7 @@ const initialState: InitialState = {
     selectedMainstemBBOX: null,
     mapMoved: null,
     hoverId: null,
-    selectedSummary: null,
+    mainstemMetrics: null,
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
@@ -335,6 +346,12 @@ export const mainSlice = createSlice({
         ) => {
             state.selectedMainstem = action.payload;
         },
+        setMainstemMetrics: (
+            state,
+            action: PayloadAction<InitialState['mainstemMetrics']>
+        ) => {
+            state.mainstemMetrics = action.payload;
+        },
         setLayerVisibility: (
             state,
             action: PayloadAction<Partial<InitialState['visibleLayers']>>
@@ -388,7 +405,7 @@ export const mainSlice = createSlice({
                 types: [],
                 variables: [],
             };
-            state.selectedSummary = null;
+            state.mainstemMetrics = null;
         },
     },
     extraReducers: (builder) => {
@@ -465,6 +482,7 @@ export const {
     setView,
     setSelectedBasemap,
     setSelectedMainstem,
+    setMainstemMetrics,
     setSelectedMainstemBBOX,
     reset,
 } = mainSlice.actions;

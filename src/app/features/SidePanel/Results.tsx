@@ -4,13 +4,13 @@ import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
     setHoverId,
+    setMainstemMetrics,
     setSelectedMainstem,
-    Summary as SummaryObject,
+    MainstemMetrics as SummaryObject,
 } from '@/lib/state/main/slice';
 import { MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
-import { fetchDatasets } from '@/lib/state/main/thunks';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
@@ -113,10 +113,13 @@ export const Results: React.FC<Props> = (props) => {
 
     const handleClick = (result: MainstemData) => {
         dispatch(setSelectedMainstem(result));
+        if (summary && summary.id === result.id) {
+            dispatch(setMainstemMetrics(summary));
+        }
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         // const res = await datasetService.getDatasets(result.uri);
         // console.log('res', res);
-        dispatch(fetchDatasets(result.uri));
+        // dispatch(fetchDatasets(result.uri));
 
         // TODO: review this approach
         // Let the camera move end the datasets loading event
@@ -129,8 +132,6 @@ export const Results: React.FC<Props> = (props) => {
             controller.current.abort('Row no longer hovered');
         }
     };
-
-    console.log('results', results);
 
     return (
         <div

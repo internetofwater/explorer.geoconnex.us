@@ -1,5 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
-import { Summary as SummaryObj } from '@/lib/state/main/slice';
+import { MainstemMetrics as SummaryObj } from '@/lib/state/main/slice';
 
 export type Exclusions = {
     name?: boolean;
