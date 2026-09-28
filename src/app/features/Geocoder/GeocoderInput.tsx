@@ -9,14 +9,14 @@ import { GeocoderResults } from '@/app/features/Geocoder/GeocoderResults';
 
 import CloseIcon from '@/app/assets/icons/Close';
 
-import type { GeocoderResult } from '@/app/hooks/useGeocoder';
+import type { GeocoderResultGroups } from '@/app/hooks/useGeocoder';
 
 /**
  * Renders the geocoder search input and results, when applicable. The search
  * request lifecycle is managed by useGeocoder.
  */
 export const GeocoderInput: React.FC = () => {
-    const [results, setResults] = useState<GeocoderResult[]>([]);
+    const [results, setResults] = useState<GeocoderResultGroups | null>(null);
 
     const { query, setQuery, state } = useGeocoder();
 
@@ -27,7 +27,7 @@ export const GeocoderInput: React.FC = () => {
         }
 
         if (state.status === 'idle' || state.status === 'error') {
-            setResults([]);
+            setResults(null);
         }
 
         if (state.status === 'error') {
@@ -35,6 +35,9 @@ export const GeocoderInput: React.FC = () => {
             console.error('Error fetching search results: ', state.error);
         }
     }, [setResults, state]);
+
+    const hasResults =
+        results && Object.values(results).some((group) => group.length > 0);
 
     const isLoading = state.status === 'searching';
 
@@ -50,9 +53,9 @@ export const GeocoderInput: React.FC = () => {
                     id="search-input"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search by state or county..."
-                    aria-label="Search by state or county"
-                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded text-black"
+                    placeholder="Search state, county or GNIS feature"
+                    aria-label="Search by state, county, GNIS feature name or GNIS feature ID"
+                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded text-black text-sm md:text-base"
                 />
 
                 <div className="absolute inset-y-0 right-2 flex items-center gap-1">
@@ -62,7 +65,7 @@ export const GeocoderInput: React.FC = () => {
                         title="Clear geocoder"
                         onClick={() => {
                             setQuery('');
-                            setResults([]);
+                            setResults(null);
                         }}
                     >
                         {/* text-black forces fill despite color scheme */}
@@ -71,7 +74,7 @@ export const GeocoderInput: React.FC = () => {
                 </div>
             </div>
 
-            {results.length > 0 ? (
+            {hasResults ? (
                 <GeocoderResults results={results} />
             ) : (
                 <EmptyState query={query} isLoading={isLoading} />

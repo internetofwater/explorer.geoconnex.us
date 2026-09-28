@@ -93,3 +93,15 @@ export interface HydratedCountyData extends CountyData {
     id: string;
     stateName: string;
 }
+
+export interface GnisData {
+    feature_description: string;
+    feature_name: string;
+    geoconnex_sitema: string;
+    id: string;
+    mainstem_uri: string;
+}
+
+export interface HydratedGnisData extends GnisData {
+    bounds: LngLatBoundsLike;
+}

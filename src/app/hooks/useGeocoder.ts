@@ -5,7 +5,9 @@ import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import type { LngLatBoundsLike } from 'mapbox-gl';
 import type {
     CountyData,
+    GnisData,
     HydratedCountyData,
+    HydratedGnisData,
     HydratedStateData,
     StateData,
 } from '@/app/types';
@@ -20,13 +22,24 @@ type CountyResult = {
     feature: Feature<null, HydratedCountyData>;
 };
 
-export type GeocoderResult = StateResult | CountyResult;
+type GnisResult = {
+    type: 'gnis';
+    feature: Feature<null, HydratedGnisData>;
+};
+
+export type GeocoderResult = StateResult | CountyResult | GnisResult;
+
+export type GeocoderResultGroups = {
+    state: StateResult[];
+    county: CountyResult[];
+    gnis: GnisResult[];
+};
 
 type GeocoderState =
-    | { status: 'idle'; results: [] }
-    | { status: 'searching'; results: [] }
-    | { status: 'success'; results: GeocoderResult[] }
-    | { status: 'error'; results: []; error: Error };
+    | { status: 'idle'; results: null }
+    | { status: 'searching'; results: null }
+    | { status: 'success'; results: GeocoderResultGroups }
+    | { status: 'error'; results: null; error: Error };
 
 type UseGeocoderReturns = {
     query: string;
@@ -35,19 +48,29 @@ type UseGeocoderReturns = {
 };
 
 const GEOCODER_DEBOUNCE_MS = 800;
+
 export const MIN_GEOCODER_QUERY_LENGTH = 3;
+
+export const GEOCODER_RESULTS_LIMIT = 5;
 
 const STATES_URL = 'https://reference.geoconnex.us/collections/states/items';
 
 const COUNTIES_URL =
     'https://reference.geoconnex.us/collections/counties/items';
 
+const FEATURES_URL =
+    'https://features.geoconnex.us/collections/GeoconnexFeatures/items';
+
+const GNIS_URL = 'https://geoconnex.us/usgs/gnis';
+
 const stateCache = new Map<string, StateResult[]>();
 const countyCache = new Map<string, CountyResult[]>();
+const gnisCache = new Map<string, GnisResult[]>();
+
 const stateNamesByFips = new Map<string, string>();
 
 /**
- * Manages a debounced search for states and counties.
+ * Manages a debounced search for states, counties, and GNIS features.
  *
  * Normalizes the query, cancels stale requests, and exposes the current query
  * together with the request status, results, or error.
@@ -59,7 +82,7 @@ export function useGeocoder(): UseGeocoderReturns {
 
     const [searchState, setSearchState] = useState<GeocoderState>({
         status: 'idle',
-        results: [],
+        results: null,
     });
 
     const [query, setQuery] = useState('');
@@ -72,22 +95,25 @@ export function useGeocoder(): UseGeocoderReturns {
         const controller = new AbortController();
 
         if (normalizedQuery.length < MIN_GEOCODER_QUERY_LENGTH) {
-            setSearchState({ status: 'idle', results: [] });
+            setSearchState({ status: 'idle', results: null });
 
             return () => {
                 controller.abort();
             };
         }
 
-        setSearchState({ status: 'searching', results: [] });
+        setSearchState({ status: 'searching', results: null });
 
         async function runSearch() {
             try {
-                const [states, counties] = await Promise.all([
+                const [states, counties, gnisFeatures] = await Promise.all([
                     searchStates(normalizedQuery, {
                         signal: controller.signal,
                     }),
                     searchCounties(normalizedQuery, {
+                        signal: controller.signal,
+                    }),
+                    searchGnisFeatures(normalizedQuery, {
                         signal: controller.signal,
                     }),
                 ]);
@@ -98,7 +124,11 @@ export function useGeocoder(): UseGeocoderReturns {
 
                 setSearchState({
                     status: 'success',
-                    results: [...states, ...counties],
+                    results: {
+                        state: states,
+                        county: counties,
+                        gnis: gnisFeatures,
+                    },
                 });
             } catch (error) {
                 if (requestId !== requestIdRef.current) {
@@ -111,7 +141,7 @@ export function useGeocoder(): UseGeocoderReturns {
 
                 setSearchState({
                     status: 'error',
-                    results: [],
+                    results: null,
                     error:
                         error instanceof Error
                             ? error
@@ -148,6 +178,7 @@ async function searchStates(
     url.searchParams.set('sortby', '-name');
     url.searchParams.set('filter', `CASEI(name) LIKE CASEI('%${query}%')`);
     url.searchParams.set('filter-lang', 'cql2-text');
+    url.searchParams.set('limit', `${GEOCODER_RESULTS_LIMIT}`);
     url.searchParams.set('f', 'json');
 
     const response = await fetch(url, { signal: options?.signal });
@@ -203,6 +234,7 @@ async function searchCounties(
     url.searchParams.set('sortby', '-name');
     url.searchParams.set('filter', `CASEI(name) LIKE CASEI('%${query}%')`);
     url.searchParams.set('filter-lang', 'cql2-text');
+    url.searchParams.set('limit', `${GEOCODER_RESULTS_LIMIT}`);
     url.searchParams.set('f', 'json');
 
     const response = await fetch(url, { signal: options?.signal });
@@ -287,4 +319,54 @@ async function getStateName(statefp: string, signal?: AbortSignal) {
     }
 
     return name;
+}
+
+async function searchGnisFeatures(
+    query: string,
+    options?: { signal?: AbortSignal }
+): Promise<GnisResult[]> {
+    const cached = gnisCache.get(query);
+
+    if (cached) {
+        return cached;
+    }
+
+    const url = new URL(FEATURES_URL);
+
+    url.searchParams.set('geoconnex_sitemap', 'usgs:gnis');
+    url.searchParams.set(
+        'filter',
+        `feature_name ILIKE '%${query}%' OR id = '${GNIS_URL}/${query}'`
+    );
+    url.searchParams.set('limit', `${GEOCODER_RESULTS_LIMIT}`);
+    url.searchParams.set('f', 'json');
+
+    const response = await fetch(url, { signal: options?.signal });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch features');
+    }
+
+    const data = (await response.json()) as FeatureCollection<
+        Geometry,
+        GnisData
+    >;
+
+    const results: GnisResult[] = data.features.map((feature) => ({
+        type: 'gnis',
+        feature: {
+            ...feature,
+            properties: {
+                ...feature.properties,
+                bounds: bbox(feature.geometry) as LngLatBoundsLike,
+            },
+            geometry: null,
+        },
+    }));
+
+    if (!options?.signal?.aborted) {
+        gnisCache.set(query, results);
+    }
+
+    return results;
 }
