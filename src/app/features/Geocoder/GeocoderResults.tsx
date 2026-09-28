@@ -22,7 +22,7 @@ export const GeocoderResults: React.FC<Props> = (props) => {
     return (
         <div
             aria-live="polite"
-            className="w-full bg-clip-padding overflow-hidden bg-background border-b border-gray-300 rounded"
+            className="w-full bg-clip-padding overflow-hidden bg-primary border-b border-gray-300 rounded"
         >
             <ul
                 aria-label="Geocoder results"

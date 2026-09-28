@@ -52,7 +52,7 @@ export const GeocoderInput: React.FC = () => {
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search by state or county..."
                     aria-label="Search by state or county"
-                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded"
+                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded text-black"
                 />
 
                 <div className="absolute inset-y-0 right-2 flex items-center gap-1">
@@ -65,7 +65,8 @@ export const GeocoderInput: React.FC = () => {
                             setResults([]);
                         }}
                     >
-                        <CloseIcon className="w-6 h-6" />
+                        {/* text-black forces fill despite color scheme */}
+                        <CloseIcon className="w-6 h-6 text-black" />
                     </button>
                 </div>
             </div>
@@ -134,7 +135,7 @@ const EmptyState = ({
         query.length > 0 && (
             <div
                 aria-live="polite"
-                className="w-full bg-background border-b border-gray-300 rounded px-3 py-2 text-gray-600 italic"
+                className="w-full bg-primary border-b border-gray-300 rounded px-3 py-2 text-gray-600 italic"
             >
                 {query.length < MIN_GEOCODER_QUERY_LENGTH
                     ? `Enter at least ${MIN_GEOCODER_QUERY_LENGTH} characters.`
