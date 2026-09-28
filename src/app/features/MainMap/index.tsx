@@ -21,7 +21,7 @@ import {
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/lib/state/store';
+import { AppDispatch } from '@/lib/state/store';
 import {
     ExpressionSpecification,
     GeoJSONSource,
@@ -34,8 +34,6 @@ import {
     setFilter,
     setLayerVisibility,
     setMapMoved,
-    setSelectedMainstem,
-    setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
 import {
     createSummaryPoints,
@@ -44,10 +42,14 @@ import {
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { fetchDatasets } from '@/lib/state/main/thunks';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
-import Geocoder from '@/app/features/Geocoder';
+import { useAppSelector } from '@/lib/state/hooks';
+import {
+    setBBox,
+    setSelected,
+    reset as mainstemReset,
+} from '@/lib/state/mainstem/slice';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -71,16 +73,13 @@ export const MainMap: React.FC<Props> = (props) => {
     const { map, persistentPopup, hoverPopup } = useMap(MAP_ID);
     const dispatch: AppDispatch = useDispatch();
 
-    const {
-        searchResultIds,
-        visibleLayers,
-        hoverId,
-        selectedMainstem,
-        selectedMainstemBBOX,
-        selectedBasemap,
-    } = useSelector((state: RootState) => state.main);
+    const { searchResultIds, visibleLayers, hoverId, selectedBasemap } =
+        useAppSelector((state) => state.main);
 
-    const selectedMainstemId = selectedMainstem?.id ?? null;
+    const selected = useAppSelector((state) => state.mainstem.selected);
+    const bbox = useAppSelector((state) => state.mainstem.bbox);
+
+    const selectedMainstemId = selected?.id ?? null;
 
     const datasets = useSelector(getFilteredDatasets);
 
@@ -97,8 +96,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
     const handleDatasetFetch = (mainstemData: MainstemData) => {
         if (isMounted.current) {
-            dispatch(setSelectedMainstem(mainstemData));
-            dispatch(fetchDatasets(mainstemData.uri));
+            dispatch(setSelected(mainstemData));
         }
     };
 
@@ -338,6 +336,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 window.history.replaceState({}, '', window.location.origin);
                 deleteSummaryPoints(map);
                 dispatch(reset());
+                dispatch(mainstemReset());
             }
         });
 
@@ -540,13 +539,13 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        if (selectedMainstemBBOX) {
+        if (bbox) {
             const loadingInstance = loadingManager.add(
                 'Fitting map instance to mainstem',
                 LoadingType.Rendering
             );
 
-            map.fitBounds(selectedMainstemBBOX);
+            map.fitBounds(bbox);
 
             const handleMoveEnd = () => {
                 // Give a slight delay to allow move events to process
@@ -558,9 +557,9 @@ export const MainMap: React.FC<Props> = (props) => {
             };
 
             map.once('moveend', handleMoveEnd);
-            dispatch(setSelectedMainstemBBOX(null));
+            dispatch(setBBox(null));
         }
-    }, [selectedMainstemBBOX]);
+    }, [bbox]);
 
     useEffect(() => {
         if (!map) {
@@ -616,8 +615,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     navigationControl: true,
                 }}
             />
-
-            <Geocoder />
         </>
     );
 };

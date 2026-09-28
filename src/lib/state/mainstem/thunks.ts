@@ -1,6 +1,6 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
-import { addDatasets, setDatasets, setFilter } from './slice';
+import { addDatasets, setDatasets, setFilter } from '../main/slice';
 import {
     _transformDatasets,
     appendFilters,

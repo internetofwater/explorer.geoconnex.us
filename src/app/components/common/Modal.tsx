@@ -6,7 +6,7 @@ type Props = {
     title: string;
     handleClose: () => void;
     children: React.ReactNode;
-    action: React.ReactNode;
+    action?: React.ReactNode;
 };
 
 /**
@@ -45,10 +45,11 @@ const Modal: React.FC<Props> = (props) => {
                     >
                         <div
                             id="modal-header"
-                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-center justify-center p-6 "
+                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-center justify-center p-2 "
                         >
                             <Typography
-                                variant="h3"
+                                variant="h2"
+                                as="h3"
                                 className="text-center flex-grow"
                             >
                                 {title}
@@ -62,12 +63,14 @@ const Modal: React.FC<Props> = (props) => {
                         <div id="modal-body" className="p-6">
                             {props.children}
                         </div>
-                        <div
-                            id="modal-action"
-                            className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-primary-opaque p-4"
-                        >
-                            {props.action}
-                        </div>
+                        {props?.action && (
+                            <div
+                                id="modal-action"
+                                className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-primary-opaque p-4"
+                            >
+                                {props.action}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

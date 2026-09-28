@@ -4,8 +4,6 @@ import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
     setHoverId,
-    setMainstemMetrics,
-    setSelectedMainstem,
     MainstemMetrics as SummaryObject,
 } from '@/lib/state/main/slice';
 import { MainstemData } from '@/app/types';
@@ -14,6 +12,7 @@ import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
+import { setMetrics, setSelected } from '@/lib/state/mainstem/slice';
 
 type Props = {
     results: MainstemData[];
@@ -112,9 +111,9 @@ export const Results: React.FC<Props> = (props) => {
     }, [debouncedGetDatasets]);
 
     const handleClick = (result: MainstemData) => {
-        dispatch(setSelectedMainstem(result));
+        dispatch(setSelected(result));
         if (summary && summary.id === result.id) {
-            dispatch(setMainstemMetrics(summary));
+            dispatch(setMetrics(summary));
         }
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
         // const res = await datasetService.getDatasets(result.uri);

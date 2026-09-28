@@ -1,22 +1,10 @@
 'use client';
-import {
-    createAsyncThunk,
-    createSelector,
-    createSlice,
-    PayloadAction,
-} from '@reduxjs/toolkit';
-import {
-    createFilters,
-    createSummary,
-    getDatasetsInBounds,
-    getMainstemBuffer,
-    transformDatasets,
-} from '@/lib/state/utils';
-import { Feature, FeatureCollection, Geometry, Point } from 'geojson';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSummary, getDatasetsInBounds } from '@/lib/state/utils';
+import { FeatureCollection, Point } from 'geojson';
 import { LayerId, SubLayerId } from '@/app/features/MainMap/config';
-import { Dataset, MainstemData } from '@/app/types';
-import { LngLatBoundsLike, Map } from 'mapbox-gl';
-import * as turf from '@turf/turf';
+import { Dataset } from '@/app/types';
+import { Map } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
@@ -49,16 +37,19 @@ export type Summary = {
     techniques: SummaryData;
 };
 
+export const enum EOverlay {
+    Help = 'help',
+    Mainstem = 'mainstem',
+}
+
 type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
     selectedBasemap: BasemapStyles;
-    selectedMainstem: MainstemData | null;
-    selectedMainstemBBOX: LngLatBoundsLike | null;
+    overlay: EOverlay | null;
     mapMoved: number | null;
     hoverId: string | null;
-    mainstemMetrics: MainstemMetrics | null;
     searchResultIds: string[];
     status: string;
     error: string | null;
@@ -91,12 +82,10 @@ const initialState: InitialState = {
     showSidePanel: true,
     showHelp: false,
     showResults: false,
+    overlay: null,
     selectedBasemap: basemaps[BasemapId.Dark],
-    selectedMainstem: null,
-    selectedMainstemBBOX: null,
     mapMoved: null,
     hoverId: null,
-    mainstemMetrics: null,
     searchResultIds: [],
     status: 'idle', // Additional state to track loading status
     error: null,
@@ -122,37 +111,6 @@ const initialState: InitialState = {
         variables: [],
     },
 };
-
-type FetchDatasetsSuccess = Feature<
-    Geometry,
-    Omit<MainstemData, 'id'> & { datasets?: Dataset[] }
->;
-type FetchDatasetsNotFound = {
-    code: string;
-    type: string;
-    description: string;
-};
-
-function isFetchDatasetsSuccess(
-    payload: FetchDatasetsSuccess | FetchDatasetsNotFound
-): payload is FetchDatasetsSuccess {
-    return Boolean(payload && (payload as FetchDatasetsSuccess).properties);
-}
-
-// Good candidate for caching
-export const fetchDatasets = createAsyncThunk<
-    FetchDatasetsSuccess | FetchDatasetsNotFound,
-    string
->('main/fetchDatasets', async (id: string) => {
-    const response = await fetch(
-        `https://reference.geoconnex.us/collections/mainstems/items/${id}`
-    );
-    const data = (await response.json()) as Feature<
-        Geometry,
-        Omit<MainstemData, 'id'> & { datasets: Dataset[] }
-    >;
-    return data;
-});
 
 export const getDatasetsLength = (state: RootState) =>
     state.main.datasets.features.length;
@@ -244,8 +202,7 @@ export const getFilteredDatasets = createSelector(
     }
 );
 
-const selectSelectedMainstem = (state: RootState) =>
-    state.main.selectedMainstem;
+const selectSelectedMainstem = (state: RootState) => state.mainstem.selected;
 const selectMapMoved = (state: RootState) => state.main.mapMoved;
 const selectMap = (state: RootState, map: Map | null) => map;
 
@@ -316,6 +273,9 @@ export const mainSlice = createSlice({
         ) => {
             state.showResults = action.payload;
         },
+        setOverlay: (state, action: PayloadAction<InitialState['overlay']>) => {
+            state.overlay = action.payload;
+        },
         setSearchResultIds: (
             state,
             action: PayloadAction<InitialState['searchResultIds']>
@@ -339,18 +299,6 @@ export const mainSlice = createSlice({
             action: PayloadAction<InitialState['selectedBasemap']>
         ) => {
             state.selectedBasemap = action.payload;
-        },
-        setSelectedMainstem: (
-            state,
-            action: PayloadAction<InitialState['selectedMainstem']>
-        ) => {
-            state.selectedMainstem = action.payload;
-        },
-        setMainstemMetrics: (
-            state,
-            action: PayloadAction<InitialState['mainstemMetrics']>
-        ) => {
-            state.mainstemMetrics = action.payload;
         },
         setLayerVisibility: (
             state,
@@ -385,16 +333,7 @@ export const mainSlice = createSlice({
         setView: (state, action: PayloadAction<InitialState['view']>) => {
             state.view = action.payload;
         },
-        setSelectedMainstemBBOX: (
-            state,
-            action: PayloadAction<InitialState['selectedMainstemBBOX']>
-        ) => {
-            state.selectedMainstemBBOX = action.payload;
-        },
-
         reset: (state) => {
-            state.selectedMainstem = null;
-            state.selectedMainstemBBOX = null;
             state.datasets = defaultGeoJson as FeatureCollection<
                 Point,
                 Dataset
@@ -405,66 +344,7 @@ export const mainSlice = createSlice({
                 types: [],
                 variables: [],
             };
-            state.mainstemMetrics = null;
         },
-    },
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchDatasets.pending, (state) => {
-                state.status = 'loading';
-                state.error = null;
-            })
-            .addCase(fetchDatasets.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                if (action.payload && isFetchDatasetsSuccess(action.payload)) {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-                    const {
-                        datasets: _datasets,
-                        ...propertiesWithoutDatasets
-                    } = action.payload.properties;
-
-                    // Redundant, but covers load from route param
-                    state.selectedMainstem = {
-                        ...propertiesWithoutDatasets,
-                        id: String(action.payload.id),
-                    };
-
-                    if (_datasets) {
-                        state.filter = createFilters(_datasets);
-                    }
-
-                    // Get an appropriate buffer size based on drainage area
-                    const buffer = getMainstemBuffer(
-                        action.payload.properties.outlet_drainagearea_sqkm
-                    );
-                    // Simplify the line to reduce work getting bounds
-                    const simplifiedLine = turf.simplify(action.payload, {
-                        tolerance: 0.25,
-                    });
-                    // Buffer line to better fit feature to screen
-                    const bufferedLine = turf.buffer(simplifiedLine, buffer, {
-                        units: 'kilometers',
-                    });
-                    if (bufferedLine) {
-                        const bbox = turf.bbox(
-                            bufferedLine
-                        ) as LngLatBoundsLike;
-
-                        state.selectedMainstemBBOX = bbox;
-                    }
-                    // Transform datasets into a new feature collection
-                    const datasets = transformDatasets(action.payload);
-
-                    state.datasets = datasets;
-                    state.showResults = false;
-                }
-                return;
-            })
-            .addCase(fetchDatasets.rejected, (state, action) => {
-                state.status = 'failed';
-                console.log('Error: ', action);
-            });
     },
 });
 
@@ -473,6 +353,7 @@ export const {
     setShowHelp,
     setShowResults,
     setSearchResultIds,
+    setOverlay,
     setHoverId,
     setMapMoved,
     addDatasets,
@@ -481,9 +362,6 @@ export const {
     setFilter,
     setView,
     setSelectedBasemap,
-    setSelectedMainstem,
-    setMainstemMetrics,
-    setSelectedMainstemBBOX,
     reset,
 } = mainSlice.actions;
 

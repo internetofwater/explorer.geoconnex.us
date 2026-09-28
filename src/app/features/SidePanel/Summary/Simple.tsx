@@ -1,5 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
-import { MainstemMetrics as SummaryObj } from '@/lib/state/main/slice';
+import { TMainstemMetrics } from '@/lib/state/mainstem/types';
 
 export type Exclusions = {
     name?: boolean;
@@ -11,7 +11,7 @@ export type Exclusions = {
 };
 
 type Props = {
-    summary: SummaryObj;
+    summary: TMainstemMetrics;
     exclusions?: Exclusions;
 };
 

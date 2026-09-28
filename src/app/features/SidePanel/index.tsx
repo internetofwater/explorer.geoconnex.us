@@ -24,6 +24,7 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import Button from '@/app/components/common/Button';
 import Image from 'next/image';
 import { FeatureCollection, Point } from 'geojson';
+import { useAppSelector } from '@/lib/state/hooks';
 
 type Props = {
     datasets: FeatureCollection<Point, Dataset>;
@@ -42,9 +43,9 @@ const SidePanel: React.FC<Props> = (props) => {
 
     const { map } = useMap(MAIN_MAP_ID);
 
-    const { showResults, selectedMainstem } = useSelector(
-        (state: RootState) => state.main
-    );
+    const showResults = useAppSelector((state) => state.main.showResults);
+
+    const selected = useAppSelector((state) => state.mainstem.selected);
 
     // Total length of unfiltered features from datasets feature collection
     const datasetsLength = useSelector(getDatasetsLength);
@@ -173,25 +174,22 @@ const SidePanel: React.FC<Props> = (props) => {
                         <Results results={results} />
                     </Collapsible>
                 </div>
-                {selectedMainstem && datasetsLength > 0 && (
+                {selected && datasetsLength > 0 && (
                     <Collapsible title="Filters">
                         <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
                                 <CSVDownload
                                     datasets={datasets}
-                                    selectedMainstem={selectedMainstem}
+                                    selectedMainstem={selected}
                                 />
                             </div>
                         </div>
                     </Collapsible>
                 )}
-                {selectedMainstem && (
+                {selected && (
                     <Collapsible
-                        title={
-                            selectedMainstem.name_at_outlet ||
-                            'URI: ' + selectedMainstem.id
-                        }
+                        title={selected.name_at_outlet || 'URI: ' + selected.id}
                         open={true}
                     >
                         {selectedSummary && (

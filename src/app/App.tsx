@@ -8,7 +8,6 @@ import SidePanel from '@/app/features/SidePanel';
 import Table from '@/app/features/Table';
 import { MapTools } from '@/app/features/MapTools';
 import {
-    fetchDatasets,
     getFilteredDatasetsInBounds,
     setShowSidePanel,
 } from '@/lib/state/main/slice';
@@ -20,9 +19,10 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from '@/app/features/About';
 import { Notifications } from '@/app/features/Notifications';
-import { loadingManager, notificationManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
+import { MainstemModal } from '@/app/features/Mainstem/Modal';
+import Geocoder from '@/app/features/Geocoder';
+import Mainstem from '@/app/features/Mainstem';
+import { fetchDatasets } from '@/lib/state/mainstem/thunks';
 
 type Props = {
     accessToken: string;
@@ -64,19 +64,7 @@ export const App: React.FC<Props> = (props) => {
             const id = match ? match[1] : null;
 
             if (id) {
-                void (async () => {
-                    const loadingInstance = loadingManager.add(
-                        `Loading datasets associated with mainstem id: ${id}`,
-                        LoadingType.Datasets
-                    );
-                    await dispatch(fetchDatasets(id));
-                    loadingManager.remove(loadingInstance);
-                    notificationManager.show(
-                        'Datasets loaded for selected mainstem',
-                        NotificationType.Success,
-                        5000
-                    );
-                })();
+                dispatch(fetchDatasets(id));
             }
         }
     }, [map]);
@@ -96,9 +84,13 @@ export const App: React.FC<Props> = (props) => {
 
     return (
         <>
+            <MainstemModal />
             <HelpModal />
             <div className="flex">
-                <div id="side-panel-control" className="fixed left-2 top-3 lg:hidden">
+                <div
+                    id="side-panel-control"
+                    className="fixed left-2 top-3 lg:hidden"
+                >
                     {!showSidePanel && (
                         <IconButton
                             onClick={() => handleSidePanelControlClick()}
@@ -131,6 +123,10 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <LoadingBar />
+                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex gap-2 z-10">
+                        <Geocoder />
+                        <Mainstem />
+                    </div>
                     <MainMap accessToken={accessToken} />
                 </div>
                 <div
