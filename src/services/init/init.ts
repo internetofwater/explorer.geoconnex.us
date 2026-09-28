@@ -3,6 +3,9 @@ import { FactoryService } from '@/services/factory.service';
 
 export const factoryService = new FactoryService();
 
-export const datasetService = new DatasetService('https://graph.geoconnex.us', {
-    factoryService,
-});
+export const datasetService = new DatasetService(
+    'http://qlever.internetofwater.app',
+    {
+        factoryService,
+    }
+);

@@ -78,7 +78,8 @@ export const Results: React.FC<Props> = (props) => {
                 (error as Error)?.name === 'AbortError' ||
                 (typeof error === 'string' &&
                     error.includes('New request for id:')) ||
-                error === 'Component unmount'
+                error === 'Component unmount' ||
+                error === 'Row no longer hovered'
             ) {
                 console.log('Fetch request canceled');
             } else {
