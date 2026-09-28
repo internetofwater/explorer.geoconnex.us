@@ -47,6 +47,7 @@ import debounce from 'lodash.debounce';
 import { fetchDatasets } from '@/lib/state/main/thunks';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
+import Geocoder from '@/app/features/Geocoder';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -253,17 +254,29 @@ export const MainMap: React.FC<Props> = (props) => {
             'click',
             [
                 SubLayerId.MainstemsSmall,
+                SubLayerId.MainstemsSmallGhost,
                 SubLayerId.MainstemsMedium,
+                SubLayerId.MainstemsMediumGhost,
                 SubLayerId.MainstemsLarge,
+                SubLayerId.MainstemsLargeGhost,
             ],
             (e) => {
                 const zoom = map.getZoom();
-                if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
+                if (
+                    zoom >= MAINSTEM_VISIBLE_ZOOM &&
+                    !e.originalEvent.defaultPrevented
+                ) {
+                    e.originalEvent.preventDefault();
+                    e.originalEvent.cancelBubble = true;
+
                     const features = map.queryRenderedFeatures(e.point, {
                         layers: [
                             SubLayerId.MainstemsSmall,
+                            SubLayerId.MainstemsSmallGhost,
                             SubLayerId.MainstemsMedium,
+                            SubLayerId.MainstemsMediumGhost,
                             SubLayerId.MainstemsLarge,
+                            SubLayerId.MainstemsLargeGhost,
                         ],
                     });
 
@@ -566,7 +579,21 @@ export const MainMap: React.FC<Props> = (props) => {
             if (map.getLayer(layerId)) {
                 const newVisibility = visible ? 'visible' : 'none';
 
-                map?.setLayoutProperty(layerId, 'visibility', newVisibility);
+                map.setLayoutProperty(layerId, 'visibility', newVisibility);
+                if (
+                    [
+                        SubLayerId.MainstemsSmall,
+                        SubLayerId.MainstemsMedium,
+                        SubLayerId.MainstemsLarge,
+                    ].includes(layerId as SubLayerId)
+                ) {
+                    const ghostLayerId = layerId + '-ghost';
+                    map.setLayoutProperty(
+                        ghostLayerId,
+                        'visibility',
+                        newVisibility
+                    );
+                }
             }
         });
     }, [reloadFlag, visibleLayers]);
@@ -589,6 +616,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     navigationControl: true,
                 }}
             />
+
+            <Geocoder />
         </>
     );
 };
