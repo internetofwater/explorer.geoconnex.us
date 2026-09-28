@@ -98,7 +98,7 @@ export const App: React.FC<Props> = (props) => {
         <>
             <HelpModal />
             <div className="flex">
-                <div id="side-panel-control" className={`fixed left-2 top-3 `}>
+                <div id="side-panel-control" className="fixed left-2 top-3 lg:hidden">
                     {!showSidePanel && (
                         <IconButton
                             onClick={() => handleSidePanelControlClick()}
@@ -113,12 +113,12 @@ export const App: React.FC<Props> = (props) => {
                      w-full lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
                      min-w-[300px] sm:min-w-[400px]
                      md:max-w-[400px]
-                     flex overflow-hidden bg-primary
+                     overflow-hidden bg-primary
                      m-2 lg:m-0
                      border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      rounded-lg lg:rounded-none
                      shadow-lg
-                     ${showSidePanel ? 'block' : 'hidden'}`}
+                     ${showSidePanel ? 'flex' : 'hidden lg:flex'}`}
                 >
                     <SidePanel datasets={datasets} />
                 </div>

@@ -48,6 +48,7 @@ import debounce from 'lodash.debounce';
 import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { NotificationType } from '@/lib/state/notifications/types';
+import Geocoder from '@/app/features/Geocoder';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -600,6 +601,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     navigationControl: true,
                 }}
             />
+
+            <Geocoder />
         </>
     );
 };
