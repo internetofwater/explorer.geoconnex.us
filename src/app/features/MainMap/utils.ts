@@ -1,8 +1,23 @@
-import { GeoJSONFeature, GeoJSONSource, Map, Popup } from 'mapbox-gl';
-import { SourceId } from '@/app/features/MainMap/config';
-import { Feature, FeatureCollection, Point } from 'geojson';
+import {
+    GeoJSONFeature,
+    GeoJSONSource,
+    Map,
+    MapMouseEvent,
+    MapTouchEvent,
+    PointLike,
+    Popup,
+} from 'mapbox-gl';
+import {
+    getLayerPadding,
+    LayerId,
+    MAINSTEM_VISIBLE_ZOOM,
+    SourceId,
+    SubLayerId,
+} from '@/app/features/MainMap/config';
+import { Feature, FeatureCollection, LineString, Point } from 'geojson';
 import * as turf from '@turf/turf';
 import { Dataset } from '@/app/types';
+import { point, nearestPointOnLine } from '@turf/turf';
 
 /**
  * Checks if the persistent popup is open to a specific item.
@@ -149,4 +164,64 @@ export const deleteSummaryPoints = (map: Map) => {
         type: 'FeatureCollection',
         features: [],
     });
+};
+
+export const getLineTracingEvent = (
+    e: MapMouseEvent | MapTouchEvent,
+    map: Map,
+    hoverPopup: Popup,
+    id: LayerId | SubLayerId
+) => {
+    const ghostId = (id + '-ghost') as SubLayerId;
+
+    const zoom = map.getZoom();
+    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+        map.getCanvas().style.cursor = 'pointer';
+        const padding = getLayerPadding(ghostId);
+        const screenBBox: [PointLike, PointLike] = [
+            [e.point.x - padding, e.point.y - padding],
+            [e.point.x + padding, e.point.y + padding],
+        ];
+
+        const ghostFeatures = map.queryRenderedFeatures(screenBBox, {
+            layers: [id],
+        });
+
+        const ghostFeature = ghostFeatures[0];
+
+        if (ghostFeature?.properties?.id) {
+            const visibleFeatures = map.queryRenderedFeatures(screenBBox, {
+                layers: [id],
+                filter: ['==', ['get', 'id'], ghostFeature.properties.id],
+            });
+
+            const visibleFeature = visibleFeatures.find(
+                (f) => f.properties?.id === ghostFeature.properties?.id
+            );
+
+            if (
+                visibleFeature &&
+                visibleFeature.geometry.type === 'LineString'
+            ) {
+                const safeFeature = visibleFeature as Feature<
+                    LineString,
+                    Record<string, string | number>
+                >;
+
+                const snapped = nearestPointOnLine(
+                    safeFeature,
+                    point([e.lngLat.lng, e.lngLat.lat])
+                );
+                const html = `<strong style="color:black;">${
+                    safeFeature.properties.name_at_outlet ||
+                    'URI: ' + safeFeature.properties.id
+                }</strong>`;
+
+                hoverPopup
+                    .setLngLat(snapped.geometry.coordinates as [number, number])
+                    .setHTML(html)
+                    .addTo(map);
+            }
+        }
+    }
 };

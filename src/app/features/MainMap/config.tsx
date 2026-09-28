@@ -13,13 +13,12 @@ import {
     GeoJSONSource,
     LayerSpecification,
     Map,
-    PointLike,
     Popup,
 } from 'mapbox-gl';
 import { defaultGeoJson } from '@/lib/state/consts';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
-import { point, nearestPointOnLine } from '@turf/turf';
+import { getLineTracingEvent } from '@/app/features/MainMap/utils';
 
 export const MAP_ID = 'main';
 
@@ -285,20 +284,17 @@ export const getLayerColor = (
     }
 };
 
-type TGhostLayers =
-    | SubLayerId.MainstemsSmallGhost
-    | SubLayerId.MainstemsMediumGhost
-    | SubLayerId.MainstemsLargeGhost;
 const BASE_PADDING = 20;
 
-const getPadding = (id: TGhostLayers): number => {
+export const getLayerPadding = (id: LayerId | SubLayerId): number => {
     switch (id) {
-        case SubLayerId.MainstemsSmallGhost:
-            return BASE_PADDING;
-        case SubLayerId.MainstemsMediumGhost:
-            return BASE_PADDING * 1.2;
         case SubLayerId.MainstemsLargeGhost:
             return BASE_PADDING * 1.5;
+        case SubLayerId.MainstemsMediumGhost:
+            return BASE_PADDING * 1.2;
+        default:
+        case SubLayerId.MainstemsSmallGhost:
+            return BASE_PADDING;
     }
 };
 
@@ -362,11 +358,11 @@ export const getLayerConfig = (
                     MAINSTEM_DRAINAGE_SMALL,
                 ],
                 paint: {
-                    'line-opacity': 0.000001,
+                    'line-opacity': 0,
                     'line-color': '#FFF',
                     'line-width':
                         MAINSTEM_SMALL_LINE_WIDTH +
-                        getPadding(SubLayerId.MainstemsSmallGhost),
+                        getLayerPadding(SubLayerId.MainstemsSmallGhost),
                 },
             };
         case SubLayerId.MainstemsMedium:
@@ -426,11 +422,11 @@ export const getLayerConfig = (
                     ],
                 ],
                 paint: {
-                    'line-opacity': 0.000001,
+                    'line-opacity': 0,
                     'line-color': '#FFF',
                     'line-width':
                         MAINSTEM_MEDIUM_LINE_WIDTH +
-                        getPadding(SubLayerId.MainstemsMediumGhost),
+                        getLayerPadding(SubLayerId.MainstemsMediumGhost),
                 },
             };
         case SubLayerId.MainstemsLarge:
@@ -474,11 +470,11 @@ export const getLayerConfig = (
                     MAINSTEM_DRAINAGE_MEDIUM,
                 ],
                 paint: {
-                    'line-opacity': 0.000001,
+                    'line-opacity': 0,
                     'line-color': '#FFF',
                     'line-width':
                         MAINSTEM_LARGE_LINE_WIDTH +
-                        getPadding(SubLayerId.MainstemsLargeGhost),
+                        getLayerPadding(SubLayerId.MainstemsLargeGhost),
                 },
             };
         case LayerId.MainstemsHighlight:
@@ -493,11 +489,6 @@ export const getLayerConfig = (
                     'line-cap': 'round',
                     'line-join': 'round',
                     visibility: 'visible',
-                    'line-sort-key': [
-                        '-',
-                        ['get', 'outlet_drainagearea_sqkm'],
-                        1,
-                    ],
                 },
                 paint: {
                     'line-width': 12,
@@ -756,72 +747,13 @@ export const getLayerHoverFunction = (
     return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
         switch (id) {
             case SubLayerId.MainstemsSmallGhost:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-                        const padding = getPadding(
-                            SubLayerId.MainstemsSmallGhost
-                        );
-                        const screenBBox: [PointLike, PointLike] = [
-                            [e.point.x - padding, e.point.y - padding],
-                            [e.point.x + padding, e.point.y + padding],
-                        ];
-
-                        const ghostFeatures = map.queryRenderedFeatures(
-                            screenBBox,
-                            {
-                                layers: [SubLayerId.MainstemsSmallGhost],
-                            }
-                        );
-
-                        const ghostFeature = ghostFeatures[0];
-
-                        if (ghostFeature?.properties?.id) {
-                            const visibleFeatures = map.queryRenderedFeatures(
-                                screenBBox,
-                                {
-                                    layers: [SubLayerId.MainstemsSmall],
-                                }
-                            );
-
-                            const visibleFeature = visibleFeatures.find(
-                                (f) =>
-                                    f.properties?.id ===
-                                    ghostFeature.properties?.id
-                            );
-
-                            if (
-                                visibleFeature &&
-                                visibleFeature.geometry.type === 'LineString'
-                            ) {
-                                const safeFeature = visibleFeature as Feature<
-                                    LineString,
-                                    Record<string, string | number>
-                                >;
-
-                                const snapped = nearestPointOnLine(
-                                    safeFeature,
-                                    point([e.lngLat.lng, e.lngLat.lat])
-                                );
-                                const html = `<strong style="color:black;">${
-                                    safeFeature.properties.name_at_outlet ||
-                                    'URI: ' + safeFeature.properties.id
-                                }</strong>`;
-
-                                hoverPopup
-                                    .setLngLat(
-                                        snapped.geometry.coordinates as [
-                                            number,
-                                            number,
-                                        ]
-                                    )
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
+                return (e) =>
+                    getLineTracingEvent(
+                        e,
+                        map,
+                        hoverPopup,
+                        SubLayerId.MainstemsSmall
+                    );
             case SubLayerId.MainstemsSmall:
                 return (e) => {
                     if (!hoverOnCluster) {
@@ -845,72 +777,13 @@ export const getLayerHoverFunction = (
                 };
 
             case SubLayerId.MainstemsMediumGhost:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-                        const padding = getPadding(
-                            SubLayerId.MainstemsMediumGhost
-                        );
-                        const screenBBox: [PointLike, PointLike] = [
-                            [e.point.x - padding, e.point.y - padding],
-                            [e.point.x + padding, e.point.y + padding],
-                        ];
-
-                        const ghostFeatures = map.queryRenderedFeatures(
-                            screenBBox,
-                            {
-                                layers: [SubLayerId.MainstemsMediumGhost],
-                            }
-                        );
-
-                        const ghostFeature = ghostFeatures[0];
-
-                        if (ghostFeature?.properties?.id) {
-                            const visibleFeatures = map.queryRenderedFeatures(
-                                screenBBox,
-                                {
-                                    layers: [SubLayerId.MainstemsMedium],
-                                }
-                            );
-
-                            const visibleFeature = visibleFeatures.find(
-                                (f) =>
-                                    f.properties?.id ===
-                                    ghostFeature.properties?.id
-                            );
-
-                            if (
-                                visibleFeature &&
-                                visibleFeature.geometry.type === 'LineString'
-                            ) {
-                                const safeFeature = visibleFeature as Feature<
-                                    LineString,
-                                    Record<string, string | number>
-                                >;
-
-                                const snapped = nearestPointOnLine(
-                                    safeFeature,
-                                    point([e.lngLat.lng, e.lngLat.lat])
-                                );
-                                const html = `<strong style="color:black;">${
-                                    safeFeature.properties.name_at_outlet ||
-                                    'URI: ' + safeFeature.properties.id
-                                }</strong>`;
-
-                                hoverPopup
-                                    .setLngLat(
-                                        snapped.geometry.coordinates as [
-                                            number,
-                                            number,
-                                        ]
-                                    )
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
+                return (e) =>
+                    getLineTracingEvent(
+                        e,
+                        map,
+                        hoverPopup,
+                        SubLayerId.MainstemsMedium
+                    );
             case SubLayerId.MainstemsMedium:
                 return (e) => {
                     if (!hoverOnCluster) {
@@ -934,72 +807,13 @@ export const getLayerHoverFunction = (
                     }
                 };
             case SubLayerId.MainstemsLargeGhost:
-                return (e) => {
-                    const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
-                        map.getCanvas().style.cursor = 'pointer';
-                        const padding = getPadding(
-                            SubLayerId.MainstemsLargeGhost
-                        );
-                        const screenBBox: [PointLike, PointLike] = [
-                            [e.point.x - padding, e.point.y - padding],
-                            [e.point.x + padding, e.point.y + padding],
-                        ];
-
-                        const ghostFeatures = map.queryRenderedFeatures(
-                            screenBBox,
-                            {
-                                layers: [SubLayerId.MainstemsLargeGhost],
-                            }
-                        );
-
-                        const ghostFeature = ghostFeatures[0];
-
-                        if (ghostFeature?.properties?.id) {
-                            const visibleFeatures = map.queryRenderedFeatures(
-                                screenBBox,
-                                {
-                                    layers: [SubLayerId.MainstemsLarge],
-                                }
-                            );
-
-                            const visibleFeature = visibleFeatures.find(
-                                (f) =>
-                                    f.properties?.id ===
-                                    ghostFeature.properties?.id
-                            );
-
-                            if (
-                                visibleFeature &&
-                                visibleFeature.geometry.type === 'LineString'
-                            ) {
-                                const safeFeature = visibleFeature as Feature<
-                                    LineString,
-                                    Record<string, string | number>
-                                >;
-
-                                const snapped = nearestPointOnLine(
-                                    safeFeature,
-                                    point([e.lngLat.lng, e.lngLat.lat])
-                                );
-                                const html = `<strong style="color:black;">${
-                                    safeFeature.properties.name_at_outlet ||
-                                    'URI: ' + safeFeature.properties.id
-                                }</strong>`;
-
-                                hoverPopup
-                                    .setLngLat(
-                                        snapped.geometry.coordinates as [
-                                            number,
-                                            number,
-                                        ]
-                                    )
-                                    .setHTML(html)
-                                    .addTo(map);
-                            }
-                        }
-                    }
-                };
+                return (e) =>
+                    getLineTracingEvent(
+                        e,
+                        map,
+                        hoverPopup,
+                        SubLayerId.MainstemsLarge
+                    );
             case SubLayerId.MainstemsLarge:
                 return (e) => {
                     if (!hoverOnCluster) {
