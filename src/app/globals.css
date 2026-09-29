@@ -9,6 +9,8 @@
     --secondary: theme('colors.secondary.DEFAULT');
     --secondary-hover: theme('colors.secondary.hover');
 
+    --text-color: #000;
+    --z-select-menu: 999;
     --z-notification: 3;
     --z-side-panel: 3;
     --z-side-panel-control: 1;

@@ -40,6 +40,7 @@ describe('MainMap: Config', () => {
                 'line-cap': 'round',
                 'line-join': 'round',
                 visibility: 'none',
+                'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
             },
             filter: ['<', ['get', 'outlet_drainagearea_sqkm'], 160],
             paint: {

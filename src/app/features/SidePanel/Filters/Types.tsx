@@ -1,8 +1,13 @@
-import MultiSelect from '@/app/components/common/MultiSelect';
+import ReactSelect, {
+    SELECT_ALL_VALUE,
+} from '@/app/components/common/ReactSelect';
+import { TOption } from '@/app/components/common/ReactSelect/types';
 import { Typography } from '@/app/components/common/Typography';
 import { setFilter } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { MultiValue, SingleValue } from 'react-select';
 
 type Props = {
     types: string[];
@@ -21,43 +26,64 @@ export const Types: React.FC<Props> = (props) => {
     const { filter } = useSelector((state: RootState) => state.main);
     const dispatch: AppDispatch = useDispatch();
 
-    const handleTypeOptionClick = (type: string) => {
-        const newSelectedTypes =
-            filter?.types && filter.types.includes(type)
-                ? filter.types.filter((item) => item !== type)
-                : [...(filter?.types ?? []), type];
-        dispatch(
-            setFilter({
-                types: newSelectedTypes,
-            })
-        );
-    };
+    const handleChange = (
+        option: SingleValue<TOption<string>> | MultiValue<TOption<string>>
+    ) => {
+        if (!option) {
+            return;
+        }
 
-    const handleSelectAll = (allSelected: boolean) => {
-        if (allSelected) {
-            const newTypes = Array.from(
-                new Set([...(filter.types ?? []), ...types])
+        if (Array.isArray(option)) {
+            const values = (option as TOption<string>[]).map(
+                ({ value }) => value
             );
+
+            if (values.includes(SELECT_ALL_VALUE)) {
+                dispatch(
+                    setFilter({
+                        types,
+                    })
+                );
+                return;
+            }
+
             dispatch(
                 setFilter({
-                    types: newTypes,
+                    types: values,
                 })
             );
         } else {
-            const removeTypes = new Set(types);
-            let filteredTypes: string[] = [];
-            if (filter.types) {
-                filteredTypes = filter.types.filter(
-                    (type) => !removeTypes.has(type)
+            const { value } = option as TOption<string>;
+            if (value === SELECT_ALL_VALUE) {
+                dispatch(
+                    setFilter({
+                        types,
+                    })
                 );
+                return;
             }
+
+            const newSelectedTypes =
+                filter?.types && filter.types.includes(value)
+                    ? filter.types.filter((item) => item !== value)
+                    : [...(filter?.types ?? []), value];
             dispatch(
                 setFilter({
-                    types: filteredTypes,
+                    types: newSelectedTypes,
                 })
             );
         }
     };
+
+    const options: TOption<string>[] = useMemo(
+        () => types.map((d) => ({ value: d, label: d })),
+        [types]
+    );
+
+    const selectedOptions: TOption<string>[] = useMemo(
+        () => options.filter(({ value }) => filter.types?.includes(value)),
+        [options, filter.types]
+    );
 
     return (
         <>
@@ -65,15 +91,17 @@ export const Types: React.FC<Props> = (props) => {
             <label id="type-select-label" className="sr-only">
                 Filter datasets by site type
             </label>
-            <MultiSelect
+
+            <ReactSelect
                 id="types"
-                options={types}
-                selectedOptions={filter.types}
-                handleOptionClick={handleTypeOptionClick}
-                searchable
-                selectAll
+                aria-labelledby="type-select-label"
+                options={options}
+                value={selectedOptions}
+                onChange={handleChange}
                 limit={100}
-                handleSelectAll={handleSelectAll}
+                isSearchable
+                isMulti
+                isAllSelectable
             />
         </>
     );

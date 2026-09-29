@@ -1,8 +1,13 @@
-import MultiSelect from '@/app/components/common/MultiSelect';
+import ReactSelect, {
+    SELECT_ALL_VALUE,
+} from '@/app/components/common/ReactSelect';
+import { TOption } from '@/app/components/common/ReactSelect/types';
 import { Typography } from '@/app/components/common/Typography';
 import { setFilter } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { MultiValue, SingleValue } from 'react-select';
 
 type Props = {
     variables: string[];
@@ -22,42 +27,64 @@ export const Variables: React.FC<Props> = (props) => {
     const { filter } = useSelector((state: RootState) => state.main);
     const dispatch: AppDispatch = useDispatch();
 
-    const handleTypeOptionClick = (type: string) => {
-        const newSelectedVariables =
-            filter?.variables && filter.variables.includes(type)
-                ? filter.variables.filter((item) => item !== type)
-                : [...(filter?.variables ?? []), type];
+    const handleChange = (
+        option: SingleValue<TOption<string>> | MultiValue<TOption<string>>
+    ) => {
+        if (!option) {
+            return;
+        }
 
-        dispatch(
-            setFilter({
-                variables: newSelectedVariables,
-            })
-        );
-    };
-
-    const handleSelectAll = (allSelected: boolean) => {
-        if (allSelected) {
-            dispatch(
-                setFilter({
-                    variables: variables,
-                })
+        if (Array.isArray(option)) {
+            const values = (option as TOption<string>[]).map(
+                ({ value }) => value
             );
-        } else {
-            const removeVariables = new Set(variables);
-            let filteredVariables: string[] = [];
-            if (filter.variables) {
-                filteredVariables = filter.variables.filter(
-                    (type) => !removeVariables.has(type)
+
+            if (values.includes(SELECT_ALL_VALUE)) {
+                dispatch(
+                    setFilter({
+                        variables,
+                    })
                 );
+                return;
             }
 
             dispatch(
                 setFilter({
-                    variables: filteredVariables,
+                    variables: values,
+                })
+            );
+        } else {
+            const { value } = option as TOption<string>;
+            if (value === SELECT_ALL_VALUE) {
+                dispatch(
+                    setFilter({
+                        variables,
+                    })
+                );
+                return;
+            }
+
+            const newSelectedVariables =
+                filter?.variables && filter.variables.includes(value)
+                    ? filter.variables.filter((item) => item !== value)
+                    : [...(filter?.variables ?? []), value];
+            dispatch(
+                setFilter({
+                    variables: newSelectedVariables,
                 })
             );
         }
     };
+
+    const options: TOption<string>[] = useMemo(
+        () => variables.map((d) => ({ value: d, label: d })),
+        [variables]
+    );
+
+    const selectedOptions: TOption<string>[] = useMemo(
+        () => options.filter(({ value }) => filter.variables?.includes(value)),
+        [options, filter.variables]
+    );
 
     return (
         <>
@@ -65,17 +92,16 @@ export const Variables: React.FC<Props> = (props) => {
             <label id="variables-select-label" className="sr-only">
                 Filter datasets by variable
             </label>
-            <MultiSelect
+            <ReactSelect
                 id="variables"
-                ariaLabel="variables-select-label"
-                options={variables}
-                selectedOptions={filter.variables}
-                handleOptionClick={handleTypeOptionClick}
-                searchable
-                selectAll
-                strictSearch
+                aria-labelledby="variables-select-label"
+                options={options}
+                value={selectedOptions}
+                onChange={handleChange}
                 limit={100}
-                handleSelectAll={handleSelectAll}
+                isSearchable
+                isMulti
+                isAllSelectable
             />
         </>
     );
