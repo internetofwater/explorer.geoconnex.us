@@ -1,5 +1,8 @@
-import { DESELECT_ALL_VALUE, SELECT_ALL_VALUE } from '.';
-import { TOption } from './types';
+import {
+    DESELECT_ALL_VALUE,
+    SELECT_ALL_VALUE,
+} from '@/app/components/common/ReactSelect';
+import { TOption } from '@/app/components/common/ReactSelect/types';
 
 export const getSelectAllOption = (
     areAllSelected: boolean = false

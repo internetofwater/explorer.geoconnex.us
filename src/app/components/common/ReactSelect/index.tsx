@@ -7,7 +7,7 @@ import Select, {
     OptionsOrGroups,
     Props as SelectProps,
 } from 'react-select';
-import { getSelectAllOption } from './utils';
+import { getSelectAllOption } from '@/app/components/common/ReactSelect/utils';
 
 type OptionBase = {
     value: string | number | null;
