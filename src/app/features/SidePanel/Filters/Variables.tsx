@@ -1,4 +1,5 @@
 import ReactSelect, {
+    DESELECT_ALL_VALUE,
     SELECT_ALL_VALUE,
 } from '@/app/components/common/ReactSelect';
 import { TOption } from '@/app/components/common/ReactSelect/types';
@@ -48,6 +49,15 @@ export const Variables: React.FC<Props> = (props) => {
                 return;
             }
 
+            if (values.includes(DESELECT_ALL_VALUE)) {
+                dispatch(
+                    setFilter({
+                        variables: [],
+                    })
+                );
+                return;
+            }
+
             dispatch(
                 setFilter({
                     variables: values,
@@ -59,6 +69,15 @@ export const Variables: React.FC<Props> = (props) => {
                 dispatch(
                     setFilter({
                         variables,
+                    })
+                );
+                return;
+            }
+
+            if (value === DESELECT_ALL_VALUE) {
+                dispatch(
+                    setFilter({
+                        variables: [],
                     })
                 );
                 return;

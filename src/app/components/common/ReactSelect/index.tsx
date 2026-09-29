@@ -7,7 +7,7 @@ import Select, {
     OptionsOrGroups,
     Props as SelectProps,
 } from 'react-select';
-import { TOption } from './types';
+import { getSelectAllOption } from './utils';
 
 type OptionBase = {
     value: string | number | null;
@@ -23,10 +23,7 @@ type Props<T extends OptionBase> = SelectProps<T> & {
 
 export const SELECT_ALL_VALUE = '*';
 
-export const SELECT_ALL_OPTION: TOption<string> = {
-    value: SELECT_ALL_VALUE,
-    label: 'Select All',
-};
+export const DESELECT_ALL_VALUE = '%';
 
 const MenuList = <T extends OptionBase>({
     children,
@@ -104,9 +101,16 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
     const _options = useMemo(
         () =>
             isAllSelectable && options
-                ? [SELECT_ALL_OPTION, ...options]
+                ? [
+                      getSelectAllOption(
+                          Array.isArray(options) &&
+                              Array.isArray(value) &&
+                              options.length === value.length
+                      ),
+                      ...options,
+                  ]
                 : options,
-        [options, isAllSelectable]
+        [value, options, isAllSelectable]
     ) as OptionsOrGroups<T, GroupBase<T>>;
 
     const MenuListWithLimit = (menuProps: MenuListProps<T, boolean>) => (
