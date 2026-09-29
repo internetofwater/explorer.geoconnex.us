@@ -33,9 +33,9 @@ export const GeocoderResults: React.FC<Props> = (props) => {
     return (
         <div
             aria-live="polite"
-            className="w-full bg-clip-padding overflow-hidden bg-primary border-b border-gray-300 rounded"
+            className="w-full bg-clip-padding overflow-hidden bg-primary-opaque border-b border-gray-300 rounded"
         >
-            <div className="max-h-72 overflow-y-auto">
+            <div className="max-h-72 overflow-y-auto py-2">
                 {RESULT_SECTIONS.map(({ type, label }) => (
                     <section key={type} aria-label={label}>
                         <div className="flex items-center gap-2 px-3 py-2 text-xs text-gray-500">

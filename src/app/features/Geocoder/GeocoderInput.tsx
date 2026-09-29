@@ -53,9 +53,9 @@ export const GeocoderInput: React.FC = () => {
                     id="search-input"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search state, county or GNIS feature"
-                    aria-label="Search by state, county, GNIS feature name or GNIS feature ID"
-                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded text-black text-sm md:text-base"
+                    placeholder="Search states, counties, or GNIS features"
+                    aria-label="Search states, counties, or GNIS features"
+                    className="w-full h-11 border border-gray-500 px-3 py-2 rounded text-black text-xs md:text-sm lg:text-base"
                 />
 
                 <div className="absolute inset-y-0 right-2 flex items-center gap-1">
