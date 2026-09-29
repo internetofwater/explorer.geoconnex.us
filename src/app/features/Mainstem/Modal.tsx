@@ -9,7 +9,7 @@ import { fetchDatasets } from '@/lib/state/mainstem/thunks';
 import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
 import { datasetService } from '@/services/init/init';
-import { MouseEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type TMemoResult = {
     variableMap: Map<string, string>;
@@ -106,9 +106,7 @@ export const MainstemModal: React.FC = () => {
         setVariables(newVariables);
     };
 
-    const handleClick = (e: MouseEvent) => {
-        // Stop modal overlay from taking over this event
-        e.stopPropagation();
+    const handleClick = () => {
         if (!selected) {
             return;
         }
@@ -146,6 +144,12 @@ export const MainstemModal: React.FC = () => {
                     <div className="flex flex-col gap-2">
                         <MultiSelect
                             id="mainstem-variables-select"
+                            options={variableOptions}
+                            selectedOptions={variables}
+                            handleOptionClick={handleVariablesChange}
+                        />
+                        <MultiSelect
+                            id="mainstem-types-select"
                             options={variableOptions}
                             selectedOptions={variables}
                             handleOptionClick={handleVariablesChange}

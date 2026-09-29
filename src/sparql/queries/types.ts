@@ -6,6 +6,7 @@ export type TBasicOptions = {
 
 export type TOptions = TBasicOptions & {
     variableMeasuredURIs?: string[];
+    types?: string[];
 };
 
 export type TBuildSparqlQuery = (options?: TBasicOptions) => string;

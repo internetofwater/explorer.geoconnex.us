@@ -9,8 +9,12 @@ export const getQueryOptions = (options: TOptions) =>
              ? `
                 VALUES ?${VARIABLE_MEASURED_URI} { 
                     ${options.variableMeasuredURIs.map((uri) => `<${uri}>`).join('\n')}\n 
-                }
-                ?dataset schema:variableMeasured ?${VARIABLE_MEASURED_URI} .`
+                }`
+             : ''
+     }
+     ${
+         options.types && options.types.length > 0
+             ? `VALUES ?type { ${options.types.map((t) => `<${t}>`).join(' ')} }`
              : ''
      }
     `);
