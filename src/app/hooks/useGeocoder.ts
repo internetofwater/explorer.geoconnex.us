@@ -67,7 +67,7 @@ const stateCache = new Map<string, StateResult[]>();
 const countyCache = new Map<string, CountyResult[]>();
 const gnisCache = new Map<string, GnisResult[]>();
 
-const stateNamesByFips = new Map<string, string>();
+let countySearchStates: StateData[] | undefined;
 
 /**
  * Manages a debounced search for states, counties, and GNIS features.
@@ -206,17 +206,70 @@ async function searchStates(
     }));
 
     if (!options?.signal?.aborted) {
-        results.forEach(({ feature }) => {
-            stateNamesByFips.set(
-                feature.properties.statefp,
-                feature.properties.name
-            );
-        });
-
         stateCache.set(query, results);
     }
 
     return results;
+}
+
+async function getCountySearchStates(signal?: AbortSignal) {
+    if (countySearchStates) {
+        return countySearchStates;
+    }
+
+    const url = new URL(STATES_URL);
+
+    url.searchParams.set('skipGeometry', 'true');
+    url.searchParams.set('limit', '100');
+    url.searchParams.set('f', 'json');
+
+    const response = await fetch(url, { signal });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch states');
+    }
+
+    const data = (await response.json()) as FeatureCollection<null, StateData>;
+
+    const states = data.features.map(({ properties }) => properties);
+
+    if (!signal?.aborted) {
+        countySearchStates = states;
+    }
+
+    return states;
+}
+
+function getCountyFilter(query: string, states: StateData[]): string {
+    const normalized = query.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+
+    /*
+     * Match a trailing state name or acronym to narrow common county names
+     * (e.g., Washington) by state FIPS code before applying the results limit.
+     * Prefer the longest alias so "West Virginia" matches before "Virginia".
+     */
+    const match = states
+        .flatMap((state) =>
+            [state.name, state.stusps].map((alias) => ({
+                state,
+                alias: alias.toLowerCase(),
+            }))
+        )
+        .sort((a, b) => b.alias.length - a.alias.length)
+        .find(({ alias }) => normalized.endsWith(` ${alias}`));
+
+    /* Remove the matched state suffix and its preceding space, if present. */
+    const countyName = match
+        ? normalized.slice(0, -(match.alias.length + 1)).trim()
+        : normalized;
+
+    const name = countyName.replace(/\s+county$/, '');
+
+    const nameFilter = `CASEI(name) LIKE CASEI('%${name}%')`;
+
+    return match
+        ? `${nameFilter} AND statefp = '${match.state.statefp}'`
+        : nameFilter;
 }
 
 async function searchCounties(
@@ -229,10 +282,12 @@ async function searchCounties(
         return cached;
     }
 
+    const states = await getCountySearchStates(options?.signal);
+
     const url = new URL(COUNTIES_URL);
 
     url.searchParams.set('sortby', '-name');
-    url.searchParams.set('filter', `CASEI(name) LIKE CASEI('%${query}%')`);
+    url.searchParams.set('filter', getCountyFilter(query, states));
     url.searchParams.set('filter-lang', 'cql2-text');
     url.searchParams.set('limit', `${GEOCODER_RESULTS_LIMIT}`);
     url.searchParams.set('f', 'json');
@@ -248,18 +303,9 @@ async function searchCounties(
         CountyData
     >;
 
-    const statefps = new Set(
-        data.features.map((feature) => feature.properties.statefp)
+    const stateNames = new Map(
+        states.map(({ statefp, name }) => [statefp, name])
     );
-
-    const stateNameEntries = await Promise.all(
-        [...statefps].map(async (statefp) => {
-            const name = await getStateName(statefp, options?.signal);
-            return [statefp, name] as const;
-        })
-    );
-
-    const stateNames = new Map(stateNameEntries);
 
     const results: CountyResult[] = data.features.map((feature) => ({
         type: 'county',
@@ -280,45 +326,6 @@ async function searchCounties(
     }
 
     return results;
-}
-
-async function getStateName(statefp: string, signal?: AbortSignal) {
-    const cached = stateNamesByFips.get(statefp);
-
-    if (cached) {
-        return cached;
-    }
-
-    const url = new URL(STATES_URL);
-
-    url.searchParams.set('filter', `statefp = '${statefp}'`);
-    url.searchParams.set('filter-lang', 'cql2-text');
-    url.searchParams.set('f', 'json');
-    url.searchParams.set('skipGeometry', 'true');
-    url.searchParams.set('limit', '1');
-
-    const response = await fetch(url, { signal });
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch state for FIPS code ${statefp}`);
-    }
-
-    const data = (await response.json()) as FeatureCollection<
-        Geometry,
-        StateData
-    >;
-
-    const name = data.features[0]?.properties.name;
-
-    if (!name) {
-        throw new Error(`No state found for FIPS code ${statefp}`);
-    }
-
-    if (!signal?.aborted) {
-        stateNamesByFips.set(statefp, name);
-    }
-
-    return name;
 }
 
 async function searchGnisFeatures(
