@@ -121,6 +121,7 @@ export const DistributionNames: React.FC<Props> = (props) => {
                 options={options}
                 value={selectedOptions}
                 onChange={handleChange}
+                menuPlacement="top"
                 isSearchable
                 isMulti
                 isAllSelectable

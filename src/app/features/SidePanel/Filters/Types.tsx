@@ -118,6 +118,7 @@ export const Types: React.FC<Props> = (props) => {
                 value={selectedOptions}
                 onChange={handleChange}
                 limit={100}
+                menuPlacement="top"
                 isSearchable
                 isMulti
                 isAllSelectable

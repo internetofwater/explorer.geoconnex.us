@@ -112,6 +112,9 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
         customClassnames,
         customStyles = {},
         isAllSelectable,
+        menuPortalTarget,
+        menuPosition = 'fixed',
+        menuPlacement,
     } = props;
 
     const _options = useMemo(
@@ -154,8 +157,9 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
             isDisabled={isDisabled}
             isMulti={isMulti}
             onChange={onChange}
-            menuPortalTarget={document.body}
-            menuPosition={'fixed'}
+            menuPortalTarget={menuPortalTarget}
+            menuPosition={menuPosition}
+            menuPlacement={menuPlacement}
             styles={{
                 container: (baseStyles) => ({
                     ...baseStyles,
@@ -198,7 +202,7 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
                 menuPortal: (base) => ({
                     ...base,
                     color: 'var(--text-color)',
-                    zIndex: 9999,
+                    z: 1,
                 }),
             }}
             classNames={{
