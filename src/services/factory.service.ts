@@ -1,4 +1,5 @@
 import Queries from '@/sparql/queries';
+import { TOptions } from '@/sparql/queries/types';
 
 export class FactoryService {
     createGetVariablesMeasured(uri: string): string {
@@ -17,7 +18,7 @@ export class FactoryService {
         return Queries.getTotalSites(uri);
     }
 
-    createGetDatasets(uri: string): string {
-        return Queries.getDatasets(uri);
+    createGetDatasets(uri: string, options: TOptions): string {
+        return Queries.getDatasets(uri, options);
     }
 }

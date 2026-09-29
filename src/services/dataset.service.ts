@@ -10,6 +10,7 @@ import { TVariablesMeasured } from '@/sparql/queries/getVariablesMeasured';
 import { parseGetVariablesMeasured } from '@/sparql/tranformers/getVariablesMeasured';
 import { TTypes } from '@/sparql/queries/getTypes';
 import { parseGetTypes } from '@/sparql/tranformers/getTypes';
+import { TMainstemRequest } from '@/lib/state/mainstem/types';
 
 export type SparqlResult = {
     datasets: {
@@ -115,8 +116,10 @@ export class DatasetService {
         return parseGetTotalSites(await this.fetch(query, signal));
     }
 
-    getDatasets(uri: string): Readable {
-        const query = this.deps.factoryService.createGetDatasets(uri);
+    getDatasets(uri: string, request: TMainstemRequest): Readable {
+        const query = this.deps.factoryService.createGetDatasets(uri, {
+            variableMeasuredURIs: request.variableMeasuredURIs,
+        });
 
         const stream = this.stream(query);
 

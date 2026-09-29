@@ -4,9 +4,10 @@ import {
     SCHEMA,
     SCHEMA_PREFIX,
 } from '@/sparql/queries/consts';
-import { TMainstemQuery } from '@/sparql/queries/types';
+import { TMainstemQuery, TOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
+import { getQueryOptions } from './utils/getQueryOptions';
 
 export type TRawGetDatasetCount = { count: string };
 
@@ -16,7 +17,7 @@ export const DatasetCount = z.object({
 
 export type TDatasetCount = z.infer<typeof DatasetCount>;
 
-const build = (uri: string) =>
+const build = (uri: string, options: TOptions = {}) =>
     format(`
             ${HYF_PREFIX}
             ${SCHEMA_PREFIX}
@@ -28,8 +29,13 @@ const build = (uri: string) =>
                 ?monitoringLocation
                     ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
                     ${SCHEMA}:subjectOf ?dataset .
+                    
+            ${getQueryOptions(options)}
             }`);
 
 export const getDatasetCount: TMainstemQuery = Object.assign(build, {
-    example: () => build('https://geoconnex.us/ref/mainstems/1'),
+    example: () =>
+        build('https://geoconnex.us/ref/mainstems/1', {
+            variableMeasuredURIs: ['test1', 'test2'],
+        }),
 });

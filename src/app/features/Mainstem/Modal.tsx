@@ -6,18 +6,21 @@ import { LoadingType } from '@/lib/state/loading/types';
 import { EOverlay, setOverlay } from '@/lib/state/main/slice';
 import { setMetrics } from '@/lib/state/mainstem/slice';
 import { fetchDatasets } from '@/lib/state/mainstem/thunks';
-import { TMainstemMetrics } from '@/lib/state/mainstem/types';
+import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
 import { datasetService } from '@/services/init/init';
-import { useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useState } from 'react';
+
+type TMemoResult = {
+    variableMap: Map<string, string>;
+};
 
 export const MainstemModal: React.FC = () => {
     const selected = useAppSelector((state) => state.mainstem.selected);
     const metrics = useAppSelector((state) => state.mainstem.metrics);
-    const currentRequest = useAppSelector((state) => state.mainstem.request);
     const overlay = useAppSelector((state) => state.main.overlay);
 
-    const [request, setRequest] = useState(currentRequest);
+    const [variables, setVariables] = useState<string[]>([]);
 
     const dispatch = useAppDispatch();
 
@@ -69,41 +72,68 @@ export const MainstemModal: React.FC = () => {
         };
     }, [selected, metrics]);
 
-    const variables = useMemo(() => {
+    const { variableMap } = useMemo(() => {
+        const result: TMemoResult = {
+            variableMap: new Map<string, string>(),
+        };
         if (!metrics) {
-            return [];
+            return result;
         }
 
-        return metrics.variables.map(
-            ({ variableMeasured }) => variableMeasured
-        );
+        for (const {
+            variableMeasured,
+            variableMeasuredURI,
+        } of metrics.variables) {
+            if (!result.variableMap.has(variableMeasured)) {
+                result.variableMap.set(variableMeasured, variableMeasuredURI);
+            }
+        }
+
+        return result;
     }, [metrics]);
 
     const handleClose = () => {
         dispatch(setOverlay(null));
-        setRequest(currentRequest);
+        // setRequest(currentRequest);
     };
 
     const handleVariablesChange = (variable: string) => {
-        const variables =
-            request?.variables && request.variables.includes(variable)
-                ? request.variables.filter((item) => item !== variable)
-                : [...(request?.variables ?? []), variable];
+        const newVariables =
+            variables && variables.includes(variable)
+                ? variables.filter((item) => item !== variable)
+                : [...variables, variable];
 
-        setRequest({
-            ...request,
-            variables,
-        });
+        setVariables(newVariables);
     };
 
-    const handleClick = () => {
+    const handleClick = (e: MouseEvent) => {
+        // Stop modal overlay from taking over this event
+        e.stopPropagation();
         if (!selected) {
             return;
         }
 
-        dispatch(fetchDatasets(selected.uri));
+        const request: TMainstemRequest = {
+            id: selected.id,
+            variableMeasuredURIs: variables.flatMap((variable) => {
+                const URI = variableMap.get(variable);
+
+                if (!URI) {
+                    console.error(
+                        `Unable to find URI for variable measured: ${variable}`
+                    );
+                    return [];
+                }
+
+                return [URI];
+            }),
+        };
+
+        dispatch(fetchDatasets(selected.uri, request));
         dispatch(setOverlay(null));
     };
+
+    const variableOptions = Array.from(variableMap.keys());
 
     return (
         <Modal
@@ -116,8 +146,8 @@ export const MainstemModal: React.FC = () => {
                     <div className="flex flex-col gap-2">
                         <MultiSelect
                             id="mainstem-variables-select"
-                            options={variables}
-                            selectedOptions={request.variables}
+                            options={variableOptions}
+                            selectedOptions={variables}
                             handleOptionClick={handleVariablesChange}
                         />
                     </div>

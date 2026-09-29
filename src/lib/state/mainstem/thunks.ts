@@ -16,13 +16,16 @@ import { loadingManager, notificationManager } from '@/managers/init';
 import { LoadingType } from '../loading/types';
 import { NotificationType } from '../notifications/types';
 import { datasetService } from '@/services/init/init';
+import { TMainstemRequest } from './types';
+import { setRequest } from './slice';
 
 let stream: Readable | null = null;
 let batcher: BatchTransform<SparqlResult> | null = null;
 let requestGeneration = 0;
 
 export const fetchDatasets =
-    (mainstemURI: string, signal?: AbortSignal) => (dispatch: AppDispatch) => {
+    (mainstemURI: string, request: TMainstemRequest, signal?: AbortSignal) =>
+    (dispatch: AppDispatch) => {
         const generation = ++requestGeneration;
 
         stream?.destroy();
@@ -35,7 +38,7 @@ export const fetchDatasets =
             LoadingType.Datasets
         );
 
-        stream = datasetService.getDatasets(mainstemURI);
+        stream = datasetService.getDatasets(mainstemURI, request);
         batcher = new BatchTransform<SparqlResult>(BATCH_SIZE);
 
         let processingIndex = 0;
@@ -93,6 +96,7 @@ export const fetchDatasets =
 
         currentStream.once('end', () => {
             cleanup();
+            dispatch(setRequest(request));
             notificationManager.show(
                 `Datasets loaded for mainstem`,
                 NotificationType.Success,

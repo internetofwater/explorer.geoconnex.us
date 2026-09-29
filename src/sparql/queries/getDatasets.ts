@@ -6,10 +6,11 @@ import {
     SCHEMA,
     SCHEMA_PREFIX,
 } from '@/sparql/queries/consts';
-import { TMainstemQuery } from '@/sparql/queries/types';
+import { TMainstemQuery, TOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
+import { getQueryOptions } from './utils/getQueryOptions';
 
-const build = (uri: string) =>
+const build = (uri: string, options: TOptions = {}) =>
     format(`
             ${HYF_PREFIX}
             ${SCHEMA_PREFIX}
@@ -49,6 +50,8 @@ const build = (uri: string) =>
                     '","distributionFormat":"', STR(?distributionFormat),
                     '","wkt":"', STR(?wkt), '"}'
                 ) AS ?datasets)
+                
+                ${getQueryOptions(options)}
             }`);
 
 export const getDatasets: TMainstemQuery = Object.assign(build, {

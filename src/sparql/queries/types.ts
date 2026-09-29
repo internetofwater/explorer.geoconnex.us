@@ -4,6 +4,10 @@ export type TBasicOptions = {
     limit?: number;
 };
 
+export type TOptions = TBasicOptions & {
+    variableMeasuredURIs?: string[];
+};
+
 export type TBuildSparqlQuery = (options?: TBasicOptions) => string;
 
 export type TSparqlQuery = TBuildSparqlQuery & { example: () => string };
