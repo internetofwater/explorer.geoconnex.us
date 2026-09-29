@@ -40,14 +40,30 @@ const MenuList = <T extends OptionBase>({
                     ? children.slice(0, props.selectProps.limit) /* Options */
                     : children /* NoOptionsLabel */
             }
+            {Array.isArray(children) &&
+                props.selectProps.limit &&
+                children.length > props.selectProps.limit && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            color: '#1C76CA',
+                            padding: '0.5rem 0',
+                            fontWeight: '700',
+                            borderTop: '1px solid #000',
+                        }}
+                    >
+                        More options findable by searching.
+                    </div>
+                )}
         </components.MenuList>
     );
 };
 
 const MoreSelectedBadge = ({ items }: { items: string[] }) => {
     const style = {
-        margin: '0 auto',
-        background: '#d4eefa',
+        color: '#1C76CA',
+        fontWeight: '700',
         borderRadius: '4px',
         padding: '0.25rem 0.5rem',
         order: 99,
