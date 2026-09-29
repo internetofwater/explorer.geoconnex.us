@@ -1,8 +1,14 @@
-import MultiSelect from '@/app/components/common/MultiSelect';
+import ReactSelect, {
+    DESELECT_ALL_VALUE,
+    SELECT_ALL_VALUE,
+} from '@/app/components/common/ReactSelect';
+import { TOption } from '@/app/components/common/ReactSelect/types';
 import { Typography } from '@/app/components/common/Typography';
 import { setFilter } from '@/lib/state/main/slice';
 import { AppDispatch, RootState } from '@/lib/state/store';
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { MultiValue, SingleValue } from 'react-select';
 
 type Props = {
     distributionNames: string[];
@@ -21,46 +27,87 @@ export const DistributionNames: React.FC<Props> = (props) => {
     const { filter } = useSelector((state: RootState) => state.main);
     const dispatch: AppDispatch = useDispatch();
 
-    const handleTypeOptionClick = (type: string) => {
-        const newSelectedDistributionNames =
-            filter?.distributionNames && filter.distributionNames.includes(type)
-                ? filter.distributionNames.filter((item) => item !== type)
-                : [...(filter?.distributionNames ?? []), type];
-        dispatch(
-            setFilter({
-                distributionNames: newSelectedDistributionNames,
-            })
-        );
-    };
+    const handleChange = (
+        option: SingleValue<TOption<string>> | MultiValue<TOption<string>>
+    ) => {
+        if (!option) {
+            return;
+        }
 
-    const handleSelectAll = (allSelected: boolean) => {
-        if (allSelected) {
-            const newDistributionNames = Array.from(
-                new Set([
-                    ...(filter.distributionNames ?? []),
-                    ...distributionNames,
-                ])
+        if (Array.isArray(option)) {
+            const values = (option as TOption<string>[]).map(
+                ({ value }) => value
             );
+
+            if (values.includes(SELECT_ALL_VALUE)) {
+                dispatch(
+                    setFilter({
+                        distributionNames,
+                    })
+                );
+                return;
+            }
+
+            if (values.includes(DESELECT_ALL_VALUE)) {
+                dispatch(
+                    setFilter({
+                        distributionNames: [],
+                    })
+                );
+                return;
+            }
+
             dispatch(
                 setFilter({
-                    distributionNames: newDistributionNames,
+                    distributionNames: values,
                 })
             );
         } else {
-            const removeDistributionNames = new Set(distributionNames);
-            let filteredDistributionNames: string[] = [];
-            if (filter.distributionNames) {
-                filteredDistributionNames = filter.distributionNames.filter(
-                    (type) => !removeDistributionNames.has(type)
+            const { value } = option as TOption<string>;
+
+            if (value === SELECT_ALL_VALUE) {
+                dispatch(
+                    setFilter({
+                        distributionNames,
+                    })
                 );
+                return;
             }
+
+            if (value === DESELECT_ALL_VALUE) {
+                dispatch(
+                    setFilter({
+                        distributionNames: [],
+                    })
+                );
+                return;
+            }
+
+            const newSelectedDistributionNames =
+                filter?.distributionNames &&
+                filter.distributionNames.includes(value)
+                    ? filter.distributionNames.filter((item) => item !== value)
+                    : [...(filter?.distributionNames ?? []), value];
             dispatch(
                 setFilter({
-                    distributionNames: filteredDistributionNames,
+                    distributionNames: newSelectedDistributionNames,
                 })
             );
         }
     };
+
+    const options: TOption<string>[] = useMemo(
+        () => distributionNames.map((d) => ({ value: d, label: d })),
+        [distributionNames]
+    );
+
+    const selectedOptions: TOption<string>[] = useMemo(
+        () =>
+            options.filter(({ value }) =>
+                filter.distributionNames?.includes(value)
+            ),
+        [options, filter.distributionNames]
+    );
 
     return (
         <>
@@ -68,16 +115,16 @@ export const DistributionNames: React.FC<Props> = (props) => {
             <label id="distribution-name-select-label" className="sr-only">
                 Filter datasets by Distribution Name
             </label>
-            <MultiSelect
+            <ReactSelect
                 id="distribution-names"
-                ariaLabel="distribution-name-select-label"
-                options={distributionNames}
-                selectedOptions={filter.distributionNames}
-                handleOptionClick={handleTypeOptionClick}
-                searchable
-                selectAll
-                limit={100}
-                handleSelectAll={handleSelectAll}
+                aria-labelledby="distribution-name-select-label"
+                options={options}
+                value={selectedOptions}
+                onChange={handleChange}
+                menuPlacement="top"
+                isSearchable
+                isMulti
+                isAllSelectable
             />
         </>
     );

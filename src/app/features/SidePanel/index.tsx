@@ -69,84 +69,85 @@ const SidePanel: React.FC<Props> = (props) => {
 
     return (
         <div className="w-full">
-            <div className="pt-2 flex flex-col justify-between bg-primary">
-                <div className="flex justify-between" id="attribution">
-                    <div className="ml-4 flex items-center gap-x-4 h-16">
-                        <a
-                            href="https://internetofwater.org/"
-                            aria-label="Link to Internet of Water site"
-                            target="_blank"
-                        >
-                            <Image
-                                src={'/IoWCoalitionLogoMark.png'}
-                                alt="Internet of Water Logo"
-                                width={35}
-                                height={50}
-                            />
-                        </a>
-                        <Typography variant="h3" as="h1">
-                            Geoconnex Explorer
-                        </Typography>
-                    </div>
-                    <div className="flex flex-col justify-center">
-                        <div
-                            id="side-panel-close"
-                            className="block lg:hidden mr-2 text-black"
-                        >
-                            <CloseButton
-                                onClick={() =>
-                                    dispatch(setShowSidePanel(false))
-                                }
-                                className="text-gray-900 hover:text-gray-700 text-md"
-                                closeIconClassName="w-8 h-8"
-                            />
+            <div className="relative bg-primary-opaque z-[--z-side-panel]">
+                <div className="pt-2 flex flex-col justify-between bg-primary">
+                    <div className="flex justify-between" id="attribution">
+                        <div className="ml-4 flex items-center gap-x-4 h-16">
+                            <a
+                                href="https://internetofwater.org/"
+                                aria-label="Link to Internet of Water site"
+                                target="_blank"
+                            >
+                                <Image
+                                    src={'/IoWCoalitionLogoMark.png'}
+                                    alt="Internet of Water Logo"
+                                    width={35}
+                                    height={50}
+                                />
+                            </a>
+                            <Typography variant="h3" as="h1">
+                                Geoconnex Explorer
+                            </Typography>
                         </div>
-                        <button
-                            title="Show Help Modal"
-                            onClick={handleHelpClick}
-                            className="w-8 mr-2 text-gray-900 hover:text-gray-700 text-lg"
+                        <div className="flex flex-col justify-center">
+                            <div
+                                id="side-panel-close"
+                                className="block lg:hidden mr-2 text-black"
+                            >
+                                <CloseButton
+                                    onClick={() =>
+                                        dispatch(setShowSidePanel(false))
+                                    }
+                                    className="text-gray-900 hover:text-gray-700 text-md"
+                                    closeIconClassName="w-8 h-8"
+                                />
+                            </div>
+                            <button
+                                title="Show Help Modal"
+                                onClick={handleHelpClick}
+                                className="w-8 mr-2 text-gray-900 hover:text-gray-700 text-lg"
+                            >
+                                <HelpIcon />
+                            </button>
+                        </div>
+                    </div>
+                    <div className="flex mt-2 mb-1 ml-2 gap-x-2">
+                        <Button
+                            title="Switch to Map View"
+                            onClick={() => dispatch(setView('map'))}
+                            className="min-w-24 min-h-10"
                         >
-                            <HelpIcon />
-                        </button>
+                            Map
+                        </Button>
+                        <Button
+                            title="Switch to Table View"
+                            onClick={() => dispatch(setView('table'))}
+                            className="min-w-24 min-h-10"
+                            disabled={datasetsLength === 0}
+                        >
+                            Table
+                        </Button>
+                        <Button
+                            title="Switch to About View"
+                            onClick={() => dispatch(setView('about'))}
+                            className="min-w-24 min-h-10"
+                        >
+                            About
+                        </Button>
                     </div>
                 </div>
-                <div className="flex mt-2 mb-1 ml-2 gap-x-2">
-                    <Button
-                        title="Switch to Map View"
-                        onClick={() => dispatch(setView('map'))}
-                        className="min-w-24 min-h-10"
-                    >
-                        Map
-                    </Button>
-                    <Button
-                        title="Switch to Table View"
-                        onClick={() => dispatch(setView('table'))}
-                        className="min-w-24 min-h-10"
-                        disabled={datasetsLength === 0}
-                    >
-                        Table
-                    </Button>
-                    <Button
-                        title="Switch to About View"
-                        onClick={() => dispatch(setView('about'))}
-                        className="min-w-24 min-h-10"
-                    >
-                        About
-                    </Button>
-                </div>
-            </div>
-            <div
-                className={`
+                <div
+                    className={`
                 w-full 
                 py-3 px-2 
                 flex flex-col justify-center 
                 bg-primary-opaque
                 text-black  
                 border-b border-gray-300`}
-            >
-                <Search setResults={setResults} />
+                >
+                    <Search setResults={setResults} />
+                </div>
             </div>
-
             <div id="scrollable-side-panel" className="overflow-y-auto">
                 {/* Results makes async call, ensure mounting */}
                 <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>

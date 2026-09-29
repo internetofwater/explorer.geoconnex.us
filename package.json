@@ -32,6 +32,7 @@
         "react-chartjs-2": "^5.3.0",
         "react-dom": "^19.0.0",
         "react-redux": "^9.2.0",
+        "react-select": "^5.10.2",
         "redux-mock-store": "^1.5.5",
         "sparql-http-client": "^3.1.0",
         "uuid": "^14.0.2",
