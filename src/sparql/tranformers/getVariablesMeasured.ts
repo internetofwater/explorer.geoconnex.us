@@ -9,9 +9,8 @@ export const parseGetVariablesMeasured = (
     response: TGraphResponse<TRawGetVariablesMeasured>
 ): TVariablesMeasured => {
     const types = response.results.bindings.map(
-        ({ variableMeasured, variableMeasuredURI, datasets }) => ({
+        ({ variableMeasured, datasets }) => ({
             variableMeasured: variableMeasured.value,
-            variableMeasuredURI: variableMeasuredURI.value,
             datasets: datasets.value,
         })
     );

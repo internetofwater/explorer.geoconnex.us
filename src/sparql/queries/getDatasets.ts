@@ -55,5 +55,9 @@ const build = (uri: string, options: TOptions = {}) =>
             }`);
 
 export const getDatasets: TMainstemQuery = Object.assign(build, {
-    example: () => build('https://geoconnex.us/ref/mainstems/1'),
+    example: () =>
+        build('https://geoconnex.us/ref/mainstems/1', {
+            variables: ['Temperature, water', 'pH'],
+            types: ['Well', 'Stream'],
+        }),
 });

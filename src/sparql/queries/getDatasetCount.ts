@@ -8,6 +8,7 @@ import { TMainstemQuery, TOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
 import { getQueryOptions } from './utils/getQueryOptions';
+import { VARIABLE_MEASURED_URI } from './getVariablesMeasured';
 
 export type TRawGetDatasetCount = { count: string };
 
@@ -29,13 +30,16 @@ const build = (uri: string, options: TOptions = {}) =>
                 ?monitoringLocation
                     ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
                     ${SCHEMA}:subjectOf ?dataset .
+
+                ?dataset ${SCHEMA}:variableMeasured ?${VARIABLE_MEASURED_URI} .
+                ?${VARIABLE_MEASURED_URI} ${SCHEMA}:name ?variableMeasured .
                     
-            ${getQueryOptions(options)}
+                ${getQueryOptions(options)}
             }`);
 
 export const getDatasetCount: TMainstemQuery = Object.assign(build, {
     example: () =>
         build('https://geoconnex.us/ref/mainstems/1', {
-            variableMeasuredURIs: ['test1', 'test2'],
+            variables: ['Temperature, water', 'pH'],
         }),
 });

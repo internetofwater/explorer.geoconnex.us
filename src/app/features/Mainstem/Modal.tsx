@@ -1,6 +1,5 @@
 import Button from '@/app/components/common/Button';
 import Modal from '@/app/components/common/Modal';
-import MultiSelect from '@/app/components/common/MultiSelect';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
 import { LoadingType } from '@/lib/state/loading/types';
 import { EOverlay, setOverlay } from '@/lib/state/main/slice';
@@ -9,11 +8,9 @@ import { fetchDatasets } from '@/lib/state/mainstem/thunks';
 import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
 import { datasetService } from '@/services/init/init';
-import { useEffect, useMemo, useState } from 'react';
-
-type TMemoResult = {
-    variableMap: Map<string, string>;
-};
+import { useEffect, useState } from 'react';
+import { Variables } from './Variables';
+import { Types } from './Types';
 
 export const MainstemModal: React.FC = () => {
     const selected = useAppSelector((state) => state.mainstem.selected);
@@ -21,6 +18,7 @@ export const MainstemModal: React.FC = () => {
     const overlay = useAppSelector((state) => state.main.overlay);
 
     const [variables, setVariables] = useState<string[]>([]);
+    const [types, setTypes] = useState<string[]>([]);
 
     const dispatch = useAppDispatch();
 
@@ -72,38 +70,9 @@ export const MainstemModal: React.FC = () => {
         };
     }, [selected, metrics]);
 
-    const { variableMap } = useMemo(() => {
-        const result: TMemoResult = {
-            variableMap: new Map<string, string>(),
-        };
-        if (!metrics) {
-            return result;
-        }
-
-        for (const {
-            variableMeasured,
-            variableMeasuredURI,
-        } of metrics.variables) {
-            if (!result.variableMap.has(variableMeasured)) {
-                result.variableMap.set(variableMeasured, variableMeasuredURI);
-            }
-        }
-
-        return result;
-    }, [metrics]);
-
     const handleClose = () => {
         dispatch(setOverlay(null));
         // setRequest(currentRequest);
-    };
-
-    const handleVariablesChange = (variable: string) => {
-        const newVariables =
-            variables && variables.includes(variable)
-                ? variables.filter((item) => item !== variable)
-                : [...variables, variable];
-
-        setVariables(newVariables);
     };
 
     const handleClick = () => {
@@ -113,25 +82,18 @@ export const MainstemModal: React.FC = () => {
 
         const request: TMainstemRequest = {
             id: selected.id,
-            variableMeasuredURIs: variables.flatMap((variable) => {
-                const URI = variableMap.get(variable);
-
-                if (!URI) {
-                    console.error(
-                        `Unable to find URI for variable measured: ${variable}`
-                    );
-                    return [];
-                }
-
-                return [URI];
-            }),
+            variables: variables,
+            types: types,
         };
 
         dispatch(fetchDatasets(selected.uri, request));
         dispatch(setOverlay(null));
     };
 
-    const variableOptions = Array.from(variableMap.keys());
+    const handleVariablesChange = (variables: string[]) =>
+        setVariables(variables);
+
+    const handleTypesChange = (types: string[]) => setTypes(types);
 
     return (
         <Modal
@@ -142,17 +104,15 @@ export const MainstemModal: React.FC = () => {
             <div className="flex flex-col gap-4">
                 <div className="flex flex-row gap-4">
                     <div className="flex flex-col gap-2">
-                        <MultiSelect
-                            id="mainstem-variables-select"
-                            options={variableOptions}
-                            selectedOptions={variables}
-                            handleOptionClick={handleVariablesChange}
+                        <Variables
+                            variables={variables}
+                            onVariablesChange={handleVariablesChange}
+                            metricVariables={metrics?.variables ?? []}
                         />
-                        <MultiSelect
-                            id="mainstem-types-select"
-                            options={variableOptions}
-                            selectedOptions={variables}
-                            handleOptionClick={handleVariablesChange}
+                        <Types
+                            types={types}
+                            onTypesChange={handleTypesChange}
+                            metricTypes={metrics?.types ?? []}
                         />
                     </div>
                     <div className="flex flex-col gap-2">

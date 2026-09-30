@@ -20,5 +20,6 @@ export const isFetchDatasetsSuccess = (
 
 export const getDefaultRequest = (): TMainstemRequest => ({
     id: 'default',
-    variableMeasuredURIs: [],
+    variables: [],
+    types: [],
 });

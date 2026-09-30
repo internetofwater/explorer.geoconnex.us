@@ -17,7 +17,8 @@ export type TMainstemMetrics = {
 
 export type TMainstemRequest = {
     id: string;
-    variableMeasuredURIs: string[];
+    variables: string[];
+    types: string[];
 };
 
 export type InitialState = {
@@ -31,7 +32,8 @@ export const initialState: InitialState = {
     selected: null,
     request: {
         id: 'default',
-        variableMeasuredURIs: [],
+        variables: [],
+        types: [],
     },
     bbox: null,
     metrics: null,

@@ -1,20 +1,19 @@
-import { VARIABLE_MEASURED_URI } from '../getVariablesMeasured';
 import { TOptions } from '../types';
 import { format } from './format';
 
 export const getQueryOptions = (options: TOptions) =>
     format(`
      ${
-         options.variableMeasuredURIs && options.variableMeasuredURIs.length > 0
+         options.variables && options.variables.length > 0
              ? `
-                VALUES ?${VARIABLE_MEASURED_URI} { 
-                    ${options.variableMeasuredURIs.map((uri) => `<${uri}>`).join('\n')}\n 
+                VALUES ?variableMeasured { 
+                    ${options.variables.map((v) => `"${v}"`).join('\n')}\n 
                 }`
              : ''
      }
      ${
          options.types && options.types.length > 0
-             ? `VALUES ?type { ${options.types.map((t) => `<${t}>`).join(' ')} }`
+             ? `VALUES ?type { ${options.types.map((t) => `"${t}"`).join(' ')} }`
              : ''
      }
     `);

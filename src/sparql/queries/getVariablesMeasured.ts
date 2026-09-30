@@ -11,14 +11,12 @@ import * as z from 'zod';
 export type TRawGetVariablesMeasured = {
     datasets: string;
     variableMeasured: string;
-    variableMeasuredURI: string;
 };
 
 export const VariablesMeasured = z.array(
     z.object({
         datasets: z.coerce.number(),
         variableMeasured: z.string(),
-        variableMeasuredURI: z.string(),
     })
 );
 
@@ -32,7 +30,7 @@ const build = (uri: string) =>
             ${HYF_PREFIX}
             ${SCHEMA_PREFIX}
 
-            SELECT ?variableMeasuredURI ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
+            SELECT ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
             WHERE {
                 VALUES ?mainstem { <${uri}> }
 
@@ -43,7 +41,7 @@ const build = (uri: string) =>
                 ?dataset ${SCHEMA}:variableMeasured ?${VARIABLE_MEASURED_URI} .
                 ?${VARIABLE_MEASURED_URI} ${SCHEMA}:name ?variableMeasured .
             }
-            GROUP BY ?${VARIABLE_MEASURED_URI} ?variableMeasured
+            GROUP BY ?variableMeasured
             ORDER BY DESC(?datasets)
 `);
 

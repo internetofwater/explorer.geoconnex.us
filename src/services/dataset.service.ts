@@ -118,8 +118,11 @@ export class DatasetService {
 
     getDatasets(uri: string, request: TMainstemRequest): Readable {
         const query = this.deps.factoryService.createGetDatasets(uri, {
-            variableMeasuredURIs: request.variableMeasuredURIs,
+            variables: request.variables,
+            types: request.types,
         });
+
+        console.log('query', query);
 
         const stream = this.stream(query);
 

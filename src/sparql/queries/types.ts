@@ -5,7 +5,7 @@ export type TBasicOptions = {
 };
 
 export type TOptions = TBasicOptions & {
-    variableMeasuredURIs?: string[];
+    variables?: string[];
     types?: string[];
 };
 
