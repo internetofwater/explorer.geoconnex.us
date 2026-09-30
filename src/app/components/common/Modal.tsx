@@ -7,6 +7,7 @@ type Props = {
     handleClose: () => void;
     children: React.ReactNode;
     action?: React.ReactNode;
+    width?: string;
 };
 
 /**
@@ -24,7 +25,7 @@ type Props = {
  * @component
  */
 const Modal: React.FC<Props> = (props) => {
-    const { open, title, handleClose } = props;
+    const { open, title, handleClose, width = '45rem' } = props;
 
     return (
         <>
@@ -41,16 +42,16 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className="bg-primary-opaque text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
+                        className={`w-[${width}]  bg-primary-opaque text-black rounded-lg shadow-lg max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto`}
                     >
                         <div
                             id="modal-header"
-                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-center justify-center p-2 "
+                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-start justify-center p-2 "
                         >
                             <Typography
                                 variant="h2"
                                 as="h3"
-                                className="text-center flex-grow"
+                                className="text-left flex-grow pl-4"
                             >
                                 {title}
                             </Typography>

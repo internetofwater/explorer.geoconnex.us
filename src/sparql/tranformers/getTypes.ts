@@ -4,7 +4,6 @@ import { TRawGetTypes, TTypes, Types } from '../queries/getTypes';
 export const parseGetTypes = (
     response: TGraphResponse<TRawGetTypes>
 ): TTypes => {
-    console.log('response', response);
     const types = response.results.bindings.map(({ type, datasets }) => ({
         type: type.value,
         datasets: datasets.value,

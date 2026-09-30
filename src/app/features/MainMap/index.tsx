@@ -50,6 +50,7 @@ import {
     setSelected,
     reset as mainstemReset,
 } from '@/lib/state/mainstem/slice';
+import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -82,6 +83,8 @@ export const MainMap: React.FC<Props> = (props) => {
     const selectedMainstemId = selected?.id ?? null;
 
     const datasets = useSelector(getFilteredDatasets);
+
+    useDatasetFit(map);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 

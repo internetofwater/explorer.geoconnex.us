@@ -126,8 +126,8 @@ export const App: React.FC<Props> = (props) => {
                 >
                     <LoadingBar />
                     <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex gap-2 z-10">
-                        <Geocoder />
                         <Mainstem />
+                        <Geocoder />
                     </div>
                     <MainMap accessToken={accessToken} />
                 </div>

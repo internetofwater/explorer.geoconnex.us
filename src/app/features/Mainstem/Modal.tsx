@@ -46,6 +46,8 @@ export const MainstemModal: React.FC = () => {
 
         if (selected) {
             dispatch(setOverlay(EOverlay.Mainstem));
+            setTypes([]);
+            setVariables([]);
             return;
         }
 
@@ -56,9 +58,6 @@ export const MainstemModal: React.FC = () => {
         if (!selected || (metrics && metrics.id === selected.id)) {
             return;
         }
-
-        setTypes([]);
-        setVariables([]);
 
         // TODO: determine correct loading type
         const loadingInstance = loadingManager.add(
@@ -150,7 +149,7 @@ export const MainstemModal: React.FC = () => {
 
     const handleTypesChange = (types: string[]) => setTypes(types);
 
-    const groupClasses = 'flex flex-col gap-2 max-w-[49%] min-w-[49%]';
+    const groupClasses = 'flex flex-col gap-2 flex-grow  max-w-[49%]';
 
     return (
         <Modal
@@ -158,38 +157,41 @@ export const MainstemModal: React.FC = () => {
             open={overlay === EOverlay.Mainstem}
             handleClose={handleClose}
         >
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-row justify-between">
-                    <div className={groupClasses}>
-                        <Variables
-                            variables={variables}
-                            onVariablesChange={handleVariablesChange}
-                            metricVariables={metrics?.variables ?? []}
-                            disabled={isFetchingModalMetrics}
-                        />
-                        <Types
-                            types={types}
-                            onTypesChange={handleTypesChange}
-                            metricTypes={metrics?.types ?? []}
-                            disabled={isFetchingModalMetrics}
-                        />
-                    </div>
-                    <div className={`${groupClasses} items-start`}>
-                        <Typography variant="body">
-                            {getMessage(datasetCount)}
-                        </Typography>
-                        <Button
-                            title={`Fetch datasets for mainstem: ${selected?.name_at_outlet}`}
-                            onClick={handleClick}
-                            disabled={
-                                datasetCount > DATASET_LIMIT ||
-                                isFetchingModalMetrics ||
-                                isFetchingDatasetCount
-                            }
-                        >
-                            Update
-                        </Button>
-                    </div>
+            <div className="flex flex-row justify-between min-h-[20.3125rem]">
+                <div className={groupClasses}>
+                    <Variables
+                        variables={variables}
+                        onVariablesChange={handleVariablesChange}
+                        metricVariables={metrics?.variables ?? []}
+                        disabled={isFetchingModalMetrics}
+                    />
+                    <Types
+                        types={types}
+                        onTypesChange={handleTypesChange}
+                        metricTypes={metrics?.types ?? []}
+                        disabled={isFetchingModalMetrics}
+                    />
+                </div>
+                <div className="w-px self-stretch bg-gray-300 mx-6" />
+                <div className={`${groupClasses} items-center justify-center`}>
+                    <Typography variant="body">
+                        {getMessage(datasetCount)}
+                    </Typography>
+                    <Button
+                        title={`Fetch datasets for mainstem: ${selected?.name_at_outlet}`}
+                        onClick={handleClick}
+                        disabled={
+                            datasetCount > DATASET_LIMIT ||
+                            isFetchingModalMetrics ||
+                            isFetchingDatasetCount
+                        }
+                    >
+                        <span className="p-2">Update</span>
+                    </Button>
+                    <Typography variant="body-small" className="text-[#3b3b3b]">
+                        Updating this mainstem will reset the map view and clear
+                        any existing filters.
+                    </Typography>
                 </div>
             </div>
         </Modal>

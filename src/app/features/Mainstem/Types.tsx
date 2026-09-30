@@ -3,6 +3,7 @@ import ReactSelect, {
     SELECT_ALL_VALUE,
 } from '@/app/components/common/ReactSelect';
 import { TOption } from '@/app/components/common/ReactSelect/types';
+import { Typography } from '@/app/components/common/Typography';
 import { TMainstemMetrics } from '@/lib/state/mainstem/types';
 import { useMemo } from 'react';
 import { MultiValue, SingleValue } from 'react-select';
@@ -79,16 +80,24 @@ export const Types: React.FC<Props> = (props) => {
     );
 
     return (
-        <ReactSelect
-            id="mainstem-types-select"
-            options={options}
-            value={selectedOptions}
-            onChange={handleChange}
-            limit={100}
-            isSearchable
-            isMulti
-            isAllSelectable
-            isDisabled={disabled}
-        />
+        <div>
+            <label htmlFor="mainstem-types-select">
+                <Typography variant="body" as="span">
+                    Site Types
+                </Typography>
+            </label>
+            <ReactSelect
+                id="mainstem-types-select"
+                options={options}
+                value={selectedOptions}
+                onChange={handleChange}
+                customClassnames={{ control: '!min-h-[8.125rem]' }}
+                limit={100}
+                isSearchable
+                isMulti
+                isAllSelectable
+                isDisabled={disabled}
+            />
+        </div>
     );
 };

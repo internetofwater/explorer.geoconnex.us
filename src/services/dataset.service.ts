@@ -64,7 +64,13 @@ export class DatasetService {
     }
 
     private stream(query: string): Readable {
-        const stream = this.client.query.select(query);
+        const stream = this.client.query.select(query, {
+            operation: 'postDirect', // This posts the query in the fetch body
+            headers: {
+                'Content-Type': SPARQL_HEADER_CONTENT_TYPE,
+                Accept: SPARQL_HEADER_ACCEPT,
+            },
+        });
 
         return stream;
     }
@@ -160,8 +166,6 @@ export class DatasetService {
             variables: request.variables,
             types: request.types,
         });
-
-        console.log('query', query);
 
         const stream = this.stream(query);
 
