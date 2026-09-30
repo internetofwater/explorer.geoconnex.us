@@ -11,10 +11,11 @@ type Props = {
     types: string[];
     onTypesChange: (types: Props['types']) => void;
     metricTypes: TMainstemMetrics['types'];
+    disabled?: boolean;
 };
 
 export const Types: React.FC<Props> = (props) => {
-    const { types, onTypesChange, metricTypes } = props;
+    const { types, onTypesChange, metricTypes, disabled = false } = props;
 
     const handleChange = (
         option: SingleValue<TOption<string>> | MultiValue<TOption<string>>
@@ -87,6 +88,7 @@ export const Types: React.FC<Props> = (props) => {
             isSearchable
             isMulti
             isAllSelectable
+            isDisabled={disabled}
         />
     );
 };

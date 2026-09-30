@@ -10,6 +10,8 @@ import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from './utils/getQueryOptions';
 
+export const DATASET_LIMIT = 100_000;
+
 const build = (uri: string, options: TQueryOptions = {}) =>
     format(`
             ${HYF_PREFIX}
@@ -52,7 +54,8 @@ const build = (uri: string, options: TQueryOptions = {}) =>
                 ) AS ?datasets)
                 
                 ${getQueryOptions(options)}
-            }`);
+            }
+            LIMIT ${DATASET_LIMIT}`);
 
 export const getDatasets: TMainstemQuery = Object.assign(build, {
     example: () =>

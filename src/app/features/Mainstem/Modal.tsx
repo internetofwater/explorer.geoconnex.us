@@ -13,6 +13,9 @@ import { Variables } from './Variables';
 import { Types } from './Types';
 import { MainstemData } from '@/app/types';
 import { Typography } from '@/app/components/common/Typography';
+import { getMessage } from './utils';
+import { useLoading } from '@/app/hooks/useLoading';
+import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 
 export const MainstemModal: React.FC = () => {
     const selected = useAppSelector((state) => state.mainstem.selected);
@@ -27,6 +30,8 @@ export const MainstemModal: React.FC = () => {
     const controller = useRef<AbortController>(null);
 
     const dispatch = useAppDispatch();
+
+    const { isFetchingDatasetCount, isFetchingModalMetrics } = useLoading();
 
     const getRequest = (selected: MainstemData): TMainstemRequest => ({
         id: selected.id,
@@ -52,10 +57,13 @@ export const MainstemModal: React.FC = () => {
             return;
         }
 
+        setTypes([]);
+        setVariables([]);
+
         // TODO: determine correct loading type
         const loadingInstance = loadingManager.add(
             'Fetching mainstem summary information',
-            LoadingType.Datasets
+            LoadingType.FetchModalMetrics
         );
 
         const controller = new AbortController();
@@ -90,7 +98,7 @@ export const MainstemModal: React.FC = () => {
         // TODO: determine correct loading type
         const loadingInstance = loadingManager.add(
             'Updating dataset count',
-            LoadingType.Datasets
+            LoadingType.DatasetCount
         );
 
         let isMounted = true;
@@ -142,6 +150,8 @@ export const MainstemModal: React.FC = () => {
 
     const handleTypesChange = (types: string[]) => setTypes(types);
 
+    const groupClasses = 'flex flex-col gap-2 max-w-[49%] min-w-[49%]';
+
     return (
         <Modal
             title={selected?.name_at_outlet ?? ''}
@@ -149,24 +159,33 @@ export const MainstemModal: React.FC = () => {
             handleClose={handleClose}
         >
             <div className="flex flex-col gap-4">
-                <div className="flex flex-row gap-4">
-                    <div className="flex flex-col gap-2">
+                <div className="flex flex-row justify-between">
+                    <div className={groupClasses}>
                         <Variables
                             variables={variables}
                             onVariablesChange={handleVariablesChange}
                             metricVariables={metrics?.variables ?? []}
+                            disabled={isFetchingModalMetrics}
                         />
                         <Types
                             types={types}
                             onTypesChange={handleTypesChange}
                             metricTypes={metrics?.types ?? []}
+                            disabled={isFetchingModalMetrics}
                         />
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <Typography variant="body">{datasetCount}</Typography>
+                    <div className={`${groupClasses} items-start`}>
+                        <Typography variant="body">
+                            {getMessage(datasetCount)}
+                        </Typography>
                         <Button
                             title={`Fetch datasets for mainstem: ${selected?.name_at_outlet}`}
                             onClick={handleClick}
+                            disabled={
+                                datasetCount > DATASET_LIMIT ||
+                                isFetchingModalMetrics ||
+                                isFetchingDatasetCount
+                            }
                         >
                             Update
                         </Button>

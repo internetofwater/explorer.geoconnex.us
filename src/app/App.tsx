@@ -23,6 +23,7 @@ import { MainstemModal } from '@/app/features/Mainstem/Modal';
 import Geocoder from '@/app/features/Geocoder';
 import Mainstem from '@/app/features/Mainstem';
 import { fetchDatasets } from '@/lib/state/mainstem/thunks';
+import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 
 type Props = {
     accessToken: string;
@@ -63,8 +64,9 @@ export const App: React.FC<Props> = (props) => {
             const match = pathname.match(/\/mainstems\/(\d+)/);
             const id = match ? match[1] : null;
 
+            // TODO: Build request from URL
             if (id) {
-                dispatch(fetchDatasets(id));
+                dispatch(fetchDatasets(id, getDefaultRequest()));
             }
         }
     }, [map]);

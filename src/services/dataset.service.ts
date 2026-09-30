@@ -13,6 +13,9 @@ import { parseGetTypes } from '@/sparql/tranformers/getTypes';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 
+export const SPARQL_HEADER_CONTENT_TYPE = 'application/sparql-query';
+export const SPARQL_HEADER_ACCEPT = 'application/sparql-results+json';
+
 export type SparqlResult = {
     datasets: {
         value: string; // JSON string that should be parsed into Dataset
@@ -66,19 +69,25 @@ export class DatasetService {
         return stream;
     }
 
+    private flattenQuery(query: string): string {
+        return query.replace(/\s+/g, ' ').trim();
+    }
+
     private async fetch<T extends Record<string, unknown>>(
         query: string,
         signal: AbortSignal
     ): Promise<TGraphResponse<T>> {
-        const response = await fetch(
-            `${this.url}?query=${encodeURIComponent(query)}`,
-            {
-                headers: {
-                    Accept: 'application/sparql-results+json',
-                },
-                signal,
-            }
-        );
+        const body = this.flattenQuery(query);
+
+        const response = await fetch(this.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': SPARQL_HEADER_CONTENT_TYPE,
+                Accept: SPARQL_HEADER_ACCEPT,
+            },
+            body,
+            signal,
+        });
 
         return (await response.json()) as TGraphResponse<T>;
     }

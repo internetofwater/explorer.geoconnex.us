@@ -4,7 +4,7 @@ import { FactoryService } from '@/services/factory.service';
 export const factoryService = new FactoryService();
 
 export const datasetService = new DatasetService(
-    'http://qlever.internetofwater.app',
+    'https://qlever.internetofwater.app',
     {
         factoryService,
     }

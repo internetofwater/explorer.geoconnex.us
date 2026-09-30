@@ -60,7 +60,7 @@ export const Results: React.FC<Props> = (props) => {
             // Fetch the complete mainstem data with included datasets
             const partialSummary = await datasetService.getSummary(
                 mainstem.uri,
-                controller.current.signal
+                { signal: controller.current.signal }
             );
 
             const summary: SummaryObject = {
@@ -116,12 +116,6 @@ export const Results: React.FC<Props> = (props) => {
             dispatch(setMetrics(summary));
         }
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
-        // const res = await datasetService.getDatasets(result.uri);
-        // console.log('res', res);
-        // dispatch(fetchDatasets(result.uri));
-
-        // TODO: review this approach
-        // Let the camera move end the datasets loading event
     };
 
     const handleMouseLeave = () => {
