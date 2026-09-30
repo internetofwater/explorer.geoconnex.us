@@ -8,9 +8,11 @@ import { fetchDatasets } from '@/lib/state/mainstem/thunks';
 import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
 import { datasetService } from '@/services/init/init';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Variables } from './Variables';
 import { Types } from './Types';
+import { MainstemData } from '@/app/types';
+import { Typography } from '@/app/components/common/Typography';
 
 export const MainstemModal: React.FC = () => {
     const selected = useAppSelector((state) => state.mainstem.selected);
@@ -19,8 +21,18 @@ export const MainstemModal: React.FC = () => {
 
     const [variables, setVariables] = useState<string[]>([]);
     const [types, setTypes] = useState<string[]>([]);
+    const [datasetCount, setDatasetCount] = useState(0);
+
+    const requestId = useRef(0);
+    const controller = useRef<AbortController>(null);
 
     const dispatch = useAppDispatch();
+
+    const getRequest = (selected: MainstemData): TMainstemRequest => ({
+        id: selected.id,
+        variables: variables,
+        types: types,
+    });
 
     useEffect(() => {
         if (overlay === EOverlay.Mainstem) {
@@ -49,7 +61,7 @@ export const MainstemModal: React.FC = () => {
         const controller = new AbortController();
 
         void datasetService
-            .getSummary(selected.uri, controller.signal)
+            .getSummary(selected.uri, { signal: controller.signal })
             .then((partialMetrics) => {
                 const metrics: TMainstemMetrics = {
                     ...partialMetrics,
@@ -70,6 +82,45 @@ export const MainstemModal: React.FC = () => {
         };
     }, [selected, metrics]);
 
+    useEffect(() => {
+        if (!selected || (metrics && metrics.id !== selected.id)) {
+            return;
+        }
+
+        // TODO: determine correct loading type
+        const loadingInstance = loadingManager.add(
+            'Updating dataset count',
+            LoadingType.Datasets
+        );
+
+        let isMounted = true;
+        if (controller.current) {
+            controller.current.abort('New request for dataset count');
+        }
+        controller.current = new AbortController();
+        const request = getRequest(selected);
+
+        void datasetService
+            .getDatasetCount(selected.uri, {
+                signal: controller.current.signal,
+                request,
+                requestId: ++requestId.current,
+            })
+            .then(({ result: { count }, requestId: thisRequestId }) => {
+                if (isMounted && thisRequestId === requestId.current) {
+                    setDatasetCount(count);
+                }
+            })
+            .catch((error) => console.error(error))
+            .finally(() => {
+                loadingManager.remove(loadingInstance);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [types, variables]);
+
     const handleClose = () => {
         dispatch(setOverlay(null));
         // setRequest(currentRequest);
@@ -80,11 +131,7 @@ export const MainstemModal: React.FC = () => {
             return;
         }
 
-        const request: TMainstemRequest = {
-            id: selected.id,
-            variables: variables,
-            types: types,
-        };
+        const request = getRequest(selected);
 
         dispatch(fetchDatasets(selected.uri, request));
         dispatch(setOverlay(null));
@@ -116,6 +163,7 @@ export const MainstemModal: React.FC = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-2">
+                        <Typography variant="body">{datasetCount}</Typography>
                         <Button
                             title={`Fetch datasets for mainstem: ${selected?.name_at_outlet}`}
                             onClick={handleClick}

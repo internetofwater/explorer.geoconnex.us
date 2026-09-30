@@ -1,8 +1,6 @@
-import { TOptions } from '../types';
-import { format } from './format';
+import { TQueryOptions } from '../types';
 
-export const getQueryOptions = (options: TOptions) =>
-    format(`
+export const getQueryOptions = (options: TQueryOptions) => `
      ${
          options.variables && options.variables.length > 0
              ? `
@@ -13,7 +11,10 @@ export const getQueryOptions = (options: TOptions) =>
      }
      ${
          options.types && options.types.length > 0
-             ? `VALUES ?type { ${options.types.map((t) => `"${t}"`).join(' ')} }`
+             ? `
+                VALUES ?type { 
+                    ${options.types.map((t) => `"${t}"`).join('\n')} 
+                }`
              : ''
      }
-    `);
+    `;

@@ -6,11 +6,11 @@ import {
     SCHEMA,
     SCHEMA_PREFIX,
 } from '@/sparql/queries/consts';
-import { TMainstemQuery, TOptions } from '@/sparql/queries/types';
+import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from './utils/getQueryOptions';
 
-const build = (uri: string, options: TOptions = {}) =>
+const build = (uri: string, options: TQueryOptions = {}) =>
     format(`
             ${HYF_PREFIX}
             ${SCHEMA_PREFIX}

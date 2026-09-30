@@ -11,6 +11,7 @@ import { parseGetVariablesMeasured } from '@/sparql/tranformers/getVariablesMeas
 import { TTypes } from '@/sparql/queries/getTypes';
 import { parseGetTypes } from '@/sparql/tranformers/getTypes';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
+import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 
 export type SparqlResult = {
     datasets: {
@@ -28,6 +29,23 @@ export type SparqlResult = {
 
 export type TDatasetServiceDependencies = {
     factoryService: FactoryService;
+};
+
+interface IResultWithId<T> {
+    result: T;
+    requestId: number;
+}
+
+type TServiceOptions = {
+    signal: AbortSignal;
+};
+
+type TServiceOptionsWithRequest = TServiceOptions & {
+    request?: TMainstemRequest;
+};
+
+type TServiceOptionsIdentifiedWithRequest = TServiceOptionsWithRequest & {
+    requestId?: number;
 };
 
 export class DatasetService {
@@ -65,18 +83,18 @@ export class DatasetService {
         return (await response.json()) as TGraphResponse<T>;
     }
 
-    async getSummary(uri: string, signal: AbortSignal) {
-        console.log('uri', uri);
+    async getSummary(uri: string, options: TServiceOptions) {
+        const { signal } = options;
 
-        const [datasetCount, totalSites, variables, types] = await Promise.all([
-            this.getDatasetCount(uri, signal),
-            this.getTotalSites(uri, signal),
-            this.getVariablesMeasured(uri, signal),
-            this.getTypes(uri, signal),
+        const [{ result }, totalSites, variables, types] = await Promise.all([
+            this.getDatasetCount(uri, { signal }),
+            this.getTotalSites(uri, { signal }),
+            this.getVariablesMeasured(uri, { signal }),
+            this.getTypes(uri, { signal }),
         ]);
 
         return {
-            datasetCount,
+            datasetCount: result,
             totalSites,
             variables,
             types,
@@ -85,35 +103,47 @@ export class DatasetService {
 
     async getVariablesMeasured(
         uri: string,
-        signal: AbortSignal
+        options: TServiceOptions
     ): Promise<TVariablesMeasured> {
         const query = this.deps.factoryService.createGetVariablesMeasured(uri);
 
-        return parseGetVariablesMeasured(await this.fetch(query, signal));
+        return parseGetVariablesMeasured(
+            await this.fetch(query, options.signal)
+        );
     }
 
-    async getTypes(uri: string, signal: AbortSignal): Promise<TTypes> {
+    async getTypes(uri: string, options: TServiceOptions): Promise<TTypes> {
         const query = this.deps.factoryService.createGetTypes(uri);
 
-        return parseGetTypes(await this.fetch(query, signal));
+        return parseGetTypes(await this.fetch(query, options.signal));
     }
 
     async getDatasetCount(
         uri: string,
-        signal: AbortSignal
-    ): Promise<TDatasetCount> {
-        const query = this.deps.factoryService.createGetDatasetCount(uri);
+        options: TServiceOptionsIdentifiedWithRequest
+    ): Promise<IResultWithId<TDatasetCount>> {
+        const { request = getDefaultRequest(), requestId = -1 } = options;
 
-        return parseGetDatasetCount(await this.fetch(query, signal));
+        const query = this.deps.factoryService.createGetDatasetCount(
+            uri,
+            request
+        );
+
+        return {
+            result: parseGetDatasetCount(
+                await this.fetch(query, options.signal)
+            ),
+            requestId,
+        };
     }
 
     async getTotalSites(
         uri: string,
-        signal: AbortSignal
+        options: TServiceOptions
     ): Promise<TTotalSites> {
         const query = this.deps.factoryService.createGetTotalSites(uri);
 
-        return parseGetTotalSites(await this.fetch(query, signal));
+        return parseGetTotalSites(await this.fetch(query, options.signal));
     }
 
     getDatasets(uri: string, request: TMainstemRequest): Readable {

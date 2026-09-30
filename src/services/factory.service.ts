@@ -1,5 +1,5 @@
 import Queries from '@/sparql/queries';
-import { TOptions } from '@/sparql/queries/types';
+import { TQueryOptions } from '@/sparql/queries/types';
 
 export class FactoryService {
     createGetVariablesMeasured(uri: string): string {
@@ -10,15 +10,15 @@ export class FactoryService {
         return Queries.getTypes(uri);
     }
 
-    createGetDatasetCount(uri: string): string {
-        return Queries.getDatasetCount(uri);
+    createGetDatasetCount(uri: string, options: TQueryOptions): string {
+        return Queries.getDatasetCount(uri, options);
     }
 
     createGetTotalSites(uri: string): string {
         return Queries.getTotalSites(uri);
     }
 
-    createGetDatasets(uri: string, options: TOptions): string {
+    createGetDatasets(uri: string, options: TQueryOptions): string {
         return Queries.getDatasets(uri, options);
     }
 }

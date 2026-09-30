@@ -4,7 +4,7 @@ export type TBasicOptions = {
     limit?: number;
 };
 
-export type TOptions = TBasicOptions & {
+export type TQueryOptions = TBasicOptions & {
     variables?: string[];
     types?: string[];
 };
