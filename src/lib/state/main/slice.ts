@@ -13,6 +13,7 @@ import { TDatasetCount } from '@/sparql/queries/getDatasetCount';
 import { TTotalSites } from '@/sparql/queries/getTotalSites';
 import { TVariablesMeasured } from '@/sparql/queries/getVariablesMeasured';
 import { TTypes } from '@/sparql/queries/getTypes';
+import { TDistributionNames } from '@/sparql/queries/getDistributionNames';
 
 export type SummaryData = Record<string, number>;
 
@@ -23,6 +24,7 @@ export type MainstemMetrics = {
     datasetCount: TDatasetCount;
     totalSites: TTotalSites;
     variables: TVariablesMeasured;
+    distributionNames: TDistributionNames;
     types: TTypes;
 };
 
@@ -34,7 +36,6 @@ export type Summary = {
     totalSites: number;
     variables: SummaryData;
     types: SummaryData;
-    techniques: SummaryData;
 };
 
 export const enum EOverlay {

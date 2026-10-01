@@ -7,6 +7,7 @@ export type TBasicOptions = {
 export type TQueryOptions = TBasicOptions & {
     variables?: string[];
     types?: string[];
+    distributionNames?: string[];
 };
 
 export type TBuildSparqlQuery = (options?: TBasicOptions) => string;

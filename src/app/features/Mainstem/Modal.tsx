@@ -16,6 +16,7 @@ import { Typography } from '@/app/components/common/Typography';
 import { getMessage } from '@/app/features/Mainstem/utils';
 import { useLoading } from '@/app/hooks/useLoading';
 import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
+import { DistributionNames } from '@/app/features/Mainstem/DistributionNames';
 
 export const MainstemModal: React.FC = () => {
     const target = useAppSelector((state) => state.mainstem.target);
@@ -25,6 +26,7 @@ export const MainstemModal: React.FC = () => {
 
     const [variables, setVariables] = useState<string[]>([]);
     const [types, setTypes] = useState<string[]>([]);
+    const [distributionNames, setDistributionNames] = useState<string[]>([]);
     const [datasetCount, setDatasetCount] = useState(0);
 
     const requestId = useRef(0);
@@ -36,8 +38,9 @@ export const MainstemModal: React.FC = () => {
 
     const getRequest = (target: MainstemData): TMainstemRequest => ({
         id: target.id,
-        variables: variables,
-        types: types,
+        variables,
+        types,
+        distributionNames,
     });
 
     useEffect(() => {
@@ -49,6 +52,7 @@ export const MainstemModal: React.FC = () => {
             dispatch(setOverlay(EOverlay.Mainstem));
             setTypes([]);
             setVariables([]);
+            setDistributionNames([]);
             return;
         }
 
@@ -125,7 +129,7 @@ export const MainstemModal: React.FC = () => {
         return () => {
             isMounted = false;
         };
-    }, [types, variables]);
+    }, [types, variables, distributionNames]);
 
     const handleClose = () => {
         dispatch(setOverlay(null));
@@ -134,6 +138,7 @@ export const MainstemModal: React.FC = () => {
         // Undo any changes
         setVariables(request.variables);
         setTypes(request.types);
+        setDistributionNames(request.distributionNames);
     };
 
     const handleClick = () => {
@@ -152,6 +157,9 @@ export const MainstemModal: React.FC = () => {
         setVariables(variables);
 
     const handleTypesChange = (types: string[]) => setTypes(types);
+
+    const handleDistributionNamesChange = (distributionNames: string[]) =>
+        setDistributionNames(distributionNames);
 
     const groupClasses = 'flex flex-col gap-2 flex-grow  max-w-[49%]';
 
@@ -173,6 +181,16 @@ export const MainstemModal: React.FC = () => {
                         types={types}
                         onTypesChange={handleTypesChange}
                         metricTypes={metrics?.types ?? []}
+                        disabled={isFetchingModalMetrics}
+                    />
+                    <DistributionNames
+                        distributionNames={distributionNames}
+                        onDistributionNamesChange={
+                            handleDistributionNamesChange
+                        }
+                        metricDistributionNames={
+                            metrics?.distributionNames ?? []
+                        }
                         disabled={isFetchingModalMetrics}
                     />
                 </div>

@@ -12,34 +12,11 @@ import { TTypes } from '@/sparql/queries/getTypes';
 import { parseGetTypes } from '@/sparql/tranformers/getTypes';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { getDefaultRequest } from '@/lib/state/mainstem/utils';
+import { parseGetDistributionNames } from '@/sparql/tranformers/getDistributionNames';
+import { TDistributionNames } from '@/sparql/queries/getDistributionNames';
 
 export const SPARQL_HEADER_CONTENT_TYPE = 'application/sparql-query';
 export const SPARQL_HEADER_ACCEPT = 'application/sparql-results+json';
-
-type SparqlUriBinding = {
-    value: string;
-};
-
-type SparqlLiteralBinding = {
-    value: string;
-    language: string;
-    datatype: {
-        value: string;
-    };
-    direction: string;
-};
-
-export type SparqlResult = {
-    mainstem: SparqlUriBinding;
-    monitoringLocation: SparqlUriBinding;
-    datasetDescription: SparqlLiteralBinding;
-    type: SparqlLiteralBinding;
-    variableMeasured: SparqlLiteralBinding;
-    variableUnit: SparqlLiteralBinding;
-    temporalCoverage: SparqlLiteralBinding;
-    distributionName: SparqlLiteralBinding;
-    wkt: SparqlLiteralBinding;
-};
 
 export type TDatasetServiceDependencies = {
     factoryService: FactoryService;
@@ -112,17 +89,20 @@ export class DatasetService {
     async getSummary(uri: string, options: TServiceOptions) {
         const { signal } = options;
 
-        const [{ result }, totalSites, variables, types] = await Promise.all([
-            this.getDatasetCount(uri, { signal }),
-            this.getTotalSites(uri, { signal }),
-            this.getVariablesMeasured(uri, { signal }),
-            this.getTypes(uri, { signal }),
-        ]);
+        const [{ result }, totalSites, variables, distributionNames, types] =
+            await Promise.all([
+                this.getDatasetCount(uri, { signal }),
+                this.getTotalSites(uri, { signal }),
+                this.getVariablesMeasured(uri, { signal }),
+                this.getDistributionNames(uri, { signal }),
+                this.getTypes(uri, { signal }),
+            ]);
 
         return {
             datasetCount: result,
             totalSites,
             variables,
+            distributionNames,
             types,
         };
     }
@@ -172,13 +152,23 @@ export class DatasetService {
         return parseGetTotalSites(await this.fetch(query, options.signal));
     }
 
+    async getDistributionNames(
+        uri: string,
+        options: TServiceOptions
+    ): Promise<TDistributionNames> {
+        const query = this.deps.factoryService.createGetDistributionNames(uri);
+
+        return parseGetDistributionNames(
+            await this.fetch(query, options.signal)
+        );
+    }
+
     getDatasets(uri: string, request: TMainstemRequest): Readable {
         const query = this.deps.factoryService.createGetDatasets(uri, {
             variables: request.variables,
             types: request.types,
+            distributionNames: request.distributionNames,
         });
-
-        console.log('query', query);
 
         const stream = this.stream(query);
 

@@ -18,6 +18,10 @@ export class FactoryService {
         return Queries.getTotalSites(uri);
     }
 
+    createGetDistributionNames(uri: string): string {
+        return Queries.getDistributionNames(uri);
+    }
+
     createGetDatasets(uri: string, options: TQueryOptions): string {
         return Queries.getDatasets(uri, options);
     }

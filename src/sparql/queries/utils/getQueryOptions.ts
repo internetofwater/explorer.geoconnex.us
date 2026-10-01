@@ -17,4 +17,12 @@ export const getQueryOptions = (options: TQueryOptions) => `
                 }`
              : ''
      }
+     ${
+         options.distributionNames && options.distributionNames.length > 0
+             ? `
+                VALUES ?distributionName { 
+                    ${options.distributionNames.map((d) => `"${d}"`).join('\n')} 
+                }`
+             : ''
+     }
     `;

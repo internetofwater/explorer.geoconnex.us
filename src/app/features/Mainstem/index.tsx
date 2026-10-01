@@ -37,8 +37,9 @@ const Summary: React.FC<TSummaryProps> = (props) => {
 
     const hasVariables = request.variables.length > 0;
     const hasTypes = request.types.length > 0;
+    const hasDistributionNames = request.distributionNames.length > 0;
 
-    if (!hasVariables && !hasTypes) {
+    if (!hasVariables && !hasTypes && !hasDistributionNames) {
         return <Typography variant="body">Showing all datasets.</Typography>;
     }
 
@@ -74,6 +75,24 @@ const Summary: React.FC<TSummaryProps> = (props) => {
                             {request.types.length > MAX_SHOWN && (
                                 <ShowMoreBadge
                                     count={request.types.length - MAX_SHOWN}
+                                />
+                            )}
+                        </Typography>
+                    </li>
+                )}
+                {hasDistributionNames && (
+                    <li>
+                        <Typography variant="body-small" as="span">
+                            <strong>Distribution Names:</strong>{' '}
+                            {listFormatOptions.format(
+                                request.distributionNames.slice(0, MAX_SHOWN)
+                            )}
+                            {request.distributionNames.length > MAX_SHOWN && (
+                                <ShowMoreBadge
+                                    count={
+                                        request.distributionNames.length -
+                                        MAX_SHOWN
+                                    }
                                 />
                             )}
                         </Typography>
