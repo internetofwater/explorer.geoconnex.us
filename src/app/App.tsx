@@ -22,8 +22,11 @@ import { Notifications } from '@/app/features/Notifications';
 import { MainstemModal } from '@/app/features/Mainstem/Modal';
 import Geocoder from '@/app/features/Geocoder';
 import Mainstem from '@/app/features/Mainstem';
-import { fetchDatasets } from '@/lib/state/mainstem/thunks';
-import { getDefaultRequest } from '@/lib/state/mainstem/utils';
+import { Feature, LineString } from 'geojson';
+import { Dataset, MainstemData } from '@/app/types';
+import { setTarget } from '@/lib/state/mainstem/slice';
+import { loadingManager } from '@/managers/init';
+import { LoadingType } from '@/lib/state/loading/types';
 
 type Props = {
     accessToken: string;
@@ -54,22 +57,50 @@ export const App: React.FC<Props> = (props) => {
     );
 
     useEffect(() => {
-        // Ensure map is loaded
-        if (!map) {
-            return;
-        }
-
         // Get the mainstem id on initial load and fetch data from geoconnex
+        const controller = new AbortController();
         if (pathname && pathname.startsWith('/mainstems/')) {
             const match = pathname.match(/\/mainstems\/(\d+)/);
             const id = match ? match[1] : null;
 
-            // TODO: Build request from URL
             if (id) {
-                dispatch(fetchDatasets(id, getDefaultRequest()));
+                const loadingInstance = loadingManager.add(
+                    'Fetching mainstem data for the id in the URL',
+                    LoadingType.Datasets
+                );
+                void fetch(
+                    `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
+                    {
+                        signal: controller.signal,
+                    }
+                )
+                    .then((r) => r.json())
+                    .then(
+                        (
+                            feature: Feature<
+                                LineString,
+                                MainstemData & { datasets: Dataset[] }
+                            >
+                        ) => {
+                            // TODO: update this when datasets is no longer returned on the feature
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { datasets: _, ...mainstemData } =
+                                feature.properties;
+
+                            dispatch(setTarget(mainstemData));
+                        }
+                    )
+                    .catch((error) => console.error(error))
+                    .finally(() => {
+                        loadingManager.remove(loadingInstance);
+                    });
             }
         }
-    }, [map]);
+
+        return () => {
+            controller.abort('Component dismount');
+        };
+    }, []);
 
     useEffect(() => {
         if (!map) {
@@ -112,6 +143,8 @@ export const App: React.FC<Props> = (props) => {
                      border lg:border-l-0 lg:border-t-0 lg:border-b-0
                      rounded-lg lg:rounded-none
                      shadow-lg
+                     overflow-hidden
+                     z-[--z-side-panel]
                      ${showSidePanel ? 'flex' : 'hidden lg:flex'}`}
                 >
                     <SidePanel datasets={datasets} />
@@ -125,7 +158,7 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <LoadingBar />
-                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex gap-2 z-[3]">
+                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
                         <Mainstem />
                         <Geocoder />
                     </div>

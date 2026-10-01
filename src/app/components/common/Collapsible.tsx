@@ -54,16 +54,20 @@ const Collapsible: React.FC<Props> = (props) => {
                         z-[2] ${buttonClassname}`}
                     onClick={toggleCollapse}
                 >
-                    <Typography
-                        variant="h3"
-                        as="h2"
-                        className="flex-grow-0 text-left"
-                    >
-                        {title}
-                    </Typography>
+                    {typeof title === 'string' ? (
+                        <Typography
+                            variant="h3"
+                            as="h2"
+                            className="flex-grow-0 text-left"
+                        >
+                            {title}
+                        </Typography>
+                    ) : (
+                        title
+                    )}
                     <span
                         data-testid="arrow-icon-wrapper"
-                        className={`transform ${
+                        className={`transform ml-2 ${
                             isOpen ? '-rotate-90' : 'rotate-90'
                         }`}
                     >
