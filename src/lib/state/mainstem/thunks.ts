@@ -1,23 +1,23 @@
 import { Dataset } from '@/app/types';
 import { SparqlResult } from '@/services/dataset.service';
-import { addDatasets, setDatasets, setFilter } from '../main/slice';
+import { addDatasets, setDatasets, setFilter } from '@/lib/state/main/slice';
 import {
     _transformDatasets,
     appendFilters,
     createFilters,
     getDefaultGeojson,
-} from '../utils';
-import { AppDispatch } from '../store';
+} from '@/lib/state/utils';
+import { AppDispatch } from '@/lib/state/store';
 import { BatchTransform } from '@/services/batch.service';
-import { BATCH_SIZE } from '../consts';
+import { BATCH_SIZE } from '@/lib/state/consts';
 import { Point } from 'geojson';
 import { Readable } from 'stream';
 import { loadingManager, notificationManager } from '@/managers/init';
-import { LoadingType } from '../loading/types';
-import { NotificationType } from '../notifications/types';
+import { LoadingType } from '@/lib/state/loading/types';
+import { NotificationType } from '@/lib/state/notifications/types';
 import { datasetService } from '@/services/init/init';
-import { TMainstemRequest } from './types';
-import { setRequest } from './slice';
+import { TMainstemRequest } from '@/lib/state/mainstem/types';
+import { setRequest } from '@/lib/state/mainstem/slice';
 
 let stream: Readable | null = null;
 let batcher: BatchTransform<SparqlResult> | null = null;
@@ -61,6 +61,7 @@ export const fetchDatasets =
             loadingManager.remove(loadingInstance);
         };
 
+        // Event hook to tie abort controller to active stream
         signal?.addEventListener(
             'abort',
             () => {
@@ -71,6 +72,7 @@ export const fetchDatasets =
             { once: true }
         );
 
+        // The stream has encountered an error
         currentStream.once('error', (err) => {
             console.error('Dataset stream error', err);
             notificationManager.show(
@@ -81,6 +83,7 @@ export const fetchDatasets =
             cleanup();
         });
 
+        // The batcher has encountered an error
         currentBatcher.once('error', (err) => {
             console.error('Batcher error', err);
             notificationManager.show(
@@ -91,11 +94,15 @@ export const fetchDatasets =
             cleanup();
         });
 
+        // If the stream or batcher encounter a close event
+        // Should only occur if the server closes the stream
         currentStream.once('close', cleanup);
         currentBatcher.once('close', cleanup);
 
+        // Stream successfully processes all datasets
         currentStream.once('end', () => {
             cleanup();
+            // Update the current request
             dispatch(setRequest(request));
             notificationManager.show(
                 `Datasets loaded for mainstem`,
@@ -104,8 +111,10 @@ export const fetchDatasets =
             );
         });
 
+        // Attach batch transformer to stream
         currentStream.pipe(currentBatcher);
 
+        // Process a new chunk of data
         currentBatcher.on('data', (batch: SparqlResult[]) => {
             // Ignore batches from an old request
             if (generation !== requestGeneration) {

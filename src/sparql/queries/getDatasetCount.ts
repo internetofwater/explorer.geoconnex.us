@@ -9,7 +9,7 @@ import {
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
-import { getQueryOptions } from './utils/getQueryOptions';
+import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
 
 export type TRawGetDatasetCount = { count: string };
 

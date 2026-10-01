@@ -125,7 +125,7 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <LoadingBar />
-                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex gap-2 z-10">
+                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex gap-2 z-[3]">
                         <Mainstem />
                         <Geocoder />
                     </div>

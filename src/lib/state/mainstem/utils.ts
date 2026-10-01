@@ -1,6 +1,6 @@
 import { MainstemData, Dataset } from '@/app/types';
 import { Feature, Geometry } from 'geojson';
-import { TMainstemRequest } from './types';
+import { TMainstemRequest } from '@/lib/state/mainstem/types';
 
 type FetchDatasetsSuccess = Feature<
     Geometry,

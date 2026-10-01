@@ -1,4 +1,4 @@
-import { TQueryOptions } from '../types';
+import { TQueryOptions } from '@/sparql/queries/types';
 
 export const getQueryOptions = (options: TQueryOptions) => `
      ${

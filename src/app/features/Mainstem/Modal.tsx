@@ -9,11 +9,11 @@ import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
 import { datasetService } from '@/services/init/init';
 import { useEffect, useRef, useState } from 'react';
-import { Variables } from './Variables';
-import { Types } from './Types';
+import { Variables } from '@/app/features/Mainstem/Variables';
+import { Types } from '@/app/features/Mainstem/Types';
 import { MainstemData } from '@/app/types';
 import { Typography } from '@/app/components/common/Typography';
-import { getMessage } from './utils';
+import { getMessage } from '@/app/features/Mainstem/utils';
 import { useLoading } from '@/app/hooks/useLoading';
 import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 

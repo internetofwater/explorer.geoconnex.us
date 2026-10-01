@@ -1,5 +1,5 @@
 import { TGraphResponse } from '@/sparql/queries/types';
-import { TRawGetTypes, TTypes, Types } from '../queries/getTypes';
+import { TRawGetTypes, TTypes, Types } from '@/sparql/queries/getTypes';
 
 export const parseGetTypes = (
     response: TGraphResponse<TRawGetTypes>
