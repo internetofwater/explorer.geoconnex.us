@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { setGeocoderResult } from '@/lib/state/main/slice';
 
 import {
     MIN_GEOCODER_QUERY_LENGTH,
@@ -9,6 +12,7 @@ import { GeocoderResults } from '@/app/features/Geocoder/GeocoderResults';
 
 import CloseIcon from '@/app/assets/icons/Close';
 
+import type { AppDispatch } from '@/lib/state/store';
 import type { GeocoderResultGroups } from '@/app/hooks/useGeocoder';
 
 /**
@@ -17,6 +21,8 @@ import type { GeocoderResultGroups } from '@/app/hooks/useGeocoder';
  */
 export const GeocoderInput: React.FC = () => {
     const [results, setResults] = useState<GeocoderResultGroups | null>(null);
+
+    const dispatch: AppDispatch = useDispatch();
 
     const { query, setQuery, state } = useGeocoder();
 
@@ -62,10 +68,13 @@ export const GeocoderInput: React.FC = () => {
                     <Loader isLoading={isLoading} />
 
                     <button
+                        type="button"
                         title="Clear geocoder"
+                        aria-label="Clear geocoder"
                         onClick={() => {
                             setQuery('');
                             setResults(null);
+                            dispatch(setGeocoderResult(null));
                         }}
                     >
                         {/* text-black forces fill despite color scheme */}

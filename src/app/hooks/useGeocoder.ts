@@ -14,17 +14,17 @@ import type {
 
 type StateResult = {
     type: 'state';
-    feature: Feature<null, HydratedStateData>;
+    feature: Feature<Geometry, HydratedStateData>;
 };
 
 type CountyResult = {
     type: 'county';
-    feature: Feature<null, HydratedCountyData>;
+    feature: Feature<Geometry, HydratedCountyData>;
 };
 
 type GnisResult = {
     type: 'gnis';
-    feature: Feature<null, HydratedGnisData>;
+    feature: Feature<Geometry, HydratedGnisData>;
 };
 
 export type GeocoderResult = StateResult | CountyResult | GnisResult;
@@ -201,7 +201,6 @@ async function searchStates(
                 id: String(feature.id ?? feature.properties.fid),
                 bounds: bbox(feature.geometry) as LngLatBoundsLike,
             },
-            geometry: null,
         },
     }));
 
@@ -317,7 +316,6 @@ async function searchCounties(
                 bounds: bbox(feature.geometry) as LngLatBoundsLike,
                 stateName: stateNames.get(feature.properties.statefp)!,
             },
-            geometry: null,
         },
     }));
 
@@ -367,7 +365,6 @@ async function searchGnisFeatures(
                 ...feature.properties,
                 bounds: bbox(feature.geometry) as LngLatBoundsLike,
             },
-            geometry: null,
         },
     }));
 
