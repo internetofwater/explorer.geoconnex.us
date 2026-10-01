@@ -12,7 +12,7 @@ import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
-import { setMetrics, setSelected } from '@/lib/state/mainstem/slice';
+import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
 import OpenIcon from '@/app/assets/icons/Open';
 
 type Props = {
@@ -39,7 +39,7 @@ export const Results: React.FC<Props> = (props) => {
     const controller = useRef<AbortController>(null);
     const isMounted = useRef(true);
 
-    const getDatasets = async (mainstem: MainstemData) => {
+    const getSummary = async (mainstem: MainstemData) => {
         if (
             (summary && summary.id === mainstem.id) ||
             loadingManager.has({ type: LoadingType.Datasets }) // TODO: is this needed?
@@ -90,15 +90,15 @@ export const Results: React.FC<Props> = (props) => {
         }
     };
 
-    const debouncedGetDatasets = useCallback(
-        debounce((mainstem: MainstemData) => getDatasets(mainstem), 300),
+    const debouncedGetSummary = useCallback(
+        debounce((mainstem: MainstemData) => getSummary(mainstem), 300),
         [summary]
     );
 
     useEffect(() => {
         return () => {
             isMounted.current = false;
-            debouncedGetDatasets.cancel();
+            debouncedGetSummary.cancel();
             if (controller.current) {
                 controller.current.abort('Component unmount');
             }
@@ -107,12 +107,12 @@ export const Results: React.FC<Props> = (props) => {
 
     useEffect(() => {
         return () => {
-            debouncedGetDatasets.cancel();
+            debouncedGetSummary.cancel();
         };
-    }, [debouncedGetDatasets]);
+    }, [debouncedGetSummary]);
 
     const handleClick = (result: MainstemData) => {
-        dispatch(setSelected(result));
+        dispatch(setTarget(result));
         if (summary && summary.id === result.id) {
             dispatch(setMetrics(summary));
         }
@@ -121,7 +121,7 @@ export const Results: React.FC<Props> = (props) => {
 
     const handleMouseLeave = () => {
         dispatch(setHoverId(null));
-        debouncedGetDatasets.cancel();
+        debouncedGetSummary.cancel();
         if (controller.current) {
             controller.current.abort('Row no longer hovered');
         }
@@ -147,15 +147,15 @@ export const Results: React.FC<Props> = (props) => {
                             }}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(result);
+                                void debouncedGetSummary(result);
                             }}
                             onMouseLeave={handleMouseLeave}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(result);
+                                void debouncedGetSummary(result);
                             }}
                             onBlur={() => {
-                                debouncedGetDatasets.cancel();
+                                debouncedGetSummary.cancel();
                             }}
                             title={`${result.name_at_outlet} - ${result.id}`}
                             role="option"

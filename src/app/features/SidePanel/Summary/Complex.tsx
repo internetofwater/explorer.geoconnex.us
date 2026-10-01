@@ -10,7 +10,6 @@ export type Exclusions = {
     total?: boolean;
     variables?: boolean;
     types?: boolean;
-    techniques?: boolean;
 };
 
 type Props = {

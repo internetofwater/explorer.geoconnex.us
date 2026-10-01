@@ -34,11 +34,9 @@ const build = (uri: string, options: TQueryOptions = {}) =>
                     ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
                     ${SCHEMA}:subjectOf ?dataset .
                 ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
+                ?monitoringLocation schema:provider/schema:name ?distributionName .
 
-                ?dataset ${SCHEMA}:url ?url .
-                ?dataset ${SCHEMA}:distribution ?distribution .
                 ?dataset ${SCHEMA}:variableMeasured ?var .
-                
                 ?var ${SCHEMA}:name ?variableMeasured .
                     
                 ${getQueryOptions(options)}

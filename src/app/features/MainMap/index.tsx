@@ -30,26 +30,18 @@ import {
 } from 'mapbox-gl';
 import {
     getFilteredDatasets,
-    reset,
     setFilter,
     setLayerVisibility,
     setMapMoved,
 } from '@/lib/state/main/slice';
-import {
-    createSummaryPoints,
-    deleteSummaryPoints,
-} from '@/app/features/MainMap/utils';
+import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
-import {
-    setBBox,
-    setSelected,
-    reset as mainstemReset,
-} from '@/lib/state/mainstem/slice';
+import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
@@ -94,12 +86,6 @@ export const MainMap: React.FC<Props> = (props) => {
     const handleMapMove = () => {
         if (isMounted.current) {
             dispatch(setMapMoved(Date.now()));
-        }
-    };
-
-    const handleDatasetFetch = (mainstemData: MainstemData) => {
-        if (isMounted.current) {
-            dispatch(setSelected(mainstemData));
         }
     };
 
@@ -289,8 +275,8 @@ export const MainMap: React.FC<Props> = (props) => {
                                 '',
                                 `/mainstems/${feature.properties.id}`
                             );
-                            void handleDatasetFetch(
-                                feature.properties as MainstemData
+                            dispatch(
+                                setTarget(feature.properties as MainstemData)
                             );
                         }
                     }
@@ -322,26 +308,26 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         );
 
-        map.on('click', (e) => {
-            const features = map.queryRenderedFeatures(e.point, {
-                layers: [
-                    SubLayerId.MainstemsSmall,
-                    SubLayerId.MainstemsMedium,
-                    SubLayerId.MainstemsLarge,
-                    SubLayerId.AssociatedDataClusters,
-                    SubLayerId.AssociatedDataClusterCount,
-                    LayerId.SummaryPoints,
-                ],
-            });
-            const zoom = map.getZoom();
+        // map.on('click', (e) => {
+        //     const features = map.queryRenderedFeatures(e.point, {
+        //         layers: [
+        //             SubLayerId.MainstemsSmall,
+        //             SubLayerId.MainstemsMedium,
+        //             SubLayerId.MainstemsLarge,
+        //             SubLayerId.AssociatedDataClusters,
+        //             SubLayerId.AssociatedDataClusterCount,
+        //             LayerId.SummaryPoints,
+        //         ],
+        //     });
+        //     const zoom = map.getZoom();
 
-            if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
-                window.history.replaceState({}, '', window.location.origin);
-                deleteSummaryPoints(map);
-                dispatch(reset());
-                dispatch(mainstemReset());
-            }
-        });
+        //     if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
+        //         window.history.replaceState({}, '', window.location.origin);
+        //         deleteSummaryPoints(map);
+        //         dispatch(reset());
+        //         dispatch(mainstemReset());
+        //     }
+        // });
 
         // Allow the user to zoom into a boundary once from page load
         const HUC2BoundaryClickListener = (e: MapMouseEvent) => {

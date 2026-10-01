@@ -1,12 +1,16 @@
+import DeleteIcon from '@/app/assets/icons/Delete';
 import OpenIcon from '@/app/assets/icons/Open';
 import { Spinner } from '@/app/assets/Spinner';
 import Button from '@/app/components/common/Button';
 import Collapsible from '@/app/components/common/Collapsible';
+import IconButton from '@/app/components/common/IconButton';
 import { Typography } from '@/app/components/common/Typography';
 import { useLoading } from '@/app/hooks/useLoading';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
-import { EOverlay, setOverlay } from '@/lib/state/main/slice';
+import { EOverlay, setDatasets, setOverlay } from '@/lib/state/main/slice';
+import { setSelected } from '@/lib/state/mainstem/slice';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
+import { getDefaultGeojson } from '@/lib/state/utils';
 
 type TSummaryProps = {
     request: TMainstemRequest;
@@ -99,6 +103,11 @@ const Mainstem: React.FC = () => {
         }
     };
 
+    const handleDeselect = () => {
+        dispatch(setSelected(null));
+        dispatch(setDatasets(getDefaultGeojson()));
+    };
+
     const name = selected.name_at_outlet;
     const URI = selected.uri;
 
@@ -113,6 +122,15 @@ const Mainstem: React.FC = () => {
                     <Typography variant="h3">{name}</Typography>
                     <Typography variant="body-small">{URI}</Typography>
                 </div>
+            }
+            action={
+                <IconButton
+                    onClick={handleDeselect}
+                    className={'w-12 h-auto fill-red-600'}
+                    variant="transparent"
+                >
+                    <DeleteIcon />
+                </IconButton>
             }
         >
             <div className="flex flex-row justify-between p-2 items-end">

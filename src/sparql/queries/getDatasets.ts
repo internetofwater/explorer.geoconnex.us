@@ -9,8 +9,51 @@ import {
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
+import * as z from 'zod';
 
 export const DATASET_LIMIT = 100_000;
+
+type SparqlUriBinding = {
+    value: string;
+};
+
+type SparqlLiteralBinding = {
+    value: string;
+    language: string;
+    datatype: {
+        value: string;
+    };
+    direction: string;
+};
+
+export type TRawGetDatasets = Array<{
+    mainstem: SparqlUriBinding;
+    monitoringLocation: SparqlUriBinding;
+    datasetDescription: SparqlLiteralBinding;
+    type: SparqlLiteralBinding;
+    siteName: SparqlLiteralBinding;
+    variableMeasured: SparqlLiteralBinding;
+    variableUnit: SparqlLiteralBinding;
+    temporalCoverage: SparqlLiteralBinding;
+    distributionName: SparqlLiteralBinding;
+    wkt: SparqlLiteralBinding;
+}>;
+
+export const Datasets = z.array(
+    z.object({
+        monitoringLocation: z.string(),
+        datasetDescription: z.string(),
+        type: z.string(),
+        siteName: z.string(),
+        variableMeasured: z.string(),
+        variableUnit: z.string(),
+        temporalCoverage: z.string(),
+        distributionName: z.string(),
+        wkt: z.string(),
+    })
+);
+
+export type TDatasets = z.infer<typeof Datasets>;
 
 const build = (uri: string, options: TQueryOptions = {}) =>
     format(`
@@ -18,40 +61,30 @@ const build = (uri: string, options: TQueryOptions = {}) =>
             ${SCHEMA_PREFIX}
             ${GEO_PREFIX}
 
-            SELECT DISTINCT ?mainstem ?datasets
+            SELECT DISTINCT 
+                ?mainstem 
+                ?monitoringLocation 
+                ?datasetDescription 
+                ?type 
+                ?siteName
+                ?variableMeasured
+                ?variableUnit
+                ?temporalCoverage 
+                ?distributionName 
+                ?wkt
             WHERE {
                 VALUES ?mainstem { <${uri}> }
                 ?monitoringLocation ${HYF}:HydroLocationType ?type .
                 ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
                 ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
                 ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
+                ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
                 ?dataset ${SCHEMA}:variableMeasured ?var .
-                ?dataset ${SCHEMA}:url ?url .
-                ?dataset ${SCHEMA}:distribution ?distribution .
                 ?dataset ${SCHEMA}:description ?datasetDescription .
                 ?dataset ${SCHEMA}:temporalCoverage ?temporalCoverage .
                 ?dataset ${SCHEMA}:name ?siteName .
                 ?var ${SCHEMA}:name ?variableMeasured .
                 ?var ${SCHEMA}:unitText ?variableUnit .
-                ?var ${SCHEMA}:measurementTechnique ?measurementTechnique .
-                ?distribution ${SCHEMA}:name ?distributionName .
-                ?distribution ${SCHEMA}:contentUrl ?distributionURL .
-                ?distribution ${SCHEMA}:encodingFormat ?distributionFormat .
-                BIND(CONCAT(
-                    '{"monitoringLocation":"', STR(?monitoringLocation),
-                    '","siteName":"', STR(?siteName),
-                    '","datasetDescription":"', STR(?datasetDescription),
-                    '","type":"', STR(?type),
-                    '","url":"', STR(?url),
-                    '","variableMeasured":"', STR(?variableMeasured),
-                    '","variableUnit":"', STR(?variableUnit),
-                    '","measurementTechnique":"', STR(?measurementTechnique),
-                    '","temporalCoverage":"', STR(?temporalCoverage),
-                    '","distributionName":"', STR(?distributionName),
-                    '","distributionURL":"', STR(?distributionURL),
-                    '","distributionFormat":"', STR(?distributionFormat),
-                    '","wkt":"', STR(?wkt), '"}'
-                ) AS ?datasets)
                 
                 ${getQueryOptions(options)}
             }

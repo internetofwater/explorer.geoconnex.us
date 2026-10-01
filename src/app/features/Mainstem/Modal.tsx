@@ -3,7 +3,7 @@ import Modal from '@/app/components/common/Modal';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
 import { LoadingType } from '@/lib/state/loading/types';
 import { EOverlay, setOverlay } from '@/lib/state/main/slice';
-import { setMetrics } from '@/lib/state/mainstem/slice';
+import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
 import { fetchDatasets } from '@/lib/state/mainstem/thunks';
 import { TMainstemMetrics, TMainstemRequest } from '@/lib/state/mainstem/types';
 import { loadingManager } from '@/managers/init';
@@ -18,7 +18,7 @@ import { useLoading } from '@/app/hooks/useLoading';
 import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 
 export const MainstemModal: React.FC = () => {
-    const selected = useAppSelector((state) => state.mainstem.selected);
+    const target = useAppSelector((state) => state.mainstem.target);
     const request = useAppSelector((state) => state.mainstem.request);
     const metrics = useAppSelector((state) => state.mainstem.metrics);
     const overlay = useAppSelector((state) => state.main.overlay);
@@ -34,8 +34,8 @@ export const MainstemModal: React.FC = () => {
 
     const { isFetchingDatasetCount, isFetchingModalMetrics } = useLoading();
 
-    const getRequest = (selected: MainstemData): TMainstemRequest => ({
-        id: selected.id,
+    const getRequest = (target: MainstemData): TMainstemRequest => ({
+        id: target.id,
         variables: variables,
         types: types,
     });
@@ -45,7 +45,7 @@ export const MainstemModal: React.FC = () => {
             return;
         }
 
-        if (selected) {
+        if (target) {
             dispatch(setOverlay(EOverlay.Mainstem));
             setTypes([]);
             setVariables([]);
@@ -53,10 +53,10 @@ export const MainstemModal: React.FC = () => {
         }
 
         dispatch(setOverlay(null));
-    }, [selected]);
+    }, [target]);
 
     useEffect(() => {
-        if (!selected || (metrics && metrics.id === selected.id)) {
+        if (!target || (metrics && metrics.id === target.id)) {
             return;
         }
 
@@ -68,13 +68,13 @@ export const MainstemModal: React.FC = () => {
         const controller = new AbortController();
 
         void datasetService
-            .getSummary(selected.uri, { signal: controller.signal })
+            .getSummary(target.uri, { signal: controller.signal })
             .then((partialMetrics) => {
                 const metrics: TMainstemMetrics = {
                     ...partialMetrics,
-                    id: selected.id,
-                    name: selected.name_at_outlet,
-                    length: selected.outlet_drainagearea_sqkm,
+                    id: target.id,
+                    name: target.name_at_outlet,
+                    length: target.outlet_drainagearea_sqkm,
                 };
 
                 dispatch(setMetrics(metrics));
@@ -87,10 +87,10 @@ export const MainstemModal: React.FC = () => {
         return () => {
             controller.abort();
         };
-    }, [selected, metrics]);
+    }, [target, metrics]);
 
     useEffect(() => {
-        if (!selected || (metrics && metrics.id !== selected.id)) {
+        if (!target || (metrics && metrics.id !== target.id)) {
             return;
         }
 
@@ -104,10 +104,10 @@ export const MainstemModal: React.FC = () => {
             controller.current.abort('New request for dataset count');
         }
         controller.current = new AbortController();
-        const request = getRequest(selected);
+        const request = getRequest(target);
 
         void datasetService
-            .getDatasetCount(selected.uri, {
+            .getDatasetCount(target.uri, {
                 signal: controller.current.signal,
                 request,
                 requestId: ++requestId.current,
@@ -129,6 +129,7 @@ export const MainstemModal: React.FC = () => {
 
     const handleClose = () => {
         dispatch(setOverlay(null));
+        dispatch(setTarget(null));
 
         // Undo any changes
         setVariables(request.variables);
@@ -136,13 +137,14 @@ export const MainstemModal: React.FC = () => {
     };
 
     const handleClick = () => {
-        if (!selected) {
+        if (!target) {
             return;
         }
 
-        const request = getRequest(selected);
+        const request = getRequest(target);
 
-        dispatch(fetchDatasets(selected.uri, request));
+        dispatch(setTarget(null));
+        dispatch(fetchDatasets(target, request));
         dispatch(setOverlay(null));
     };
 
@@ -155,7 +157,7 @@ export const MainstemModal: React.FC = () => {
 
     return (
         <Modal
-            title={selected?.name_at_outlet ?? ''}
+            title={target?.name_at_outlet ?? ''}
             open={overlay === EOverlay.Mainstem}
             handleClose={handleClose}
         >
@@ -180,7 +182,7 @@ export const MainstemModal: React.FC = () => {
                         {getMessage(datasetCount)}
                     </Typography>
                     <Button
-                        title={`Fetch datasets for mainstem: ${selected?.name_at_outlet}`}
+                        title={`Fetch datasets for mainstem: ${target?.name_at_outlet}`}
                         onClick={handleClick}
                         disabled={
                             datasetCount > DATASET_LIMIT ||

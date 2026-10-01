@@ -1,5 +1,4 @@
-import { Dataset } from '@/app/types';
-import { SparqlResult } from '@/services/dataset.service';
+import { Dataset, MainstemData } from '@/app/types';
 import { addDatasets, setDatasets, setFilter } from '@/lib/state/main/slice';
 import {
     _transformDatasets,
@@ -17,14 +16,16 @@ import { LoadingType } from '@/lib/state/loading/types';
 import { NotificationType } from '@/lib/state/notifications/types';
 import { datasetService } from '@/services/init/init';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
-import { setRequest } from '@/lib/state/mainstem/slice';
+import { setRequest, setSelected } from '@/lib/state/mainstem/slice';
+import { parseGetDatasets } from '@/sparql/tranformers/getDatasets';
+import { TRawGetDatasets } from '@/sparql/queries/getDatasets';
 
 let stream: Readable | null = null;
-let batcher: BatchTransform<SparqlResult> | null = null;
+let batcher: BatchTransform<TRawGetDatasets> | null = null;
 let requestGeneration = 0;
 
 export const fetchDatasets =
-    (mainstemURI: string, request: TMainstemRequest, signal?: AbortSignal) =>
+    (target: MainstemData, request: TMainstemRequest, signal?: AbortSignal) =>
     (dispatch: AppDispatch) => {
         const generation = ++requestGeneration;
 
@@ -32,14 +33,15 @@ export const fetchDatasets =
         batcher?.destroy();
 
         dispatch(setDatasets(getDefaultGeojson<Point, Dataset>()));
+        dispatch(setSelected(target));
 
         const loadingInstance = loadingManager.add(
-            `Loading datsets for URI: ${mainstemURI}`,
+            `Loading datsets for URI: ${target.uri}`,
             LoadingType.Datasets
         );
 
-        stream = datasetService.getDatasets(mainstemURI, request);
-        batcher = new BatchTransform<SparqlResult>(BATCH_SIZE);
+        stream = datasetService.getDatasets(target.uri, request);
+        batcher = new BatchTransform<TRawGetDatasets>(BATCH_SIZE);
 
         let processingIndex = 0;
         let filters = createFilters([]);
@@ -103,6 +105,7 @@ export const fetchDatasets =
         currentStream.once('end', () => {
             cleanup();
             // Update the current request
+            // dispatch(setSelected(target));
             dispatch(setRequest(request));
             notificationManager.show(
                 `Datasets loaded for mainstem`,
@@ -115,19 +118,15 @@ export const fetchDatasets =
         currentStream.pipe(currentBatcher);
 
         // Process a new chunk of data
-        currentBatcher.on('data', (batch: SparqlResult[]) => {
+        currentBatcher.on('data', (batch: TRawGetDatasets) => {
             // Ignore batches from an old request
             if (generation !== requestGeneration) {
                 return;
             }
 
-            const datasets = batch.map(
-                (result) => JSON.parse(result.datasets.value) as Dataset
-            );
+            const datasets = parseGetDatasets(batch);
 
-            const newFilters = createFilters(
-                datasets.flatMap((dataset) => dataset)
-            );
+            const newFilters = createFilters(datasets);
 
             filters = appendFilters(filters, newFilters);
             const stringFilters = JSON.stringify(filters);

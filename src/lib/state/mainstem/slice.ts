@@ -7,6 +7,9 @@ export const mainstemSlice = createSlice({
     name: 'mainstem',
     initialState: initialState,
     reducers: {
+        setTarget: (state, action: PayloadAction<InitialState['target']>) => {
+            state.target = action.payload;
+        },
         setSelected: (
             state,
             action: PayloadAction<InitialState['selected']>
@@ -40,7 +43,13 @@ export const mainstemSlice = createSlice({
     },
 });
 
-export const { setSelected, setMetrics, setBBox, setRequest, reset } =
-    mainstemSlice.actions;
+export const {
+    setTarget,
+    setSelected,
+    setMetrics,
+    setBBox,
+    setRequest,
+    reset,
+} = mainstemSlice.actions;
 
 export default mainstemSlice.reducer;

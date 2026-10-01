@@ -22,6 +22,7 @@ export type TMainstemRequest = {
 };
 
 export type InitialState = {
+    target: MainstemData | null;
     selected: MainstemData | null;
     request: TMainstemRequest;
     bbox: LngLatBoundsLike | null;
@@ -29,6 +30,7 @@ export type InitialState = {
 };
 
 export const initialState: InitialState = {
+    target: null,
     selected: null,
     request: {
         id: 'default',

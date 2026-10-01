@@ -15,16 +15,19 @@ export const useDatasetFit = (map: Map | null) => {
 
         if (selected && selected.id === request.id) {
             const datasetCollection = store.getState().main.datasets;
-            const bounds = bbox(datasetCollection) as LngLatBoundsLike;
 
-            map.fitBounds(bounds, {
-                padding: {
-                    top: 20,
-                    left: 40,
-                    right: 20,
-                    bottom: 20,
-                },
-            });
+            if (datasetCollection.features.length > 0) {
+                const bounds = bbox(datasetCollection) as LngLatBoundsLike;
+
+                map.fitBounds(bounds, {
+                    padding: {
+                        top: 60,
+                        left: 100,
+                        right: 60,
+                        bottom: 60,
+                    },
+                });
+            }
         }
     }, [request]);
 };

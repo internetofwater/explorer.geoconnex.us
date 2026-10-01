@@ -16,18 +16,29 @@ import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 export const SPARQL_HEADER_CONTENT_TYPE = 'application/sparql-query';
 export const SPARQL_HEADER_ACCEPT = 'application/sparql-results+json';
 
-export type SparqlResult = {
-    datasets: {
-        value: string; // JSON string that should be parsed into Dataset
-        datatype: {
-            value: string;
-        };
-        language: string;
-        direction: string;
-    };
-    mainstem: {
+type SparqlUriBinding = {
+    value: string;
+};
+
+type SparqlLiteralBinding = {
+    value: string;
+    language: string;
+    datatype: {
         value: string;
     };
+    direction: string;
+};
+
+export type SparqlResult = {
+    mainstem: SparqlUriBinding;
+    monitoringLocation: SparqlUriBinding;
+    datasetDescription: SparqlLiteralBinding;
+    type: SparqlLiteralBinding;
+    variableMeasured: SparqlLiteralBinding;
+    variableUnit: SparqlLiteralBinding;
+    temporalCoverage: SparqlLiteralBinding;
+    distributionName: SparqlLiteralBinding;
+    wkt: SparqlLiteralBinding;
 };
 
 export type TDatasetServiceDependencies = {
@@ -166,6 +177,8 @@ export class DatasetService {
             variables: request.variables,
             types: request.types,
         });
+
+        console.log('query', query);
 
         const stream = this.stream(query);
 
