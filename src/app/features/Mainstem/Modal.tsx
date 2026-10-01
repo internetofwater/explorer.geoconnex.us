@@ -19,6 +19,7 @@ import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 
 export const MainstemModal: React.FC = () => {
     const selected = useAppSelector((state) => state.mainstem.selected);
+    const request = useAppSelector((state) => state.mainstem.request);
     const metrics = useAppSelector((state) => state.mainstem.metrics);
     const overlay = useAppSelector((state) => state.main.overlay);
 
@@ -59,7 +60,6 @@ export const MainstemModal: React.FC = () => {
             return;
         }
 
-        // TODO: determine correct loading type
         const loadingInstance = loadingManager.add(
             'Fetching mainstem summary information',
             LoadingType.FetchModalMetrics
@@ -94,7 +94,6 @@ export const MainstemModal: React.FC = () => {
             return;
         }
 
-        // TODO: determine correct loading type
         const loadingInstance = loadingManager.add(
             'Updating dataset count',
             LoadingType.DatasetCount
@@ -130,7 +129,10 @@ export const MainstemModal: React.FC = () => {
 
     const handleClose = () => {
         dispatch(setOverlay(null));
-        // setRequest(currentRequest);
+
+        // Undo any changes
+        setVariables(request.variables);
+        setTypes(request.types);
     };
 
     const handleClick = () => {

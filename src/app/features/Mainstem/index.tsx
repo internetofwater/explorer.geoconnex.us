@@ -1,6 +1,7 @@
 import OpenIcon from '@/app/assets/icons/Open';
 import { Spinner } from '@/app/assets/Spinner';
 import Button from '@/app/components/common/Button';
+import Collapsible from '@/app/components/common/Collapsible';
 import { Typography } from '@/app/components/common/Typography';
 import { useLoading } from '@/app/hooks/useLoading';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
@@ -104,12 +105,17 @@ const Mainstem: React.FC = () => {
     const showSummary = selected && selected.id === request.id;
 
     return (
-        <div className="bg-primary min-w-16 p-2 shadow-md flex flex-col items-start gap-2 rounded">
-            <div>
-                <Typography variant="h3">{name}</Typography>
-                <Typography variant="body-small">{URI}</Typography>
-            </div>
-            <div className="flex flex-row justify-between items-end">
+        <Collapsible
+            className="bg-primary min-w-[28rem] shadow-md  rounded"
+            buttonClassname="!border-none !bg-transparent"
+            title={
+                <div>
+                    <Typography variant="h3">{name}</Typography>
+                    <Typography variant="body-small">{URI}</Typography>
+                </div>
+            }
+        >
+            <div className="flex flex-row justify-between p-2 items-end">
                 {showSummary && (
                     <>
                         {isFetchingMainstemDatasets ? (
@@ -128,7 +134,7 @@ const Mainstem: React.FC = () => {
                     Update <OpenIcon className="w-5 h-5" />
                 </Button>
             </div>
-        </div>
+        </Collapsible>
     );
 };
 

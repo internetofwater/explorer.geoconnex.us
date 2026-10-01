@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
-    title: string;
+    title: React.ReactNode;
+    className?: string;
+    buttonClassname?: string;
     open?: boolean;
     children: React.ReactNode;
 };
@@ -21,7 +23,7 @@ type Props = {
  * @component
  */
 const Collapsible: React.FC<Props> = (props) => {
-    const { title, open = false } = props;
+    const { title, className = '', buttonClassname = '', open = false } = props;
 
     const [isOpen, setIsOpen] = useState(open);
 
@@ -34,14 +36,14 @@ const Collapsible: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className="bg-primary text-black ">
+        <div className={`bg-primary text-black ${className}`}>
             <button
-                title={`${isOpen ? 'Hide' : 'Show'} ${title}`}
+                title={`${isOpen ? 'Hide' : 'Show'} ${typeof title === 'string' ? title : ''}`}
                 className={`sticky top-0 w-full -mt-1
                         flex justify-between items-center p-4 bg-primary-opaque 
                         border-t ${isOpen ? 'border-b' : ''} border-gray-300
                         hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover
-                        z-[2]`}
+                        z-[2] ${buttonClassname}`}
                 onClick={toggleCollapse}
             >
                 <Typography

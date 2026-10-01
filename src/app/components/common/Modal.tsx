@@ -25,7 +25,7 @@ type Props = {
  * @component
  */
 const Modal: React.FC<Props> = (props) => {
-    const { open, title, handleClose, width = '45rem' } = props;
+    const { open, title, handleClose } = props;
 
     return (
         <>
@@ -42,7 +42,7 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className={`w-[${width}]  bg-primary-opaque text-black rounded-lg shadow-lg max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto`}
+                        className={`w-[45rem] bg-primary-opaque text-black rounded-lg shadow-lg max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto`}
                     >
                         <div
                             id="modal-header"

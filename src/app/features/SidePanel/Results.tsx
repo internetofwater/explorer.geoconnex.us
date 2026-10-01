@@ -13,6 +13,7 @@ import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
 import { setMetrics, setSelected } from '@/lib/state/mainstem/slice';
+import OpenIcon from '@/app/assets/icons/Open';
 
 type Props = {
     results: MainstemData[];
@@ -167,10 +168,13 @@ export const Results: React.FC<Props> = (props) => {
                                 }
                             }}
                         >
-                            <Typography variant="body">
-                                <strong>{result.name_at_outlet}</strong>{' '}
-                                {result.uri}
-                            </Typography>
+                            <div className="flex flex-row justify-between items-center">
+                                <Typography variant="body">
+                                    <strong>{result.name_at_outlet}</strong>
+                                </Typography>
+                                <OpenIcon className="w-5 h-5" />
+                            </div>
+                            <Typography variant="body">{result.uri}</Typography>
                             {summary !== null && summary.id === id && (
                                 <SimpleSummary
                                     summary={summary}
