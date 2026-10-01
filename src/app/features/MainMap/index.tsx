@@ -79,6 +79,7 @@ export const MainMap: React.FC<Props> = (props) => {
         selectedMainstem,
         selectedMainstemBBOX,
         selectedBasemap,
+        geocoderResult,
     } = useSelector((state: RootState) => state.main);
 
     const selectedMainstemId = selectedMainstem?.id ?? null;
@@ -608,6 +609,25 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         });
     }, [reloadFlag, visibleLayers]);
+
+    useEffect(() => {
+        if (!map) {
+            return;
+        }
+
+        const source = map.getSource(SourceId.GeocoderResult) as GeoJSONSource;
+
+        if (!source) {
+            return;
+        }
+
+        const feature = geocoderResult?.feature;
+
+        source.setData({
+            type: 'FeatureCollection',
+            features: feature ? [feature] : [],
+        });
+    }, [map, geocoderResult, reloadFlag]);
 
     return (
         <>
