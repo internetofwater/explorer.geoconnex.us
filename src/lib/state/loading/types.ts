@@ -1,5 +1,7 @@
 export const LoadingType = {
     ResultsHover: 'results-hover',
+    FetchModalMetrics: 'fetch-modal-metrics',
+    DatasetCount: 'dataset-count',
     Datasets: 'datasets',
     SearchResults: 'search-results',
     Rendering: 'rendering',

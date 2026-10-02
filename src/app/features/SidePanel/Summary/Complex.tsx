@@ -1,5 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
-import { Summary as SummaryObj } from '@/lib/state/main/slice';
+import type { Summary } from '@/lib/state/main/slice';
 import { SummarySection } from '@/app/features/SidePanel/Summary/Section';
 import { Spinner } from '@/app/assets/Spinner';
 import { useLoading } from '@/app/hooks/useLoading';
@@ -10,11 +10,10 @@ export type Exclusions = {
     total?: boolean;
     variables?: boolean;
     types?: boolean;
-    techniques?: boolean;
 };
 
 type Props = {
-    summary: SummaryObj;
+    summary: Summary;
 };
 
 /**

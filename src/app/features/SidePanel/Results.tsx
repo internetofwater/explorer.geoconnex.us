@@ -3,19 +3,17 @@ import { useDispatch } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { Typography } from '@/app/components/common/Typography';
 import {
-    fetchDatasets,
     setHoverId,
-    setSelectedMainstem,
-    Summary as SummaryObject,
+    MainstemMetrics as SummaryObject,
 } from '@/lib/state/main/slice';
-import { createSummary } from '@/lib/state/utils';
-import { Feature, Geometry } from 'geojson';
-import { Dataset, MainstemData } from '@/app/types';
+import { MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
-import { loadingManager, notificationManager } from '@/managers/init';
+import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
+import { datasetService } from '@/services/init/init';
+import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
+import OpenIcon from '@/app/assets/icons/Open';
 
 type Props = {
     results: MainstemData[];
@@ -41,46 +39,47 @@ export const Results: React.FC<Props> = (props) => {
     const controller = useRef<AbortController>(null);
     const isMounted = useRef(true);
 
-    const getDatasets = async (id: string) => {
+    const getSummary = async (mainstem: MainstemData) => {
         if (
-            (summary && summary.id === id) ||
+            (summary && summary.id === mainstem.id) ||
             loadingManager.has({ type: LoadingType.Datasets }) // TODO: is this needed?
         ) {
             return;
         }
 
         const loadingInstance = loadingManager.add(
-            `Fetching summary for mainstem with identifier: ${id}`,
+            `Fetching summary for mainstem with identifier: ${mainstem.id}`,
             LoadingType.ResultsHover
         );
 
         try {
             if (controller.current) {
-                controller.current.abort(`New request for id: ${id}`);
+                controller.current.abort(`New request for id: ${mainstem.id}`);
             }
             controller.current = new AbortController();
 
             // Fetch the complete mainstem data with included datasets
-            const response = await fetch(
-                `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
+            const partialSummary = await datasetService.getSummary(
+                mainstem.uri,
                 { signal: controller.current.signal }
             );
-            const feature = (await response.json()) as Feature<
-                Geometry,
-                MainstemData & { datasets: Dataset[] }
-            >;
 
-            if (isMounted.current) {
-                const summary = createSummary(id, feature.properties);
-                setSummary(summary);
-            }
+            const summary: SummaryObject = {
+                ...partialSummary,
+                id: mainstem.id,
+                name: mainstem.name_at_outlet,
+                length: mainstem.outlet_drainagearea_sqkm,
+            };
+
+            setSummary(summary);
         } catch (error) {
             // Abort signals can come in 2 variants
             if (
                 (error as Error)?.name === 'AbortError' ||
                 (typeof error === 'string' &&
                     error.includes('New request for id:')) ||
-                error === 'Component unmount'
+                error === 'Component unmount' ||
+                error === 'Row no longer hovered'
             ) {
                 console.log('Fetch request canceled');
             } else {
@@ -91,15 +90,15 @@ export const Results: React.FC<Props> = (props) => {
         }
     };
 
-    const debouncedGetDatasets = useCallback(
-        debounce((id: string) => getDatasets(id), 300),
+    const debouncedGetSummary = useCallback(
+        debounce((mainstem: MainstemData) => getSummary(mainstem), 300),
         [summary]
     );
 
     useEffect(() => {
         return () => {
             isMounted.current = false;
-            debouncedGetDatasets.cancel();
+            debouncedGetSummary.cancel();
             if (controller.current) {
                 controller.current.abort('Component unmount');
             }
@@ -108,33 +107,24 @@ export const Results: React.FC<Props> = (props) => {
 
     useEffect(() => {
         return () => {
-            debouncedGetDatasets.cancel();
+            debouncedGetSummary.cancel();
         };
-    }, [debouncedGetDatasets]);
+    }, [debouncedGetSummary]);
 
-    const handleClick = async (result: MainstemData) => {
-        dispatch(setSelectedMainstem(result));
+    const handleClick = (result: MainstemData) => {
+        dispatch(setTarget(result));
+        if (summary && summary.id === result.id) {
+            dispatch(setMetrics(summary));
+        }
         window.history.replaceState({}, '', `/mainstems/${result.id}`);
-        const loadingInstance = loadingManager.add(
-            `Fetching datasets for mainstem: ${result.name_at_outlet}`,
-            LoadingType.ResultsHover
-        );
-
-        await dispatch(fetchDatasets(result.id));
-        loadingManager.remove(loadingInstance);
-        notificationManager.show(
-            `Datasets loaded for mainstem: ${result.name_at_outlet}`,
-            NotificationType.Success,
-            5000
-        );
-
-        // TODO: review this approach
-        // Let the camera move end the datasets loading event
     };
 
     const handleMouseLeave = () => {
         dispatch(setHoverId(null));
-        debouncedGetDatasets.cancel();
+        debouncedGetSummary.cancel();
+        if (controller.current) {
+            controller.current.abort('Row no longer hovered');
+        }
     };
 
     return (
@@ -157,17 +147,17 @@ export const Results: React.FC<Props> = (props) => {
                             }}
                             onMouseOver={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(id);
+                                void debouncedGetSummary(result);
                             }}
                             onMouseLeave={handleMouseLeave}
                             onFocus={() => {
                                 dispatch(setHoverId(id));
-                                void debouncedGetDatasets(id);
+                                void debouncedGetSummary(result);
                             }}
                             onBlur={() => {
-                                debouncedGetDatasets.cancel();
+                                debouncedGetSummary.cancel();
                             }}
-                            title={`${result.name_at_outlet} - ${result.uri}`}
+                            title={`${result.name_at_outlet} - ${result.id}`}
                             role="option"
                             aria-selected={
                                 summary !== null && summary.id === id
@@ -178,10 +168,13 @@ export const Results: React.FC<Props> = (props) => {
                                 }
                             }}
                         >
-                            <Typography variant="body">
-                                <strong>{result.name_at_outlet}</strong>{' '}
-                                {result.uri}
-                            </Typography>
+                            <div className="flex flex-row justify-between items-center">
+                                <Typography variant="body">
+                                    <strong>{result.name_at_outlet}</strong>
+                                </Typography>
+                                <OpenIcon className="w-5 h-5" />
+                            </div>
+                            <Typography variant="body">{result.uri}</Typography>
                             {summary !== null && summary.id === id && (
                                 <SimpleSummary
                                     summary={summary}

@@ -14,10 +14,7 @@ const Geocoder: React.FC = () => {
     const [showGeocoder, setShowGeocoder] = useState(false);
 
     return (
-        <div
-            id="geocoder"
-            className="absolute top-16 lg:top-3 left-2 lg:left-3 w-80 flex gap-2"
-        >
+        <div id="geocoder" className="w-80 flex gap-2">
             <IconButton
                 title={`${showGeocoder ? 'Hide' : 'Show'} Geocoder`}
                 className="lg:hidden shrink-0"
