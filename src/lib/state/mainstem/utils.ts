@@ -22,4 +22,5 @@ export const getDefaultRequest = (): TMainstemRequest => ({
     id: 'default',
     variables: [],
     types: [],
+    distributionNames: [],
 });
