@@ -16,7 +16,7 @@ const Geocoder: React.FC = () => {
     return (
         <div
             id="geocoder"
-            className="absolute top-16 lg:top-3 left-2 lg:left-3 w-80 flex gap-2"
+            className="absolute top-16 lg:top-3 left-2 lg:left-3 w-[20rem] sm:w-[24rem] flex gap-2"
         >
             <IconButton
                 title={`${showGeocoder ? 'Hide' : 'Show'} Geocoder`}

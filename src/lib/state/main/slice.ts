@@ -21,6 +21,7 @@ import { defaultGeoJson } from '@/lib/state/consts';
 import { RootState } from '@/lib/state/store';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
+import type { GeocoderResult } from '@/app/hooks/useGeocoder';
 
 export type SummaryData = Record<string, number>;
 
@@ -71,6 +72,7 @@ type InitialState = {
         startTemporalCoverage?: string;
         endTemporalCoverage?: string;
     };
+    geocoderResult: GeocoderResult | null;
 };
 
 const initialState: InitialState = {
@@ -107,6 +109,7 @@ const initialState: InitialState = {
         types: [],
         variables: [],
     },
+    geocoderResult: null,
 };
 
 type FetchDatasetsSuccess = Feature<
@@ -375,6 +378,13 @@ export const mainSlice = createSlice({
             >;
             state.selectedSummary = null;
         },
+
+        setGeocoderResult: (
+            state,
+            action: PayloadAction<InitialState['geocoderResult']>
+        ) => {
+            state.geocoderResult = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -450,6 +460,7 @@ export const {
     setSelectedBasemap,
     setSelectedMainstem,
     setSelectedMainstemBBOX,
+    setGeocoderResult,
     reset,
 } = mainSlice.actions;
 
