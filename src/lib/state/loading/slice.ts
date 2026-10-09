@@ -1,7 +1,7 @@
 'use client';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
-    InitialState,
+    TInitialState,
     initialState,
     TLoadingInstance,
 } from '@/lib/state/loading/types';
@@ -28,7 +28,7 @@ export const loadingSlice = createSlice({
         },
         setLoadingInstances: (
             state,
-            action: PayloadAction<InitialState['loadingInstances']>
+            action: PayloadAction<TInitialState['loadingInstances']>
         ) => {
             state.loadingInstances = action.payload;
         },

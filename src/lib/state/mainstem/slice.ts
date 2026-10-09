@@ -1,31 +1,34 @@
 'use client';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { InitialState, initialState } from '@/lib/state/mainstem/types';
+import { TInitialState, initialState } from '@/lib/state/mainstem/types';
 import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 
 export const mainstemSlice = createSlice({
     name: 'mainstem',
     initialState: initialState,
     reducers: {
-        setTarget: (state, action: PayloadAction<InitialState['target']>) => {
+        setTarget: (state, action: PayloadAction<TInitialState['target']>) => {
             state.target = action.payload;
         },
         setSelected: (
             state,
-            action: PayloadAction<InitialState['selected']>
+            action: PayloadAction<TInitialState['selected']>
         ) => {
             state.selected = action.payload;
         },
-        setMetrics: (state, action: PayloadAction<InitialState['metrics']>) => {
+        setMetrics: (
+            state,
+            action: PayloadAction<TInitialState['metrics']>
+        ) => {
             state.metrics = action.payload;
         },
-        setBBox: (state, action: PayloadAction<InitialState['bbox']>) => {
+        setBBox: (state, action: PayloadAction<TInitialState['bbox']>) => {
             state.bbox = action.payload;
         },
 
         setRequest: (
             state,
-            action: PayloadAction<Partial<InitialState['request']>>
+            action: PayloadAction<Partial<TInitialState['request']>>
         ) => {
             const newRequest = {
                 ...state.request,

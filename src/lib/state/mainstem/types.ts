@@ -24,7 +24,7 @@ export type TMainstemRequest = {
     distributionNames: string[];
 };
 
-export type InitialState = {
+export type TInitialState = {
     target: MainstemData | null;
     selected: MainstemData | null;
     request: TMainstemRequest;
@@ -32,7 +32,7 @@ export type InitialState = {
     metrics: TMainstemMetrics | null;
 };
 
-export const initialState: InitialState = {
+export const initialState: TInitialState = {
     target: null,
     selected: null,
     request: {

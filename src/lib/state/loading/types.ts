@@ -15,10 +15,10 @@ export type TLoadingInstance = {
     type: TLoadingType;
 };
 
-export type InitialState = {
+export type TInitialState = {
     loadingInstances: TLoadingInstance[];
 };
 
-export const initialState: InitialState = {
+export const initialState: TInitialState = {
     loadingInstances: [],
 };

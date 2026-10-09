@@ -37,7 +37,8 @@ export type TGraphResponse<T extends Record<string, unknown>> = {
     };
     results: {
         bindings: {
-            [K in keyof T]: TBinding<T>;
+            [K in keyof T]: TBinding<T[K]>;
         }[];
     };
+    meta: Record<string, unknown>;
 };
