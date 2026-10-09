@@ -14,19 +14,22 @@ import * as z from 'zod';
 export const DATASET_LIMIT = 100_000;
 
 type SparqlUriBinding = {
+    type: 'uri';
     value: string;
 };
 
-type SparqlLiteralBinding = {
-    value: string;
-    language: string;
-    datatype: {
-        value: string;
-    };
-    direction: string;
-};
+type SparqlLiteralBinding =
+    | {
+          value: string;
+          language: string;
+          datatype: {
+              value: string;
+          };
+          direction: string;
+      }
+    | { type: 'literal'; value: string };
 
-export type TRawGetDatasets = Array<{
+export type TRawGetDatasetsUnit = {
     mainstem: SparqlUriBinding;
     monitoringLocation: SparqlUriBinding;
     datasetDescription: SparqlLiteralBinding;
@@ -37,7 +40,9 @@ export type TRawGetDatasets = Array<{
     temporalCoverage: SparqlLiteralBinding;
     distributionName: SparqlLiteralBinding;
     wkt: SparqlLiteralBinding;
-}>;
+};
+
+export type TRawGetDatasets = Array<TRawGetDatasetsUnit>;
 
 export const Datasets = z.array(
     z.object({
