@@ -1,5 +1,7 @@
 export const LoadingType = {
     ResultsHover: 'results-hover',
+    FetchModalMetrics: 'fetch-modal-metrics',
+    DatasetCount: 'dataset-count',
     Datasets: 'datasets',
     SearchResults: 'search-results',
     Rendering: 'rendering',
@@ -13,10 +15,10 @@ export type TLoadingInstance = {
     type: TLoadingType;
 };
 
-export type InitialState = {
+export type TInitialState = {
     loadingInstances: TLoadingInstance[];
 };
 
-export const initialState: InitialState = {
+export const initialState: TInitialState = {
     loadingInstances: [],
 };

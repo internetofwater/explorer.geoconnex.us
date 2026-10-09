@@ -12,10 +12,10 @@
     --text-color: #000;
     --z-select-menu: 999;
     --z-notification: 3;
-    --z-side-panel: 3;
+    --z-side-panel: 4;
     --z-side-panel-control: 1;
     --z-tools: 1;
-    --z-modal-overlay: 4;
+    --z-modal-overlay: 5;
     --z-loading-bar: 4;
 }
 

@@ -43,15 +43,11 @@ export interface MainstemData {
  */
 export type Dataset = {
     datasetDescription: string;
-    distributionFormat: string;
     distributionName: string;
-    distributionURL: string;
-    measurementTechnique: string;
     monitoringLocation: string;
     siteName: string;
     temporalCoverage: string;
     type: string;
-    url: string;
     variableMeasured: string;
     variableUnit: string;
     wkt: string;

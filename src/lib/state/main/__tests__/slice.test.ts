@@ -6,7 +6,6 @@ import mainReducer, {
     setLayerVisibility,
     setFilter,
     setView,
-    setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
 import { FeatureCollection, Geometry, Point } from 'geojson';
 import { Dataset } from '@/app/types';
@@ -62,12 +61,5 @@ describe('mainSlice', () => {
         store.dispatch(setView(view));
         const state = store.getState().main;
         expect(state.view).toEqual(view);
-    });
-
-    test('should handle setSelectedMainstemBBOX', () => {
-        const bbox: [number, number, number, number] = [0, 0, 1, 1];
-        store.dispatch(setSelectedMainstemBBOX(bbox));
-        const state = store.getState().main;
-        expect(state.selectedMainstemBBOX).toEqual(bbox);
     });
 });

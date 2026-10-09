@@ -11,8 +11,10 @@ export const useLoading = () => {
 
     const [isFetchingMainstemSummary, setIsFetchingMainstemSummary] =
         useState(false);
+    const [isFetchingModalMetrics, setIsFetchingModalMetrics] = useState(false);
     const [isFetchingMainstemDatasets, setIsFetchingMainstemDatasets] =
         useState(false);
+    const [isFetchingDatasetCount, setIsFetchingDatasetCount] = useState(false);
     const [isFetchingSearchResults, setIsFetchingSearchResults] =
         useState(false);
     const [isRendering, setIsRendering] = useState(false);
@@ -21,8 +23,14 @@ export const useLoading = () => {
         setIsFetchingMainstemSummary(
             loadingManager.has({ type: LoadingType.ResultsHover })
         );
+        setIsFetchingModalMetrics(
+            loadingManager.has({ type: LoadingType.FetchModalMetrics })
+        );
         setIsFetchingMainstemDatasets(
             loadingManager.has({ type: LoadingType.Datasets })
+        );
+        setIsFetchingDatasetCount(
+            loadingManager.has({ type: LoadingType.DatasetCount })
         );
         setIsFetchingSearchResults(
             loadingManager.has({ type: LoadingType.SearchResults })
@@ -33,6 +41,8 @@ export const useLoading = () => {
     return {
         isFetchingMainstemSummary,
         isFetchingMainstemDatasets,
+        isFetchingModalMetrics,
+        isFetchingDatasetCount,
         isFetchingSearchResults,
         isRendering,
     };
