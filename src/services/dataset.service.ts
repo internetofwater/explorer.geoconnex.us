@@ -21,7 +21,6 @@ export const SPARQL_HEADER_ACCEPT = 'application/sparql-results+json';
 export type TDatasetServiceDependencies = {
     factoryService: FactoryService;
     client: SparqlClient;
-    fetch: typeof fetch;
 };
 
 interface IResultWithId<T> {
@@ -72,7 +71,7 @@ export class DatasetService {
     ): Promise<TGraphResponse<T>> {
         const body = this.flattenQuery(query);
 
-        const response = await this.deps.fetch(this.url, {
+        const response = await fetch(this.url, {
             method: 'POST',
             headers: {
                 'Content-Type': SPARQL_HEADER_CONTENT_TYPE,

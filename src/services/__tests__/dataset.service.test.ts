@@ -1,4 +1,5 @@
 import { DatasetService } from '@/services/dataset.service';
+
 import { TEST_GET_DATASET_COUNT_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getDatasetCount.response';
 import { TEST_GET_TOTAL_SITES_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getTotalSites.response';
 import { TEST_GET_VARIABLES_MEASURED_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getVariablesMeasured.response';
@@ -7,8 +8,6 @@ import { TEST_GET_TOTAL_TYPES_RESPONSE } from '@/sparql/tranformers/__tests__/fi
 
 describe('DatasetService', () => {
     const signal = new AbortController().signal;
-
-    const fetchMock = jest.fn();
 
     const factoryService = {
         createGetDatasetCount: jest.fn(),
@@ -32,9 +31,10 @@ describe('DatasetService', () => {
 
         service = new DatasetService('https://example.test', {
             factoryService: factoryService as any,
-            fetch: fetchMock,
             client: client as any,
         });
+
+        jest.spyOn(service as any, 'fetch');
     });
 
     it('should get dataset count', async () => {
@@ -42,9 +42,9 @@ describe('DatasetService', () => {
             'DATASET_COUNT_QUERY'
         );
 
-        fetchMock.mockResolvedValue({
-            json: jest.fn().mockResolvedValue(TEST_GET_DATASET_COUNT_RESPONSE),
-        });
+        (service as any).fetch.mockResolvedValue(
+            TEST_GET_DATASET_COUNT_RESPONSE
+        );
 
         const result = await service.getDatasetCount('uri', {
             signal,
@@ -66,9 +66,7 @@ describe('DatasetService', () => {
     it('should get total sites', async () => {
         factoryService.createGetTotalSites.mockReturnValue('TOTAL_SITES_QUERY');
 
-        fetchMock.mockResolvedValue({
-            json: jest.fn().mockResolvedValue(TEST_GET_TOTAL_SITES_RESPONSE),
-        });
+        (service as any).fetch.mockResolvedValue(TEST_GET_TOTAL_SITES_RESPONSE);
 
         const result = await service.getTotalSites('uri', {
             signal,
@@ -86,17 +84,14 @@ describe('DatasetService', () => {
             'VARIABLES_QUERY'
         );
 
-        fetchMock.mockResolvedValue({
-            json: jest
-                .fn()
-                .mockResolvedValue(TEST_GET_VARIABLES_MEASURED_RESPONSE),
-        });
+        (service as any).fetch.mockResolvedValue(
+            TEST_GET_VARIABLES_MEASURED_RESPONSE
+        );
 
         const result = await service.getVariablesMeasured('uri', {
             signal,
         });
 
-        expect(result.length).toBeGreaterThan(0);
         expect(result[0]).toEqual({
             variableMeasured: 'Temperature, water',
             datasets: 23,
@@ -108,9 +103,7 @@ describe('DatasetService', () => {
             'DISTRIBUTION_QUERY'
         );
 
-        fetchMock.mockResolvedValue({
-            json: jest.fn().mockResolvedValue(TEST_GET_DISTRIBUTION_NAMES),
-        });
+        (service as any).fetch.mockResolvedValue(TEST_GET_DISTRIBUTION_NAMES);
 
         const result = await service.getDistributionNames('uri', {
             signal,
@@ -126,9 +119,7 @@ describe('DatasetService', () => {
     it('should get types', async () => {
         factoryService.createGetTypes.mockReturnValue('TYPES_QUERY');
 
-        fetchMock.mockResolvedValue({
-            json: jest.fn().mockResolvedValue(TEST_GET_TOTAL_TYPES_RESPONSE),
-        });
+        (service as any).fetch.mockResolvedValue(TEST_GET_TOTAL_TYPES_RESPONSE);
 
         const result = await service.getTypes('uri', {
             signal,
@@ -205,6 +196,22 @@ describe('DatasetService', () => {
                 },
             ],
         });
+
+        expect(service.getDatasetCount).toHaveBeenCalledWith('uri', {
+            signal,
+        });
+        expect(service.getTotalSites).toHaveBeenCalledWith('uri', {
+            signal,
+        });
+        expect(service.getVariablesMeasured).toHaveBeenCalledWith('uri', {
+            signal,
+        });
+        expect(service.getDistributionNames).toHaveBeenCalledWith('uri', {
+            signal,
+        });
+        expect(service.getTypes).toHaveBeenCalledWith('uri', {
+            signal,
+        });
     });
 
     it('should reject when a dependent request fails', async () => {
@@ -217,7 +224,9 @@ describe('DatasetService', () => {
         });
 
         jest.spyOn(service, 'getVariablesMeasured').mockResolvedValue([]);
+
         jest.spyOn(service, 'getDistributionNames').mockResolvedValue([]);
+
         jest.spyOn(service, 'getTypes').mockResolvedValue([]);
 
         await expect(

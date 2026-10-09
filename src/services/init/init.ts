@@ -8,6 +8,5 @@ export const factoryService = new FactoryService();
 
 export const datasetService = new DatasetService(GRAPH_SOURCE, {
     factoryService,
-    fetch,
     client: new SparqlClient({ endpointUrl: GRAPH_SOURCE }),
 });
