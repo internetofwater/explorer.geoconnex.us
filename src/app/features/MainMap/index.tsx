@@ -66,8 +66,13 @@ export const MainMap: React.FC<Props> = (props) => {
     const { map, persistentPopup, hoverPopup } = useMap(MAP_ID);
     const dispatch: AppDispatch = useDispatch();
 
-    const { searchResultIds, visibleLayers, hoverId, selectedBasemap } =
-        useAppSelector((state) => state.main);
+    const {
+        searchResultIds,
+        visibleLayers,
+        hoverId,
+        selectedBasemap,
+        geocoderResult,
+    } = useAppSelector((state) => state.main);
 
     const selected = useAppSelector((state) => state.mainstem.selected);
     const bbox = useAppSelector((state) => state.mainstem.bbox);
@@ -585,6 +590,25 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         });
     }, [reloadFlag, visibleLayers]);
+
+    useEffect(() => {
+        if (!map) {
+            return;
+        }
+
+        const source = map.getSource(SourceId.GeocoderResult) as GeoJSONSource;
+
+        if (!source) {
+            return;
+        }
+
+        const feature = geocoderResult?.feature;
+
+        source.setData({
+            type: 'FeatureCollection',
+            features: feature ? [feature] : [],
+        });
+    }, [map, geocoderResult, reloadFlag]);
 
     return (
         <>

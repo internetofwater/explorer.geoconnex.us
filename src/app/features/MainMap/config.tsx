@@ -31,6 +31,7 @@ export enum SourceId {
     AssociatedData = 'associated-data-source',
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
+    GeocoderResult = 'geocoder-result-source',
 }
 
 export enum LayerId {
@@ -40,6 +41,8 @@ export enum LayerId {
     AssociatedData = 'associated-data',
     SummaryPoints = 'summary-points',
     MainstemsHighlight = 'mainstems-highlight',
+    GeocoderResultLine = 'geocoder-result-line',
+    GeocoderResultCircle = 'geocoder-result-circle',
 }
 
 export enum SubLayerId {
@@ -187,6 +190,18 @@ export const sourceConfigs: SourceConfig[] = [
             cluster: false,
         },
     },
+    {
+        id: SourceId.GeocoderResult,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: [],
+            },
+            cluster: false,
+        },
+    },
 ];
 
 /**********************************************************************
@@ -233,6 +248,8 @@ export const getLayerName = (layerId: LayerId | SubLayerId): string => {
 export const MAINSTEMS_SEARCH_COLOR = '#FAC60F';
 export const MAINSTEMS_SELECTED_COLOR = '#F500FF';
 
+export const GEOCODER_COLOR = '#4CAF50';
+
 /**
  * Returns the color for a given layer or sublayer based on its identifier.
  * It defines the color values for each layer, including special cases for data-driven properties.
@@ -263,6 +280,9 @@ export const getLayerColor = (
             return '#FFF';
         case LayerId.AssociatedData:
             return ''; // Special case, no parent layer def
+        case LayerId.GeocoderResultLine:
+        case LayerId.GeocoderResultCircle:
+            return GEOCODER_COLOR;
         case SubLayerId.AssociatedDataClusters:
             return [
                 'step',
@@ -279,6 +299,7 @@ export const getLayerColor = (
             return '#1C76CA';
         case LayerId.SummaryPoints:
             return '#1C76CA';
+
         default:
             return '#FFF';
     }
@@ -477,6 +498,7 @@ export const getLayerConfig = (
                         getLayerPadding(SubLayerId.MainstemsLargeGhost),
                 },
             };
+
         case LayerId.MainstemsHighlight:
             return {
                 id: LayerId.MainstemsHighlight,
@@ -733,6 +755,34 @@ export const getLayerConfig = (
                     ],
                 },
             };
+
+        case LayerId.GeocoderResultLine:
+            return {
+                id: LayerId.GeocoderResultLine,
+                type: LayerType.Line,
+                source: SourceId.GeocoderResult,
+                filter: [
+                    'any',
+                    ['==', ['geometry-type'], 'LineString'],
+                    ['==', ['geometry-type'], 'Polygon'],
+                ],
+                paint: {
+                    'line-color': getLayerColor(LayerId.GeocoderResultLine),
+                    'line-width': 4,
+                },
+            };
+        case LayerId.GeocoderResultCircle:
+            return {
+                id: LayerId.GeocoderResultCircle,
+                type: LayerType.Circle,
+                source: SourceId.GeocoderResult,
+                filter: ['==', ['geometry-type'], 'Point'],
+                paint: {
+                    'circle-color': getLayerColor(LayerId.GeocoderResultCircle),
+                    'circle-radius': 6,
+                },
+            };
+
         default:
             return null;
     }
@@ -1171,6 +1221,18 @@ export const layerDefinitions: MainLayerDefinition[] = [
                 customHoverExitFunction: getLayerCustomHoverExitFunction(
                     SubLayerId.MainstemsLarge
                 ),
+            },
+            {
+                id: LayerId.GeocoderResultLine,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(LayerId.GeocoderResultLine),
+            },
+            {
+                id: LayerId.GeocoderResultCircle,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(LayerId.GeocoderResultCircle),
             },
         ],
     },

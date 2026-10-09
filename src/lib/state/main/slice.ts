@@ -14,6 +14,7 @@ import { TTotalSites } from '@/sparql/queries/getTotalSites';
 import { TVariablesMeasured } from '@/sparql/queries/getVariablesMeasured';
 import { TTypes } from '@/sparql/queries/getTypes';
 import { TDistributionNames } from '@/sparql/queries/getDistributionNames';
+import type { GeocoderResult } from '@/app/hooks/useGeocoder';
 
 export type SummaryData = Record<string, number>;
 
@@ -77,6 +78,7 @@ type InitialState = {
         startTemporalCoverage?: string;
         endTemporalCoverage?: string;
     };
+    geocoderResult: GeocoderResult | null;
 };
 
 const initialState: InitialState = {
@@ -111,6 +113,7 @@ const initialState: InitialState = {
         types: [],
         variables: [],
     },
+    geocoderResult: null,
 };
 
 export const getDatasetsLength = (state: RootState) =>
@@ -346,6 +349,13 @@ export const mainSlice = createSlice({
                 variables: [],
             };
         },
+
+        setGeocoderResult: (
+            state,
+            action: PayloadAction<InitialState['geocoderResult']>
+        ) => {
+            state.geocoderResult = action.payload;
+        },
     },
 });
 
@@ -363,6 +373,7 @@ export const {
     setFilter,
     setView,
     setSelectedBasemap,
+    setGeocoderResult,
     reset,
 } = mainSlice.actions;
 
