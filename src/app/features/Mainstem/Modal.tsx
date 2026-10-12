@@ -149,7 +149,6 @@ export const MainstemModal: React.FC = () => {
 
         const request = getRequest(target);
 
-        dispatch(setTarget(null));
         dispatch(fetchDatasets(target, request));
         dispatch(setOverlay(null));
     };
