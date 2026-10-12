@@ -26,7 +26,7 @@ const Button: React.FC<Props> = (props) => {
         <button
             title={title}
             onClick={onClick}
-            className={`py-2 px-4 bg-secondary hover:bg-secondary-hover disabled:opacity-50 text-white font-bold rounded ${className}`}
+            className={`py-2 px-4 bg-secondary hover:bg-secondary-hover disabled:opacity-50 shadow-md text-white font-bold rounded ${className}`}
             disabled={disabled}
         >
             {props.children}

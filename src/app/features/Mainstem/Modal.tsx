@@ -17,7 +17,7 @@ import { getMessage } from '@/app/features/Mainstem/utils';
 import { useLoading } from '@/app/hooks/useLoading';
 import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 import { DistributionNames } from '@/app/features/Mainstem/DistributionNames';
-import { Request } from './Request';
+import { Request } from '@/app/features/Mainstem/Request';
 
 export const MainstemModal: React.FC = () => {
     const target = useAppSelector((state) => state.mainstem.target);
@@ -130,7 +130,7 @@ export const MainstemModal: React.FC = () => {
         return () => {
             isMounted = false;
         };
-    }, [types, variables, distributionNames]);
+    }, [target, metrics, types, variables, distributionNames]);
 
     const handleClose = () => {
         dispatch(setOverlay(null));

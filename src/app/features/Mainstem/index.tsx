@@ -5,90 +5,69 @@ import Button from '@/app/components/common/Button';
 import Collapsible from '@/app/components/common/Collapsible';
 import IconButton from '@/app/components/common/IconButton';
 import { Typography } from '@/app/components/common/Typography';
-import { ShowMoreBadge } from '@/app/components/ShowMoreBadge';
+import { FancyList } from '@/app/components/FancyList';
 import { useLoading } from '@/app/hooks/useLoading';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
 import { EOverlay, setDatasets, setOverlay } from '@/lib/state/main/slice';
 import { setSelected } from '@/lib/state/mainstem/slice';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { getDefaultGeojson } from '@/lib/state/utils';
+import { Fragment } from 'react';
 
 type TSummaryProps = {
     request: TMainstemRequest;
 };
 
-const Summary: React.FC<TSummaryProps> = (props) => {
-    const { request } = props;
+const MAX_SHOWN = 5;
 
-    const listFormatOptions = new Intl.ListFormat('en', {
-        style: 'long',
-        type: 'conjunction',
-    });
-    const MAX_SHOWN = 5;
+export const Summary: React.FC<TSummaryProps> = ({ request }) => {
+    const sections = [
+        {
+            label: 'Variables Measured',
+            items: request.variables,
+        },
+        {
+            label: 'Site Types',
+            items: request.types,
+        },
+        {
+            label: 'Distribution Names',
+            items: request.distributionNames,
+        },
+    ].filter(({ items }) => items.length > 0);
 
-    const hasVariables = request.variables.length > 0;
-    const hasTypes = request.types.length > 0;
-    const hasDistributionNames = request.distributionNames.length > 0;
-
-    if (!hasVariables && !hasTypes && !hasDistributionNames) {
+    if (sections.length === 0) {
         return <Typography variant="body">Showing all datasets.</Typography>;
     }
 
     return (
-        <div className="max-w-64">
+        <div className="max-w-80">
             <Typography variant="body">
                 <strong>Showing datasets based on:</strong>
             </Typography>
+
             <ul>
-                {hasVariables && (
-                    <li>
-                        <Typography variant="body-small" as="span">
-                            <strong>Variables Measured:</strong>{' '}
-                            {listFormatOptions.format(
-                                request.variables.slice(0, MAX_SHOWN)
-                            )}
-                            {request.variables.length > MAX_SHOWN && (
-                                <ShowMoreBadge
-                                    count={request.variables.length - MAX_SHOWN}
+                {sections.map((section, index) => (
+                    <Fragment key={section.label}>
+                        {index > 0 && (
+                            <li className="list-none text-center">
+                                <Typography variant="body-small">
+                                    <strong>AND</strong>
+                                </Typography>
+                            </li>
+                        )}
+
+                        <li>
+                            <Typography variant="body-small" as="span">
+                                <strong>{section.label}:</strong>{' '}
+                                <FancyList
+                                    items={section.items}
+                                    max={MAX_SHOWN}
                                 />
-                            )}
-                        </Typography>
-                        <br />
-                    </li>
-                )}
-                {hasTypes && (
-                    <li>
-                        <Typography variant="body-small" as="span">
-                            <strong>Site Types:</strong>{' '}
-                            {listFormatOptions.format(
-                                request.types.slice(0, MAX_SHOWN)
-                            )}
-                            {request.types.length > MAX_SHOWN && (
-                                <ShowMoreBadge
-                                    count={request.types.length - MAX_SHOWN}
-                                />
-                            )}
-                        </Typography>
-                    </li>
-                )}
-                {hasDistributionNames && (
-                    <li>
-                        <Typography variant="body-small" as="span">
-                            <strong>Distribution Names:</strong>{' '}
-                            {listFormatOptions.format(
-                                request.distributionNames.slice(0, MAX_SHOWN)
-                            )}
-                            {request.distributionNames.length > MAX_SHOWN && (
-                                <ShowMoreBadge
-                                    count={
-                                        request.distributionNames.length -
-                                        MAX_SHOWN
-                                    }
-                                />
-                            )}
-                        </Typography>
-                    </li>
-                )}
+                            </Typography>
+                        </li>
+                    </Fragment>
+                ))}
             </ul>
         </div>
     );

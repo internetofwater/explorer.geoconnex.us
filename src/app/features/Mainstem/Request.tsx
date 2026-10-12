@@ -1,5 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
-import { ShowMoreBadge } from '@/app/components/ShowMoreBadge';
+import { FancyList } from '@/app/components/FancyList';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { Fragment, useMemo } from 'react';
 
@@ -11,35 +11,13 @@ type EntryProps = {
 const Entry: React.FC<EntryProps> = (props) => {
     const { title, items } = props;
 
-    const formatter = new Intl.ListFormat('en', {
-        style: 'long',
-        type: 'disjunction',
-    });
-
     const MAX_SHOWN = 5;
 
     return (
         <li className="list-disc break-words whitespace-normal">
             <Typography variant="body-small">
                 <strong>{title}:</strong>{' '}
-                {formatter
-                    .formatToParts(items)
-                    .map(({ type, value }, index) => (
-                        <Fragment
-                            key={`mainstem-request-summary-${title}-part-${index}`}
-                        >
-                            {type === 'literal' ? (
-                                <strong>{value}</strong>
-                            ) : (
-                                value
-                            )}
-                        </Fragment>
-                    ))}
-                {items.length > MAX_SHOWN && (
-                    <strong>
-                        <ShowMoreBadge count={items.length - MAX_SHOWN} />
-                    </strong>
-                )}
+                <FancyList items={items} max={MAX_SHOWN} />
             </Typography>
         </li>
     );
