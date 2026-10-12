@@ -34,6 +34,7 @@ export const fetchDatasets =
 
         dispatch(setDatasets(getDefaultGeojson<Point, Dataset>()));
         dispatch(setSelected(target));
+        window.history.replaceState({}, '', `/mainstems/${target.id}`);
 
         const loadingInstance = loadingManager.add(
             `Loading datsets for URI: ${target.uri}`,

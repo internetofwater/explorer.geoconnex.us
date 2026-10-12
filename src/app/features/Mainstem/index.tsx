@@ -5,6 +5,7 @@ import Button from '@/app/components/common/Button';
 import Collapsible from '@/app/components/common/Collapsible';
 import IconButton from '@/app/components/common/IconButton';
 import { Typography } from '@/app/components/common/Typography';
+import { ShowMoreBadge } from '@/app/components/ShowMoreBadge';
 import { useLoading } from '@/app/hooks/useLoading';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
 import { EOverlay, setDatasets, setOverlay } from '@/lib/state/main/slice';
@@ -14,16 +15,6 @@ import { getDefaultGeojson } from '@/lib/state/utils';
 
 type TSummaryProps = {
     request: TMainstemRequest;
-};
-
-type TShowMoreProps = {
-    count: number;
-};
-
-const ShowMoreBadge: React.FC<TShowMoreProps> = (props) => {
-    const { count } = props;
-
-    return ` + ${count} more`;
 };
 
 const Summary: React.FC<TSummaryProps> = (props) => {

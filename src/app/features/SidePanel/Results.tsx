@@ -116,7 +116,6 @@ export const Results: React.FC<Props> = (props) => {
         if (summary && summary.id === result.id) {
             dispatch(setMetrics(summary));
         }
-        window.history.replaceState({}, '', `/mainstems/${result.id}`);
     };
 
     const handleMouseLeave = () => {

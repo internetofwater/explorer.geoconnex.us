@@ -3,7 +3,7 @@ import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     open: boolean;
-    title: string;
+    title: React.ReactNode;
     handleClose: () => void;
     children: React.ReactNode;
     action?: React.ReactNode;
@@ -48,13 +48,18 @@ const Modal: React.FC<Props> = (props) => {
                             id="modal-header"
                             className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-start justify-center p-2 "
                         >
-                            <Typography
-                                variant="h2"
-                                as="h3"
-                                className="text-left flex-grow pl-4"
-                            >
-                                {title}
-                            </Typography>
+                            {typeof title === 'string' ? (
+                                <Typography
+                                    variant="h2"
+                                    as="h3"
+                                    className="text-left flex-grow pl-4"
+                                >
+                                    {title}
+                                </Typography>
+                            ) : (
+                                <>{title}</>
+                            )}
+
                             <CloseButton
                                 onClick={() => handleClose()}
                                 className="text-gray-900 hover:text-gray-700 text-md ml-auto"

@@ -17,6 +17,7 @@ import { getMessage } from '@/app/features/Mainstem/utils';
 import { useLoading } from '@/app/hooks/useLoading';
 import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 import { DistributionNames } from '@/app/features/Mainstem/DistributionNames';
+import { Request } from './Request';
 
 export const MainstemModal: React.FC = () => {
     const target = useAppSelector((state) => state.mainstem.target);
@@ -161,16 +162,29 @@ export const MainstemModal: React.FC = () => {
     const handleDistributionNamesChange = (distributionNames: string[]) =>
         setDistributionNames(distributionNames);
 
-    const groupClasses = 'flex flex-col gap-2 flex-grow  max-w-[49%]';
+    const groupClasses = 'flex flex-col gap-2';
 
     return (
         <Modal
-            title={target?.name_at_outlet ?? ''}
+            title={
+                <div className="flex flex-row items-center gap-2">
+                    <Typography
+                        variant="h2"
+                        as="h3"
+                        className="text-left flex-grow pl-4"
+                    >
+                        {target?.name_at_outlet ?? ''}
+                    </Typography>
+                    <Typography variant="body-small">
+                        {target?.uri ?? ''}
+                    </Typography>
+                </div>
+            }
             open={overlay === EOverlay.Mainstem}
             handleClose={handleClose}
         >
-            <div className="flex flex-row justify-between min-h-[20.3125rem]">
-                <div className={groupClasses}>
+            <div className="w-full flex flex-row justify-center min-h-[20.3125rem]">
+                <div className={`${groupClasses} flex-grow max-w-[49%]`}>
                     <Variables
                         variables={variables}
                         onVariablesChange={handleVariablesChange}
@@ -195,25 +209,41 @@ export const MainstemModal: React.FC = () => {
                     />
                 </div>
                 <div className="w-px self-stretch bg-gray-300 mx-6" />
-                <div className={`${groupClasses} items-center justify-center`}>
-                    <Typography variant="body">
-                        {getMessage(datasetCount)}
-                    </Typography>
-                    <Button
-                        title={`Fetch datasets for mainstem: ${target?.name_at_outlet}`}
-                        onClick={handleClick}
-                        disabled={
-                            datasetCount > DATASET_LIMIT ||
-                            isFetchingModalMetrics ||
-                            isFetchingDatasetCount
-                        }
-                    >
-                        <span className="p-2">Update</span>
-                    </Button>
-                    <Typography variant="body-small" className="text-[#3b3b3b]">
-                        Updating this mainstem will reset the map view and clear
-                        any existing filters.
-                    </Typography>
+                <div className="flex flex-col max-w-[49%] gap-4">
+                    <div className={`${groupClasses} items-center`}>
+                        <Typography variant="body">
+                            {getMessage(datasetCount)}
+                        </Typography>
+                        <Button
+                            title={`Fetch datasets for mainstem: ${target?.name_at_outlet}`}
+                            onClick={handleClick}
+                            disabled={
+                                datasetCount > DATASET_LIMIT ||
+                                isFetchingModalMetrics ||
+                                isFetchingDatasetCount
+                            }
+                        >
+                            <span className="p-2">Update</span>
+                        </Button>
+                        <Typography
+                            variant="body-small"
+                            className="text-[#3b3b3b]"
+                        >
+                            Updating this mainstem will reset the map view and
+                            clear any existing filters.
+                        </Typography>
+                    </div>
+                    <div className="w-full h-px self-stretch bg-gray-300 my-2" />
+                    <div className={`${groupClasses} justify-center`}>
+                        <Request
+                            request={{
+                                id: '',
+                                variables,
+                                types,
+                                distributionNames,
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
         </Modal>

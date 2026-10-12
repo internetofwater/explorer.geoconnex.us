@@ -29,15 +29,17 @@ const build = (uri: string, options: TQueryOptions = {}) =>
             WHERE {
                 VALUES ?mainstem { <${uri}> }
 
-                ?monitoringLocation ${HYF}:HydroLocationType ?type .
-                ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
-                    ${SCHEMA}:subjectOf ?dataset .
+                                ?monitoringLocation ${HYF}:HydroLocationType ?type .
+                ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
+                ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
                 ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
-                ?monitoringLocation schema:provider/schema:name ?distributionName .
-
+                ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
                 ?dataset ${SCHEMA}:variableMeasured ?var .
+                ?dataset ${SCHEMA}:description ?datasetDescription .
+                ?dataset ${SCHEMA}:temporalCoverage ?temporalCoverage .
+                ?dataset ${SCHEMA}:name ?siteName .
                 ?var ${SCHEMA}:name ?variableMeasured .
+                ?var ${SCHEMA}:unitText ?variableUnit .
                     
                 ${getQueryOptions(options)}
             }`);
