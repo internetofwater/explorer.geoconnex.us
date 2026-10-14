@@ -8,8 +8,8 @@ import { Typography } from '@/app/components/common/Typography';
 import { FancyList } from '@/app/components/FancyList';
 import { useLoading } from '@/app/hooks/useLoading';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
-import { EOverlay, setDatasets, setOverlay } from '@/lib/state/main/slice';
-import { setSelected } from '@/lib/state/mainstem/slice';
+import { EOverlay, setDatasets } from '@/lib/state/main/slice';
+import { setSelected, setTarget } from '@/lib/state/mainstem/slice';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { getDefaultGeojson } from '@/lib/state/utils';
 import { Fragment } from 'react';
@@ -87,9 +87,7 @@ const Mainstem: React.FC = () => {
     }
 
     const handleClick = () => {
-        if (overlay !== EOverlay.Mainstem) {
-            dispatch(setOverlay(EOverlay.Mainstem));
-        }
+        dispatch(setTarget(selected));
     };
 
     const handleDeselect = () => {
