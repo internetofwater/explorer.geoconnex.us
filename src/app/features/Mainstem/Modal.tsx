@@ -219,7 +219,12 @@ export const MainstemModal: React.FC = () => {
                 <div className="flex flex-col max-w-[49%] gap-4">
                     <div className={`${groupClasses} items-start gap-6`}>
                         <Typography variant="h3" as="h4">
-                            {getMessage(datasetCount)}
+                            {isFetchingDatasetCount ||
+                            isFetchingModalMetrics ? (
+                                <>Loading...</>
+                            ) : (
+                                <>{getMessage(datasetCount)}</>
+                            )}
                         </Typography>
                         <Typography
                             variant="body-small"
