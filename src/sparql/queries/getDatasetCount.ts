@@ -29,7 +29,7 @@ const build = (uri: string, options: TQueryOptions = {}) =>
             WHERE {
                 VALUES ?mainstem { <${uri}> }
 
-                                ?monitoringLocation ${HYF}:HydroLocationType ?type .
+                ?monitoringLocation ${HYF}:HydroLocationType ?type .
                 ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
                 ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
                 ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .

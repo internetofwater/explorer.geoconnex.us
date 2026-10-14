@@ -120,6 +120,7 @@ const Mainstem: React.FC = () => {
                     onClick={handleDeselect}
                     className={'w-12 h-auto fill-red-600'}
                     variant="transparent"
+                    title={`Deselect ${name}`}
                 >
                     <DeleteIcon />
                 </IconButton>

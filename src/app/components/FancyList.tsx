@@ -24,7 +24,9 @@ export const FancyList: React.FC<Props> = (props) => {
                     </Fragment>
                 ))}
             {max !== undefined && items.length > max && (
-                <ShowMoreBadge count={items.length - max} />
+                <strong>
+                    <ShowMoreBadge count={items.length - max} />
+                </strong>
             )}
         </>
     );

@@ -57,7 +57,7 @@ export const Request: React.FC<Props> = (props) => {
         return (
             <>
                 <Typography variant="body">
-                    Fetching all datasets connected to this mainstem.
+                    Loading all datasets connected to this mainstem.
                 </Typography>
                 <Typography variant="body-small">
                     Select options to the left to improve your search.
@@ -68,7 +68,7 @@ export const Request: React.FC<Props> = (props) => {
 
     return (
         <>
-            <Typography variant="body">Fetching datasets based on:</Typography>
+            <Typography variant="body">Loading datasets based on:</Typography>
             <ul className="pl-5">
                 {entries.map((entry, index) => (
                     <Fragment key={`mainstem-request-summary-${index}`}>

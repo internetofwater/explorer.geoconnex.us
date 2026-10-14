@@ -25,9 +25,11 @@ export const MainstemModal: React.FC = () => {
     const metrics = useAppSelector((state) => state.mainstem.metrics);
     const overlay = useAppSelector((state) => state.main.overlay);
 
-    const [variables, setVariables] = useState<string[]>([]);
-    const [types, setTypes] = useState<string[]>([]);
-    const [distributionNames, setDistributionNames] = useState<string[]>([]);
+    const [variables, setVariables] = useState<string[]>(request.variables);
+    const [types, setTypes] = useState<string[]>(request.types);
+    const [distributionNames, setDistributionNames] = useState<string[]>(
+        request.distributionNames
+    );
     const [datasetCount, setDatasetCount] = useState(0);
 
     const requestId = useRef(0);
@@ -51,9 +53,11 @@ export const MainstemModal: React.FC = () => {
 
         if (target) {
             dispatch(setOverlay(EOverlay.Mainstem));
-            setTypes([]);
-            setVariables([]);
-            setDistributionNames([]);
+            if (target.id !== request.id) {
+                setTypes([]);
+                setVariables([]);
+                setDistributionNames([]);
+            }
             return;
         }
 
@@ -185,6 +189,9 @@ export const MainstemModal: React.FC = () => {
         >
             <div className="w-full flex flex-row justify-center min-h-[20.3125rem]">
                 <div className={`${groupClasses} flex-grow max-w-[49%]`}>
+                    <Typography variant="h3" as="h4" className="text-left">
+                        Dataset Filters
+                    </Typography>
                     <Variables
                         variables={variables}
                         onVariablesChange={handleVariablesChange}
@@ -210,9 +217,17 @@ export const MainstemModal: React.FC = () => {
                 </div>
                 <div className="w-px self-stretch bg-gray-300 mx-6" />
                 <div className="flex flex-col max-w-[49%] gap-4">
-                    <div className={`${groupClasses} items-center`}>
-                        <Typography variant="body">
+                    <div className={`${groupClasses} items-start gap-6`}>
+                        <Typography variant="h3" as="h4">
                             {getMessage(datasetCount)}
+                        </Typography>
+                        <Typography
+                            variant="body-small"
+                            className="text-[#3b3b3b]"
+                        >
+                            Click "Load Data" to get all found datasets for the{' '}
+                            {target?.name_at_outlet} mainstem. This action will
+                            reset the map view and clear any existing filters.
                         </Typography>
                         <Button
                             title={`Fetch datasets for mainstem: ${target?.name_at_outlet}`}
@@ -223,15 +238,8 @@ export const MainstemModal: React.FC = () => {
                                 isFetchingDatasetCount
                             }
                         >
-                            <span className="p-2">Update</span>
+                            <span className="p-2">Load Data</span>
                         </Button>
-                        <Typography
-                            variant="body-small"
-                            className="text-[#3b3b3b]"
-                        >
-                            Updating this mainstem will reset the map view and
-                            clear any existing filters.
-                        </Typography>
                     </div>
                     <div className="w-full h-px self-stretch bg-gray-300 my-2" />
                     <div className={`${groupClasses} justify-center`}>
