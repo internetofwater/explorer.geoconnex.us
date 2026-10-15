@@ -21,34 +21,30 @@ import {
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/lib/state/store';
+import { AppDispatch } from '@/lib/state/store';
 import {
     ExpressionSpecification,
     GeoJSONSource,
     LngLatBoundsLike,
     MapMouseEvent,
+    Map as MapboxGLMap,
 } from 'mapbox-gl';
 import {
-    fetchDatasets,
     getFilteredDatasets,
-    reset,
     setFilter,
     setLayerVisibility,
     setMapMoved,
-    setSelectedMainstem,
-    setSelectedMainstemBBOX,
 } from '@/lib/state/main/slice';
-import {
-    createSummaryPoints,
-    deleteSummaryPoints,
-} from '@/app/features/MainMap/utils';
+import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { loadingManager, notificationManager } from '@/managers/init';
+import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
-import Geocoder from '@/app/features/Geocoder';
+import { useAppSelector } from '@/lib/state/hooks';
+import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
+import { useDatasetFit } from '@/app/hooks/useDatasetFit';
+import { Feature, Point } from 'geojson';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -76,15 +72,18 @@ export const MainMap: React.FC<Props> = (props) => {
         searchResultIds,
         visibleLayers,
         hoverId,
-        selectedMainstem,
-        selectedMainstemBBOX,
         selectedBasemap,
         geocoderResult,
-    } = useSelector((state: RootState) => state.main);
+    } = useAppSelector((state) => state.main);
 
-    const selectedMainstemId = selectedMainstem?.id ?? null;
+    const selected = useAppSelector((state) => state.mainstem.selected);
+    const bbox = useAppSelector((state) => state.mainstem.bbox);
+
+    const selectedMainstemId = selected?.id ?? null;
 
     const datasets = useSelector(getFilteredDatasets);
+
+    useDatasetFit(map);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 
@@ -94,24 +93,6 @@ export const MainMap: React.FC<Props> = (props) => {
     const handleMapMove = () => {
         if (isMounted.current) {
             dispatch(setMapMoved(Date.now()));
-        }
-    };
-
-    const handleDatasetFetch = async (mainstemData: MainstemData) => {
-        if (isMounted.current) {
-            const loadingInstance = loadingManager.add(
-                `Fetching datasets for clicked mainstem: ${mainstemData.name_at_outlet}`,
-                LoadingType.Datasets
-            );
-
-            dispatch(setSelectedMainstem(mainstemData));
-            await dispatch(fetchDatasets(mainstemData.id));
-            notificationManager.show(
-                `Datasets loaded for mainstem: ${mainstemData.name_at_outlet}`,
-                NotificationType.Success,
-                5000
-            );
-            loadingManager.remove(loadingInstance);
         }
     };
 
@@ -136,22 +117,52 @@ export const MainMap: React.FC<Props> = (props) => {
             // Check ids to prevent repeated spiderfy
             if (features.length && clusterIds !== previousClusterIds.current) {
                 previousClusterIds.current = clusterIds;
-                const source = map.getSource(
+                const source = map.getSource<GeoJSONSource>(
                     SourceId.AssociatedData
-                ) as GeoJSONSource;
-
-                createSummaryPoints(map, source, features).catch(
-                    (error: ErrorEvent) =>
-                        console.error(
-                            'Unable to create summary points for clusters: ',
-                            clusterIds,
-                            ', Error: ',
-                            error
-                        )
                 );
+
+                if (source) {
+                    const loadingInstance = loadingManager.add(
+                        'Creating summary points',
+                        LoadingType.SummaryPoints
+                    );
+                    createSummaryPoints(map, source, features)
+                        .catch((error: ErrorEvent) =>
+                            console.error(
+                                'Unable to create summary points for clusters: ',
+                                clusterIds,
+                                ', Error: ',
+                                error
+                            )
+                        )
+                        .finally(() => {
+                            loadingManager.remove(loadingInstance);
+                        });
+                }
             }
         }
     };
+
+    const waitForClusters = (
+        map: MapboxGLMap,
+        sourceId: string
+    ): Promise<Feature[]> =>
+        new Promise((resolve) => {
+            const check = () => {
+                const features = map
+                    .querySourceFeatures(sourceId)
+                    .filter((f) => f.properties?.cluster);
+
+                if (features.length > 0) {
+                    resolve(features);
+                    return;
+                }
+
+                map.once('render', check);
+            };
+
+            check();
+        });
 
     const loadDatasets = () => {
         if (!map || !datasets) {
@@ -163,45 +174,39 @@ export const MainMap: React.FC<Props> = (props) => {
             LoadingType.Rendering
         );
 
-        const clusterSource = map.getSource(
+        const clusterSource = map.getSource<GeoJSONSource>(
             SourceId.AssociatedData
-        ) as GeoJSONSource;
+        );
 
         if (clusterSource) {
             clusterSource.setData(datasets);
-            const zoom = map.getZoom();
-            // Listen for the 'idle' event to ensure the source has updated
-            map.once('idle', () => {
-                // There has been an update to filters, reflect this in declustered points
-                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
-                    const features = map.queryRenderedFeatures({
-                        layers: [SubLayerId.AssociatedDataClusters],
-                    });
-                    // Get unique ids
-                    const uniqueIds = new Set<number>(
-                        features.map(
-                            (feature) =>
-                                feature.properties!.cluster_id as number
-                        )
+            clusterSource.setData(datasets);
+            void waitForClusters(map, SourceId.AssociatedData)
+                .then((features) => {
+                    const loadingInstance = loadingManager.add(
+                        'Creating summary points',
+                        LoadingType.SummaryPoints
                     );
-                    // Sort and convert to string
-                    const clusterIds = Array.from(uniqueIds).sort().join();
-                    // Check ids to prevent repeated spiderfy
-                    if (features.length) {
-                        createSummaryPoints(map, clusterSource, features).catch(
-                            (error: ErrorEvent) =>
-                                console.error(
-                                    'Unable to create summary points for clusters: ',
-                                    clusterIds,
-                                    ', Error: ',
-                                    error
-                                )
-                        );
-                    }
-                }
-
-                loadingManager.remove(loadingInstance);
-            });
+                    createSummaryPoints(
+                        map,
+                        clusterSource,
+                        features as Feature<Point>[]
+                    )
+                        .catch((error: ErrorEvent) =>
+                            console.error(
+                                'Unable to create summary points, Error: ',
+                                error
+                            )
+                        )
+                        .finally(() => {
+                            // Summary points instance
+                            loadingManager.remove(loadingInstance);
+                        });
+                })
+                .finally(() => {
+                    // Cluster source update instance
+                    loadingManager.remove(loadingInstance);
+                });
         }
     };
 
@@ -301,8 +306,8 @@ export const MainMap: React.FC<Props> = (props) => {
                                 '',
                                 `/mainstems/${feature.properties.id}`
                             );
-                            void handleDatasetFetch(
-                                feature.properties as MainstemData
+                            dispatch(
+                                setTarget(feature.properties as MainstemData)
                             );
                         }
                     }
@@ -334,24 +339,26 @@ export const MainMap: React.FC<Props> = (props) => {
             }
         );
 
-        map.on('click', (e) => {
-            const features = map.queryRenderedFeatures(e.point, {
-                layers: [
-                    SubLayerId.MainstemsSmall,
-                    SubLayerId.MainstemsMedium,
-                    SubLayerId.MainstemsLarge,
-                    SubLayerId.AssociatedDataClusters,
-                    SubLayerId.AssociatedDataClusterCount,
-                    LayerId.SummaryPoints,
-                ],
-            });
-            const zoom = map.getZoom();
-            if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
-                window.history.replaceState({}, '', '');
-                deleteSummaryPoints(map);
-                dispatch(reset());
-            }
-        });
+        // map.on('click', (e) => {
+        //     const features = map.queryRenderedFeatures(e.point, {
+        //         layers: [
+        //             SubLayerId.MainstemsSmall,
+        //             SubLayerId.MainstemsMedium,
+        //             SubLayerId.MainstemsLarge,
+        //             SubLayerId.AssociatedDataClusters,
+        //             SubLayerId.AssociatedDataClusterCount,
+        //             LayerId.SummaryPoints,
+        //         ],
+        //     });
+        //     const zoom = map.getZoom();
+
+        //     if (!features.length || zoom < MAINSTEM_VISIBLE_ZOOM) {
+        //         window.history.replaceState({}, '', window.location.origin);
+        //         deleteSummaryPoints(map);
+        //         dispatch(reset());
+        //         dispatch(mainstemReset());
+        //     }
+        // });
 
         // Allow the user to zoom into a boundary once from page load
         const HUC2BoundaryClickListener = (e: MapMouseEvent) => {
@@ -552,13 +559,13 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
-        if (selectedMainstemBBOX) {
+        if (bbox) {
             const loadingInstance = loadingManager.add(
                 'Fitting map instance to mainstem',
                 LoadingType.Rendering
             );
 
-            map.fitBounds(selectedMainstemBBOX);
+            map.fitBounds(bbox);
 
             const handleMoveEnd = () => {
                 // Give a slight delay to allow move events to process
@@ -570,9 +577,9 @@ export const MainMap: React.FC<Props> = (props) => {
             };
 
             map.once('moveend', handleMoveEnd);
-            dispatch(setSelectedMainstemBBOX(null));
+            dispatch(setBBox(null));
         }
-    }, [selectedMainstemBBOX]);
+    }, [bbox]);
 
     useEffect(() => {
         if (!map) {
@@ -647,8 +654,6 @@ export const MainMap: React.FC<Props> = (props) => {
                     navigationControl: true,
                 }}
             />
-
-            <Geocoder />
         </>
     );
 };

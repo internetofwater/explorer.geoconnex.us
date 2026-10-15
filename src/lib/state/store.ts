@@ -3,10 +3,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import mainReducer from '@/lib/state/main/slice';
 import loadingReducer from '@/lib/state/loading/slice';
 import notificationsReducer from '@/lib/state/notifications/slice';
+import mainstemReducer from '@/lib/state/mainstem/slice';
 
 const store = configureStore({
     reducer: {
         main: mainReducer,
+        mainstem: mainstemReducer,
         loading: loadingReducer,
         notifications: notificationsReducer,
     },

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 
 type Props = {
     title: string;
     children: React.ReactNode;
     className?: string;
     disabled?: boolean;
-    onClick: () => void;
+    onClick: MouseEventHandler<HTMLButtonElement>;
 };
 
 /**
@@ -26,7 +26,7 @@ const Button: React.FC<Props> = (props) => {
         <button
             title={title}
             onClick={onClick}
-            className={`py-2 px-4 bg-secondary hover:bg-secondary-hover disabled:opacity-50 text-white font-bold rounded ${className}`}
+            className={`py-2 px-4 bg-secondary hover:bg-secondary-hover disabled:opacity-50 shadow-md text-white font-bold rounded ${className}`}
             disabled={disabled}
         >
             {props.children}
