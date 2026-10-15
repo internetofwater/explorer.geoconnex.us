@@ -1,5 +1,4 @@
 import {
-    GeoJSONFeature,
     GeoJSONSource,
     Map,
     MapMouseEvent,
@@ -96,41 +95,51 @@ export const summarizePoints = (
 export const createSummaryPoints = async (
     map: Map,
     source: GeoJSONSource,
-    features: GeoJSONFeature[]
-): Promise<void> => {
+    features: Feature[]
+): Promise<boolean> => {
     const datasets: FeatureCollection<Point, Dataset> = {
         type: 'FeatureCollection',
         features: [],
     };
 
-    const promises = features.map((feature) => {
-        return new Promise<Feature<Point, Dataset>[] | null>(
-            (resolve, reject) => {
-                if (!feature.properties) {
-                    return resolve(null);
-                }
-                const clusterId = feature.properties.cluster_id as number;
-
-                source.getClusterLeaves(
-                    clusterId,
-                    Infinity,
-                    0,
-                    (error, features) => {
-                        if (error) {
-                            return reject(error);
-                        }
-                        if (!features) return resolve(null);
-                        if (features.length > 0) {
-                            return resolve(
-                                features as Feature<Point, Dataset>[]
-                            );
-                        }
-                        resolve(null);
-                    }
-                );
+    const ids = new Set<number>();
+    const promises = features
+        .filter((f) => {
+            const id = Number(f.id);
+            if (ids.has(id)) {
+                return false;
             }
-        );
-    });
+            ids.add(id);
+            return true;
+        })
+        .map((feature) => {
+            return new Promise<Feature<Point, Dataset>[] | null>(
+                (resolve, reject) => {
+                    if (!feature.properties) {
+                        return resolve(null);
+                    }
+                    const clusterId = feature.properties.cluster_id as number;
+
+                    source.getClusterLeaves(
+                        clusterId,
+                        Infinity,
+                        0,
+                        (error, features) => {
+                            if (error) {
+                                return reject(error);
+                            }
+                            if (!features) return resolve(null);
+                            if (features.length > 0) {
+                                return resolve(
+                                    features as Feature<Point, Dataset>[]
+                                );
+                            }
+                            resolve(null);
+                        }
+                    );
+                }
+            );
+        });
 
     try {
         const results = await Promise.all(promises);
@@ -144,9 +153,12 @@ export const createSummaryPoints = async (
             SourceId.SummaryPoints
         ) as GeoJSONSource;
         summarySource.setData(summarizedPoints);
+        return true;
     } catch (error) {
         console.error('Error processing cluster leaves:', error);
     }
+
+    return false;
 };
 
 /**

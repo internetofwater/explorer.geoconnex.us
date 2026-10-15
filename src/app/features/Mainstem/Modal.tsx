@@ -171,7 +171,7 @@ export const MainstemModal: React.FC = () => {
     return (
         <Modal
             title={
-                <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-end gap-2">
                     <Typography
                         variant="h2"
                         as="h3"

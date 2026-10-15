@@ -60,11 +60,16 @@ export const Datasets = z.array(
 
 export type TDatasets = z.infer<typeof Datasets>;
 
-const build = (uri: string, options: TQueryOptions = {}) =>
+const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
     format(`
-            ${HYF_PREFIX}
-            ${SCHEMA_PREFIX}
-            ${GEO_PREFIX}
+         ${
+             options.prefix !== false
+                 ? `
+                ${HYF_PREFIX}
+                ${SCHEMA_PREFIX}
+                ${GEO_PREFIX}`
+                 : ''
+         }
 
             SELECT DISTINCT 
                 ?mainstem 

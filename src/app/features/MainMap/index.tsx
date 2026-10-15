@@ -27,6 +27,7 @@ import {
     GeoJSONSource,
     LngLatBoundsLike,
     MapMouseEvent,
+    Map as MapboxGLMap,
 } from 'mapbox-gl';
 import {
     getFilteredDatasets,
@@ -43,6 +44,7 @@ import { LoadingType } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
+import { Feature, Point } from 'geojson';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -115,22 +117,52 @@ export const MainMap: React.FC<Props> = (props) => {
             // Check ids to prevent repeated spiderfy
             if (features.length && clusterIds !== previousClusterIds.current) {
                 previousClusterIds.current = clusterIds;
-                const source = map.getSource(
+                const source = map.getSource<GeoJSONSource>(
                     SourceId.AssociatedData
-                ) as GeoJSONSource;
-
-                createSummaryPoints(map, source, features).catch(
-                    (error: ErrorEvent) =>
-                        console.error(
-                            'Unable to create summary points for clusters: ',
-                            clusterIds,
-                            ', Error: ',
-                            error
-                        )
                 );
+
+                if (source) {
+                    const loadingInstance = loadingManager.add(
+                        'Creating summary points',
+                        LoadingType.SummaryPoints
+                    );
+                    createSummaryPoints(map, source, features)
+                        .catch((error: ErrorEvent) =>
+                            console.error(
+                                'Unable to create summary points for clusters: ',
+                                clusterIds,
+                                ', Error: ',
+                                error
+                            )
+                        )
+                        .finally(() => {
+                            loadingManager.remove(loadingInstance);
+                        });
+                }
             }
         }
     };
+
+    const waitForClusters = (
+        map: MapboxGLMap,
+        sourceId: string
+    ): Promise<Feature[]> =>
+        new Promise((resolve) => {
+            const check = () => {
+                const features = map
+                    .querySourceFeatures(sourceId)
+                    .filter((f) => f.properties?.cluster);
+
+                if (features.length > 0) {
+                    resolve(features);
+                    return;
+                }
+
+                map.once('render', check);
+            };
+
+            check();
+        });
 
     const loadDatasets = () => {
         if (!map || !datasets) {
@@ -142,45 +174,39 @@ export const MainMap: React.FC<Props> = (props) => {
             LoadingType.Rendering
         );
 
-        const clusterSource = map.getSource(
+        const clusterSource = map.getSource<GeoJSONSource>(
             SourceId.AssociatedData
-        ) as GeoJSONSource;
+        );
 
         if (clusterSource) {
             clusterSource.setData(datasets);
-            const zoom = map.getZoom();
-            // Listen for the 'idle' event to ensure the source has updated
-            map.once('idle', () => {
-                // There has been an update to filters, reflect this in declustered points
-                if (zoom >= CLUSTER_TRANSITION_ZOOM) {
-                    const features = map.queryRenderedFeatures({
-                        layers: [SubLayerId.AssociatedDataClusters],
-                    });
-                    // Get unique ids
-                    const uniqueIds = new Set<number>(
-                        features.map(
-                            (feature) =>
-                                feature.properties!.cluster_id as number
-                        )
+            clusterSource.setData(datasets);
+            void waitForClusters(map, SourceId.AssociatedData)
+                .then((features) => {
+                    const loadingInstance = loadingManager.add(
+                        'Creating summary points',
+                        LoadingType.SummaryPoints
                     );
-                    // Sort and convert to string
-                    const clusterIds = Array.from(uniqueIds).sort().join();
-                    // Check ids to prevent repeated spiderfy
-                    if (features.length) {
-                        createSummaryPoints(map, clusterSource, features).catch(
-                            (error: ErrorEvent) =>
-                                console.error(
-                                    'Unable to create summary points for clusters: ',
-                                    clusterIds,
-                                    ', Error: ',
-                                    error
-                                )
-                        );
-                    }
-                }
-
-                loadingManager.remove(loadingInstance);
-            });
+                    createSummaryPoints(
+                        map,
+                        clusterSource,
+                        features as Feature<Point>[]
+                    )
+                        .catch((error: ErrorEvent) =>
+                            console.error(
+                                'Unable to create summary points, Error: ',
+                                error
+                            )
+                        )
+                        .finally(() => {
+                            // Summary points instance
+                            loadingManager.remove(loadingInstance);
+                        });
+                })
+                .finally(() => {
+                    // Cluster source update instance
+                    loadingManager.remove(loadingInstance);
+                });
         }
     };
 

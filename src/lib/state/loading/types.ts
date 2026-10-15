@@ -1,10 +1,11 @@
 export const LoadingType = {
-    ResultsHover: 'results-hover',
-    FetchModalMetrics: 'fetch-modal-metrics',
     DatasetCount: 'dataset-count',
     Datasets: 'datasets',
-    SearchResults: 'search-results',
+    FetchModalMetrics: 'fetch-modal-metrics',
     Rendering: 'rendering',
+    ResultsHover: 'results-hover',
+    SearchResults: 'search-results',
+    SummaryPoints: 'summary-points',
 };
 
 type TLoadingType = (typeof LoadingType)[keyof typeof LoadingType];

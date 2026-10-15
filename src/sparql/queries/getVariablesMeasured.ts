@@ -4,7 +4,7 @@ import {
     SCHEMA,
     SCHEMA_PREFIX,
 } from '@/sparql/queries/consts';
-import { TMainstemQuery } from '@/sparql/queries/types';
+import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
 
@@ -25,10 +25,15 @@ export type TVariablesMeasured = z.infer<typeof VariablesMeasured>;
 // This field is used to query elsewhere, keeping naming consistent
 export const VARIABLE_MEASURED_URI = 'variableMeasuredURI';
 
-const build = (uri: string) =>
+const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
     format(`
-            ${HYF_PREFIX}
-            ${SCHEMA_PREFIX}
+            ${
+                options.prefix !== false
+                    ? `
+                ${HYF_PREFIX}
+                ${SCHEMA_PREFIX}`
+                    : ''
+            }
 
             SELECT ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
             WHERE {

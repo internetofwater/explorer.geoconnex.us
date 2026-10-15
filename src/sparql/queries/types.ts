@@ -1,6 +1,7 @@
 import Queries from '@/sparql/queries';
 
 export type TBasicOptions = {
+    prefix?: boolean;
     limit?: number;
 };
 
