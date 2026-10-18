@@ -44,12 +44,12 @@ const Collapsible: React.FC<Props> = (props) => {
 
     return (
         <div className={`bg-primary text-black ${className}`}>
-            <div className="flex flex-row ">
+            <div className="flex flex-row h-full">
                 <button
                     title={`${isOpen ? 'Hide' : 'Show'} ${typeof title === 'string' ? title : ''}`}
-                    className={`sticky top-0 w-full -mt-1
+                    className={`sticky top-0 w-full
                         flex flex-grow justify-between items-center p-4 bg-primary-opaque 
-                        border-t ${isOpen ? 'border-b' : ''} border-gray-300
+                         ${isOpen ? 'border-b' : 'border-t'} border-gray-300
                         hover:bg-primary-opaque-hover focus:bg-primary-opaque-hover
                         z-[2] ${buttonClassname}`}
                     onClick={toggleCollapse}
@@ -75,9 +75,12 @@ const Collapsible: React.FC<Props> = (props) => {
                     </span>
                 </button>
                 {action && (
-                    <div className="flex flex-row justify-center items-center">
-                        {action}
-                    </div>
+                    <>
+                        <div className="h-[80%] w-px self-stretch bg-gray-300 mx-1 my-auto" />
+                        <div className="flex flex-row justify-center items-center">
+                            {action}
+                        </div>
+                    </>
                 )}
             </div>
             <div

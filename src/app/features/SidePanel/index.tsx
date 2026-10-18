@@ -176,7 +176,7 @@ const SidePanel: React.FC<Props> = (props) => {
                     </Collapsible>
                 </div>
                 {selected && datasetsLength > 0 && (
-                    <Collapsible title="Filters">
+                    <Collapsible title="Filters" className="border-b">
                         <div className="p-4">
                             <Filters />
                             <div className="mt-5 mb-2">
@@ -190,7 +190,17 @@ const SidePanel: React.FC<Props> = (props) => {
                 )}
                 {selected && (
                     <Collapsible
-                        title={selected.name_at_outlet || 'URI: ' + selected.id}
+                        title={
+                            <Typography
+                                variant="h3"
+                                as="h2"
+                                className="flex-grow-0 text-left -ml-2"
+                            >
+                                {selected.name_at_outlet ||
+                                    'URI: ' + selected.id}
+                            </Typography>
+                        }
+                        className="border-l-8 border-solid border-l-[#10B0AD]"
                         open={true}
                     >
                         {selectedSummary && (
