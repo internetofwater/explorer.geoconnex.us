@@ -102,10 +102,10 @@ const Mainstem: React.FC = () => {
 
     return (
         <Collapsible
-            className="bg-primary sm:min-w-[28rem] max-w-[90vw] shadow-md  rounded"
+            className="bg-primary sm:min-w-[28rem] max-w-[90vw] shadow-md  rounded border-l-8 border-solid border-l-[#10B0AD]"
             buttonClassname="!border-none !bg-transparent"
             title={
-                <div className="max-w-[63vw]">
+                <div className="max-w-[63vw] ">
                     <Typography
                         variant="h3"
                         className="flex-grow-0 !text-2xl text-left"

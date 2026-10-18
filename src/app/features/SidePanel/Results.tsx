@@ -14,6 +14,7 @@ import { LoadingType } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
 import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
 import OpenIcon from '@/app/assets/icons/Open';
+import { useAppSelector } from '@/lib/state/hooks';
 
 type Props = {
     results: MainstemData[];
@@ -31,6 +32,8 @@ type Props = {
  */
 export const Results: React.FC<Props> = (props) => {
     const { results } = props;
+
+    const selectedMainstem = useAppSelector((s) => s.mainstem.selected);
 
     const [summary, setSummary] = useState<SummaryObject | null>(null);
 
@@ -140,7 +143,7 @@ export const Results: React.FC<Props> = (props) => {
                         <li
                             key={index}
                             tabIndex={0}
-                            className="p-3.5 cursor-pointer hover:bg-gray-100 border-b"
+                            className={`${id === selectedMainstem?.id ? 'border-l-8 border-solid border-l-[#10B0AD] pl-1.5' : 'pl-4'} py-3.5 pr-3.5 cursor-pointer hover:bg-gray-100 border-b transition-[padding]`}
                             onClick={() => {
                                 void handleClick(result);
                             }}
