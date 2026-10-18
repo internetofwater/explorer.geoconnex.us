@@ -57,7 +57,7 @@ const Collapsible: React.FC<Props> = (props) => {
                         isOpen ? '-rotate-90' : 'rotate-90'
                     }`}
                 >
-                    <RightArrow className="w-6 h-auto text-black hover:scale-[1.1] transition-transform" />
+                    <RightArrow className="w-6 h-auto text-black hover:scale-110 transition-transform" />
                 </span>
             </button>
             <div

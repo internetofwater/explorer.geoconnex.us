@@ -92,7 +92,7 @@ const SidePanel: React.FC<Props> = (props) => {
                             <button
                                 title="Show Help Modal"
                                 onClick={handleHelpClick}
-                                className="w-10 text-gray-900 hover:text-gray-700 text-lg"
+                                className="w-10 text-gray-900 hover:text-gray-700 hover:scale-110 transition-transform text-lg"
                             >
                                 <HelpIcon />
                             </button>

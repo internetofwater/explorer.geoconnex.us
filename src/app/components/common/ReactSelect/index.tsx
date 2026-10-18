@@ -45,7 +45,7 @@ const ClearIndicator = <T extends OptionBase>(
 ) => {
     return (
         <components.ClearIndicator {...props}>
-            <CloseIcon className="w-5 h-auto text-gray-700 hover:text-gray-900 hover:scale-[1.1] transition-transform" />
+            <CloseIcon className="w-5 h-auto text-gray-700 hover:text-gray-900 hover:scale-110 transition-transform" />
         </components.ClearIndicator>
     );
 };
@@ -56,7 +56,7 @@ const DropdownIndicator = <T extends OptionBase>(
     return (
         <components.DropdownIndicator {...props}>
             <RightArrow
-                className={`${props.selectProps.menuIsOpen ? '-rotate-90' : 'rotate-90'} w-5 h-auto text-black hover:text-gray-500 hover:scale-[1.1] transition-transform`}
+                className={`${props.selectProps.menuIsOpen ? '-rotate-90' : 'rotate-90'} w-5 h-auto text-black hover:text-gray-500 hover:scale-110 transition-transform`}
             />
         </components.DropdownIndicator>
     );
