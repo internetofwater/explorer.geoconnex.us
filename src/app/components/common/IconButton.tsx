@@ -32,13 +32,13 @@ const IconButton: React.FC<Props> = (props) => {
                 rounded-full p-2 shadow-md 
                 w-11 h-11
                 flex justify-center items-center
-
+                
                 ${className} 
                 
                 ${
                     disabled
                         ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:bg-gray-100'
+                        : 'hover:bg-gray-100 hover:[&>*]:opacity-65 [&>*]:transition-opacity'
                 }`}
         >
             {props.children}

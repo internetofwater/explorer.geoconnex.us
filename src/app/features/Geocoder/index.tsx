@@ -25,7 +25,7 @@ const Geocoder: React.FC = () => {
                     setShowGeocoder(!showGeocoder);
                 }}
             >
-                <SearchIcon className="fill-secondary" />
+                <SearchIcon className="fill-black" />
             </IconButton>
 
             <div

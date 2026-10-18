@@ -1,13 +1,18 @@
 import { CSSProperties, useMemo } from 'react';
 import Select, {
+    ClearIndicatorProps,
     components,
+    DropdownIndicatorProps,
     GroupBase,
     MenuListProps,
     MultiValueProps,
+    MultiValueRemoveProps,
     OptionsOrGroups,
     Props as SelectProps,
 } from 'react-select';
 import { getSelectAllOption } from '@/app/components/common/ReactSelect/utils';
+import RightArrow from '@/app/assets/icons/RightArrow';
+import CloseIcon from '@/app/assets/icons/Close';
 
 type OptionBase = {
     value: string | number | null;
@@ -24,6 +29,38 @@ type Props<T extends OptionBase> = SelectProps<T> & {
 export const SELECT_ALL_VALUE = '*';
 
 export const DESELECT_ALL_VALUE = '%';
+
+const MultiValueRemove = <T extends OptionBase>(
+    props: MultiValueRemoveProps<T, boolean, GroupBase<T>>
+) => {
+    return (
+        <components.MultiValueRemove {...props}>
+            <CloseIcon className="w-3 h-auto " />
+        </components.MultiValueRemove>
+    );
+};
+
+const ClearIndicator = <T extends OptionBase>(
+    props: ClearIndicatorProps<T, boolean, GroupBase<T>>
+) => {
+    return (
+        <components.ClearIndicator {...props}>
+            <CloseIcon className="w-5 h-auto text-gray-700 hover:text-gray-900 hover:scale-[1.1] transition-transform" />
+        </components.ClearIndicator>
+    );
+};
+
+const DropdownIndicator = <T extends OptionBase>(
+    props: DropdownIndicatorProps<T, boolean, GroupBase<T>>
+) => {
+    return (
+        <components.DropdownIndicator {...props}>
+            <RightArrow
+                className={`${props.selectProps.menuIsOpen ? '-rotate-90' : 'rotate-90'} w-5 h-auto text-black hover:text-gray-500 hover:scale-[1.1] transition-transform`}
+            />
+        </components.DropdownIndicator>
+    );
+};
 
 const MenuList = <T extends OptionBase>({
     children,
@@ -147,7 +184,13 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
         <Select<T, boolean>
             id={id}
             value={value}
-            components={{ MenuList: MenuListWithLimit, MultiValue }}
+            components={{
+                ClearIndicator,
+                DropdownIndicator,
+                MenuList: MenuListWithLimit,
+                MultiValue,
+                MultiValueRemove,
+            }}
             hideSelectedOptions={false}
             placeholder={placeholder}
             options={_options}
