@@ -98,7 +98,10 @@ export const App: React.FC<Props> = (props) => {
         <>
             <HelpModal />
             <div className="flex">
-                <div id="side-panel-control" className="fixed left-2 top-3 lg:hidden">
+                <div
+                    id="side-panel-control"
+                    className="fixed left-2 top-3 lg:hidden"
+                >
                     {!showSidePanel && (
                         <IconButton
                             onClick={() => handleSidePanelControlClick()}

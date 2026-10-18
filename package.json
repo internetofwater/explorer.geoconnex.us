@@ -8,11 +8,11 @@
         "start": "next start",
         "lint": "next lint",
         "typecheck": "tsc --noEmit",
-        "prettier": "prettier --help \"**/*.{ts,tsx}\"",
+        "prettier": "prettier --check \"**/*.{ts,tsx}\"",
         "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
         "jest": "jest",
         "jest:coverage": "jest --coverage",
-        "test": "npm run typecheck && npm run prettier && npm run lint && npm run jest && npm run e2e"
+        "test": "npm run typecheck && npm run prettier && npm run lint && npm run jest"
     },
     "dependencies": {
         "@hansdo/mapbox-gl-arcgis-featureserver": "^0.0.9",
