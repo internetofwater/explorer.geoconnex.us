@@ -43,8 +43,8 @@ const Collapsible: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className={`bg-primary text-black ${className} h-full`}>
-            <div className="flex flex-row h-full">
+        <div className={`bg-primary text-black ${className}`}>
+            <div className="flex flex-row">
                 <button
                     title={`${isOpen ? 'Hide' : 'Show'} ${typeof title === 'string' ? title : ''}`}
                     className={`sticky top-0 w-full flex-grow-0 h-fit
