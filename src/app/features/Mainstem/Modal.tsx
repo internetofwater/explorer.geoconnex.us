@@ -180,7 +180,7 @@ export const MainstemModal: React.FC = () => {
                     >
                         {target?.name_at_outlet ?? ''}
                     </Typography>
-                    <Typography variant="body-small">
+                    <Typography variant="body-small" className="lg:pb-1">
                         {target?.uri ?? ''}
                     </Typography>
                 </div>
