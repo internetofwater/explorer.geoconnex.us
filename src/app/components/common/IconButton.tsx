@@ -28,7 +28,7 @@ const IconButton: React.FC<Props> = (props) => {
             onClick={onClick}
             title={title}
             disabled={disabled}
-            className={`bg-primary-opaque hover:bg-gray-100
+            className={`${!disabled ? 'group' : ''} bg-primary-opaque hover:bg-gray-100
                 rounded-full p-2 shadow-md 
                 w-11 h-11
                 flex justify-center items-center
@@ -36,13 +36,13 @@ const IconButton: React.FC<Props> = (props) => {
                 
                 ${className} 
                 
-                ${
-                    disabled
-                        ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:bg-gray-100 hover:scale-110 hover:[&>*]:opacity-65 [&>*]:transition-opacity [&>*]:transition-transform'
-                }`}
+                disabled:opacity-50 disabled:cursor-not-allowed
+              enabled:hover:bg-gray-100 enabled:hover:scale-110
+                `}
         >
-            {props.children}
+            <span className="w-full h-full transition-all group-hover:opacity-65">
+                {props.children}
+            </span>
         </button>
     );
 };
