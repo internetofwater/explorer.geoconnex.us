@@ -1,7 +1,16 @@
 import React, { ElementType } from 'react';
 
 type Variant =
-    'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body' | 'body-small' | 'small';
+    | 'h1'
+    | 'h2'
+    | 'h3'
+    | 'h4'
+    | 'h5'
+    | 'h6'
+    | 'body-large'
+    | 'body'
+    | 'body-small'
+    | 'small';
 
 interface Props {
     variant: Variant;
@@ -17,6 +26,7 @@ const tags: Record<Variant, ElementType> = {
     h4: 'h4',
     h5: 'h5',
     h6: 'h6',
+    'body-large': 'p',
     body: 'p',
     'body-small': 'p',
     small: 'span',
@@ -29,6 +39,7 @@ const sizes: Record<Variant, string> = {
     h4: 'text-2xl font-bold sm:text-1xl',
     h5: 'text-xl font-bold sm:text-lg',
     h6: 'text-lg font-bold sm:text-md',
+    'body-large': 'text-lg sm:text-md',
     body: 'text-lg sm:text-md',
     'body-small': 'text-md sm:text-sm',
     small: 'text-sm sm:text-xs',
@@ -78,7 +89,7 @@ export const Typography = ({
     const Tag = as || tags[variant];
 
     return (
-        <Tag className={`${sizeClasses} ${className} flex-grow text-black`}>
+        <Tag className={`${sizeClasses} ${className} text-black`}>
             {children}
         </Tag>
     );

@@ -3,10 +3,11 @@ import { Typography } from '@/app/components/common/Typography';
 
 type Props = {
     open: boolean;
-    title: string;
+    title: React.ReactNode;
     handleClose: () => void;
     children: React.ReactNode;
-    action: React.ReactNode;
+    action?: React.ReactNode;
+    width?: string;
 };
 
 /**
@@ -41,18 +42,24 @@ const Modal: React.FC<Props> = (props) => {
                 >
                     <div
                         data-testid="modal-content"
-                        className="bg-primary-opaque text-black rounded-lg shadow-lg w-[45rem] max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto"
+                        className={`w-[45rem] bg-primary-opaque text-black rounded-lg shadow-lg max-w-[80vw] max-h-[93svh] relative overflow-x-hidden overflow-y-auto`}
                     >
                         <div
                             id="modal-header"
-                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-center justify-center p-6 "
+                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-start justify-center p-2 z-10"
                         >
-                            <Typography
-                                variant="h3"
-                                className="text-center flex-grow"
-                            >
-                                {title}
-                            </Typography>
+                            {typeof title === 'string' ? (
+                                <Typography
+                                    variant="h2"
+                                    as="h3"
+                                    className="text-left flex-grow pl-4"
+                                >
+                                    {title}
+                                </Typography>
+                            ) : (
+                                <>{title}</>
+                            )}
+
                             <CloseButton
                                 onClick={() => handleClose()}
                                 className="text-gray-900 hover:text-gray-700 text-md ml-auto"
@@ -62,12 +69,14 @@ const Modal: React.FC<Props> = (props) => {
                         <div id="modal-body" className="p-6">
                             {props.children}
                         </div>
-                        <div
-                            id="modal-action"
-                            className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-primary-opaque p-4"
-                        >
-                            {props.action}
-                        </div>
+                        {props?.action && (
+                            <div
+                                id="modal-action"
+                                className="sticky border-t border-gray-300 bottom-0 flex items-center  bg-primary-opaque p-4"
+                            >
+                                {props.action}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

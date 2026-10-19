@@ -286,7 +286,7 @@ export const getLayerColor = (
         case SubLayerId.AssociatedDataClusters:
             return [
                 'step',
-                ['get', 'point_count'],
+                ['coalesce', ['get', 'point_count'], 0],
                 '#91bfdb', // Less than 50
                 50,
                 '#ffffbf', // GTE 50
@@ -591,14 +591,14 @@ export const getLayerConfig = (
                 id: SubLayerId.AssociatedDataClusters,
                 type: LayerType.Circle,
                 source: SourceId.AssociatedData,
-                filter: ['has', 'point_count'],
+                // filter: ['has', 'point_count'],
                 paint: {
                     'circle-color': getLayerColor(
                         SubLayerId.AssociatedDataClusters
                     ),
                     'circle-radius': [
                         'step',
-                        ['get', 'point_count'],
+                        ['coalesce', ['get', 'point_count'], 0],
                         20,
                         5,
                         30,
@@ -609,7 +609,7 @@ export const getLayerConfig = (
                         'step',
                         ['zoom'],
                         1,
-                        CLUSTER_TRANSITION_ZOOM,
+                        CLUSTER_TRANSITION_ZOOM - 1,
                         0,
                     ],
                 },
@@ -620,7 +620,11 @@ export const getLayerConfig = (
                 type: LayerType.Symbol,
                 source: SourceId.AssociatedData,
                 layout: {
-                    'text-field': ['get', 'point_count_abbreviated'],
+                    'text-field': [
+                        'coalesce',
+                        ['get', 'point_count_abbreviated'],
+                        '1',
+                    ],
                     'text-font': [
                         'DIN Offc Pro Medium',
                         'Arial Unicode MS Bold',
@@ -637,7 +641,7 @@ export const getLayerConfig = (
                         'step',
                         ['zoom'],
                         1,
-                        CLUSTER_TRANSITION_ZOOM,
+                        CLUSTER_TRANSITION_ZOOM - 1,
                         0,
                     ],
                 },

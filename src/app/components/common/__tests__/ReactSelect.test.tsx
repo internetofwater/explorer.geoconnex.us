@@ -57,6 +57,31 @@ describe('Common Components: ReactSelect', () => {
         expect(handleChange).toHaveBeenCalled();
     });
 
+    // TODO: correct test structures
+    // test('prepends select all option when isAllSelectable is true', () => {
+    //     render(
+    //         <ReactSelect
+    //             options={options}
+    //             isAllSelectable
+    //             onChange={handleChange}
+    //         />
+    //     );
+
+    //     fireEvent.mouseDown(screen.getByRole('combobox'));
+
+    //     expect(screen.getByText(SELECT_ALL_OPTION.label)).toBeInTheDocument();
+    // });
+
+    // test('does not render select all option when isAllSelectable is false', () => {
+    //     render(<ReactSelect options={options} onChange={handleChange} />);
+
+    //     fireEvent.mouseDown(screen.getByRole('combobox'));
+
+    //     expect(
+    //         screen.queryByText(SELECT_ALL_OPTION.label)
+    //     ).not.toBeInTheDocument();
+    // });
+
     test('applies custom container classname', () => {
         const { container } = render(
             <ReactSelect
