@@ -2,7 +2,7 @@ import { GEO_PREFIX, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
-import { getDatasets } from './getDatasets';
+import { getDatasets } from '@/sparql/queries/getDatasets';
 
 export type TRawGetDatasetCount = { count: string };
 
