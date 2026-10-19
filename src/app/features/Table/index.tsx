@@ -22,13 +22,9 @@ export enum HeaderKey {
     Type = 'type',
     VariableMeasured = 'variableMeasured',
     VariableUnit = 'variableUnit',
-    MeasurementTechnique = 'measurementTechnique',
     TemporalCoverage = 'temporalCoverage',
     MonitoringLocation = 'monitoringLocation',
-    DistributionFormat = 'distributionFormat',
     DistributionName = 'distributionName',
-    DistributionURL = 'distributionURL',
-    URL = 'url',
 }
 
 export const getHeaderTooltipText = (headerKey: HeaderKey) => {
@@ -96,11 +92,6 @@ const TableWrapper: React.FC<Props> = (props) => {
                 accessorKey: HeaderKey.VariableUnit,
             },
             {
-                id: HeaderKey.MeasurementTechnique,
-                header: 'Measurement Technique',
-                accessorKey: HeaderKey.MeasurementTechnique,
-            },
-            {
                 id: HeaderKey.TemporalCoverage,
                 header: 'Temporal Coverage',
                 accessorKey: HeaderKey.TemporalCoverage,
@@ -121,44 +112,9 @@ const TableWrapper: React.FC<Props> = (props) => {
                 disableSortBy: true,
             },
             {
-                id: HeaderKey.DistributionFormat,
-                header: 'Distribution Format',
-                accessorKey: HeaderKey.DistributionFormat,
-            },
-            {
                 id: HeaderKey.DistributionName,
                 header: 'Distribution Name',
                 accessorKey: HeaderKey.DistributionName,
-            },
-            {
-                id: HeaderKey.DistributionURL,
-                header: 'Distribution URL',
-                accessorKey: HeaderKey.DistributionURL,
-                cell: (info) => (
-                    <a
-                        href={info.getValue() as string}
-                        target="_blank"
-                        title={info.getValue() as string}
-                    >
-                        Link
-                    </a>
-                ),
-                disableSortBy: true,
-            },
-            {
-                id: HeaderKey.URL,
-                header: 'URL',
-                accessorKey: HeaderKey.URL,
-                cell: (info) => (
-                    <a
-                        href={info.getValue() as string}
-                        target="_blank"
-                        title={info.getValue() as string}
-                    >
-                        Link
-                    </a>
-                ),
-                disableSortBy: true,
             },
         ],
         []
@@ -179,13 +135,9 @@ const TableWrapper: React.FC<Props> = (props) => {
         [HeaderKey.Type]: true,
         [HeaderKey.VariableMeasured]: true,
         [HeaderKey.VariableUnit]: true,
-        [HeaderKey.MeasurementTechnique]: true,
         [HeaderKey.TemporalCoverage]: true,
         [HeaderKey.MonitoringLocation]: true,
-        [HeaderKey.DistributionFormat]: true,
         [HeaderKey.DistributionName]: true,
-        [HeaderKey.DistributionURL]: true,
-        [HeaderKey.URL]: true,
     });
 
     const table = useReactTable({

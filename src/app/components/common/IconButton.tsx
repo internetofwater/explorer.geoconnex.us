@@ -3,6 +3,7 @@ import React from 'react';
 type Props = {
     onClick: () => void;
     children: React.ReactNode;
+    variant?: 'filled' | 'transparent';
     className?: string;
     disabled?: boolean;
     title?: string;
@@ -21,23 +22,33 @@ type Props = {
  * @component
  */
 const IconButton: React.FC<Props> = (props) => {
-    const { onClick, className = '', disabled = false, title = '' } = props;
+    const {
+        onClick,
+        className = '',
+        disabled = false,
+        title = '',
+        variant = 'filled',
+    } = props;
+
+    const variantClasses =
+        variant === 'filled'
+            ? 'bg-primary-opaque enabled:hover:bg-gray-100 rounded-full shadow-md'
+            : 'bg-transparent enabled:hover:opacity-80';
 
     return (
         <button
             onClick={onClick}
             title={title}
             disabled={disabled}
-            className={`${!disabled ? 'group' : ''} bg-primary-opaque hover:bg-gray-100
-                rounded-full p-2 shadow-md 
+            className={`${!disabled ? 'group' : ''} ${variantClasses}  p-2  
                 w-11 h-11
                 flex justify-center items-center
-                transition-transform
+                transition-all
                 
                 ${className} 
                 
                 disabled:opacity-50 disabled:cursor-not-allowed
-              enabled:hover:bg-gray-100 enabled:hover:scale-110
+                enabled:hover:scale-110
                 `}
         >
             <span className="w-full h-full transition-all group-hover:opacity-65">

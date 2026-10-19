@@ -125,19 +125,40 @@ export const HelpModal: React.FC = () => {
                 </li>
             </ul>
             <Typography variant="h6" className=" mt-2">
-                Find and Filter Datasets
+                Find Datasets
             </Typography>
             <ul className="ml-8">
                 <li className="list-disc break-words whitespace-normal">
                     <Typography variant="body-small">
-                        After selecting a Mainstem, use the{' '}
-                        <strong>Search Bar</strong> to filter datasets.
+                        After selecting a Mainstem from the
+                        <strong>Search Bar</strong> or the map, use the menu to
+                        narrow your search based on Variables Measured, Site
+                        Types, and Distribution Names.
                     </Typography>
                 </li>
                 <li className="list-disc break-words whitespace-normal">
                     <Typography variant="body-small">
-                        View datasets either <strong>on the map</strong> or in
-                        the <strong>table</strong>.
+                        The <strong>menu</strong> provides early insight into
+                        how many datasets are available and prevents
+                        over-fetching irrelevant results.
+                    </Typography>
+                </li>
+            </ul>
+            <Typography variant="h6" className=" mt-2">
+                Explore Datasets
+            </Typography>
+            <ul className="ml-8">
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body-small">
+                        After selecting a Mainstem, explore datasets within the
+                        side panel and use the Filter menu to refine your
+                        search.
+                    </Typography>
+                </li>
+                <li className="list-disc break-words whitespace-normal">
+                    <Typography variant="body-small">
+                        Use the <strong>table</strong> to rapidly explore the
+                        contents of each dataset.
                     </Typography>
                 </li>
             </ul>
@@ -159,9 +180,8 @@ export const HelpModal: React.FC = () => {
                 </li>
                 <li className="list-disc break-words whitespace-normal">
                     <Typography variant="body-small">
-                        <strong>Click a Mainstem</strong> to fetch related
-                        datasets and see a summary in the{' '}
-                        <strong>Search Bar</strong>.
+                        <strong>Click a Mainstem</strong> to open the datasets
+                        request menu.
                     </Typography>
                 </li>
             </ul>
@@ -189,8 +209,10 @@ export const HelpModal: React.FC = () => {
                 Questions{' '}
             </Typography>
             <p className="ml-4">
-               Questions or issues with the explorer? Let us know by opening a{' '}
-               <a href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new">GitHub issue</a>
+                Questions or issues with the explorer? Let us know by opening a{' '}
+                <a href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new">
+                    GitHub issue
+                </a>
             </p>
         </Modal>
     );

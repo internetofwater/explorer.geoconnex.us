@@ -249,7 +249,8 @@ const ReactSelect = <T extends OptionBase>(props: Props<T>) => {
                 }),
             }}
             classNames={{
-                container: () => `${customClassnames?.container} w-full`,
+                container: () =>
+                    `${customClassnames?.container} w-full shadow-md`,
                 menu: () =>
                     `${customClassnames?.menu} z-[--z-select-menu] [&>div]:overflow-x-hidden`,
                 control: () => `${customClassnames?.control}`,
