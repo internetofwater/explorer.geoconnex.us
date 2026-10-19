@@ -21,8 +21,8 @@ export const useDatasetFit = (map: Map | null) => {
 
                 map.fitBounds(bounds, {
                     padding: {
-                        top: 60,
-                        left: 100,
+                        top: 180,
+                        left: 180,
                         right: 60,
                         bottom: 60,
                     },

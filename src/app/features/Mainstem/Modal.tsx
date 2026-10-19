@@ -172,11 +172,11 @@ export const MainstemModal: React.FC = () => {
     return (
         <Modal
             title={
-                <div className="flex flex-row items-end gap-2">
+                <div className="flex flex-col lg:flex-row items-start lg:items-end gap-2 ">
                     <Typography
                         variant="h2"
                         as="h3"
-                        className="text-left flex-grow pl-4"
+                        className="text-left flex-grow lg:pl-4"
                     >
                         {target?.name_at_outlet ?? ''}
                     </Typography>
@@ -188,8 +188,8 @@ export const MainstemModal: React.FC = () => {
             open={overlay === EOverlay.Mainstem}
             handleClose={handleClose}
         >
-            <div className="w-full flex flex-row justify-center min-h-[20.3125rem]">
-                <div className={`${groupClasses} flex-grow max-w-[49%]`}>
+            <div className="w-full flex flex-col lg:flex-row justify-center min-h-[20.3125rem]">
+                <div className={`${groupClasses} flex-grow lg:max-w-[49%]`}>
                     <Typography variant="h3" as="h4" className="text-left">
                         Dataset Filters
                     </Typography>
@@ -216,8 +216,9 @@ export const MainstemModal: React.FC = () => {
                         disabled={isFetchingModalMetrics}
                     />
                 </div>
-                <div className="w-px self-stretch bg-gray-300 mx-6" />
-                <div className="flex flex-col max-w-[49%] gap-4">
+                <div className="w-full h-px self-stretch block lg:hidden bg-gray-300 my-6" />
+                <div className="w-px self-stretch hidden lg:block bg-gray-300 mx-6" />
+                <div className="flex flex-col lg:max-w-[49%] gap-4">
                     <div className={`${groupClasses} items-start gap-6`}>
                         <Typography variant="h3" as="h4">
                             {isFetchingDatasetCount ||

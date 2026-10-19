@@ -10,36 +10,21 @@ import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
 import * as z from 'zod';
+import { ApiLiteralBinding, ApiUriBinding } from '../types/generics';
 
 export const DATASET_LIMIT = 100_000;
 
-type SparqlUriBinding = {
-    type: 'uri';
-    value: string;
-};
-
-type SparqlLiteralBinding =
-    | {
-          value: string;
-          language: string;
-          datatype: {
-              value: string;
-          };
-          direction: string;
-      }
-    | { type: 'literal'; value: string };
-
 export type TRawGetDatasetsUnit = {
-    mainstem: SparqlUriBinding;
-    monitoringLocation: SparqlUriBinding;
-    datasetDescription: SparqlLiteralBinding;
-    type: SparqlLiteralBinding;
-    siteName: SparqlLiteralBinding;
-    variableMeasured: SparqlLiteralBinding;
-    variableUnit: SparqlLiteralBinding;
-    temporalCoverage: SparqlLiteralBinding;
-    distributionName: SparqlLiteralBinding;
-    wkt: SparqlLiteralBinding;
+    mainstem: ApiUriBinding;
+    monitoringLocation: ApiUriBinding;
+    datasetDescription: ApiLiteralBinding<string>;
+    type: ApiLiteralBinding<string>;
+    siteName: ApiLiteralBinding<string>;
+    variableMeasured: ApiLiteralBinding<string>;
+    variableUnit: ApiLiteralBinding<string>;
+    temporalCoverage: ApiLiteralBinding<string>;
+    distributionName: ApiLiteralBinding<string>;
+    wkt: ApiLiteralBinding<string>;
 };
 
 export type TRawGetDatasets = Array<TRawGetDatasetsUnit>;

@@ -46,7 +46,7 @@ const Modal: React.FC<Props> = (props) => {
                     >
                         <div
                             id="modal-header"
-                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-start justify-center p-2 "
+                            className="border-b border-gray-300 md sticky top-0 bg-primary-opaque flex items-start justify-center p-2 z-10"
                         >
                             {typeof title === 'string' ? (
                                 <Typography
