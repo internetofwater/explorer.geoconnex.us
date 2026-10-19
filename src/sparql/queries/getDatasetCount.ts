@@ -2,7 +2,7 @@ import { GEO_PREFIX, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
-import { factoryService } from '@/services/init/init';
+import { getDatasets } from './getDatasets';
 
 export type TRawGetDatasetCount = { count: string };
 
@@ -26,7 +26,7 @@ const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
             SELECT (COUNT(*) AS ?count)
             WHERE {
                 {
-                    ${factoryService.createGetDatasets(uri, { ...options, prefix: false, limit: undefined })}
+                    ${getDatasets(uri, { ...options, prefix: false, limit: undefined })}
                 }
             }`);
 
