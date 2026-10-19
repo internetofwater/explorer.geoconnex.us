@@ -1,8 +1,11 @@
 export const LoadingType = {
-    ResultsHover: 'results-hover',
+    DatasetCount: 'dataset-count',
     Datasets: 'datasets',
-    SearchResults: 'search-results',
+    FetchModalMetrics: 'fetch-modal-metrics',
     Rendering: 'rendering',
+    ResultsHover: 'results-hover',
+    SearchResults: 'search-results',
+    SummaryPoints: 'summary-points',
 };
 
 type TLoadingType = (typeof LoadingType)[keyof typeof LoadingType];
@@ -13,10 +16,10 @@ export type TLoadingInstance = {
     type: TLoadingType;
 };
 
-export type InitialState = {
+export type TInitialState = {
     loadingInstances: TLoadingInstance[];
 };
 
-export const initialState: InitialState = {
+export const initialState: TInitialState = {
     loadingInstances: [],
 };
