@@ -98,7 +98,8 @@ const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
                 
                 ${getQueryOptions(options)}
             }
-            LIMIT ${DATASET_LIMIT}`);
+
+            ${options.limit ? `LIMIT ${options.limit}` : ''}`);
 
 export const getDatasets: TMainstemQuery = Object.assign(build, {
     example: () =>

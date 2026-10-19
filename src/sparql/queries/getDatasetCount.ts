@@ -26,7 +26,7 @@ const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
             SELECT (COUNT(*) AS ?count)
             WHERE {
                 {
-                    ${factoryService.createGetDatasets(uri, { ...options, prefix: false })}
+                    ${factoryService.createGetDatasets(uri, { ...options, prefix: false, limit: undefined })}
                 }
             }`);
 

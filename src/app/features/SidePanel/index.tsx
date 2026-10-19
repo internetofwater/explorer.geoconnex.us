@@ -190,17 +190,7 @@ const SidePanel: React.FC<Props> = (props) => {
                 )}
                 {selected && (
                     <Collapsible
-                        title={
-                            <Typography
-                                variant="h3"
-                                as="h2"
-                                className="flex-grow-0 text-left -ml-2"
-                            >
-                                {selected.name_at_outlet ||
-                                    'URI: ' + selected.id}
-                            </Typography>
-                        }
-                        className="border-l-8 border-solid border-l-[#10B0AD]"
+                        title={selected.name_at_outlet || 'URI: ' + selected.id}
                         open={true}
                     >
                         {selectedSummary && (

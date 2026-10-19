@@ -147,7 +147,7 @@ export const MainstemModal: React.FC = () => {
     };
 
     const handleClick = () => {
-        if (!target) {
+        if (!target || isExceedingDatasetLimit) {
             return;
         }
 
@@ -167,6 +167,7 @@ export const MainstemModal: React.FC = () => {
         setDistributionNames(distributionNames);
 
     const groupClasses = 'flex flex-col gap-2';
+    const isExceedingDatasetLimit = datasetCount > DATASET_LIMIT;
 
     return (
         <Modal
@@ -238,13 +239,22 @@ export const MainstemModal: React.FC = () => {
                             title={`Fetch datasets for mainstem: ${target?.name_at_outlet}`}
                             onClick={handleClick}
                             disabled={
-                                datasetCount > DATASET_LIMIT ||
+                                isExceedingDatasetLimit ||
                                 isFetchingModalMetrics ||
                                 isFetchingDatasetCount
                             }
                         >
                             <span className="p-2">Load Data</span>
                         </Button>
+                        {isExceedingDatasetLimit && (
+                            <Typography
+                                variant="body-small"
+                                className="text-red-500"
+                            >
+                                Exceeding dataset limit. Apply filters to reduce
+                                number of datasets.
+                            </Typography>
+                        )}
                     </div>
                     <div className="w-full h-px self-stretch bg-gray-300 my-2" />
                     <div className={`${groupClasses} justify-center`}>

@@ -14,6 +14,7 @@ import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { getDefaultRequest } from '@/lib/state/mainstem/utils';
 import { parseGetDistributionNames } from '@/sparql/tranformers/getDistributionNames';
 import { TDistributionNames } from '@/sparql/queries/getDistributionNames';
+import { DATASET_LIMIT } from '@/sparql/queries/getDatasets';
 
 export const SPARQL_HEADER_CONTENT_TYPE = 'application/sparql-query';
 export const SPARQL_HEADER_ACCEPT = 'application/sparql-results+json';
@@ -166,6 +167,7 @@ export class DatasetService {
             variables: request.variables,
             types: request.types,
             distributionNames: request.distributionNames,
+            limit: DATASET_LIMIT,
         });
 
         const stream = this.stream(query);
