@@ -1,0 +1,81 @@
+name: Geoconnex Explorer UI Tests
+
+on:
+    workflow_dispatch: # Allows manual triggering of the workflow
+    push:
+
+jobs:
+    typecheck:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run TypeScript typecheck
+              run: npm run typecheck
+
+    prettier:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run Prettier check
+              run: npm run prettier
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run ESLint and Stylelint
+              run: npm run lint
+
+    jest:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run unit tests with Jest + React Testing Library
+              run: npm run jest
+
+    # e2e:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout code
+    #           uses: actions/checkout@v3
+
+    #         - name: Install dependencies
+    #           run: npm install
+
+    #         - name: Install Playwright browsers
+    #           run: npx playwright install --with-deps
+
+    #         - name: Run end-to-end tests with Playwright
+    #           run: npm run e2e
+
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build application
+              run: npm run build
