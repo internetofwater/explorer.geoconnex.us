@@ -901,8 +901,7 @@ export const getLayerHoverFunction = (
                     if (zoom < MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = 'pointer';
                         const feature = e.features?.[0] as
-                            | Feature<LineString>
-                            | undefined;
+                            Feature<LineString> | undefined;
                         if (feature && feature.properties) {
                             const id = String(feature.properties.id);
                             map.setPaintProperty(
@@ -1021,8 +1020,7 @@ export const getLayerMouseMoveFunction = (
                     const zoom = map.getZoom();
                     if (zoom < MAINSTEM_VISIBLE_ZOOM) {
                         const feature = e.features?.[0] as
-                            | Feature<LineString>
-                            | undefined;
+                            Feature<LineString> | undefined;
                         if (feature && feature.properties) {
                             map.getCanvas().style.cursor = 'pointer';
                             const id = String(feature.properties.id);

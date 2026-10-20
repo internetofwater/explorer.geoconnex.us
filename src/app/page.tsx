@@ -1,4 +1,3 @@
-
 import '@/app/envConfig.ts';
 import App from '@/app/App';
 
