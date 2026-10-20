@@ -1,7 +1,12 @@
 import { parseGetTotalSites } from '@/sparql/tranformers/getTotalSites';
 import { TEST_GET_TOTAL_SITES_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getTotalSites.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetTotalSites', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetTotalSites`, () => {
     it('should parse the total site count', () => {
         expect(parseGetTotalSites(TEST_GET_TOTAL_SITES_RESPONSE)).toEqual({
             count: 40,

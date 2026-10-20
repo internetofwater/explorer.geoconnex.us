@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Modal from '../Modal';
+import Modal from '@/app/components/common/Modal';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: Modal', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Modal`, () => {
     const handleClose = jest.fn();
     const title = 'Test Modal';
     const children = <div>Modal Content</div>;

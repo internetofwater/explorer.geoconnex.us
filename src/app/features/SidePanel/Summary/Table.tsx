@@ -1,5 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
-import { formatNumber } from '@/utils/formatNumber';
+import { formatNumber } from '@/app/utils/formatNumber';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Props {

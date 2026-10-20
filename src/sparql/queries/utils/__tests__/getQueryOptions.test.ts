@@ -1,6 +1,11 @@
 import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('getQueryOptions', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: getQueryOptions`, () => {
     it('should return an empty string when no options are provided', () => {
         expect(getQueryOptions({})).toContain('');
     });

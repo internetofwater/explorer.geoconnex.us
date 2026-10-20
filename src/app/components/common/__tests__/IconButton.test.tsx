@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import IconButton from '../IconButton';
+import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: IconButton', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: IconButton`, () => {
     test('renders the button with children', () => {
         render(<IconButton onClick={() => {}}>Icon</IconButton>);
         const buttonElement = screen.getByRole('button');

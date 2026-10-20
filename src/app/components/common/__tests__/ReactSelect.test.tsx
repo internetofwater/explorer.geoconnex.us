@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import ReactSelect from '../ReactSelect';
+import ReactSelect from '@/app/components/common/ReactSelect';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: ReactSelect', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: ReactSelect`, () => {
     const options = [
         { value: '1', label: 'Option 1' },
         { value: '2', label: 'Option 2' },

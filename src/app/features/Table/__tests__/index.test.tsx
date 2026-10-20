@@ -6,6 +6,7 @@ import Table from '@/app/features/Table';
 import { FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import { render } from '@/utils/test-utils';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
 const mockStore = configureStore([]);
 const datasets: FeatureCollection<Point, Dataset> = {
@@ -22,15 +23,11 @@ const datasets: FeatureCollection<Point, Dataset> = {
                 type: 'Type 1',
                 variableMeasured: 'Variable 1',
                 variableUnit: 'Unit 1',
-                measurementTechnique: 'Technique 1',
                 temporalCoverage: '2011-01-01T00:00:01Z/2025-01-01T23:23:59Z',
                 monitoringLocation: 'Location 1',
                 datasetDescription: 'Description 1',
                 wkt: 'Point(0, 0)',
-                distributionFormat: 'Format 1',
                 distributionName: 'Name 1',
-                distributionURL: 'http://example.com',
-                url: 'http://example.com',
             },
         },
     ],
@@ -50,7 +47,11 @@ const store = mockStore({
     },
 });
 
-describe('Table', () => {
+const TYPE = TestType.Feature;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Table`, () => {
     test('renders table headers correctly', () => {
         render(
             <Provider store={store}>

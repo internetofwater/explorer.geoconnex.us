@@ -12,8 +12,13 @@ jest.mock('uuid', () => ({
 }));
 
 import { v6 } from 'uuid';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('NotificationManager', () => {
+const TYPE = TestType.Service;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: NotificationManager`, () => {
     let store: any;
     let manager: NotificationManager;
 

@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { DateRange } from '../DateRange';
+import { DateRange } from '@/app/components/common/DateRange';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: DateRange', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: DateRange`, () => {
     test('renders the start date input with the correct value', () => {
         render(
             <DateRange

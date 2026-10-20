@@ -3,7 +3,7 @@ import type { Summary } from '@/lib/state/main/slice';
 import { SummarySection } from '@/app/features/SidePanel/Summary/Section';
 import { Spinner } from '@/app/assets/Spinner';
 import { useLoading } from '@/app/hooks/useLoading';
-import { formatNumber } from '@/utils/formatNumber';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 export type Exclusions = {
     name?: boolean;

@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import CloseButton from '../CloseButton';
+import CloseButton from '@/app/components/common/CloseButton';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: CloseButton', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: CloseButton`, () => {
     test('renders the close button', () => {
         render(<CloseButton onClick={() => {}} />);
         const buttonElement = screen.getByRole('button');

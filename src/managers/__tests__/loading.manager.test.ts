@@ -9,8 +9,13 @@ jest.mock('uuid', () => ({
 
 import { v6 } from 'uuid';
 import LoadingManager from '@/managers/loading.manager';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('LoadingManager', () => {
+const TYPE = TestType.Service;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: LoadingManager`, () => {
     let store: any;
     let manager: LoadingManager;
 

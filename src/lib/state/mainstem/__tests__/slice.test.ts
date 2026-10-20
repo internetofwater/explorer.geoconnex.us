@@ -9,8 +9,13 @@ import reducer, {
 
 import { initialState, TInitialState } from '@/lib/state/mainstem/types';
 import { getDefaultRequest } from '@/lib/state/mainstem/utils';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('mainstemSlice', () => {
+const TYPE = TestType.GlobalState;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: mainstem`, () => {
     it('should return the initial state', () => {
         expect(reducer(undefined, { type: 'unknown' })).toEqual(initialState);
     });

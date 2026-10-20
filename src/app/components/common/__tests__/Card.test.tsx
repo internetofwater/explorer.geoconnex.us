@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Card from '../Card';
+import Card from '@/app/components/common/Card';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: Card', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Card`, () => {
     test('renders the card with children', () => {
         render(<Card>Card Content</Card>);
         const cardElement = screen.getByText(/Card Content/i);

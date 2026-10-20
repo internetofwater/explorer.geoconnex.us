@@ -1,7 +1,7 @@
 import { Typography } from '@/app/components/common/Typography';
 import { FancyList } from '@/app/components/FancyList';
 import { TMainstemMetrics } from '@/lib/state/mainstem/types';
-import { formatNumber } from '@/utils/formatNumber';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 export type Exclusions = {
     name?: boolean;

@@ -10,8 +10,13 @@ import mainReducer, {
 import { FeatureCollection, Geometry, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import { LayerId } from '@/app/features/MainMap/config';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('mainSlice', () => {
+const TYPE = TestType.GlobalState;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: main`, () => {
     let store: Store;
 
     beforeEach(() => {

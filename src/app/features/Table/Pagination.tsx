@@ -2,7 +2,7 @@ import React from 'react';
 import { Table } from '@tanstack/react-table';
 import { Dataset } from '@/app/types';
 import { getTextStyling, Typography } from '@/app/components/common/Typography';
-import { formatNumber } from '@/utils/formatNumber';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 type PaginationFunctions = Pick<
     Table<Dataset>,

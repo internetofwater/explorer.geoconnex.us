@@ -1,4 +1,4 @@
-import { formatNumber } from '@/utils/formatNumber';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 export const getMessage = (count: number) => {
     if (count === 0) {
