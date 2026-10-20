@@ -3,6 +3,7 @@ import type { Summary } from '@/lib/state/main/slice';
 import { SummarySection } from '@/app/features/SidePanel/Summary/Section';
 import { Spinner } from '@/app/assets/Spinner';
 import { useLoading } from '@/app/hooks/useLoading';
+import { formatNumber } from '@/utils/formatNumber';
 
 export type Exclusions = {
     name?: boolean;
@@ -50,13 +51,13 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                                 <li className="list-disc break-words whitespace-normal">
                                     <Typography variant="body">
                                         <strong>Visible Sites:</strong>{' '}
-                                        {summary.totalSites}
+                                        {formatNumber(summary.totalSites)}
                                     </Typography>
                                 </li>
                                 <li className="list-disc break-words whitespace-normal">
                                     <Typography variant="body">
                                         <strong>Visible Datasets:</strong>{' '}
-                                        {summary.totalDatasets}
+                                        {formatNumber(summary.totalDatasets)}
                                     </Typography>
                                 </li>
                             </ul>
@@ -82,7 +83,7 @@ export const ComplexSummary: React.FC<Props> = (props) => {
                             <ul className="pl-8">
                                 <li className="list-disc break-words whitespace-normal">
                                     <strong>Length (km):</strong>{' '}
-                                    {summary.length}
+                                    {formatNumber(summary.length)}
                                 </li>
                             </ul>
                             <p className="mt-2 text-gray-500">No Datasets</p>
