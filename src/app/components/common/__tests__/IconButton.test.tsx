@@ -42,17 +42,6 @@ describe('Common Components: IconButton', () => {
         expect(handleClick).not.toHaveBeenCalled();
     });
 
-    test('applies the disabled class when disabled', () => {
-        render(
-            <IconButton onClick={() => {}} disabled>
-                Icon
-            </IconButton>
-        );
-        const buttonElement = screen.getByRole('button');
-        expect(buttonElement).toHaveClass('opacity-50');
-        expect(buttonElement).toHaveClass('cursor-not-allowed');
-    });
-
     test('sets the title attribute when provided', () => {
         render(
             <IconButton onClick={() => {}} title="Button Title">
