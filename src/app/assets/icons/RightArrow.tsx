@@ -3,7 +3,7 @@ type Props = {
 };
 
 const RightArrow: React.FC<Props> = (props) => {
-    const { className = '' } = props;
+    const { className } = props;
 
     return (
         <svg

@@ -11,6 +11,7 @@ const OpenIcon: React.FC<Props> = (props) => {
             className={className}
             viewBox="0 -960 960 960"
             aria-hidden="true"
+            fill="currentColor"
         >
             <title id="icon-title-open">Open Icon</title>
             <desc id="icon-desc-open">Icon to indicate opening an item</desc>
