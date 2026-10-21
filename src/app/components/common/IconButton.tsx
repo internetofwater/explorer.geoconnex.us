@@ -51,7 +51,7 @@ const IconButton: React.FC<Props> = (props) => {
                 enabled:hover:scale-110
                 `}
         >
-            <span className="w-full h-full transition-all group-hover:opacity-65">
+            <span className="w-full h-full text-center flex flex-row justify-center items-center transition-all group-hover:opacity-65">
                 {props.children}
             </span>
         </button>

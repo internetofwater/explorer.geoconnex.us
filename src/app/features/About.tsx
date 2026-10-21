@@ -122,6 +122,7 @@ export const About: React.FC = () => {
                     <a
                         href="mailto:internetofwater@lincolninst.edu"
                         aria-label="Mail to link for internet of water contact email"
+                        className="[&>*]:text-secondary"
                     >
                         <Email />
                     </a>

@@ -3,7 +3,7 @@ const LayerIcon: React.FC = () => {
         <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 -960 960 960"
-            fill="#000"
+            fill="currentColor"
             aria-hidden="true"
         >
             <title id="icon-title-layer">Map Layer Settings</title>

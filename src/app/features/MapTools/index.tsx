@@ -78,10 +78,10 @@ export const MapTools: React.FC = () => {
                         setShowBasemap(false);
                         setShowTools(!showTools);
                     }}
-                    className="ml-2"
+                    className="ml-2 text-black"
                 >
                     <RightArrow
-                        className={`${showTools ? '' : 'rotate-180'} h-auto text-black`}
+                        className={`${showTools ? '' : 'rotate-180'} h-auto`}
                     />
                 </IconButton>
                 {showTools && (
@@ -93,6 +93,7 @@ export const MapTools: React.FC = () => {
                                 setShowLayerToggle(false);
                                 setShowLegend(!showLegend);
                             }}
+                            className="text-black"
                         >
                             <LegendIcon />
                         </IconButton>
@@ -105,7 +106,7 @@ export const MapTools: React.FC = () => {
                                 setShowLayerToggle(false);
                                 setShowBasemap(!showBasemap);
                             }}
-                            className="p-2"
+                            className="p-2 text-black"
                         >
                             <BasemapIcon />
                         </IconButton>
@@ -118,10 +119,10 @@ export const MapTools: React.FC = () => {
                                 setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
                             }}
+                            className="text-black"
                         >
                             <LayerIcon />
                         </IconButton>
-                        {/* Add legend and other tools here */}
                     </>
                 )}
             </div>
