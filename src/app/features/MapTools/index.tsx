@@ -15,13 +15,13 @@ import IconButton from '@/app/components/common/IconButton';
 import { Legend } from '@/app/components/Map/tools/Legend';
 import { LayerSpecification } from 'mapbox-gl';
 import LayerIcon from '@/app/assets/icons/Layer';
-import ControlsIcon from '@/app/assets/icons/Controls';
 import LegendIcon from '@/app/assets/icons/Legend';
 import CircleIcon from '@/app/assets/icons/Circle';
 import Square from '@/app/assets/icons/Square';
 import { BasemapStyles } from '@/app/components/Map/types';
 import BasemapSelector from '@/app/components/Map/tools/BasemapSelector';
 import BasemapIcon from '@/app/assets/icons/Basemap';
+import RightArrow from '@/app/assets/icons/RightArrow';
 
 /**
  * This component provides tools for interacting with the map, including toggles for layer visibility and a legend.
@@ -78,9 +78,11 @@ export const MapTools: React.FC = () => {
                         setShowBasemap(false);
                         setShowTools(!showTools);
                     }}
-                    className="ml-2"
+                    className="ml-2 text-black"
                 >
-                    <ControlsIcon />
+                    <RightArrow
+                        className={`${showTools ? '' : 'rotate-180'} h-auto`}
+                    />
                 </IconButton>
                 {showTools && (
                     <>
@@ -91,6 +93,7 @@ export const MapTools: React.FC = () => {
                                 setShowLayerToggle(false);
                                 setShowLegend(!showLegend);
                             }}
+                            className="text-black"
                         >
                             <LegendIcon />
                         </IconButton>
@@ -103,7 +106,7 @@ export const MapTools: React.FC = () => {
                                 setShowLayerToggle(false);
                                 setShowBasemap(!showBasemap);
                             }}
-                            className="p-2"
+                            className="p-2 text-black"
                         >
                             <BasemapIcon />
                         </IconButton>
@@ -116,10 +119,10 @@ export const MapTools: React.FC = () => {
                                 setShowLegend(false);
                                 setShowLayerToggle(!showLayerToggle);
                             }}
+                            className="text-black"
                         >
                             <LayerIcon />
                         </IconButton>
-                        {/* Add legend and other tools here */}
                     </>
                 )}
             </div>

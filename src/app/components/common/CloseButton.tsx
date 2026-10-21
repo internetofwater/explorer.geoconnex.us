@@ -33,7 +33,7 @@ const CloseButton: React.FC<Props> = (props) => {
             aria-label={title}
             data-testid="close-button"
             onClick={onClick}
-            className={className}
+            className={`${className} hover:scale-110 transition-transform`}
         >
             <CloseIcon className={closeIconClassName} />
         </button>

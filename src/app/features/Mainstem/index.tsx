@@ -140,7 +140,7 @@ const Mainstem: React.FC = () => {
                     title={`Open dataset retrieval menu for: ${name}`}
                     onClick={handleClick}
                     disabled={overlay === EOverlay.Mainstem}
-                    className="flex flex-row justify-between items-center gap-2 ml-auto"
+                    className="flex flex-row justify-between items-center gap-2 ml-auto text-white"
                 >
                     Update <OpenIcon className="w-5 h-5" />
                 </Button>
