@@ -11,8 +11,7 @@ const RightArrow: React.FC<Props> = (props) => {
             className={className}
             viewBox="0 -960 960 960"
             fill="currentColor"
-            role="img"
-            aria-labelledby="icon-title-right-arrow icon-desc-right-arrow"
+            aria-hidden="true"
         >
             <title id="icon-title-right-arrow">Right Arrow Icon</title>
             <desc id="icon-desc-right-arrow">

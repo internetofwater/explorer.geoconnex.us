@@ -4,8 +4,7 @@ const LayerIcon: React.FC = () => {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 -960 960 960"
             fill="#000"
-            role="img"
-            aria-labelledby="icon-title-layer icon-desc-layer"
+            aria-hidden="true"
         >
             <title id="icon-title-layer">Map Layer Settings</title>
             <desc id="icon-desc-layer">

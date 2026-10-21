@@ -12,8 +12,7 @@ const CloseIcon: React.FC<Props> = (props) => {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 -960 960 960"
             fill="currentColor"
-            role="img"
-            aria-labelledby="icon-title-close icon-desc-close"
+            aria-hidden="true"
         >
             <title id="icon-title-close">Close Icon</title>
             <desc id="icon-desc-close">A simple x to close page elements</desc>

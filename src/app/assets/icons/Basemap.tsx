@@ -6,7 +6,7 @@ const Basemap: React.FC = () => {
             viewBox="0 0 26 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            aria-labelledby="icon-title-basemap icon-desc-basemap"
+            aria-hidden="true"
         >
             <title id="icon-title-basemap">Basemap Selector</title>
             <desc id="icon-desc-basemap">

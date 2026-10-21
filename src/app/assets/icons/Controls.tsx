@@ -6,8 +6,7 @@ const ControlsIcon: React.FC = () => {
             viewBox="0 0 28 28"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby="icon-title-controls icon-desc-controls"
+            aria-hidden="true"
         >
             <title id="icon-title-controls">Map Control Menu</title>
             <desc id="icon-desc-controls">

@@ -13,7 +13,8 @@ const CircleIcon: React.FC<Props> = ({ color = 'black' }) => (
     >
         <title id="icon-title-circle">Circle Icon</title>
         <desc id="icon-desc-circle">
-            A circle icon used in the legend to indicate a point layer
+            A circle icon used in the legend to indicate a point layer on the
+            map.
         </desc>
         <circle cx="15" cy="15" r="10" fill={color} />
     </svg>

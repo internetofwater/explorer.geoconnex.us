@@ -11,12 +11,7 @@ const FilledSquare: React.FC<Props> = (props) => {
     const { fill = 'black', stroke, width = 30, height = 30 } = props;
 
     return (
-        <svg
-            width={width}
-            height={height}
-            role="img"
-            aria-labelledby="icon-title-square icon-desc-square"
-        >
+        <svg width={width} height={height} aria-hidden="true">
             <title id="icon-title-square">Square Icon</title>
             <desc id="icon-desc-square">
                 A square icon used in the legend to indicate a polygon layer

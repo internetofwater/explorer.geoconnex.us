@@ -4,8 +4,7 @@ const LegendIcon: React.FC = () => {
             fill="#000"
             viewBox="0 0 34 32"
             xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby="icon-title-legend icon-desc-legend"
+            aria-hidden="true"
         >
             <title id="icon-title-legend">Legend Reference</title>
             <desc id="icon-desc-legend">

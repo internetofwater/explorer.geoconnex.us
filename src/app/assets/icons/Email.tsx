@@ -6,7 +6,7 @@ const Email: React.FC = () => {
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            aria-labelledby="icon-title-email icon-desc-email"
+            aria-hidden="true"
         >
             <title id="icon-title-email">Email Link</title>
             <desc id="icon-desc-email">
