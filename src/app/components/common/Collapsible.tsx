@@ -67,11 +67,11 @@ const Collapsible: React.FC<Props> = (props) => {
                     )}
                     <span
                         data-testid="arrow-icon-wrapper"
-                        className={`transform ml-2 ${
+                        className={`transform ${
                             isOpen ? '-rotate-90' : 'rotate-90'
                         }`}
                     >
-                        <RightArrow />
+                        <RightArrow className="w-6 h-auto text-black hover:scale-110 transition-transform" />
                     </span>
                 </button>
                 {action && (

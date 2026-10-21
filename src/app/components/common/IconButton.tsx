@@ -32,27 +32,28 @@ const IconButton: React.FC<Props> = (props) => {
 
     const variantClasses =
         variant === 'filled'
-            ? 'bg-primary-opaque hover:bg-gray-100 rounded-full shadow-md'
-            : 'bg-transparent hover:opacity-80';
+            ? 'bg-primary-opaque enabled:hover:bg-gray-100 rounded-full shadow-md'
+            : 'bg-transparent enabled:hover:opacity-80';
 
     return (
         <button
             onClick={onClick}
             title={title}
             disabled={disabled}
-            className={`${variantClasses} p-2 
+            className={`${!disabled ? 'group' : ''} ${variantClasses}  p-2  
                 w-11 h-11
                 flex justify-center items-center
-
+                transition-all
+                
                 ${className} 
                 
-                ${
-                    disabled
-                        ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:bg-gray-100'
-                }`}
+                disabled:opacity-50 disabled:cursor-not-allowed
+                enabled:hover:scale-110
+                `}
         >
-            {props.children}
+            <span className="w-full h-full text-center flex flex-row justify-center items-center transition-all group-hover:opacity-65">
+                {props.children}
+            </span>
         </button>
     );
 };

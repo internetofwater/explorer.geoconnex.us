@@ -9,21 +9,14 @@ const CloseIcon: React.FC<Props> = (props) => {
         <svg
             data-testid="close-button-icon"
             className={className}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby="icon-title-close icon-desc-close"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
         >
             <title id="icon-title-close">Close Icon</title>
             <desc id="icon-desc-close">A simple x to close page elements</desc>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-            />
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
         </svg>
     );
 };

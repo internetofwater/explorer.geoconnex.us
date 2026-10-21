@@ -78,7 +78,7 @@ export const GeocoderInput: React.FC = () => {
                         }}
                     >
                         {/* text-black forces fill despite color scheme */}
-                        <CloseIcon className="w-6 h-6 text-black" />
+                        <CloseIcon className="w-6 h-6 text-black hover:text-gray-500 hover:scale-110 transition-transform" />
                     </button>
                 </div>
             </div>

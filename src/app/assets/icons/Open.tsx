@@ -10,8 +10,8 @@ const OpenIcon: React.FC<Props> = (props) => {
             xmlns="http://www.w3.org/2000/svg"
             className={className}
             viewBox="0 -960 960 960"
+            aria-hidden="true"
             fill="currentColor"
-            aria-labelledby="icon-title-open icon-desc-open"
         >
             <title id="icon-title-open">Open Icon</title>
             <desc id="icon-desc-open">Icon to indicate opening an item</desc>

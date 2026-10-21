@@ -19,7 +19,8 @@ export const useDatasetFit = (map: Map | null) => {
             if (datasetCollection.features.length > 0) {
                 const bounds = bbox(datasetCollection) as LngLatBoundsLike;
 
-                map.fitBounds(bounds, {
+                // Mock the camera to keep camera bounds in line with user visible bounds
+                const easingOptions = map.cameraForBounds(bounds, {
                     padding: {
                         top: 180,
                         left: 180,
@@ -27,6 +28,10 @@ export const useDatasetFit = (map: Map | null) => {
                         bottom: 60,
                     },
                 });
+
+                if (easingOptions) {
+                    map.easeTo(easingOptions);
+                }
             }
         }
     }, [request]);

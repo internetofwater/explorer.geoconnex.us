@@ -127,6 +127,7 @@ export const App: React.FC<Props> = (props) => {
                     {!showSidePanel && (
                         <IconButton
                             onClick={() => handleSidePanelControlClick()}
+                            className="text-black"
                         >
                             <HamburgerIcon />
                         </IconButton>

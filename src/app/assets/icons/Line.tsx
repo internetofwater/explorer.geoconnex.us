@@ -11,9 +11,9 @@ const Line: React.FC<Props> = ({ color = 'black' }) => (
         role="img"
         aria-labelledby="icon-title-line icon-desc-line"
     >
-        <title id="icon-title-line">line Icon</title>
+        <title id="icon-title-line">Line Icon</title>
         <desc id="icon-desc-line">
-            A line icon used in the legend to indicate a line layer
+            A line icon used in the legend to indicate a line layer on the map
         </desc>
         <line x1="0" y1="5" x2="30" y2="5" stroke={color} strokeWidth="6" />
     </svg>

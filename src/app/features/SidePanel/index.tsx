@@ -89,26 +89,26 @@ const SidePanel: React.FC<Props> = (props) => {
                                 Geoconnex Explorer
                             </Typography>
                         </div>
-                        <div className="flex flex-col justify-center">
+                        <div className="flex justify-center items-center gap-4 mr-2 ">
+                            <button
+                                title="Show Help Modal"
+                                onClick={handleHelpClick}
+                                className="w-10 text-gray-900 hover:text-gray-700 hover:scale-110 transition-transform text-lg"
+                            >
+                                <HelpIcon />
+                            </button>
                             <div
                                 id="side-panel-close"
-                                className="block lg:hidden mr-2 text-black"
+                                className="block lg:hidden text-black"
                             >
                                 <CloseButton
                                     onClick={() =>
                                         dispatch(setShowSidePanel(false))
                                     }
-                                    className="text-gray-900 hover:text-gray-700 text-md"
-                                    closeIconClassName="w-8 h-8"
+                                    className="text-gray-900 hover:text-gray-700 text-md mt-1"
+                                    closeIconClassName="w-10 h-auto"
                                 />
                             </div>
-                            <button
-                                title="Show Help Modal"
-                                onClick={handleHelpClick}
-                                className="w-8 mr-2 text-gray-900 hover:text-gray-700 text-lg"
-                            >
-                                <HelpIcon />
-                            </button>
                         </div>
                     </div>
                     <div className="flex mt-2 mb-1 ml-2 gap-x-2">
