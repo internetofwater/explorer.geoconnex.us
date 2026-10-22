@@ -1,4 +1,5 @@
 import { Typography } from '@/app/components/common/Typography';
+import { formatNumber } from '@/app/utils/formatNumber';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Props {
@@ -111,7 +112,7 @@ export const SummaryTable: React.FC<Props> = (props) => {
                                                 </td>
                                                 <td className="px-6 py-2 text-center">
                                                     <Typography variant="body-small">
-                                                        {count}
+                                                        {formatNumber(count)}
                                                     </Typography>
                                                 </td>
                                                 <td className="px-6 py-2">

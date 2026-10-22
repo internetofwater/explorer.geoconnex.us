@@ -2,6 +2,7 @@ import React from 'react';
 import { Table } from '@tanstack/react-table';
 import { Dataset } from '@/app/types';
 import { getTextStyling, Typography } from '@/app/components/common/Typography';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 type PaginationFunctions = Pick<
     Table<Dataset>,
@@ -108,7 +109,7 @@ const Pagination: React.FC<Props> = (props) => {
                     variant="body-small"
                     className="flex-grow-0 text-center"
                 >
-                    <strong>Total Datasets:</strong> {recordCount}
+                    <strong>Total Datasets:</strong> {formatNumber(recordCount)}
                 </Typography>
                 |
                 <select

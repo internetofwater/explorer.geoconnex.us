@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Button from '../Button';
+import Button from '@/app/components/common/Button';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common: Button', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Button`, () => {
     test('renders the button with children', () => {
         render(
             <Button title="test" onClick={() => {}}>

@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Collapsible from '../Collapsible';
+import Collapsible from '@/app/components/common/Collapsible';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: Collapsible', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Collapsible`, () => {
     test('renders the title', () => {
         render(
             <Collapsible title="Test Title">

@@ -1,5 +1,7 @@
 import { Typography } from '@/app/components/common/Typography';
+import { FancyList } from '@/app/components/FancyList';
 import { TMainstemMetrics } from '@/lib/state/mainstem/types';
+import { formatNumber } from '@/app/utils/formatNumber';
 
 export type Exclusions = {
     name?: boolean;
@@ -42,19 +44,20 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                 <ul className="pl-8">
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
-                            <strong>Length (km):</strong> {summary.length}
+                            <strong>Length (km):</strong>{' '}
+                            {formatNumber(summary.length)}
                         </Typography>
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
                             <strong>Total Sites:</strong>{' '}
-                            {summary.totalSites.count}
+                            {formatNumber(summary.totalSites.count)}
                         </Typography>
                     </li>
                     <li className="list-disc break-words whitespace-normal">
                         <Typography variant="body-small">
                             <strong>Total Datasets:</strong>{' '}
-                            {summary.datasetCount.count}
+                            {formatNumber(summary.datasetCount.count)}
                         </Typography>
                     </li>
                     {types.length > 0 && (
@@ -63,13 +66,12 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                                 {types.length > 10 ? (
                                     <>
                                         <strong>Top 5 Types:</strong>{' '}
-                                        {types.slice(0, 5).join(', ')} +{' '}
-                                        {types.length - 5} more
+                                        <FancyList items={types} max={5} />
                                     </>
                                 ) : (
                                     <>
                                         <strong>Types:</strong>{' '}
-                                        {types.join(', ')}
+                                        <FancyList items={types} />
                                     </>
                                 )}
                             </Typography>
@@ -83,13 +85,12 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                                         <strong>
                                             Top 5 Variables Measured:
                                         </strong>{' '}
-                                        {variables.slice(0, 5).join(', ')} +{' '}
-                                        {variables.length - 5} more
+                                        <FancyList items={variables} max={5} />
                                     </>
                                 ) : (
                                     <>
                                         <strong>Variables Measured:</strong>{' '}
-                                        {variables.join(', ')}
+                                        <FancyList items={variables} />
                                     </>
                                 )}
                             </Typography>
@@ -100,7 +101,8 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                 <>
                     <ul className="pl-8">
                         <li className="list-disc break-words whitespace-normal">
-                            <strong>Length (km):</strong> {summary.length}
+                            <strong>Length (km):</strong>{' '}
+                            {formatNumber(summary.length)}
                         </li>
                     </ul>
                     <p className="mt-2 text-gray-500">No Datasets</p>

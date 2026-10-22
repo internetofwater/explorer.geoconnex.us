@@ -9,8 +9,13 @@ import {
     LoadingType,
     TLoadingInstance,
 } from '@/lib/state/loading/types';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('loadingSlice', () => {
+const TYPE = TestType.GlobalState;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: loading`, () => {
     const loadingInstance: TLoadingInstance = {
         id: '1',
         message: 'Loading datasets...',

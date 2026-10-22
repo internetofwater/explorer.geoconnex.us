@@ -1,12 +1,16 @@
 import { DatasetService } from '@/services/dataset.service';
-
 import { TEST_GET_DATASET_COUNT_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getDatasetCount.response';
 import { TEST_GET_TOTAL_SITES_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getTotalSites.response';
 import { TEST_GET_VARIABLES_MEASURED_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getVariablesMeasured.response';
 import { TEST_GET_DISTRIBUTION_NAMES } from '@/sparql/tranformers/__tests__/fixtures/getDistributionNames.response';
 import { TEST_GET_TOTAL_TYPES_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getTypes.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('DatasetService', () => {
+const TYPE = TestType.Service;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: DatasetService`, () => {
     const signal = new AbortController().signal;
 
     const factoryService = {

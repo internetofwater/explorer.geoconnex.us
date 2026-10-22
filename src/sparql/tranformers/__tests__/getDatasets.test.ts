@@ -1,7 +1,12 @@
 import { parseGetDatasets } from '@/sparql/tranformers/getDatasets';
 import { TEST_GET_DATASETS_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getDatasets.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetDatasets', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetDatasets`, () => {
     it('should parse datasets', () => {
         const result = parseGetDatasets(
             TEST_GET_DATASETS_RESPONSE.results.bindings as any

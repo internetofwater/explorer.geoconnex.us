@@ -1,8 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Typography } from '../Typography';
+import { Typography } from '@/app/components/common/Typography';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('Common Components: Typography', () => {
+const TYPE = TestType.CommonComponents;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Typography`, () => {
     test('renders the correct HTML tag based on the variant', () => {
         render(<Typography variant="h1">Heading 1</Typography>);
         const element = screen.getByText('Heading 1');

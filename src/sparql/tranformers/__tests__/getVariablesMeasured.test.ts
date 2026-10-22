@@ -1,7 +1,12 @@
 import { parseGetVariablesMeasured } from '@/sparql/tranformers/getVariablesMeasured';
 import { TEST_GET_VARIABLES_MEASURED_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getVariablesMeasured.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetVariablesMeasured', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetVariablesMeasured`, () => {
     it('should parse variables measured response', () => {
         const result = parseGetVariablesMeasured(
             TEST_GET_VARIABLES_MEASURED_RESPONSE

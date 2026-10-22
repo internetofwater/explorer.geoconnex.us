@@ -1,7 +1,12 @@
 import { parseGetTypes } from '@/sparql/tranformers/getTypes';
 import { TEST_GET_TOTAL_TYPES_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getTypes.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetTypes', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetTypes`, () => {
     it('should parse types', () => {
         const result = parseGetTypes(TEST_GET_TOTAL_TYPES_RESPONSE);
 

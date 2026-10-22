@@ -1,7 +1,12 @@
 import { parseGetDistributionNames } from '@/sparql/tranformers/getDistributionNames';
 import { TEST_GET_DISTRIBUTION_NAMES } from '@/sparql/tranformers/__tests__/fixtures/getDistributionNames.response';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetDistributionNames', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetDistributionNames`, () => {
     it('should parse distribution names', () => {
         const result = parseGetDistributionNames(TEST_GET_DISTRIBUTION_NAMES);
 

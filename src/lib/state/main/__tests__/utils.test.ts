@@ -8,8 +8,13 @@ import {
     Point,
 } from 'geojson';
 import { defaultGeoJson } from '@/lib/state/consts';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('utils', () => {
+const TYPE = TestType.GlobalState;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: main utils`, () => {
     describe('extractLatLng', () => {
         test('should extract latitude and longitude from WKT string', () => {
             const wkt = 'POINT (30 10)';

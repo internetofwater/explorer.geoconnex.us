@@ -6,9 +6,14 @@ import {
     MAINSTEM_SMALL_LINE_WIDTH,
     SourceId,
     SubLayerId,
-} from '@/app/features/MainMap//config';
+} from '@/app/features/MainMap/config';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('MainMap: Config', () => {
+const TYPE = TestType.MapComponent;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Config`, () => {
     test('getLayerName returns appropriate layer name', () => {
         const result = getLayerName(LayerId.Mainstems);
         expect(result).toBe('Mainstems');

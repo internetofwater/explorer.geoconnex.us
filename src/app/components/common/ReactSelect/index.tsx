@@ -11,6 +11,7 @@ import Select, {
     Props as SelectProps,
 } from 'react-select';
 import { getSelectAllOption } from '@/app/components/common/ReactSelect/utils';
+import { formatNumber } from '@/app/utils/formatNumber';
 import RightArrow from '@/app/assets/icons/RightArrow';
 import CloseIcon from '@/app/assets/icons/Close';
 
@@ -108,7 +109,7 @@ const MoreSelectedBadge = ({ items }: { items: string[] }) => {
 
     const title = items.join(', ');
     const length = items.length;
-    const label = `+ ${length} item${length !== 1 ? 's' : ''} selected`;
+    const label = `+ ${formatNumber(length)} item${length !== 1 ? 's' : ''} selected`;
 
     return (
         <div style={style} title={title}>

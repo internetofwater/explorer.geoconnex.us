@@ -1,7 +1,12 @@
 import { TEST_GET_DATASET_COUNT_RESPONSE } from '@/sparql/tranformers/__tests__/fixtures/getDatasetCount.response';
 import { parseGetDatasetCount } from '@/sparql/tranformers/getDatasetCount';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('parseGetDatasetCount', () => {
+const TYPE = TestType.Query;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: parseGetDatasetCount`, () => {
     it('should parse the dataset count', () => {
         const result = parseGetDatasetCount(TEST_GET_DATASET_COUNT_RESPONSE);
 

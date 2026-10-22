@@ -6,6 +6,7 @@ import Table from '@/app/features/Table';
 import { FeatureCollection, Point } from 'geojson';
 import { Dataset } from '@/app/types';
 import { render } from '@/utils/test-utils';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
 const mockStore = configureStore([]);
 const datasets: FeatureCollection<Point, Dataset> = {
@@ -46,7 +47,11 @@ const store = mockStore({
     },
 });
 
-describe('Table', () => {
+const TYPE = TestType.Feature;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: Table`, () => {
     test('renders table headers correctly', () => {
         render(
             <Provider store={store}>

@@ -11,8 +11,13 @@ import {
     NotificationType,
     TNotification,
 } from '@/lib/state/notifications/types';
+import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
-describe('notificationsSlice', () => {
+const TYPE = TestType.GlobalState;
+
+const LABEL = getTestTypeLabel(TYPE);
+
+describe(`${LABEL}: notifications`, () => {
     const notification: TNotification = {
         id: '1',
         message: 'Test Message',
