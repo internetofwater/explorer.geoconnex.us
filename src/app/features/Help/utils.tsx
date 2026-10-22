@@ -1,4 +1,4 @@
-import { THelpSection } from './consts';
+import { THelpSection } from '@/app/features/Help/consts';
 
 export const getHelpSections = (
     object: Record<string, THelpSection>

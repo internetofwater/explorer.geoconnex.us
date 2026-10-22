@@ -23,7 +23,7 @@ import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
 import { FeatureCollection, Point } from 'geojson';
 import { useAppSelector } from '@/lib/state/hooks';
 import { Header } from '@/app/features/SidePanel/Header';
-import { Intro } from '../Help/Intro';
+import { Intro } from '@/app/features/Help/Intro';
 
 const hasSelectedAMainstem = (
     selected: MainstemData | null

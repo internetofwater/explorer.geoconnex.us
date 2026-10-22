@@ -1,4 +1,8 @@
-import { Datasets, TDatasets, TRawGetDatasets } from '../queries/getDatasets';
+import {
+    Datasets,
+    TDatasets,
+    TRawGetDatasets,
+} from '@/sparql/queries/getDatasets';
 
 export const parseGetDatasets = (response: TRawGetDatasets): TDatasets => {
     const result = response.map(

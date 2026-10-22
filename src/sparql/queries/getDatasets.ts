@@ -10,7 +10,7 @@ import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
 import * as z from 'zod';
-import { ApiLiteralBinding, ApiUriBinding } from '../types/generics';
+import { ApiLiteralBinding, ApiUriBinding } from '@/sparql/types/generics';
 
 export const DATASET_LIMIT = 100_000;
 

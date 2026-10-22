@@ -1,6 +1,6 @@
 import { Typography } from '@/app/components/common/Typography';
-import { getHelpSections } from './utils';
-import { INTRO_CONTENT } from './consts';
+import { getHelpSections } from '@/app/features/Help/utils';
+import { INTRO_CONTENT } from '@/app/features/Help/consts';
 
 export const Intro: React.FC = () => {
     return (
