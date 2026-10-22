@@ -10,7 +10,7 @@ import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
 
 type Props = {
-    setResults: (results: MainstemData[]) => void;
+    onSearchResultsChange: (results: MainstemData[]) => void;
 };
 
 /**
@@ -24,7 +24,7 @@ type Props = {
  * @component
  */
 const Search: React.FC<Props> = (props) => {
-    const { setResults } = props;
+    const { onSearchResultsChange } = props;
 
     const [query, setQuery] = useState('');
 
@@ -83,7 +83,7 @@ const Search: React.FC<Props> = (props) => {
                 );
                 if (isMounted.current) {
                     dispatch(setShowResults(true));
-                    setResults(searchResults);
+                    onSearchResultsChange(searchResults);
                 }
             } catch (error) {
                 // Abort signals come in 2 variants
@@ -102,7 +102,7 @@ const Search: React.FC<Props> = (props) => {
             }
         } else {
             if (isMounted.current) {
-                setResults([]);
+                onSearchResultsChange([]);
             }
         }
     };
