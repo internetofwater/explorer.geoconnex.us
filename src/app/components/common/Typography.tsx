@@ -38,10 +38,10 @@ const sizes: Record<Variant, string> = {
     h3: 'text-3xl font-bold sm:text-2xl',
     h4: 'text-2xl font-bold sm:text-1xl',
     h5: 'text-xl font-bold sm:text-lg',
-    h6: 'text-lg font-bold sm:text-md',
-    'body-large': 'text-lg sm:text-md',
-    body: 'text-lg sm:text-md',
-    'body-small': 'text-md sm:text-sm',
+    h6: 'text-lg font-bold sm:text-base',
+    'body-large': 'text-lg sm:text-base',
+    body: 'text-lg sm:text-base',
+    'body-small': 'text-base sm:text-sm',
     small: 'text-sm sm:text-xs',
 };
 
@@ -89,7 +89,7 @@ export const Typography = ({
     const Tag = as || tags[variant];
 
     return (
-        <Tag className={`${sizeClasses} ${className} text-black`}>
+        <Tag className={`${sizeClasses} ${className} text-black text-`}>
             {children}
         </Tag>
     );

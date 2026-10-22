@@ -3,6 +3,7 @@ import { AppDispatch, RootState } from '@/lib/state/store';
 import {
     getDatasetsLength,
     getSelectedSummary,
+    InitialState,
     setSearchResultIds,
     setShowHelp,
     setShowSidePanel,
@@ -12,19 +13,21 @@ import Search from '@/app/features/SidePanel/Search';
 import { Filters } from '@/app/features/SidePanel/Filters';
 import { CSVDownload } from '@/app/features/SidePanel/CSVDownload';
 import Collapsible from '@/app/components/common/Collapsible';
-import CloseButton from '@/app/components/common/CloseButton';
-import HelpIcon from '@/app/assets/icons/Help';
 import { Typography } from '@/app/components/common/Typography';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Results } from '@/app/features/SidePanel/Results';
 import { Dataset, MainstemData } from '@/app/types';
 import { ComplexSummary } from '@/app/features/SidePanel/Summary/Complex';
 import { useMap } from '@/app/contexts/MapContexts';
 import { MAP_ID as MAIN_MAP_ID } from '@/app/features/MainMap/config';
-import Button from '@/app/components/common/Button';
-import Image from 'next/image';
 import { FeatureCollection, Point } from 'geojson';
 import { useAppSelector } from '@/lib/state/hooks';
+import { Header } from '@/app/features/SidePanel/Header';
+import { Intro } from '../Help/Intro';
+
+const hasSelectedAMainstem = (
+    selected: MainstemData | null
+): selected is MainstemData => Boolean(selected);
 
 type Props = {
     datasets: FeatureCollection<Point, Dataset>;
@@ -39,7 +42,7 @@ type Props = {
 const SidePanel: React.FC<Props> = (props) => {
     const { datasets } = props;
 
-    const [results, setResults] = useState<MainstemData[]>([]);
+    const [searchResults, setSearchResults] = useState<MainstemData[]>([]);
 
     const { map } = useMap(MAIN_MAP_ID);
 
@@ -57,85 +60,48 @@ const SidePanel: React.FC<Props> = (props) => {
 
     const dispatch: AppDispatch = useDispatch();
 
+    const searchResultIds = useMemo(
+        () => searchResults.map(({ id }) => id),
+        [searchResults]
+    );
+
     useEffect(() => {
-        const ids = results.map((result) => result.id);
         // Pass ids to redux state to enable
-        dispatch(setSearchResultIds(ids));
-    }, [results]);
+        dispatch(setSearchResultIds(searchResultIds));
+    }, [searchResultIds]);
 
     const handleHelpClick = () => {
         dispatch(setShowHelp(true));
     };
 
+    const handleViewChange = (view: InitialState['view']) => {
+        dispatch(setView(view));
+    };
+
+    const handleHideSidePanel = () => {
+        dispatch(setShowSidePanel(false));
+    };
+
+    const handleSearchResultsChange = (results: typeof searchResults) => {
+        setSearchResults(results);
+    };
+
+    const isResultsVisible = searchResults.length > 0;
+    const isSummaryVisible = hasSelectedAMainstem(selected);
+    const isTableEnabled = datasetsLength > 0;
+    const isFiltersVisible = isSummaryVisible && isTableEnabled;
+    const isIntroVisible =
+        !isResultsVisible && !isSummaryVisible && !isFiltersVisible;
+
     return (
         <div className="w-full">
             <div className="relative bg-primary-opaque z-[--z-side-panel]">
-                <div className="pt-2 flex flex-col justify-between bg-primary">
-                    <div className="flex justify-between" id="attribution">
-                        <div className="ml-4 flex items-center gap-x-4 h-16">
-                            <a
-                                href="https://internetofwater.org/"
-                                aria-label="Link to Internet of Water site"
-                                target="_blank"
-                            >
-                                <Image
-                                    src={'/IoWCoalitionLogoMark.png'}
-                                    alt="Internet of Water Logo"
-                                    width={35}
-                                    height={50}
-                                />
-                            </a>
-                            <Typography variant="h3" as="h1">
-                                Geoconnex Explorer
-                            </Typography>
-                        </div>
-                        <div className="flex justify-center items-center gap-4 mr-2 ">
-                            <button
-                                title="Show Help Modal"
-                                onClick={handleHelpClick}
-                                className="w-10 text-gray-900 hover:text-gray-700 hover:scale-110 transition-transform text-lg"
-                            >
-                                <HelpIcon />
-                            </button>
-                            <div
-                                id="side-panel-close"
-                                className="block lg:hidden text-black"
-                            >
-                                <CloseButton
-                                    onClick={() =>
-                                        dispatch(setShowSidePanel(false))
-                                    }
-                                    className="text-gray-900 hover:text-gray-700 text-md mt-1"
-                                    closeIconClassName="w-10 h-auto"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex mt-2 mb-1 ml-2 gap-x-2">
-                        <Button
-                            title="Switch to Map View"
-                            onClick={() => dispatch(setView('map'))}
-                            className="min-w-24 min-h-10"
-                        >
-                            Map
-                        </Button>
-                        <Button
-                            title="Switch to Table View"
-                            onClick={() => dispatch(setView('table'))}
-                            className="min-w-24 min-h-10"
-                            disabled={datasetsLength === 0}
-                        >
-                            Table
-                        </Button>
-                        <Button
-                            title="Switch to About View"
-                            onClick={() => dispatch(setView('about'))}
-                            className="min-w-24 min-h-10"
-                        >
-                            About
-                        </Button>
-                    </div>
-                </div>
+                <Header
+                    onHelpClick={handleHelpClick}
+                    onViewChange={handleViewChange}
+                    onHideSidePanel={handleHideSidePanel}
+                    isTableEnabled={isTableEnabled}
+                />
                 <div
                     className={`
                 w-full 
@@ -145,22 +111,23 @@ const SidePanel: React.FC<Props> = (props) => {
                 text-black  
                 border-b border-gray-300`}
                 >
-                    <Search setResults={setResults} />
+                    <Search onSearchResultsChange={handleSearchResultsChange} />
                 </div>
             </div>
             <div id="scrollable-side-panel" className="overflow-y-auto">
+                {isIntroVisible && <Intro />}
                 {/* Results makes async call, ensure mounting */}
-                <div className={`${results.length > 0 ? 'block' : 'hidden'}`}>
+                <div className={`${isResultsVisible ? 'block' : 'hidden'}`}>
                     <Collapsible title="Results" open={showResults}>
                         <div className="py-2 border-b border-gray-300">
-                            {results.length && (
+                            {searchResults.length && (
                                 <Typography
                                     variant="body-small"
                                     className="text-center"
                                 >
                                     Results sorted by{' '}
                                     <strong>Outlet Drainage Area</strong>.
-                                    {results.length === 500 && (
+                                    {searchResults.length === 500 && (
                                         <>
                                             <br />
                                             Showing top <strong>
@@ -172,10 +139,10 @@ const SidePanel: React.FC<Props> = (props) => {
                                 </Typography>
                             )}
                         </div>
-                        <Results results={results} />
+                        <Results results={searchResults} />
                     </Collapsible>
                 </div>
-                {selected && datasetsLength > 0 && (
+                {isFiltersVisible && (
                     <Collapsible title="Filters" className="border-b">
                         <div className="p-4">
                             <Filters />
@@ -188,7 +155,7 @@ const SidePanel: React.FC<Props> = (props) => {
                         </div>
                     </Collapsible>
                 )}
-                {selected && (
+                {isSummaryVisible && (
                     <Collapsible
                         title={selected.name_at_outlet || 'URI: ' + selected.id}
                         open={true}
