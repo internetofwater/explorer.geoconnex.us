@@ -13,7 +13,7 @@ import {
 } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
-import { HelpModal } from '@/app/features/HelpModal';
+import { HelpModal } from '@/app/features/Help/Modal';
 import { LoadingBar } from '@/app/features/Loading';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
