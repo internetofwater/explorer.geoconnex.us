@@ -13,8 +13,13 @@ export const Intro: React.FC = () => {
 
                     {section.items && (
                         <div className="flex flex-col gap-2">
-                            {section.items.map((item) => (
-                                <Typography variant="body">{item}</Typography>
+                            {section.items.map((item, index) => (
+                                <Typography
+                                    key={`${section.title}-item-${index}`}
+                                    variant="body"
+                                >
+                                    {item}
+                                </Typography>
                             ))}
                         </div>
                     )}

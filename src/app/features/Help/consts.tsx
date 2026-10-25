@@ -39,9 +39,9 @@ export const HELP_CONTENT = {
                 Variables Measured, Site Types, and Distribution Names.
             </>,
             <>
-                The <strong>menu</strong> provides early insight into how many
-                datasets are available and prevents over-fetching irrelevant
-                results.
+                The <strong>datasets request menu</strong> provides early
+                insight into how many datasets are available and prevents
+                fetching irrelevant results.
             </>,
         ],
     },
@@ -103,7 +103,7 @@ export const HELP_CONTENT = {
         title: 'Questions',
         content: (
             <>
-                Questions or issues with the explorer? Let us know by opening a{' '}
+                Questions or issues with the Explorer? Let us know by opening a{' '}
                 <a
                     href="https://github.com/internetofwater/explorer.geoconnex.us/issues/new"
                     target="_blank"
@@ -123,7 +123,7 @@ export const INTRO_CONTENT = {
         items: [
             <>{HELP_CONTENT['getStarted']['content']}</>,
             <>
-                Zoom in to reveal <strong>mainstems</strong>. Click on a
+                Zoom in to reveal <strong>Mainstems</strong>. Click on a
                 mainstem to find datasets associated with it.
             </>,
         ],
@@ -133,7 +133,7 @@ export const INTRO_CONTENT = {
         content: (
             <>
                 Click on the{' '}
-                <span className="inline-block w-6 h-auto -mb-1">
+                <span className="inline-block w-6 h-auto -mb-1.5">
                     <HelpIcon />
                 </span>{' '}
                 icon to find more information.

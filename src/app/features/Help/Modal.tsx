@@ -85,7 +85,7 @@ export const HelpModal: React.FC = () => {
             <Typography variant="h4" className="mb-2">
                 Welcome!
             </Typography>
-            <p className="mb-6 ml-4">
+            <p className="mb-6">
                 This application allows users to explore{' '}
                 <strong>Mainstem Rivers</strong> in the{' '}
                 <strong>contiguous United States</strong> and discover various{' '}
