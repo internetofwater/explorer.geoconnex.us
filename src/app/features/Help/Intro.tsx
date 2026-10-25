@@ -4,7 +4,7 @@ import { INTRO_CONTENT } from '@/app/features/Help/consts';
 
 export const Intro: React.FC = () => {
     return (
-        <div className="flex flex-col gap-6 pl-4 pr-2 mt-4">
+        <div className="flex flex-col gap-6 pl-4 pr-2 mt-4 mb-2">
             {getHelpSections(INTRO_CONTENT).map((section) => (
                 <div key={section.title} className="flex flex-col gap-2">
                     <Typography variant="h3" className="mt-2">
