@@ -1,11 +1,10 @@
+import { LayerType } from '@/app/components/Map/types';
 import {
     getLayerColor,
     getLayerConfig,
     getLayerName,
     LayerId,
-    MAINSTEM_SMALL_LINE_WIDTH,
     SourceId,
-    SubLayerId,
 } from '@/app/features/MainMap/config';
 import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
 
@@ -35,29 +34,15 @@ describe(`${LABEL}: Config`, () => {
     });
 
     test('getLayerConfig returns correct config for layer with config', () => {
-        const result = getLayerConfig(SubLayerId.MainstemsSmall);
+        const result = getLayerConfig(LayerId.GeocoderResultCircle);
         expect(result).toEqual({
-            id: SubLayerId.MainstemsSmall, // Layer ID
-            type: 'line',
-            source: SourceId.Mainstems,
-            'source-layer': SourceId.Mainstems,
-            layout: {
-                'line-cap': 'round',
-                'line-join': 'round',
-                visibility: 'none',
-                'line-sort-key': ['get', 'outlet_drainagearea_sqkm'],
-            },
-            filter: ['<', ['get', 'outlet_drainagearea_sqkm'], 160],
+            id: LayerId.GeocoderResultCircle,
+            type: LayerType.Circle,
+            source: SourceId.GeocoderResult,
+            filter: ['==', ['geometry-type'], 'Point'],
             paint: {
-                'line-opacity': [
-                    'step',
-                    ['zoom'],
-                    0.3, // If lower than 7
-                    6,
-                    0.8, // Default to 0.1
-                ],
-                'line-color': getLayerColor(SubLayerId.MainstemsSmall),
-                'line-width': MAINSTEM_SMALL_LINE_WIDTH,
+                'circle-color': getLayerColor(LayerId.GeocoderResultCircle),
+                'circle-radius': 6,
             },
         });
     });

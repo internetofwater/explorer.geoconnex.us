@@ -1,7 +1,7 @@
 import {
     MAINSTEM_DRAINAGE_MEDIUM,
     MAINSTEM_DRAINAGE_SMALL,
-} from '@/app/features/MainMap/config';
+} from '@/app/features/MainMap/consts';
 import { Dataset, MainstemData } from '@/app/types';
 import {
     Feature,

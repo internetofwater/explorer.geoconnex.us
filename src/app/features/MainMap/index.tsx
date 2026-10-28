@@ -6,18 +6,11 @@ import {
     sourceConfigs,
     MAP_ID,
     SubLayerId,
-    getLayerColor,
     LayerId,
     SourceId,
     BASEMAP,
-    CLUSTER_TRANSITION_ZOOM,
     MAINSTEMS_SELECTED_COLOR,
     MAINSTEMS_SEARCH_COLOR,
-    MAINSTEM_OPACITY_EXPRESSION,
-    MAINSTEM_SMALL_LINE_WIDTH,
-    MAINSTEM_MEDIUM_LINE_WIDTH,
-    MAINSTEM_LARGE_LINE_WIDTH,
-    MAINSTEM_VISIBLE_ZOOM,
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,6 +38,13 @@ import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
+import {
+    CLUSTER_TRANSITION_ZOOM,
+    MAINSTEM_COLOR_EXPRESSION,
+    MAINSTEM_OPACITY_EXPRESSION,
+    MAINSTEM_VISIBLE_ZOOM,
+    MAINSTEM_WIDTH_EXPRESSION,
+} from './consts';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -230,9 +230,6 @@ export const MainMap: React.FC<Props> = (props) => {
             if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
-                        [SubLayerId.MainstemsSmall]: true,
-                        [SubLayerId.MainstemsMedium]: true,
-                        [SubLayerId.MainstemsLarge]: true,
                         [LayerId.Mainstems]: true,
                         [LayerId.MajorRivers]: false,
                     })
@@ -268,52 +265,32 @@ export const MainMap: React.FC<Props> = (props) => {
             console.error('ERROR: ', e);
         });
 
-        map.on(
-            'click',
-            [
-                SubLayerId.MainstemsSmall,
-                SubLayerId.MainstemsSmallGhost,
-                SubLayerId.MainstemsMedium,
-                SubLayerId.MainstemsMediumGhost,
-                SubLayerId.MainstemsLarge,
-                SubLayerId.MainstemsLargeGhost,
-            ],
-            (e) => {
-                const zoom = map.getZoom();
-                if (
-                    zoom >= MAINSTEM_VISIBLE_ZOOM &&
-                    !e.originalEvent.defaultPrevented
-                ) {
-                    e.originalEvent.preventDefault();
-                    e.originalEvent.cancelBubble = true;
+        map.on('click', [LayerId.Mainstems, SubLayerId.MainstemsGhost], (e) => {
+            const zoom = map.getZoom();
+            if (
+                zoom >= MAINSTEM_VISIBLE_ZOOM &&
+                !e.originalEvent.defaultPrevented
+            ) {
+                e.originalEvent.preventDefault();
+                e.originalEvent.cancelBubble = true;
 
-                    const features = map.queryRenderedFeatures(e.point, {
-                        layers: [
-                            SubLayerId.MainstemsSmall,
-                            SubLayerId.MainstemsSmallGhost,
-                            SubLayerId.MainstemsMedium,
-                            SubLayerId.MainstemsMediumGhost,
-                            SubLayerId.MainstemsLarge,
-                            SubLayerId.MainstemsLargeGhost,
-                        ],
-                    });
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: [LayerId.Mainstems, SubLayerId.MainstemsGhost],
+                });
 
-                    if (features.length) {
-                        const feature = features[0];
-                        if (feature.properties) {
-                            window.history.replaceState(
-                                {},
-                                '',
-                                `/mainstems/${feature.properties.id}`
-                            );
-                            dispatch(
-                                setTarget(feature.properties as MainstemData)
-                            );
-                        }
+                if (features.length) {
+                    const feature = features[0];
+                    if (feature.properties) {
+                        window.history.replaceState(
+                            {},
+                            '',
+                            `/mainstems/${feature.properties.id}`
+                        );
+                        dispatch(setTarget(feature.properties as MainstemData));
                     }
                 }
             }
-        );
+        });
         map.on(
             'click',
             [
@@ -425,41 +402,22 @@ export const MainMap: React.FC<Props> = (props) => {
                 1,
                 0.3, // Not In List
             ];
+
             map.setPaintProperty(
-                SubLayerId.MainstemsSmall,
-                'line-opacity',
-                opacityExpression
-            );
-            map.setPaintProperty(
-                SubLayerId.MainstemsMedium,
-                'line-opacity',
-                opacityExpression
-            );
-            map.setPaintProperty(
-                SubLayerId.MainstemsLarge,
+                LayerId.Mainstems,
                 'line-opacity',
                 opacityExpression
             );
             // Otherwise reset to original expression
         } else {
             map.setPaintProperty(
-                SubLayerId.MainstemsSmall,
-                'line-opacity',
-                MAINSTEM_OPACITY_EXPRESSION
-            );
-            map.setPaintProperty(
-                SubLayerId.MainstemsMedium,
-                'line-opacity',
-                MAINSTEM_OPACITY_EXPRESSION
-            );
-            map.setPaintProperty(
-                SubLayerId.MainstemsLarge,
+                LayerId.Mainstems,
                 'line-opacity',
                 MAINSTEM_OPACITY_EXPRESSION
             );
         }
 
-        map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-color', [
+        map.setPaintProperty(LayerId.Mainstems, 'line-color', [
             'case',
             ['==', ['get', 'id'], hoverId],
             MAINSTEMS_SELECTED_COLOR,
@@ -467,71 +425,21 @@ export const MainMap: React.FC<Props> = (props) => {
             MAINSTEMS_SELECTED_COLOR,
             ['in', ['get', 'id'], ['literal', searchResultIds]],
             MAINSTEMS_SEARCH_COLOR,
-            getLayerColor(SubLayerId.MainstemsSmall), // Not In List
+            MAINSTEM_COLOR_EXPRESSION,
         ]);
 
-        map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-color', [
-            'case',
-            ['==', ['get', 'id'], hoverId],
-            MAINSTEMS_SELECTED_COLOR,
-            ['==', ['get', 'id'], selectedMainstemId],
-            MAINSTEMS_SELECTED_COLOR,
-            ['in', ['get', 'id'], ['literal', searchResultIds]],
-            MAINSTEMS_SEARCH_COLOR,
-            getLayerColor(SubLayerId.MainstemsMedium), // Not In List
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-color', [
-            'case',
-            ['==', ['get', 'id'], hoverId],
-            MAINSTEMS_SELECTED_COLOR,
-            ['==', ['get', 'id'], selectedMainstemId],
-            MAINSTEMS_SELECTED_COLOR,
-            ['in', ['get', 'id'], ['literal', searchResultIds]],
-            MAINSTEMS_SEARCH_COLOR,
-            getLayerColor(SubLayerId.MainstemsLarge), // Not In List
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-blur', [
+        map.setPaintProperty(LayerId.Mainstems, 'line-blur', [
             'case',
             ['==', ['get', 'id'], selectedMainstemId],
             1,
             0,
         ]);
 
-        map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-blur', [
-            'case',
-            ['==', ['get', 'id'], selectedMainstemId],
-            1,
-            0,
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-blur', [
-            'case',
-            ['==', ['get', 'id'], selectedMainstemId],
-            1,
-            0,
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsSmall, 'line-width', [
+        map.setPaintProperty(LayerId.Mainstems, 'line-width', [
             'case',
             ['==', ['get', 'id'], selectedMainstemId],
             4,
-            MAINSTEM_SMALL_LINE_WIDTH,
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsMedium, 'line-width', [
-            'case',
-            ['==', ['get', 'id'], selectedMainstemId],
-            4,
-            MAINSTEM_MEDIUM_LINE_WIDTH,
-        ]);
-
-        map.setPaintProperty(SubLayerId.MainstemsLarge, 'line-width', [
-            'case',
-            ['==', ['get', 'id'], selectedMainstemId],
-            4,
-            MAINSTEM_LARGE_LINE_WIDTH,
+            MAINSTEM_WIDTH_EXPRESSION,
         ]);
 
         // Allow selected feature in highlight layer
@@ -599,13 +507,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 const newVisibility = visible ? 'visible' : 'none';
 
                 map.setLayoutProperty(layerId, 'visibility', newVisibility);
-                if (
-                    [
-                        SubLayerId.MainstemsSmall,
-                        SubLayerId.MainstemsMedium,
-                        SubLayerId.MainstemsLarge,
-                    ].includes(layerId as SubLayerId)
-                ) {
+                if ([LayerId.Mainstems].includes(layerId as LayerId)) {
                     const ghostLayerId = layerId + '-ghost';
                     map.setLayoutProperty(
                         ghostLayerId,

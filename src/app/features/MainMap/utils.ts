@@ -6,17 +6,18 @@ import {
     PointLike,
     Popup,
 } from 'mapbox-gl';
-import {
-    getLayerPadding,
-    LayerId,
-    MAINSTEM_VISIBLE_ZOOM,
-    SourceId,
-    SubLayerId,
-} from '@/app/features/MainMap/config';
+import { LayerId, SourceId, SubLayerId } from '@/app/features/MainMap/config';
 import { Feature, FeatureCollection, LineString, Point } from 'geojson';
 import * as turf from '@turf/turf';
 import { Dataset } from '@/app/types';
 import { point, nearestPointOnLine } from '@turf/turf';
+import {
+    getMainstemSize,
+    getPadding,
+    GHOST_SUFFIX,
+    MAINSTEM_DRAINAGE_PROPERTY,
+    MAINSTEM_VISIBLE_ZOOM,
+} from './consts';
 
 /**
  * Checks if the persistent popup is open to a specific item.
@@ -184,24 +185,31 @@ export const getLineTracingEvent = (
     hoverPopup: Popup,
     id: LayerId | SubLayerId
 ) => {
-    const ghostId = (id + '-ghost') as SubLayerId;
+    const ghostId = (id + GHOST_SUFFIX) as SubLayerId;
+    const ghostFeatures = map.queryRenderedFeatures(e.point, {
+        layers: [ghostId],
+    });
+    const ghostFeature = ghostFeatures[0];
 
     const zoom = map.getZoom();
-    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+    if (ghostFeature && zoom > MAINSTEM_VISIBLE_ZOOM) {
         map.getCanvas().style.cursor = 'pointer';
-        const padding = getLayerPadding(ghostId);
-        const screenBBox: [PointLike, PointLike] = [
-            [e.point.x - padding, e.point.y - padding],
-            [e.point.x + padding, e.point.y + padding],
-        ];
 
-        const ghostFeatures = map.queryRenderedFeatures(screenBBox, {
-            layers: [id],
-        });
+        if (
+            ghostFeature.properties &&
+            ghostFeature.properties.id &&
+            ghostFeature.properties[MAINSTEM_DRAINAGE_PROPERTY]
+        ) {
+            const padding = getPadding(
+                getMainstemSize(
+                    Number(ghostFeature.properties[MAINSTEM_DRAINAGE_PROPERTY])
+                )
+            );
+            const screenBBox: [PointLike, PointLike] = [
+                [e.point.x - padding, e.point.y - padding],
+                [e.point.x + padding, e.point.y + padding],
+            ];
 
-        const ghostFeature = ghostFeatures[0];
-
-        if (ghostFeature?.properties?.id) {
             const visibleFeatures = map.queryRenderedFeatures(screenBBox, {
                 layers: [id],
                 filter: ['==', ['get', 'id'], ghostFeature.properties.id],
