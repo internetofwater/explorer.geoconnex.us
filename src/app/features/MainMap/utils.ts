@@ -16,8 +16,8 @@ import {
     getPadding,
     GHOST_SUFFIX,
     MAINSTEM_DRAINAGE_PROPERTY,
-    MAINSTEM_VISIBLE_ZOOM,
-} from './consts';
+    LARGE_MAINSTEM_VISIBLE_ZOOM,
+} from '@/app/features/MainMap/consts';
 
 /**
  * Checks if the persistent popup is open to a specific item.
@@ -192,7 +192,7 @@ export const getLineTracingEvent = (
     const ghostFeature = ghostFeatures[0];
 
     const zoom = map.getZoom();
-    if (ghostFeature && zoom > MAINSTEM_VISIBLE_ZOOM) {
+    if (ghostFeature && zoom > LARGE_MAINSTEM_VISIBLE_ZOOM) {
         map.getCanvas().style.cursor = 'pointer';
 
         if (

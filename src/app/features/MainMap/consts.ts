@@ -63,11 +63,23 @@ export const CLUSTER_TRANSITION_ZOOM = 17;
 export const MAINSTEM_DRAINAGE_PROPERTY = 'outlet_drainagearea_sqkm';
 
 /**
- * Zoom level to render mainstems after initial load.
+ * Zoom level to render large mainstems
  *
  * @constant
  */
-export const MAINSTEM_VISIBLE_ZOOM = 5;
+export const LARGE_MAINSTEM_VISIBLE_ZOOM = 5;
+/**
+ * Zoom level to render medium mainstems.
+ *
+ * @constant
+ */
+export const MEDIUM_MAINSTEM_VISIBLE_ZOOM = LARGE_MAINSTEM_VISIBLE_ZOOM + 2;
+/**
+ * Zoom level to render small mainstems.
+ *
+ * @constant
+ */
+export const SMALL_MAINSTEM_VISIBLE_ZOOM = LARGE_MAINSTEM_VISIBLE_ZOOM + 4;
 /**
  * Zoom level for when mainstems should become more opaque.
  *
@@ -126,13 +138,13 @@ export const MAINSTEM_FILTER: ExpressionSpecification = [
     ['zoom'],
 
     false,
-    MAINSTEM_VISIBLE_ZOOM,
+    LARGE_MAINSTEM_VISIBLE_ZOOM,
     LARGE_MAINSTEM_EXPRESSION,
 
-    MAINSTEM_VISIBLE_ZOOM + 2,
+    MEDIUM_MAINSTEM_VISIBLE_ZOOM,
     MEDIUM_FILTER_MAINSTEM_EXPRESSION,
 
-    MAINSTEM_VISIBLE_ZOOM + 4,
+    SMALL_MAINSTEM_VISIBLE_ZOOM,
     true, // Allow all
 ];
 
