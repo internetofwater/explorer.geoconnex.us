@@ -13,14 +13,15 @@ on:
             - main
 
 permissions:
-    contents: write # needed to create releases
+    contents: read
+    packages: write # needed to push to ghcr.io
 
 jobs:
     publish:
         runs-on: ubuntu-latest
         env:
             JSON_FILE: sparql-queries.json
-            OCI_LAYOUT_DIR: sparql-oci
+            PACKAGE_NAME: explorer-sparql-statements
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -40,23 +41,16 @@ jobs:
             - name: Setup ORAS
               uses: oras-project/setup-oras@v1
 
-            - name: Package JSON as an OCI artifact tagged with the commit hash
+            - name: Log in to GitHub Container Registry
+              run: echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            - name: Push JSON as an OCI artifact tagged with the commit hash and latest
               run: |
-                  oras push --oci-layout "${OCI_LAYOUT_DIR}:${GITHUB_SHA}" \
+                  # image references must be lowercase
+                  IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${PACKAGE_NAME}"
+                  oras push "${IMAGE}:${GITHUB_SHA},latest" \
                       --artifact-type application/vnd.geoconnex.sparql-queries.v1+json \
                       --annotation "org.opencontainers.image.revision=${GITHUB_SHA}" \
                       --annotation "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+                      --annotation "org.opencontainers.image.description=SPARQL statements used within the Geoconnex Explorer" \
                       "${JSON_FILE}:application/json"
-                  tar -czf "sparql-oci-${GITHUB_SHA}.tar.gz" -C "$OCI_LAYOUT_DIR" .
-
-            - name: Publish GitHub release
-              env:
-                  GH_TOKEN: ${{ github.token }}
-              run: |
-                  gh release create "sparql-${GITHUB_SHA}" \
-                      --target "$GITHUB_SHA" \
-                      --title "SPARQL statements within Explorer git commit: ${GITHUB_SHA::7}" \
-                      --notes "SPARQL statements generated from commit ${GITHUB_SHA}. The tarball is an OCI image layout tagged \`${GITHUB_SHA}\`; extract it and run \`oras pull --oci-layout <dir>:${GITHUB_SHA}\` to retrieve the JSON." \
-                      --latest \
-                      "sparql-oci-${GITHUB_SHA}.tar.gz" \
-                      "$JSON_FILE"
