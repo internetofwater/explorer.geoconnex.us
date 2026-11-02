@@ -42,9 +42,9 @@ import {
     CLUSTER_TRANSITION_ZOOM,
     MAINSTEM_COLOR_EXPRESSION,
     MAINSTEM_OPACITY_EXPRESSION,
-    MAINSTEM_VISIBLE_ZOOM,
+    LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
-} from './consts';
+} from '@/app/features/MainMap/consts';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -227,7 +227,7 @@ export const MainMap: React.FC<Props> = (props) => {
         }
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
-            if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
+            if (zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
                         [LayerId.Mainstems]: true,
@@ -268,7 +268,7 @@ export const MainMap: React.FC<Props> = (props) => {
         map.on('click', [LayerId.Mainstems, SubLayerId.MainstemsGhost], (e) => {
             const zoom = map.getZoom();
             if (
-                zoom >= MAINSTEM_VISIBLE_ZOOM &&
+                zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM &&
                 !e.originalEvent.defaultPrevented
             ) {
                 e.originalEvent.preventDefault();
@@ -552,8 +552,8 @@ export const MainMap: React.FC<Props> = (props) => {
                     maxZoom: 20,
                 }}
                 controls={{
-                    scaleControl: true,
                     navigationControl: true,
+                    scaleControl: true,
                 }}
             />
         </>
