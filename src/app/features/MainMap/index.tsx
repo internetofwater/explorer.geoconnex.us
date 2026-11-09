@@ -45,6 +45,10 @@ import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
+import {
+    riverRunnerDataService,
+    riverRunnerService,
+} from '@/services/init/init';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -225,6 +229,16 @@ export const MainMap: React.FC<Props> = (props) => {
         if (!map) {
             return;
         }
+
+        riverRunnerDataService.setAccessToken(accessToken);
+        void riverRunnerService.loadUSStates();
+        void riverRunnerService.loadStoppingFeatures();
+        riverRunnerService.setMap(map);
+
+        map.on('click', (e) => {
+            void riverRunnerService.initialize(e);
+        });
+
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
             if (zoom >= MAINSTEM_VISIBLE_ZOOM) {

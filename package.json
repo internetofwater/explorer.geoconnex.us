@@ -27,6 +27,7 @@
         "@types/lodash.debounce": "^4.0.9",
         "@types/mapbox-gl": "^3.4.1",
         "@types/redis": "^4.0.10",
+        "@types/topojson-specification": "^1.0.5",
         "chart.js": "^4.4.8",
         "dedent": "^1.7.2",
         "fetch-mock": "^12.3.0",
@@ -41,6 +42,7 @@
         "react-select": "^5.10.2",
         "redux-mock-store": "^1.5.5",
         "sparql-http-client": "^3.1.0",
+        "topojson-client": "^3.1.0",
         "uuid": "^14.0.2",
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
         "zod": "^4.6.5"
@@ -57,6 +59,7 @@
         "@types/redux-mock-store": "^1.5.0",
         "@types/sparql-http-client": "^3.1.0",
         "@types/testing-library__jest-dom": "^6.0.0",
+        "@types/topojson-client": "^3.1.5",
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^8.26.1",
         "@typescript-eslint/parser": "^8.26.1",
