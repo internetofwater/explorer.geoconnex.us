@@ -1,9 +1,9 @@
 import { DatasetService } from '@/services/dataset.service';
 import { FactoryService } from '@/services/factory.service';
 import SparqlClient from 'sparql-http-client';
-import { RiverRunnerService } from '../river-runner/river-runner.service';
-import { RiverRunnerDataService } from '../river-runner/river-runner.data';
-import { RiverRunnerStateService } from '../river-runner/river-runner.state';
+import { RiverRunnerService } from '@/services/river-runner/river-runner.service';
+import { RiverRunnerDataService } from '@/services/river-runner/river-runner.data';
+import { RiverRunnerStateService } from '@/services/river-runner/river-runner.state';
 import store from '@/lib/state/store';
 import { loadingManager, notificationManager } from '@/managers/init';
 

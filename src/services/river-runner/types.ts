@@ -74,7 +74,7 @@ export type TFlowlineFeatureCollection = FeatureCollection<
  * VAA + Flowline Features
  ****************************************************************/
 
-// This property should be unused in the actual application
+// This type should be unused in the actual application
 export type TNLDIPropertiesVAA = TFlowlineProperties & {
     gnis_name: string | null;
     lengthkm: number | null;
@@ -209,6 +209,21 @@ export type TRunSettings = {
     duration: number;
 };
 
+/**
+ * TFrameSettings mapping from legacy runRiver state:
+ *
+ * startTime                 <- start
+ * lastTime                  <- lastTime
+ *
+ * phase                     <- phase
+ * tick                      <- tick
+ * phaseGap                  <- phaseGap
+ *
+ * segment.start             <- startPoint
+ * segment.stop              <- stopPoint
+ *
+ * speedCoefficient          <- speedCoefficient
+ */
 export type TFrameSettings = {
     startTime?: number;
     lastTime?: number;
