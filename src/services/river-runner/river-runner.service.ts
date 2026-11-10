@@ -628,6 +628,7 @@ export class RiverRunnerService {
             return;
         }
 
+        // TODO: why not disable _interactive
         this.map.scrollZoom.disable();
 
         // Use default playback speed and altitude multiplier
