@@ -18,6 +18,15 @@ import {
     SPARQL_HEADER_CONTENT_TYPE,
 } from '@/services/dataset.service';
 import { GRAPH_SOURCE } from '@/services/init/init';
+import { z } from 'zod';
+
+const resultSchema = z.object({
+    results: z.object({
+        bindings: z.array(
+            z.record(z.string(), z.object({ value: z.string() }))
+        ),
+    }),
+});
 
 // set `SPARQL_ENDPOINT` if you want to test the queries against
 // a different graph
@@ -50,8 +59,9 @@ const main = async () => {
             continue;
         }
 
-        const { results } = await response.json();
-        const rows: Record<string, { value: string }>[] = results.bindings;
+        const data: unknown = await response.json();
+        const { results } = resultSchema.parse(data);
+        const rows = results.bindings;
 
         // check the special case for COUNT; in a COUNT query, there is always
         // at least one row; if the count value was 0, then it should be a failure
