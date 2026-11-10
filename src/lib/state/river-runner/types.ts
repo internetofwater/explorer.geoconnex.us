@@ -18,21 +18,20 @@ type TFlags = {
     paused: boolean; // Block animation frames
 };
 
-export const PERSPECTIVE_TYPE = {
+export const SCALE_TYPE = {
     National: 'national',
     State: 'state',
     County: 'county',
 };
 
-export type TPerspectiveType =
-    (typeof PERSPECTIVE_TYPE)[keyof typeof PERSPECTIVE_TYPE];
+export type TScaleType = (typeof SCALE_TYPE)[keyof typeof SCALE_TYPE];
 
-type TPerspective = {
-    type: TPerspectiveType;
+type TScale = {
+    type: TScaleType;
     coordinates: LngLatBoundsLike; // TODO: confirm correct type
 };
 
-type TDriver = {
+type TSegment = {
     stop: string | null; // This is the feature name that we are working towards
     start: string | null; // This is the placename that we are starting from, result of mapbox reverse geocoding
 };
@@ -40,8 +39,8 @@ type TDriver = {
 export type TInitialState = {
     status: TStatusType;
     flags: TFlags;
-    driver: TDriver;
-    perspective: TPerspective | null; // The current view in the minimap
+    segment: TSegment;
+    scale: TScale | null; // The current view in the minimap
     runs: TRunSettings[]; // This will be a simplified history of any runs already taken, TODO
     featureIndex: number | null; // What feature are we actively viewing
     phaseJump: number | null; // Allow users to jump ahead in the viewing
@@ -53,11 +52,11 @@ export const initialState: TInitialState = {
         abort: false,
         paused: false,
     },
-    driver: {
+    segment: {
         stop: null,
         start: null,
     },
-    perspective: null,
+    scale: null,
     runs: [],
     featureIndex: null,
     phaseJump: null,

@@ -18,7 +18,7 @@ export const useRiverRunnerLoader = (map: Map | null, accessToken: string) => {
             LOADING_TYPE.RiverRunnerLoad
         );
 
-        riverRunnerService
+        void riverRunnerService
             .load(map, accessToken)
             .then((success) => {
                 if (success && isMounted) {

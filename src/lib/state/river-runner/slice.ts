@@ -21,21 +21,21 @@ export const riverRunner = createSlice({
         },
         setStart: (
             state,
-            action: PayloadAction<Partial<TInitialState['driver']['start']>>
+            action: PayloadAction<Partial<TInitialState['segment']['start']>>
         ) => {
-            state.driver.start = action.payload;
+            state.segment.start = action.payload;
         },
         setStop: (
             state,
-            action: PayloadAction<Partial<TInitialState['driver']['stop']>>
+            action: PayloadAction<Partial<TInitialState['segment']['stop']>>
         ) => {
-            state.driver.stop = action.payload;
+            state.segment.stop = action.payload;
         },
         setPerspective: (
             state,
-            action: PayloadAction<TInitialState['perspective']>
+            action: PayloadAction<TInitialState['scale']>
         ) => {
-            state.perspective = action.payload;
+            state.scale = action.payload;
         },
         addRun: (state, action: PayloadAction<TRunSettings>) => {
             state.runs.push(action.payload);

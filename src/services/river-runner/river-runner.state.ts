@@ -36,10 +36,10 @@ export class RiverRunnerStateService {
         this.store.dispatch(setStatus(payload));
     }
 
-    setStart(payload: TInitialState['driver']['start']) {
+    setStart(payload: TInitialState['segment']['start']) {
         this.store.dispatch(setStart(payload));
     }
-    setStop(payload: TInitialState['driver']['stop']) {
+    setStop(payload: TInitialState['segment']['stop']) {
         this.store.dispatch(setStop(payload));
     }
 
