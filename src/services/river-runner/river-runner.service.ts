@@ -611,7 +611,7 @@ export class RiverRunnerService {
         if (window?.innerWidth > 600) {
             this.deps.stateService.setStatus('overview');
             this.map.scrollZoom.enable();
-            this.deps.stateService.saveRun(settings);
+            // this.deps.stateService.saveRun(settings);
             // TODO: This needs to be cancelable
             setTimeout(() => {
                 this.startRun(settings);
@@ -767,7 +767,9 @@ export class RiverRunnerService {
                 frameSettings.phase > 1 ||
                 this.deps.stateService.hasAborted()
             ) {
-                // TODO: exitNavigation({ map, coordinatePath });
+                this.exitNavigation({
+                    coordinatePath: settings.paths.coordinate,
+                });
                 return;
             }
 
