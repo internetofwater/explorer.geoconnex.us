@@ -126,7 +126,7 @@ export const MainstemModal: React.FC = () => {
                     setDatasetCount(count);
                 }
             })
-            .catch((error) => isMounted && console.error(error))
+            .catch((error) => console.error(error))
             .finally(() => {
                 loadingManager.remove(loadingInstance);
             });
