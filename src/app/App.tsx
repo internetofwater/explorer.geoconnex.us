@@ -26,7 +26,7 @@ import { Feature, LineString } from 'geojson';
 import { Dataset, MainstemData } from '@/app/types';
 import { setTarget } from '@/lib/state/mainstem/slice';
 import { loadingManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 
 type Props = {
     accessToken: string;
@@ -66,7 +66,7 @@ export const App: React.FC<Props> = (props) => {
             if (id) {
                 const loadingInstance = loadingManager.add(
                     'Fetching mainstem data for the id in the URL',
-                    LoadingType.Datasets
+                    LOADING_TYPE.Datasets
                 );
                 void fetch(
                     `https://reference.geoconnex.us/collections/mainstems/items/${id}`,

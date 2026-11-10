@@ -6,7 +6,7 @@ import reducer, {
 
 import {
     initialState,
-    LoadingType,
+    LOADING_TYPE,
     TLoadingInstance,
 } from '@/lib/state/loading/types';
 import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
@@ -19,7 +19,7 @@ describe(`${LABEL}: loading`, () => {
     const loadingInstance: TLoadingInstance = {
         id: '1',
         message: 'Loading datasets...',
-        type: LoadingType.Datasets,
+        type: LOADING_TYPE.Datasets,
     };
 
     it('should return the initial state', () => {
@@ -87,7 +87,7 @@ describe(`${LABEL}: loading`, () => {
             {
                 id: '2',
                 message: 'Loading metrics...',
-                type: LoadingType.FetchModalMetrics,
+                type: LOADING_TYPE.FetchModalMetrics,
             },
         ];
 

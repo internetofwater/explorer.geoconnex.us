@@ -5,7 +5,7 @@ import {
     markViewed,
     removeNotification,
 } from '@/lib/state/notifications/slice';
-import { NotificationType } from '@/lib/state/notifications/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 
 jest.mock('uuid', () => ({
     v6: jest.fn(),
@@ -40,7 +40,7 @@ describe(`${LABEL}: NotificationManager`, () => {
     });
 
     it('should create and dispatch a notification', () => {
-        const id = manager.show('Hello world', NotificationType.Info, 5000);
+        const id = manager.show('Hello world', NOTIFICATION_TYPE.Info, 5000);
 
         expect(id).toBe('notification-id');
 
@@ -49,7 +49,7 @@ describe(`${LABEL}: NotificationManager`, () => {
                 expect.objectContaining({
                     id: 'notification-id',
                     message: 'Hello world',
-                    type: NotificationType.Info,
+                    type: NOTIFICATION_TYPE.Info,
                     visible: true,
                     viewed: false,
                 })
@@ -58,7 +58,7 @@ describe(`${LABEL}: NotificationManager`, () => {
     });
 
     it('should hide notification after duration', () => {
-        manager.show('Hello world', NotificationType.Info, 3000);
+        manager.show('Hello world', NOTIFICATION_TYPE.Info, 3000);
 
         jest.advanceTimersByTime(3000);
 

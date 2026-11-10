@@ -8,7 +8,7 @@ import reducer, {
 
 import {
     initialState,
-    NotificationType,
+    NOTIFICATION_TYPE,
     TNotification,
 } from '@/lib/state/notifications/types';
 import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
@@ -24,7 +24,7 @@ describe(`${LABEL}: notifications`, () => {
         visible: true,
         viewed: false,
         createdAt: Date.now(),
-        type: NotificationType.Info,
+        type: NOTIFICATION_TYPE.Info,
     };
 
     it('should return the initial state', () => {

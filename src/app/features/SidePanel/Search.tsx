@@ -7,7 +7,7 @@ import { AppDispatch } from '@/lib/state/store';
 import { setShowResults } from '@/lib/state/main/slice';
 import { MainstemData } from '@/app/types';
 import { loadingManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 
 type Props = {
     setResults: (results: MainstemData[]) => void;
@@ -39,7 +39,7 @@ const Search: React.FC<Props> = (props) => {
         if (_query) {
             const loadingInstance = loadingManager.add(
                 `Search request for: ${query}`,
-                LoadingType.SearchResults
+                LOADING_TYPE.SearchResults
             );
             try {
                 if (controller.current) {

@@ -1,4 +1,4 @@
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { RootState } from '@/lib/state/store';
 import { loadingManager } from '@/managers/init';
 import { useEffect, useState } from 'react';
@@ -21,21 +21,21 @@ export const useLoading = () => {
 
     useEffect(() => {
         setIsFetchingMainstemSummary(
-            loadingManager.has({ type: LoadingType.ResultsHover })
+            loadingManager.has({ type: LOADING_TYPE.ResultsHover })
         );
         setIsFetchingModalMetrics(
-            loadingManager.has({ type: LoadingType.FetchModalMetrics })
+            loadingManager.has({ type: LOADING_TYPE.FetchModalMetrics })
         );
         setIsFetchingMainstemDatasets(
-            loadingManager.has({ type: LoadingType.Datasets })
+            loadingManager.has({ type: LOADING_TYPE.Datasets })
         );
         setIsFetchingDatasetCount(
-            loadingManager.has({ type: LoadingType.DatasetCount })
+            loadingManager.has({ type: LOADING_TYPE.DatasetCount })
         );
         setIsFetchingSearchResults(
-            loadingManager.has({ type: LoadingType.SearchResults })
+            loadingManager.has({ type: LOADING_TYPE.SearchResults })
         );
-        setIsRendering(loadingManager.has({ type: LoadingType.Rendering }));
+        setIsRendering(loadingManager.has({ type: LOADING_TYPE.Rendering }));
     }, [loadingInstances]);
 
     return {

@@ -1,6 +1,6 @@
 import { useAppSelector } from '@/lib/state/hooks';
 import {
-    NotificationType,
+    NOTIFICATION_TYPE,
     TNotificationType,
 } from '@/lib/state/notifications/types';
 import Notification from '@/app/components/common/Notification';
@@ -17,11 +17,11 @@ export const Notifications: React.FC = () => {
 
     const getColor = (type: TNotificationType) => {
         switch (type) {
-            case NotificationType.Error:
+            case NOTIFICATION_TYPE.Error:
                 return 'red';
-            case NotificationType.Success:
+            case NOTIFICATION_TYPE.Success:
                 return 'green';
-            case NotificationType.Info:
+            case NOTIFICATION_TYPE.Info:
             default:
                 return 'var(--secondary)';
         }

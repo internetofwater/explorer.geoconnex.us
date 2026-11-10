@@ -10,7 +10,7 @@ import { MainstemData } from '@/app/types';
 import { AppDispatch } from '@/lib/state/store';
 import { SimpleSummary } from '@/app/features/SidePanel/Summary/Simple';
 import { loadingManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { datasetService } from '@/services/init/init';
 import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
 import OpenIcon from '@/app/assets/icons/Open';
@@ -45,14 +45,14 @@ export const Results: React.FC<Props> = (props) => {
     const getSummary = async (mainstem: MainstemData) => {
         if (
             (summary && summary.id === mainstem.id) ||
-            loadingManager.has({ type: LoadingType.Datasets }) // TODO: is this needed?
+            loadingManager.has({ type: LOADING_TYPE.Datasets }) // TODO: is this needed?
         ) {
             return;
         }
 
         const loadingInstance = loadingManager.add(
             `Fetching summary for mainstem with identifier: ${mainstem.id}`,
-            LoadingType.ResultsHover
+            LOADING_TYPE.ResultsHover
         );
 
         try {
