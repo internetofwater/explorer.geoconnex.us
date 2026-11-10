@@ -35,6 +35,8 @@ import { pathDistance } from '@/services/river-runner/utils/pathDistance';
 import { calculatePitch } from '@/services/river-runner/utils/calculatePitch';
 import { positionCamera } from '@/services/river-runner/utils/positionCamera';
 import { getDataBounds } from '@/services/river-runner/utils/getDataBounds';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
+import { loadingManager } from '@/managers/init';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -87,6 +89,8 @@ export class RiverRunnerService {
 
     setMap(map: Map) {
         this.map = map;
+
+        return Boolean(this.map);
     }
 
     private hasMap(): this is this & { map: Map } {
@@ -397,6 +401,11 @@ export class RiverRunnerService {
 
         this.disableMapInteractions();
 
+        const loadingInstance = this.deps.loadingManager.add(
+            'Initializing River Run',
+            LOADING_TYPE.RiverRunnerInit
+        );
+
         const closestFeature = await this.deps.dataService.findClosestFeature(
             e.lngLat
         );
@@ -615,9 +624,11 @@ export class RiverRunnerService {
             // TODO: This needs to be cancelable
             setTimeout(() => {
                 this.startRun(settings);
+                this.deps.loadingManager.remove(loadingInstance);
             }, 5100);
         } else {
             this.startRun(settings);
+            this.deps.loadingManager.remove(loadingInstance);
         }
     }
 
@@ -923,5 +934,15 @@ export class RiverRunnerService {
 
             this.enableMapInteractions();
         });
+    }
+
+    async load(map: Map, accessToken: string) {
+        const results = [];
+        results.push(this.deps.dataService.setAccessToken(accessToken));
+        results.push(await this.loadUSStates());
+        results.push(await this.loadStoppingFeatures());
+        results.push(this.setMap(map));
+
+        return results.every((r) => r);
     }
 }

@@ -12,8 +12,8 @@ import { BATCH_SIZE } from '@/lib/state/consts';
 import { Point } from 'geojson';
 import { Readable } from 'stream';
 import { loadingManager, notificationManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
-import { NotificationType } from '@/lib/state/notifications/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 import { datasetService } from '@/services/init/init';
 import { TMainstemRequest } from '@/lib/state/mainstem/types';
 import { setRequest, setSelected } from '@/lib/state/mainstem/slice';
@@ -38,7 +38,7 @@ export const fetchDatasets =
 
         const loadingInstance = loadingManager.add(
             `Loading datsets for URI: ${target.uri}`,
-            LoadingType.Datasets
+            LOADING_TYPE.Datasets
         );
 
         stream = datasetService.getDatasets(target.uri, request);
@@ -80,7 +80,7 @@ export const fetchDatasets =
             console.error('Dataset stream error', err);
             notificationManager.show(
                 `An error occured loading datasets`,
-                NotificationType.Error,
+                NOTIFICATION_TYPE.Error,
                 5000
             );
             cleanup();
@@ -91,7 +91,7 @@ export const fetchDatasets =
             console.error('Batcher error', err);
             notificationManager.show(
                 `An error occured loading datasets`,
-                NotificationType.Error,
+                NOTIFICATION_TYPE.Error,
                 5000
             );
             cleanup();
@@ -110,7 +110,7 @@ export const fetchDatasets =
             dispatch(setRequest(request));
             notificationManager.show(
                 `Datasets loaded for mainstem`,
-                NotificationType.Success,
+                NOTIFICATION_TYPE.Success,
                 5000
             );
         });

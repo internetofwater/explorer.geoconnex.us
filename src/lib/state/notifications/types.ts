@@ -1,11 +1,11 @@
-export const NotificationType = {
+export const NOTIFICATION_TYPE = {
     Success: 'success',
     Error: 'error',
     Info: 'info',
 } as const;
 
 export type TNotificationType =
-    (typeof NotificationType)[keyof typeof NotificationType];
+    (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE];
 
 export type TNotification = {
     id: string;

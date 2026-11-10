@@ -40,15 +40,12 @@ import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
 import { loadingManager } from '@/managers/init';
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
-import {
-    riverRunnerDataService,
-    riverRunnerService,
-} from '@/services/init/init';
+import { useRiverRunnerLoader } from '@/app/hooks/useRiverRunnerLoader';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -88,6 +85,7 @@ export const MainMap: React.FC<Props> = (props) => {
     const datasets = useSelector(getFilteredDatasets);
 
     useDatasetFit(map);
+    useRiverRunnerLoader(map, accessToken);
 
     const [reloadFlag, setReloadFlag] = useState(0);
 
@@ -128,7 +126,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (source) {
                     const loadingInstance = loadingManager.add(
                         'Creating summary points',
-                        LoadingType.SummaryPoints
+                        LOADING_TYPE.SummaryPoints
                     );
                     createSummaryPoints(map, source, features)
                         .catch((error: ErrorEvent) =>
@@ -175,7 +173,7 @@ export const MainMap: React.FC<Props> = (props) => {
 
         const loadingInstance = loadingManager.add(
             'Updating dataset cluster layer',
-            LoadingType.Rendering
+            LOADING_TYPE.Rendering
         );
 
         const clusterSource = map.getSource<GeoJSONSource>(
@@ -189,7 +187,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 .then((features) => {
                     const loadingInstance = loadingManager.add(
                         'Creating summary points',
-                        LoadingType.SummaryPoints
+                        LOADING_TYPE.SummaryPoints
                     );
                     createSummaryPoints(
                         map,
@@ -229,15 +227,6 @@ export const MainMap: React.FC<Props> = (props) => {
         if (!map) {
             return;
         }
-
-        riverRunnerDataService.setAccessToken(accessToken);
-        void riverRunnerService.loadUSStates();
-        void riverRunnerService.loadStoppingFeatures();
-        riverRunnerService.setMap(map);
-
-        map.on('click', (e) => {
-            void riverRunnerService.initialize(e);
-        });
 
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
@@ -576,7 +565,7 @@ export const MainMap: React.FC<Props> = (props) => {
         if (bbox) {
             const loadingInstance = loadingManager.add(
                 'Fitting map instance to mainstem',
-                LoadingType.Rendering
+                LOADING_TYPE.Rendering
             );
 
             map.fitBounds(bbox);

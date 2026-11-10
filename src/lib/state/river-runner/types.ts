@@ -1,7 +1,7 @@
 import { TRunSettings } from '@/services/river-runner/types';
 import { LngLatBoundsLike } from 'mapbox-gl';
 
-export const StatusType = {
+export const STATUS_TYPE = {
     External: 'external', // We are outside the river runner
     Uninitialized: 'unitialized', // Pre run but within river runner
     Calculating: 'calculating', // Performing key calculations/fetches NOTE: should this all be within loading manager?
@@ -10,7 +10,7 @@ export const StatusType = {
     Error: 'error',
 } as const;
 
-export type TStatusType = (typeof StatusType)[keyof typeof StatusType];
+export type TStatusType = (typeof STATUS_TYPE)[keyof typeof STATUS_TYPE];
 
 type TFlags = {
     abort: boolean; // Cancel the run
@@ -18,14 +18,14 @@ type TFlags = {
     paused: boolean; // Block animation frames
 };
 
-export const PerspectiveType = {
+export const PERSPECTIVE_TYPE = {
     National: 'national',
     State: 'state',
     County: 'county',
 };
 
 export type TPerspectiveType =
-    (typeof PerspectiveType)[keyof typeof PerspectiveType];
+    (typeof PERSPECTIVE_TYPE)[keyof typeof PERSPECTIVE_TYPE];
 
 type TPerspective = {
     type: TPerspectiveType;

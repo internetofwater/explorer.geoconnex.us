@@ -12,7 +12,7 @@ import { LngLat } from 'mapbox-gl';
 import { RiverRunnerStateService } from '@/services/river-runner/river-runner.state';
 import NotificationManager from '@/managers/notification.manager';
 import LoadingManager from '@/managers/loading.manager';
-import { NotificationType } from '@/lib/state/notifications/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 import { round } from '@/services/river-runner/utils/round';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import * as topojson from 'topojson-client';
@@ -56,7 +56,7 @@ export class RiverRunnerDataService {
                     console.error(error);
                     this.deps.notificationManager.show(
                         'An error occurred in the River Runner Data Service. Check the console for more details',
-                        NotificationType.Error,
+                        NOTIFICATION_TYPE.Error,
                         5000
                     );
                 }),
