@@ -1,8 +1,4 @@
-import {
-    HYF,
-    HYF_PREFIX,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { HYF, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
