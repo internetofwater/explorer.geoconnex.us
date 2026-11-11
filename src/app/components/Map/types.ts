@@ -15,6 +15,7 @@ import {
     NavigationControlOptions,
     ScaleControlOptions,
 } from 'mapbox-gl';
+import { Root } from 'react-dom/client';
 
 /**
  * Defines the possible types of sources that can be used in the map.
@@ -50,6 +51,17 @@ export enum Sources {
     ESRI = 'esri',
 }
 
+export type MapEventKey =
+    | 'scrollZoom'
+    | 'boxZoom'
+    | 'dragRotate'
+    | 'dragPan'
+    | 'keyboard'
+    | 'doubleClickZoom'
+    | 'touchZoomRotate';
+
+export type MapEventHandlers = Partial<Record<MapEventKey, boolean>>;
+
 /**
  * Defines the configuration for a source in the map.
  *
@@ -73,6 +85,8 @@ export type SourceConfig = {
  * - map: Map - The Mapbox GL JS map instance.
  * - hoverPopup: Popup - The popup displayed on hover.
  * - persistentPopup: Popup - The popup displayed persistently.
+ * - root: Root - A React root used to instantiate react components in popups
+ * - container: HTMLDivElement - Div element that is rendered into for complex popups
  *
  * Returns:
  * - (e: MapMouseEvent) => void - A function that handles the map mouse event.
@@ -82,7 +96,9 @@ export type SourceConfig = {
 export type CustomListenerFunction = (
     map: Map,
     hoverPopup: Popup,
-    persistentPopup: Popup
+    persistentPopup: Popup,
+    root: Root,
+    container: HTMLDivElement
 ) => (e: MapMouseEvent) => void;
 
 /**
@@ -151,6 +167,8 @@ export interface MapComponentProps {
         scaleControl?: ScaleControlOptions | boolean;
         fullscreenControl?: FullscreenControlOptions | boolean;
     };
+    persist?: boolean;
+    eventHandlers?: MapEventHandlers;
 }
 
 /**

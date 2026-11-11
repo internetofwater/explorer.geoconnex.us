@@ -10,11 +10,31 @@ import {
     setStop,
 } from '@/lib/state/river-runner/slice';
 import { TInitialState } from '@/lib/state/river-runner/types';
+import {
+    setSelectedBasemap,
+    InitialState as TMainInitialState,
+} from '@/lib/state/main/slice';
+import { setLayerVisibility } from '@/lib/state/main/slice';
+import { BasemapStyles } from '@/app/components/Map/types';
 
 export class RiverRunnerStateService {
     private store: Store;
     constructor(store: Store) {
         this.store = store;
+    }
+
+    getLayerVisiblity() {
+        return this.store.getState().main.visibleLayers;
+    }
+    setLayerVisiblity(payload: Partial<TMainInitialState['visibleLayers']>) {
+        this.store.dispatch(setLayerVisibility(payload));
+    }
+
+    getBasemap() {
+        return this.store.getState().main.selectedBasemap;
+    }
+    setBasemap(payload: BasemapStyles) {
+        return this.store.dispatch(setSelectedBasemap(payload));
     }
 
     // Flags

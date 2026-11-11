@@ -3,7 +3,7 @@ import React from 'react';
 type Props = {
     onClick: () => void;
     children: React.ReactNode;
-    variant?: 'filled' | 'transparent';
+    variant?: 'filled' | 'alternative' | 'transparent';
     className?: string;
     disabled?: boolean;
     title?: string;
@@ -32,8 +32,10 @@ const IconButton: React.FC<Props> = (props) => {
 
     const variantClasses =
         variant === 'filled'
-            ? 'bg-primary-opaque enabled:hover:bg-gray-100 rounded-full shadow-md'
-            : 'bg-transparent enabled:hover:opacity-80';
+            ? 'bg-primary-opaque enabled:hover:bg-gray-100 rounded-full shadow-md group-hover:opacity-65 enabled:hover:scale-110'
+            : variant === 'alternative'
+              ? 'bg-tertiary enabled:hover:bg-tertiary-hover rounded-md shadow-md'
+              : 'bg-transparent enabled:hover:opacity-80 group-hover:opacity-65 enabled:hover:scale-110';
 
     return (
         <button
@@ -44,14 +46,13 @@ const IconButton: React.FC<Props> = (props) => {
                 w-11 h-11
                 flex justify-center items-center
                 transition-all
-                
                 ${className} 
                 
                 disabled:opacity-50 disabled:cursor-not-allowed
-                enabled:hover:scale-110
+                
                 `}
         >
-            <span className="w-full h-full text-center flex flex-row justify-center items-center transition-all group-hover:opacity-65">
+            <span className="w-full h-full text-center flex flex-row justify-center items-center transition-all ">
                 {props.children}
             </span>
         </button>

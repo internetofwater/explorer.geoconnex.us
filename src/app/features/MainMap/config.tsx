@@ -19,6 +19,9 @@ import { defaultGeoJson } from '@/lib/state/consts';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
 import { getLineTracingEvent } from '@/app/features/MainMap/utils';
+import { Root } from 'react-dom/client';
+// import store from '@/lib/state/store';
+// import { MODE } from '@/lib/state/main/slice';
 
 export const MAP_ID = 'main';
 
@@ -798,7 +801,13 @@ let hoverOnCluster = false;
 export const getLayerHoverFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.MainstemsSmallGhost:
                 return (e) =>
@@ -919,6 +928,8 @@ export const getLayerHoverFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
 
                     map.getCanvas().style.cursor = 'pointer';
                 };
@@ -941,7 +952,13 @@ export const getLayerHoverFunction = (
 export const getLayerCustomHoverExitFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return () => {
@@ -988,6 +1005,8 @@ export const getLayerCustomHoverExitFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };
@@ -1008,7 +1027,13 @@ export const getLayerCustomHoverExitFunction = (
 export const getLayerMouseMoveFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return () => {
@@ -1039,6 +1064,8 @@ export const getLayerMouseMoveFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };
@@ -1058,10 +1085,20 @@ export const getLayerMouseMoveFunction = (
 export const getLayerClickFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return (e) => {
+                    // if (store.getState().main.mode === MODE.RiverRunner) {
+                    //     return;
+                    // }
+
                     const features = map.queryRenderedFeatures(e.point, {
                         layers: [SubLayerId.AssociatedDataClusters],
                     });
@@ -1102,6 +1139,8 @@ export const getLayerClickFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };

@@ -44,7 +44,15 @@ export const enum EOverlay {
     Mainstem = 'mainstem',
 }
 
-type InitialState = {
+export const MODE = {
+    RiverRunner: 'river-runner',
+    Mainstems: 'mainstems',
+} as const;
+
+export type TMode = (typeof MODE)[keyof typeof MODE];
+
+export type InitialState = {
+    mode: TMode;
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
@@ -82,6 +90,7 @@ type InitialState = {
 };
 
 const initialState: InitialState = {
+    mode: MODE.RiverRunner,
     showSidePanel: true,
     showHelp: false,
     showResults: false,
@@ -259,6 +268,9 @@ export const mainSlice = createSlice({
     name: 'main',
     initialState: initialState,
     reducers: {
+        setMode: (state, action: PayloadAction<InitialState['mode']>) => {
+            state.mode = action.payload;
+        },
         setShowSidePanel: (
             state,
             action: PayloadAction<InitialState['showSidePanel']>
@@ -360,6 +372,7 @@ export const mainSlice = createSlice({
 });
 
 export const {
+    setMode,
     setShowSidePanel,
     setShowHelp,
     setShowResults,

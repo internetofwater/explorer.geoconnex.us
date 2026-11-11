@@ -21,7 +21,7 @@ import {
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@/lib/state/store';
+import store, { AppDispatch } from '@/lib/state/store';
 import {
     ExpressionSpecification,
     GeoJSONSource,
@@ -31,6 +31,7 @@ import {
 } from 'mapbox-gl';
 import {
     getFilteredDatasets,
+    MODE,
     setFilter,
     setLayerVisibility,
     setMapMoved,
@@ -46,6 +47,7 @@ import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
 import { useRiverRunnerLoader } from '@/app/hooks/useRiverRunnerLoader';
+import { showPopup } from './Popup/showPopup';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -66,7 +68,8 @@ type Props = {
 export const MainMap: React.FC<Props> = (props) => {
     const { accessToken } = props;
 
-    const { map, persistentPopup, hoverPopup } = useMap(MAP_ID);
+    const { map, persistentPopup, hoverPopup, root, container } =
+        useMap(MAP_ID);
     const dispatch: AppDispatch = useDispatch();
 
     const {
@@ -166,8 +169,16 @@ export const MainMap: React.FC<Props> = (props) => {
             check();
         });
 
+    const isInRiverRunnerMode = () =>
+        store.getState().main.mode === MODE.RiverRunner;
+
     const loadDatasets = () => {
         if (!map || !datasets) {
+            return;
+        }
+        const inRiverRunner =
+            store.getState().riverRunner.status !== 'external';
+        if (inRiverRunner) {
             return;
         }
 
@@ -181,7 +192,6 @@ export const MainMap: React.FC<Props> = (props) => {
         );
 
         if (clusterSource) {
-            clusterSource.setData(datasets);
             clusterSource.setData(datasets);
             void waitForClusters(map, SourceId.AssociatedData)
                 .then((features) => {
@@ -230,7 +240,9 @@ export const MainMap: React.FC<Props> = (props) => {
 
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
-            if (zoom >= MAINSTEM_VISIBLE_ZOOM) {
+            const outsideRiverRunner =
+                store.getState().riverRunner.status === 'external';
+            if (outsideRiverRunner && zoom >= MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
                         [SubLayerId.MainstemsSmall]: true,
@@ -282,6 +294,10 @@ export const MainMap: React.FC<Props> = (props) => {
                 SubLayerId.MainstemsLargeGhost,
             ],
             (e) => {
+                if (isInRiverRunnerMode()) {
+                    return;
+                }
+
                 const zoom = map.getZoom();
                 if (
                     zoom >= MAINSTEM_VISIBLE_ZOOM &&
@@ -325,6 +341,10 @@ export const MainMap: React.FC<Props> = (props) => {
                 SubLayerId.SummaryPointsTotal,
             ],
             (e) => {
+                if (isInRiverRunnerMode()) {
+                    return;
+                }
+
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: [LayerId.SummaryPoints],
                 });
@@ -365,6 +385,9 @@ export const MainMap: React.FC<Props> = (props) => {
 
         // Allow the user to zoom into a boundary once from page load
         const HUC2BoundaryClickListener = (e: MapMouseEvent) => {
+            if (isInRiverRunnerMode()) {
+                return;
+            }
             const feature = map.queryRenderedFeatures(e.point, {
                 layers: [SubLayerId.HUC2BoundaryFill],
             })?.[0];
@@ -410,11 +433,31 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.on('zoom', () => {
             const zoom = map.getZoom();
-            if (zoom < CLUSTER_TRANSITION_ZOOM) {
+            if (zoom < CLUSTER_TRANSITION_ZOOM && !isInRiverRunnerMode()) {
                 persistentPopup.remove();
             }
         });
     }, [map]);
+
+    useEffect(() => {
+        if (!map || !persistentPopup || !root || !container) {
+            return;
+        }
+
+        const handleClick = (e: MapMouseEvent) => {
+            if (!isInRiverRunnerMode()) {
+                return;
+            }
+
+            showPopup(map, e, root, container, persistentPopup);
+        };
+
+        map.on('click', handleClick);
+
+        return () => {
+            map.off('click', handleClick);
+        };
+    }, [map, persistentPopup, root, container]);
 
     useEffect(() => {
         if (!map) {
@@ -600,7 +643,6 @@ export const MainMap: React.FC<Props> = (props) => {
         Object.entries(visibleLayers).forEach(([layerId, visible]) => {
             if (map.getLayer(layerId)) {
                 const newVisibility = visible ? 'visible' : 'none';
-
                 map.setLayoutProperty(layerId, 'visibility', newVisibility);
                 if (
                     [

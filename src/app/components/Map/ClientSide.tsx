@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { useMap } from '@/app/contexts/MapContexts';
-import { MapComponentProps } from '@/app/components/Map/types';
+import { MapComponentProps, MapEventKey } from '@/app/components/Map/types';
 import {
     addClickFunctions,
     addControls,
@@ -17,6 +17,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import FeatureService, {
     FeatureServiceOptions,
 } from '@hansdo/mapbox-gl-arcgis-featureserver';
+import { createRoot } from 'react-dom/client';
 
 /**
  * This component initializes and renders a Mapbox GL map with specified sources, layers, and controls.
@@ -40,12 +41,30 @@ import FeatureService, {
  * @component
  */
 const MapComponent: React.FC<MapComponentProps> = (props) => {
-    const { id, sources, layers, options, controls, accessToken } = props;
+    const {
+        id,
+        sources,
+        layers,
+        options,
+        controls,
+        accessToken,
+        persist = false,
+        eventHandlers = {},
+    } = props;
 
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
-    const { map, setMap } = useMap(id);
+    const { map, hoverPopup, persistentPopup, root, container, setMap } =
+        useMap(id);
+
+    // Prevent duplicate map instantiations in dev mode
+    const isFirstLoad = useRef(true);
 
     useEffect(() => {
+        if (!isFirstLoad.current) {
+            return;
+        }
+        isFirstLoad.current = false;
+
         if (!map && mapContainerRef.current) {
             mapboxgl.accessToken = accessToken;
             const newMap = new mapboxgl.Map({
@@ -60,6 +79,26 @@ const MapComponent: React.FC<MapComponentProps> = (props) => {
 
             const persistentPopup = new mapboxgl.Popup();
 
+            const container = document.createElement('div');
+            container.setAttribute('id', 'customPopupContent');
+            const root = createRoot(container);
+
+            Object.entries(eventHandlers).forEach(([event, value]) => {
+                const key = event as MapEventKey;
+                if (
+                    event in newMap &&
+                    typeof newMap[key]?.enable === 'function'
+                ) {
+                    if (value) {
+                        newMap[key].enable();
+                    } else {
+                        newMap[key].disable();
+                    }
+                } else {
+                    console.error('Invalid event key used: ', key);
+                }
+            });
+
             newMap.on('load', () => {
                 const createFeatureService = (
                     sourceId: string,
@@ -67,45 +106,107 @@ const MapComponent: React.FC<MapComponentProps> = (props) => {
                     options: FeatureServiceOptions
                 ) => new FeatureService(sourceId, map, options);
 
-                setMap(newMap, hoverPopup, persistentPopup);
+                setMap(newMap, hoverPopup, persistentPopup, root, container);
                 addSources(newMap, sources, createFeatureService);
                 addLayers(newMap, layers);
-                addHoverFunctions(newMap, layers, hoverPopup, persistentPopup);
-                addClickFunctions(newMap, layers, hoverPopup, persistentPopup);
+                addHoverFunctions(
+                    newMap,
+                    layers,
+                    hoverPopup,
+                    persistentPopup,
+                    root,
+                    container
+                );
+                addClickFunctions(
+                    newMap,
+                    layers,
+                    hoverPopup,
+                    persistentPopup,
+                    root,
+                    container
+                );
                 addMouseMoveFunctions(
                     newMap,
                     layers,
                     hoverPopup,
-                    persistentPopup
+                    persistentPopup,
+                    root,
+                    container
                 );
                 addControls(newMap, controls);
             });
+        } else if (
+            persist &&
+            map &&
+            mapContainerRef.current &&
+            mapContainerRef.current.innerHTML.length === 0
+        ) {
+            const container = map.getContainer();
+            const parent = container.parentNode;
 
-            newMap.on('style.load', () => {
-                const createFeatureService = (
-                    sourceId: string,
-                    map: mapboxgl.Map,
-                    options: FeatureServiceOptions
-                ) => new FeatureService(sourceId, map, options);
-
-                // Layers reset on style changes
-                addSources(newMap, sources, createFeatureService);
-                addLayers(newMap, layers);
-                addHoverFunctions(newMap, layers, hoverPopup, persistentPopup);
-                addClickFunctions(newMap, layers, hoverPopup, persistentPopup);
-                addMouseMoveFunctions(
-                    newMap,
-                    layers,
-                    hoverPopup,
-                    persistentPopup
-                );
-            });
+            if (
+                mapContainerRef.current &&
+                container !== mapContainerRef.current
+            ) {
+                if (parent) {
+                    parent.removeChild(container);
+                }
+                mapContainerRef.current.appendChild(container);
+                map.resize();
+            }
         }
 
         return () => {
-            if (map) map.remove();
+            if (!persist && map) {
+                map.remove();
+            }
+            if (!persist && root) {
+                root.unmount();
+            }
         };
     }, []);
+
+    useEffect(() => {
+        if (!map || !hoverPopup || !persistentPopup || !root || !container) {
+            return;
+        }
+
+        map.on('style.load', () => {
+            const createFeatureService = (
+                sourceId: string,
+                map: mapboxgl.Map,
+                options: FeatureServiceOptions
+            ) => new FeatureService(sourceId, map, options);
+
+            // Layers reset on style changes
+            addSources(map, sources, createFeatureService);
+            addLayers(map, layers);
+            addHoverFunctions(
+                map,
+                layers,
+                hoverPopup,
+                persistentPopup,
+                root,
+                container
+            );
+            addClickFunctions(
+                map,
+                layers,
+                hoverPopup,
+                persistentPopup,
+                root,
+                container
+            );
+            addMouseMoveFunctions(
+                map,
+                layers,
+                hoverPopup,
+                persistentPopup,
+                root,
+                container
+            );
+        });
+    }, [map]);
 
     // Style the container using #map-container-${id} in a global css file
     return (

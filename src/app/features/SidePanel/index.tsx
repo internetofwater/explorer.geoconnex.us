@@ -3,6 +3,8 @@ import { AppDispatch, RootState } from '@/lib/state/store';
 import {
     getDatasetsLength,
     getSelectedSummary,
+    MODE,
+    setMode,
     setSearchResultIds,
     setShowHelp,
     setShowSidePanel,
@@ -25,6 +27,8 @@ import Button from '@/app/components/common/Button';
 import Image from 'next/image';
 import { FeatureCollection, Point } from 'geojson';
 import { useAppSelector } from '@/lib/state/hooks';
+import IconButton from '@/app/components/common/IconButton';
+import DataSearchIcon from '@/app/assets/icons/DataSearch';
 
 type Props = {
     datasets: FeatureCollection<Point, Dataset>;
@@ -44,6 +48,7 @@ const SidePanel: React.FC<Props> = (props) => {
     const { map } = useMap(MAIN_MAP_ID);
 
     const showResults = useAppSelector((state) => state.main.showResults);
+    const mode = useAppSelector((state) => state.main.mode);
 
     const selected = useAppSelector((state) => state.mainstem.selected);
 
@@ -67,16 +72,25 @@ const SidePanel: React.FC<Props> = (props) => {
         dispatch(setShowHelp(true));
     };
 
+    const handleModeChange = () => {
+        dispatch(
+            setMode(
+                mode === MODE.RiverRunner ? MODE.Mainstems : MODE.RiverRunner
+            )
+        );
+    };
+
     return (
         <div className="w-full">
             <div className="relative bg-primary-opaque z-[--z-side-panel]">
                 <div className="pt-2 flex flex-col justify-between bg-primary">
                     <div className="flex justify-between" id="attribution">
-                        <div className="ml-4 flex items-center gap-x-4 h-16">
+                        <div className="ml-4 flex items-start gap-x-4 h-16">
                             <a
                                 href="https://internetofwater.org/"
                                 aria-label="Link to Internet of Water site"
                                 target="_blank"
+                                className="mt-2"
                             >
                                 <Image
                                     src={'/IoWCoalitionLogoMark.png'}
@@ -85,9 +99,20 @@ const SidePanel: React.FC<Props> = (props) => {
                                     height={50}
                                 />
                             </a>
-                            <Typography variant="h3" as="h1">
-                                Geoconnex Explorer
-                            </Typography>
+                            <div className="flex flex-col gap-0">
+                                <Typography variant="h3" as="h1">
+                                    Geoconnex Explorer
+                                </Typography>
+                                <Typography
+                                    variant="h4"
+                                    as="h2"
+                                    className="!text-[--text-secondary-color]"
+                                >
+                                    {mode === MODE.RiverRunner
+                                        ? 'River'
+                                        : 'Mainstems'}
+                                </Typography>
+                            </div>
                         </div>
                         <div className="flex justify-center items-center gap-4 mr-2 ">
                             <button
@@ -111,29 +136,44 @@ const SidePanel: React.FC<Props> = (props) => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex mt-2 mb-1 ml-2 gap-x-2">
-                        <Button
-                            title="Switch to Map View"
-                            onClick={() => dispatch(setView('map'))}
-                            className="min-w-24 min-h-10"
+                    <div className="flex justify-between mt-2 mb-1 ml-3">
+                        <IconButton
+                            onClick={handleModeChange}
+                            variant="alternative"
+                            title={`Change application mode to ${mode === MODE.RiverRunner ? 'mainstem search' : 'river runner.'}`}
                         >
-                            Map
-                        </Button>
-                        <Button
-                            title="Switch to Table View"
-                            onClick={() => dispatch(setView('table'))}
-                            className="min-w-24 min-h-10"
-                            disabled={datasetsLength === 0}
-                        >
-                            Table
-                        </Button>
-                        <Button
-                            title="Switch to About View"
-                            onClick={() => dispatch(setView('about'))}
-                            className="min-w-24 min-h-10"
-                        >
-                            About
-                        </Button>
+                            <DataSearchIcon />
+                        </IconButton>
+                        <div className="flex gap-x-2 ml-auto mr-4">
+                            {mode === MODE.Mainstems && (
+                                <>
+                                    <Button
+                                        title="Switch to Map View"
+                                        onClick={() => dispatch(setView('map'))}
+                                        className="min-w-24 min-h-10"
+                                    >
+                                        Map
+                                    </Button>
+                                    <Button
+                                        title="Switch to Table View"
+                                        onClick={() =>
+                                            dispatch(setView('table'))
+                                        }
+                                        className="min-w-24 min-h-10"
+                                        disabled={datasetsLength === 0}
+                                    >
+                                        Table
+                                    </Button>
+                                </>
+                            )}
+                            <Button
+                                title="Switch to About View"
+                                onClick={() => dispatch(setView('about'))}
+                                className="min-w-24 min-h-10"
+                            >
+                                About
+                            </Button>
+                        </div>
                     </div>
                 </div>
                 <div

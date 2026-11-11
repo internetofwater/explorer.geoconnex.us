@@ -37,6 +37,14 @@ import { positionCamera } from '@/services/river-runner/utils/positionCamera';
 import { getDataBounds } from '@/services/river-runner/utils/getDataBounds';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { loadingManager } from '@/managers/init';
+import { InitialState as TMainInitialState } from '@/lib/state/main/slice';
+import {
+    allLayerIds,
+    LayerId,
+    SubLayerId,
+} from '@/app/features/MainMap/config';
+import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
+import { basemaps } from '@/app/components/Map/consts';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -63,6 +71,8 @@ export class RiverRunnerService {
     private states: TUSStateFeatureCollection | null = null;
     private stoppingFeatures: TStoppingFeatureCollection | null = null;
     public driver: TDriver;
+    private visibleLayers: TMainInitialState['visibleLayers'] | null = null;
+    private originalStyle: BasemapStyles | null = null;
 
     constructor(
         deps: TRiverRunnerDependencies,
@@ -87,8 +97,91 @@ export class RiverRunnerService {
         return Boolean(this.stoppingFeatures);
     }
 
+    private disableLayers() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+        this.visibleLayers = this.deps.stateService.getLayerVisiblity();
+        this.deps.stateService.setLayerVisiblity({
+            [LayerId.MajorRivers]: false,
+            [LayerId.HUC2Boundaries]: false,
+            [LayerId.Mainstems]: false,
+            [SubLayerId.MainstemsSmall]: false,
+            [SubLayerId.MainstemsMedium]: false,
+            [SubLayerId.MainstemsLarge]: false,
+            [SubLayerId.HUC2BoundaryLabels]: false,
+            [LayerId.AssociatedData]: false,
+            [SubLayerId.AssociatedDataClusterCount]: false,
+            [SubLayerId.AssociatedDataClusters]: false,
+            [SubLayerId.AssociatedDataUnclustered]: false,
+        });
+    }
+
+    private enableLayers() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        if (this.visibleLayers) {
+            this.deps.stateService.setLayerVisiblity(this.visibleLayers);
+            this.visibleLayers = null;
+        }
+    }
+
+    private setRiverRunnerStyle() {
+        const originalStyle = this.deps.stateService.getBasemap();
+        if (originalStyle !== basemaps[BasemapId.Satellite]) {
+            // Use optimize flag to reduce background tile size
+            this.deps.stateService.setBasemap(
+                (basemaps[BasemapId.Satellite] +
+                    '?optimize=true') as BasemapStyles
+            );
+            this.originalStyle = originalStyle;
+        }
+    }
+
+    private undoRiverRunnerStyle() {
+        if (this.originalStyle) {
+            this.deps.stateService.setBasemap(this.originalStyle);
+        }
+    }
+
+    private addTerrain(map: Map) {
+        map.addSource('mapbox-dem', {
+            type: 'raster-dem',
+            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            tileSize: 512,
+            maxzoom: 14,
+        });
+
+        // add the DEM source as a terrain layer with exaggerated height
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.7 });
+
+        map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+                'sky-type': 'atmosphere',
+                'sky-atmosphere-sun': [0.0, 0.0],
+                'sky-atmosphere-sun-intensity': 15,
+            },
+        });
+    }
+
     setMap(map: Map) {
         this.map = map;
+
+        if (this.map.loaded()) {
+            this.addTerrain(this.map);
+        } else {
+            this.map.on('load', () => {
+                this.addTerrain(this.map!);
+            });
+        }
 
         return Boolean(this.map);
     }
@@ -368,6 +461,7 @@ export class RiverRunnerService {
     }
 
     async initialize(e: TMapInteraction) {
+        this.deps.stateService.setStatus('unitialized');
         if (!this.hasMap()) {
             // TODO: handling
             console.error('No map provided');
@@ -400,6 +494,8 @@ export class RiverRunnerService {
         }
 
         this.disableMapInteractions();
+        this.disableLayers();
+        this.setRiverRunnerStyle();
 
         const loadingInstance = this.deps.loadingManager.add(
             'Initializing River Run',
@@ -933,6 +1029,8 @@ export class RiverRunnerService {
             // postRun = true;
 
             this.enableMapInteractions();
+            this.enableLayers();
+            this.undoRiverRunnerStyle();
         });
     }
 
