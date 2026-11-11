@@ -66,12 +66,19 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                                 {types.length > 10 ? (
                                     <>
                                         <strong>Top 5 Types:</strong>{' '}
-                                        <FancyList items={types} max={5} />
+                                        <FancyList
+                                            type="conjunction"
+                                            items={types}
+                                            max={5}
+                                        />
                                     </>
                                 ) : (
                                     <>
                                         <strong>Types:</strong>{' '}
-                                        <FancyList items={types} />
+                                        <FancyList
+                                            type="conjunction"
+                                            items={types}
+                                        />
                                     </>
                                 )}
                             </Typography>
@@ -85,12 +92,19 @@ export const SimpleSummary: React.FC<Props> = (props) => {
                                         <strong>
                                             Top 5 Variables Measured:
                                         </strong>{' '}
-                                        <FancyList items={variables} max={5} />
+                                        <FancyList
+                                            type="conjunction"
+                                            items={variables}
+                                            max={5}
+                                        />
                                     </>
                                 ) : (
                                     <>
                                         <strong>Variables Measured:</strong>{' '}
-                                        <FancyList items={variables} />
+                                        <FancyList
+                                            type="conjunction"
+                                            items={variables}
+                                        />
                                     </>
                                 )}
                             </Typography>

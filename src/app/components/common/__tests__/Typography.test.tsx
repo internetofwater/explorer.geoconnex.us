@@ -27,7 +27,7 @@ describe(`${LABEL}: Typography`, () => {
             </Typography>
         );
         const element = screen.getByText('Body Text');
-        expect(element).toHaveClass('text-lg sm:text-md custom-class');
+        expect(element).toHaveClass('text-lg sm:text-base custom-class');
     });
 
     test('renders the correct HTML tag when "as" prop is provided', () => {

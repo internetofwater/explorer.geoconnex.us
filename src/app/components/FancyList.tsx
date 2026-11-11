@@ -4,14 +4,15 @@ import { ShowMoreBadge } from '@/app/components/ShowMoreBadge';
 type Props = {
     items: string[];
     max?: number;
+    type?: Intl.ListFormatType;
 };
 
 export const FancyList: React.FC<Props> = (props) => {
-    const { items, max } = props;
+    const { items, max, type = 'disjunction' } = props;
 
     const listFormatOptions = new Intl.ListFormat('en', {
         style: 'long',
-        type: 'disjunction',
+        type,
     });
 
     return (
