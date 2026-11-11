@@ -15,7 +15,8 @@
         "jest": "jest",
         "jest:coverage": "jest --coverage",
         "test": "npm run typecheck && npm run prettier && npm run lint && npm run jest",
-        "sparql:print": "tsx src/scripts/printSparql.ts"
+        "sparql:print": "tsx src/scripts/printSparql.ts",
+        "sparql:export": "tsx src/scripts/exportSparql.ts"
     },
     "dependencies": {
         "@hansdo/mapbox-gl-arcgis-featureserver": "^0.0.9",

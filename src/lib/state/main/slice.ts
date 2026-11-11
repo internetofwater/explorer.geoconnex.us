@@ -44,7 +44,7 @@ export const enum EOverlay {
     Mainstem = 'mainstem',
 }
 
-type InitialState = {
+export type InitialState = {
     showSidePanel: boolean;
     showHelp: boolean;
     showResults: boolean;
