@@ -22,6 +22,8 @@ import { BasemapStyles } from '@/app/components/Map/types';
 import BasemapSelector from '@/app/components/Map/tools/BasemapSelector';
 import BasemapIcon from '@/app/assets/icons/Basemap';
 import RightArrow from '@/app/assets/icons/RightArrow';
+import { useAppSelector } from '@/lib/state/hooks';
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 
 /**
  * This component provides tools for interacting with the map, including toggles for layer visibility and a legend.
@@ -32,6 +34,9 @@ import RightArrow from '@/app/assets/icons/RightArrow';
 export const MapTools: React.FC = () => {
     const { visibleLayers, selectedBasemap } = useSelector(
         (state: RootState) => state.main
+    );
+    const inActiveRun = useAppSelector(
+        (s) => s.riverRunner.status !== STATUS_TYPE.External
     );
 
     const dispatch: AppDispatch = useDispatch();
@@ -66,6 +71,10 @@ export const MapTools: React.FC = () => {
     const handleBasemapChange = (style: BasemapStyles) => {
         dispatch(setSelectedBasemap(style));
     };
+
+    if (inActiveRun) {
+        return null;
+    }
 
     return (
         <>

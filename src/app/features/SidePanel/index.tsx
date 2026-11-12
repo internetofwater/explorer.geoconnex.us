@@ -48,17 +48,17 @@ const SidePanel: React.FC<Props> = (props) => {
 
     const { map } = useMap(MAIN_MAP_ID);
 
-    const showResults = useAppSelector((state) => state.main.showResults);
-    const mode = useAppSelector((state) => state.main.mode);
+    const showResults = useAppSelector((s) => s.main.showResults);
+    const mode = useAppSelector((s) => s.main.mode);
 
-    const selected = useAppSelector((state) => state.mainstem.selected);
+    const selected = useAppSelector((s) => s.mainstem.selected);
 
     // Total length of unfiltered features from datasets feature collection
     const datasetsLength = useSelector(getDatasetsLength);
 
     // Summary information for filtered datasets within map bounds
-    const selectedSummary = useSelector((state: RootState) =>
-        getSelectedSummary(state, map)
+    const selectedSummary = useSelector((s: RootState) =>
+        getSelectedSummary(s, map)
     );
 
     const dispatch: AppDispatch = useDispatch();

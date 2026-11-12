@@ -6,6 +6,7 @@ import { Typography } from '@/app/components/common/Typography';
 import { InitialState, MODE, TMode } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import DataSearchIcon from '@/app/assets/icons/DataSearch';
+import KayakIcon from '@/app/assets/icons/Kayak';
 
 type Props = {
     mode: TMode;
@@ -41,9 +42,20 @@ export const Header: React.FC<Props> = (props) => {
                             height={50}
                         />
                     </a>
-                    <Typography variant="h3" as="h1">
-                        Geoconnex Explorer
-                    </Typography>
+                    <div className="flex flex-col gap-0">
+                        <Typography variant="h3" as="h1">
+                            Geoconnex Explorer
+                        </Typography>
+                        <Typography
+                            variant="h4"
+                            as="h2"
+                            className="!text-[--text-secondary-color]"
+                        >
+                            {mode === MODE.RiverRunner
+                                ? 'River Runner'
+                                : 'Mainstems'}
+                        </Typography>
+                    </div>
                 </div>
                 <div className="flex justify-center items-center gap-4 mr-2 ">
                     <button
@@ -71,7 +83,11 @@ export const Header: React.FC<Props> = (props) => {
                     variant="alternative"
                     title={`Change application mode to ${mode === MODE.RiverRunner ? 'mainstem search' : 'river runner.'}`}
                 >
-                    <DataSearchIcon />
+                    {mode === MODE.RiverRunner ? (
+                        <DataSearchIcon />
+                    ) : (
+                        <KayakIcon />
+                    )}
                 </IconButton>
                 <div className="flex gap-x-2">
                     {mode === MODE.Mainstems && (

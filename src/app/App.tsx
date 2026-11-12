@@ -27,6 +27,9 @@ import { Dataset, MainstemData } from '@/app/types';
 import { setTarget } from '@/lib/state/mainstem/slice';
 import { loadingManager } from '@/managers/init';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
+import Transition from './features/Transition';
+import { useAppSelector } from '@/lib/state/hooks';
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 
 type Props = {
     accessToken: string;
@@ -49,6 +52,10 @@ export const App: React.FC<Props> = (props) => {
     const pathname = usePathname();
 
     const dispatch: AppDispatch = useDispatch();
+
+    const inActiveRun = useAppSelector(
+        (s) => s.riverRunner.status !== STATUS_TYPE.External
+    );
 
     const { map } = useMap(MAIN_MAP_ID);
 
@@ -115,8 +122,17 @@ export const App: React.FC<Props> = (props) => {
         dispatch(setShowSidePanel(true));
     };
 
+    const handlePanelTransitionEnd = (
+        e: React.TransitionEvent<HTMLDivElement>
+    ) => {
+        if (e.propertyName === 'width') {
+            map?.resize();
+        }
+    };
+
     return (
         <>
+            <Transition />
             <MainstemModal />
             <HelpModal />
             <div className="flex">
@@ -135,18 +151,26 @@ export const App: React.FC<Props> = (props) => {
                 </div>
                 <div
                     id="side-panel"
+                    onTransitionEnd={handlePanelTransitionEnd}
                     className={`
-                     w-full lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
-                     min-w-[300px] sm:min-w-[400px]
-                     md:max-w-[400px]
-                     overflow-hidden bg-primary
-                     m-2 lg:m-0
-                     border lg:border-l-0 lg:border-t-0 lg:border-b-0
-                     rounded-lg lg:rounded-none
-                     shadow-lg
-                     overflow-hidden
-                     z-[--z-side-panel]
-                     ${showSidePanel ? 'flex' : 'hidden lg:flex'}`}
+                                min-w-[300px] sm:min-w-[400px]
+                                lg:max-w-[45vw]
+                                xl:max-w-[30vw]
+                                2xl:max-w-[20vw]
+                                bg-primary
+                                m-2 lg:m-0
+                                border lg:border-l-0 lg:border-t-0 lg:border-b-0
+                                rounded-lg lg:rounded-none
+                                shadow-lg
+                                overflow-hidden
+                                z-[--z-side-panel]
+                                transition-all
+                                ${showSidePanel ? 'flex' : 'hidden lg:flex'}
+                            `}
+                    style={{
+                        width: inActiveRun ? 0 : '100%',
+                        ...(inActiveRun ? { minWidth: 0 } : {}),
+                    }}
                 >
                     <SidePanel datasets={datasets} />
                 </div>

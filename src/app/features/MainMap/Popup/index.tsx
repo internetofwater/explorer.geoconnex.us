@@ -1,7 +1,5 @@
-import CloseIcon from '@/app/assets/icons/Close';
 import Button from '@/app/components/common/Button';
 import CloseButton from '@/app/components/common/CloseButton';
-import IconButton from '@/app/components/common/IconButton';
 import { Typography } from '@/app/components/common/Typography';
 import { riverRunnerService } from '@/services/init/init';
 import { TMapInteraction } from '@/services/river-runner/types';

@@ -1024,7 +1024,7 @@ export class RiverRunnerService {
         });
 
         this.map.once('moveend', () => {
-            this.deps.stateService.setStatus('overview');
+            this.deps.stateService.setStatus('external');
             // TODO
             // postRun = true;
 
