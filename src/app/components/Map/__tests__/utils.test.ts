@@ -15,6 +15,7 @@ import {
 import FeatureService, {
     FeatureServiceOptions,
 } from '@hansdo/mapbox-gl-arcgis-featureserver';
+import { createRoot, Root } from 'react-dom/client';
 
 jest.mock('mapbox-gl');
 jest.mock('@hansdo/mapbox-gl-arcgis-featureserver', () =>
@@ -25,10 +26,19 @@ jest.mock('@hansdo/mapbox-gl-arcgis-featureserver', () =>
     }))
 );
 
+jest.mock('react-dom/client');
+
+const mockCreateRoot = jest.mocked(createRoot);
+
+const renderMock = jest.fn();
+const unmountMock = jest.fn();
+
 describe('Map Component: utils', () => {
     let map: Map;
     let hoverPopup: Popup;
     let persistentPopup: Popup;
+    let container: HTMLDivElement;
+    let root: Root;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -41,6 +51,14 @@ describe('Map Component: utils', () => {
         });
         hoverPopup = new mapboxglMock.Popup();
         persistentPopup = new mapboxglMock.Popup();
+
+        mockCreateRoot.mockReturnValue({
+            render: renderMock,
+            unmount: unmountMock,
+        } as any);
+
+        container = document.createElement('div');
+        root = mockCreateRoot(container);
     });
 
     test('addSources adds geojson sources to map', () => {
@@ -152,7 +170,14 @@ describe('Map Component: utils', () => {
                 hoverFunction: jest.fn(() => jest.fn()),
             },
         ];
-        addHoverFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addHoverFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'mouseenter',
             'layer1',
@@ -187,7 +212,14 @@ describe('Map Component: utils', () => {
                 ],
             },
         ];
-        addHoverFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addHoverFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'mouseenter',
             'sublayer1',
@@ -211,7 +243,14 @@ describe('Map Component: utils', () => {
                 customHoverExitFunction: jest.fn(() => jest.fn()),
             },
         ];
-        addHoverFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addHoverFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'mouseenter',
             'layer1',
@@ -247,7 +286,14 @@ describe('Map Component: utils', () => {
                 ],
             },
         ];
-        addHoverFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addHoverFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'mouseenter',
             'sublayer1',
@@ -270,7 +316,14 @@ describe('Map Component: utils', () => {
                 clickFunction: jest.fn(() => jest.fn()),
             },
         ];
-        addClickFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addClickFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'click',
             'layer1',
@@ -300,7 +353,14 @@ describe('Map Component: utils', () => {
                 ],
             },
         ];
-        addClickFunctions(map, layerDefinitions, hoverPopup, persistentPopup);
+        addClickFunctions(
+            map,
+            layerDefinitions,
+            hoverPopup,
+            persistentPopup,
+            root,
+            container
+        );
         expect(map.on).toHaveBeenCalledWith(
             'click',
             'sublayer1',

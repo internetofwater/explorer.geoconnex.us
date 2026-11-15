@@ -91,11 +91,6 @@ thead#table-header {
     gap: 1rem;
 }
 
-button.mapboxgl-popup-close-button {
-    font-size: x-large;
-    right: 3px;
-}
-
 input[type='checkbox'] {
     accent-color: var(--secondary);
 }
