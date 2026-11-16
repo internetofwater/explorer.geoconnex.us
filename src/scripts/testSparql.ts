@@ -33,8 +33,8 @@ const resultSchema = z.object({
 const endpoint = process.env.SPARQL_ENDPOINT ?? GRAPH_SOURCE;
 
 // ANSI color codes for terminal output
-const PASS = '\x1b[32m✓\x1b[0m';
-const FAIL = '\x1b[31m✗\x1b[0m';
+const PASS = '\x1b[32m√\x1b[0m';
+const FAIL = '\x1b[31m●\x1b[0m';
 
 // need to use async in a function since no top level await
 const main = async () => {
@@ -56,7 +56,7 @@ const main = async () => {
 
         if (!response.ok) {
             console.error(
-                `${FAIL} ${name}: HTTP ${response.status} in ${elapsed()}`
+                `    ${FAIL} ${name}: HTTP ${response.status} in ${elapsed()}`
             );
             failed = true;
             // if the query failed, we still continue since
@@ -75,13 +75,16 @@ const main = async () => {
             Object.values(rows[0]).every(({ value }) => value === '0');
 
         if (rows.length === 0 || isZeroCount) {
-            console.error(`${FAIL} ${name}: no results in ${elapsed()}`);
+            console.error(`    ${FAIL} ${name}: no results in ${elapsed()}`);
             failed = true;
             continue;
         }
 
-        console.log(`${PASS} ${name}: ${rows.length} row(s) in ${elapsed()}`);
+        console.log(
+            `    ${PASS} ${name}: ${rows.length} row(s) in ${elapsed()}`
+        );
     }
+    console.log('\n');
 
     process.exit(failed ? 1 : 0);
 };
