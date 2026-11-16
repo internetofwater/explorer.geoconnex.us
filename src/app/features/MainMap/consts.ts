@@ -92,10 +92,6 @@ export const MAINSTEM_SMALL_LINE_WIDTH = 3;
 export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
 export const MAINSTEM_LARGE_LINE_WIDTH = 6;
 
-/****************************************************
- * MAINSTEM DRAINAGES
- ****************************************************/
-
 /**
  * Define outlet_drainagearea_sqkm value that determines upper limit of small mainstems.
  *
@@ -116,22 +112,11 @@ const LARGE_MAINSTEM_EXPRESSION: FilterSpecification = [
     MAINSTEM_DRAINAGE_MEDIUM,
 ];
 
-// const MEDIUM_CONTROL_EXPRESSION: FilterSpecification = [
-//     'all',
-//     ['>=', ['get', MAINSTEM_DRAINAGE_PROPERTY], MAINSTEM_DRAINAGE_SMALL],
-//     ['<', ['get', MAINSTEM_DRAINAGE_PROPERTY], MAINSTEM_DRAINAGE_MEDIUM],
-// ];
 const MEDIUM_FILTER_MAINSTEM_EXPRESSION: FilterSpecification = [
     '>',
     ['get', MAINSTEM_DRAINAGE_PROPERTY],
     MAINSTEM_DRAINAGE_SMALL,
 ];
-
-// const SMALL_CONTROL_EXPRESSION: FilterSpecification = [
-//     '<',
-//     ['get', MAINSTEM_DRAINAGE_PROPERTY],
-//     MAINSTEM_DRAINAGE_SMALL,
-// ];
 
 export const MAINSTEM_FILTER: ExpressionSpecification = [
     'step',
