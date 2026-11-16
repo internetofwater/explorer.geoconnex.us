@@ -906,6 +906,7 @@ export class RiverRunnerService {
                 ),
         };
 
+        let lastStoreUpdate = 0;
         const frame = (time: number) => {
             if (frameSettings.startTime === undefined) {
                 frameSettings.startTime = frameSettings.lastTime = time;
@@ -1081,11 +1082,14 @@ export class RiverRunnerService {
             // };
 
             // SL: This will update the location of the marker on the locator map
-            // JS TODO: this can be improved
-            // if (tick % 5 === 0) {
-            //     currentLocation = alongTarget;
-            // }
-            // tick += 1;
+            // Update tracked settings 4 times per sec (every 250ms)
+            if (time - lastStoreUpdate > 250) {
+                this.deps.stateService.setFrameSettings(
+                    structuredClone(frameSettings)
+                );
+                lastStoreUpdate = time;
+            }
+            frameSettings.tick = frameSettings.tick + 1;
 
             window?.requestAnimationFrame(frame);
         };

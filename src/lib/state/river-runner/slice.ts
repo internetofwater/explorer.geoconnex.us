@@ -58,6 +58,12 @@ export const riverRunner = createSlice({
         ) => {
             state.riverFeatures = action.payload;
         },
+        setFrameSettings: (
+            state,
+            action: PayloadAction<TInitialState['frameSettings']>
+        ) => {
+            state.frameSettings = action.payload;
+        },
     },
 });
 
@@ -71,6 +77,7 @@ export const {
     setActiveFeatureIndex,
     setPhaseJump,
     setRiverFeatures,
+    setFrameSettings,
 } = riverRunner.actions;
 
 export default riverRunner.reducer;

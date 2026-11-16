@@ -1,4 +1,5 @@
 import {
+    TFrameSettings,
     TRiverStoreProperties,
     TRunSettings,
 } from '@/services/river-runner/types';
@@ -47,7 +48,8 @@ export type TInitialState = {
     runs: TRunSettings[]; // This will be a simplified history of any runs already taken, TODO
     featureIndex: number | null; // What feature are we actively viewing
     phaseJump: number | null; // Allow users to jump ahead in the viewing
-    riverFeatures: TRiverStoreProperties[]; //
+    riverFeatures: TRiverStoreProperties[]; // Meta information that provides the stages of the run
+    frameSettings: TFrameSettings | null;
 };
 
 export const initialState: TInitialState = {
@@ -65,4 +67,5 @@ export const initialState: TInitialState = {
     featureIndex: null,
     phaseJump: null,
     riverFeatures: [],
+    frameSettings: null,
 };
