@@ -29,7 +29,8 @@ const ZoomGuideMessage: React.FC<Props> = (props) => {
     if (zoom > MEDIUM_MAINSTEM_VISIBLE_ZOOM) {
         return (
             <Typography variant="body-small">
-                <strong>Now Visible:</strong> Mainstems with over{' '}
+                <strong>Now Visible:</strong> Mainstems with
+                {' >'}
                 {formatNumber(600)} sqkm of Drainage.
             </Typography>
         );
@@ -38,7 +39,8 @@ const ZoomGuideMessage: React.FC<Props> = (props) => {
     if (zoom > LARGE_MAINSTEM_VISIBLE_ZOOM) {
         return (
             <Typography variant="body-small">
-                <strong>Now Visible:</strong> Mainstems with over{' '}
+                <strong>Now Visible:</strong> Mainstems with
+                {' >'}
                 {formatNumber(1600)} sqkm of Drainage.
             </Typography>
         );
@@ -124,11 +126,9 @@ export const ZoomGuide: React.FC = () => {
     }
 
     return (
-        <Card className="w-96">
-            <div className=" flex flex-col gap-2 h-[6.5rem]">
-                <Typography variant="h4" as="h4">
-                    Mainstems
-                </Typography>
+        // TODO: update this child selector after adjusting card structure
+        <Card className="w-96 [&>*]:p-3 max-w-[calc(100vw-3.5rem)]">
+            <div className="flex flex-col gap-1">
                 <div className="h-4 w-full overflow-hidden rounded-full bg-black flex flex-row justify-start items-center gap-0 border-2 border-solid border-black">
                     {sections.map(({ id, color, pct, width }) => (
                         <div

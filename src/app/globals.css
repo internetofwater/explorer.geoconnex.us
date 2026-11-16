@@ -129,6 +129,12 @@ a:active {
     }
 }
 
+@media (max-width: 600px) {
+    .mapboxgl-ctrl-scale {
+        display: none;
+    }
+}
+
 /* lg width */
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
