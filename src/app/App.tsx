@@ -27,6 +27,7 @@ import { Dataset, MainstemData } from '@/app/types';
 import { setTarget } from '@/lib/state/mainstem/slice';
 import { loadingManager } from '@/managers/init';
 import { LoadingType } from '@/lib/state/loading/types';
+import { ZoomGuide } from '@/app/features/MapTools/ZoomGuide';
 
 type Props = {
     accessToken: string;
@@ -153,6 +154,7 @@ export const App: React.FC<Props> = (props) => {
                 <div id="tools" className={`fixed top-3 right-2`}>
                     {view === 'map' && <MapTools />}
                 </div>
+
                 <div
                     id="map"
                     className={`absolute  lg:relative
@@ -162,6 +164,12 @@ export const App: React.FC<Props> = (props) => {
                     <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
                         <Mainstem />
                         <Geocoder />
+                    </div>
+                    <div
+                        id="zoom-guide"
+                        className={`absolute bottom-9 left-2 z-[3]`}
+                    >
+                        {view === 'map' && <ZoomGuide />}
                     </div>
                     <MainMap accessToken={accessToken} />
                 </div>

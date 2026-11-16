@@ -27,9 +27,9 @@ import {
     MAINSTEM_FILTER,
     MAINSTEM_GHOST_WIDTH_EXPRESSION,
     MAINSTEM_OPACITY_EXPRESSION,
-    MAINSTEM_VISIBLE_ZOOM,
+    LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
-} from './consts';
+} from '@/app/features/MainMap/consts';
 
 export const MAP_ID = 'main';
 
@@ -611,7 +611,7 @@ export const getLayerHoverFunction = (
                 return (e) => {
                     if (!hoverOnCluster) {
                         const zoom = map.getZoom();
-                        if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                        if (zoom > LARGE_MAINSTEM_VISIBLE_ZOOM) {
                             map.getCanvas().style.cursor = 'pointer';
 
                             const feature = e.features?.[0];
@@ -637,7 +637,7 @@ export const getLayerHoverFunction = (
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
                     const zoom = map.getZoom();
-                    if (zoom < MAINSTEM_VISIBLE_ZOOM) {
+                    if (zoom < LARGE_MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = 'pointer';
                         const feature = e.features?.[0] as
                             Feature<LineString> | undefined;
@@ -690,7 +690,7 @@ export const getLayerCustomHoverExitFunction = (
             case LayerId.Mainstems:
                 return () => {
                     const zoom = map.getZoom();
-                    if (zoom > MAINSTEM_VISIBLE_ZOOM) {
+                    if (zoom > LARGE_MAINSTEM_VISIBLE_ZOOM) {
                         map.getCanvas().style.cursor = '';
                     }
                     hoverPopup.remove();
@@ -741,7 +741,7 @@ export const getLayerMouseMoveFunction = (
             case SubLayerId.HUC2BoundaryFill:
                 return (e) => {
                     const zoom = map.getZoom();
-                    if (zoom < MAINSTEM_VISIBLE_ZOOM) {
+                    if (zoom < LARGE_MAINSTEM_VISIBLE_ZOOM) {
                         const feature = e.features?.[0] as
                             Feature<LineString> | undefined;
                         if (feature && feature.properties) {

@@ -63,11 +63,23 @@ export const CLUSTER_TRANSITION_ZOOM = 17;
 export const MAINSTEM_DRAINAGE_PROPERTY = 'outlet_drainagearea_sqkm';
 
 /**
- * Zoom level to render mainstems after initial load.
+ * Zoom level to render large mainstems
  *
  * @constant
  */
-export const MAINSTEM_VISIBLE_ZOOM = 5;
+export const LARGE_MAINSTEM_VISIBLE_ZOOM = 5;
+/**
+ * Zoom level to render medium mainstems.
+ *
+ * @constant
+ */
+export const MEDIUM_MAINSTEM_VISIBLE_ZOOM = LARGE_MAINSTEM_VISIBLE_ZOOM + 2;
+/**
+ * Zoom level to render small mainstems.
+ *
+ * @constant
+ */
+export const SMALL_MAINSTEM_VISIBLE_ZOOM = LARGE_MAINSTEM_VISIBLE_ZOOM + 4;
 /**
  * Zoom level for when mainstems should become more opaque.
  *
@@ -79,10 +91,6 @@ export const MAINSTEM_OPACITY_ZOOM = 6;
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
 export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
 export const MAINSTEM_LARGE_LINE_WIDTH = 6;
-
-/****************************************************
- * MAINSTEM DRAINAGES
- ****************************************************/
 
 /**
  * Define outlet_drainagearea_sqkm value that determines upper limit of small mainstems.
@@ -104,35 +112,24 @@ const LARGE_MAINSTEM_EXPRESSION: FilterSpecification = [
     MAINSTEM_DRAINAGE_MEDIUM,
 ];
 
-// const MEDIUM_CONTROL_EXPRESSION: FilterSpecification = [
-//     'all',
-//     ['>=', ['get', MAINSTEM_DRAINAGE_PROPERTY], MAINSTEM_DRAINAGE_SMALL],
-//     ['<', ['get', MAINSTEM_DRAINAGE_PROPERTY], MAINSTEM_DRAINAGE_MEDIUM],
-// ];
 const MEDIUM_FILTER_MAINSTEM_EXPRESSION: FilterSpecification = [
     '>',
     ['get', MAINSTEM_DRAINAGE_PROPERTY],
     MAINSTEM_DRAINAGE_SMALL,
 ];
 
-// const SMALL_CONTROL_EXPRESSION: FilterSpecification = [
-//     '<',
-//     ['get', MAINSTEM_DRAINAGE_PROPERTY],
-//     MAINSTEM_DRAINAGE_SMALL,
-// ];
-
 export const MAINSTEM_FILTER: ExpressionSpecification = [
     'step',
     ['zoom'],
 
     false,
-    MAINSTEM_VISIBLE_ZOOM,
+    LARGE_MAINSTEM_VISIBLE_ZOOM,
     LARGE_MAINSTEM_EXPRESSION,
 
-    MAINSTEM_VISIBLE_ZOOM + 2,
+    MEDIUM_MAINSTEM_VISIBLE_ZOOM,
     MEDIUM_FILTER_MAINSTEM_EXPRESSION,
 
-    MAINSTEM_VISIBLE_ZOOM + 4,
+    SMALL_MAINSTEM_VISIBLE_ZOOM,
     true, // Allow all
 ];
 
