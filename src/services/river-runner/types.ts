@@ -167,6 +167,8 @@ export type TRiverProperties = {
     }>;
 };
 
+export type TRiverStoreProperties = Omit<TRiverProperties, 'feature_data'>;
+
 /**
  * TRunSettings mapping from legacy runSettings:
  *

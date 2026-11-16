@@ -30,6 +30,7 @@ import { LOADING_TYPE } from '@/lib/state/loading/types';
 import Transition from './features/Transition';
 import { useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
+import { Progress } from './features/RiverRunner/Progress';
 
 type Props = {
     accessToken: string;
@@ -133,6 +134,7 @@ export const App: React.FC<Props> = (props) => {
     return (
         <>
             <Transition />
+            <Progress />
             <MainstemModal />
             <HelpModal />
             <div className="flex">

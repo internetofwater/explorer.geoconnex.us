@@ -5,6 +5,7 @@ import {
     setActiveFeatureIndex,
     setFlag,
     setPhaseJump,
+    setRiverFeatures,
     setStart,
     setStatus,
     setStop,
@@ -83,5 +84,9 @@ export class RiverRunnerStateService {
     }
     setPhaseJump(payload: TInitialState['phaseJump']) {
         this.store.dispatch(setPhaseJump(payload));
+    }
+
+    setRiverFeatures(payload: TInitialState['riverFeatures']) {
+        this.store.dispatch(setRiverFeatures(payload));
     }
 }

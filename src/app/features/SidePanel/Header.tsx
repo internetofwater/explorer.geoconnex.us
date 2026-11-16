@@ -1,12 +1,11 @@
 import Button from '@/app/components/common/Button';
 import CloseButton from '@/app/components/common/CloseButton';
-import Image from 'next/image';
 import HelpIcon from '@/app/assets/icons/Help';
-import { Typography } from '@/app/components/common/Typography';
 import { InitialState, MODE, TMode } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import DataSearchIcon from '@/app/assets/icons/DataSearch';
 import KayakIcon from '@/app/assets/icons/Kayak';
+import { Title } from './Title';
 
 type Props = {
     mode: TMode;
@@ -29,34 +28,7 @@ export const Header: React.FC<Props> = (props) => {
     return (
         <div className="pt-2 flex flex-col justify-between bg-primary">
             <div className="flex justify-between" id="attribution">
-                <div className="ml-4 flex items-center gap-x-4 h-16">
-                    <a
-                        href="https://internetofwater.org/"
-                        aria-label="Link to Internet of Water site"
-                        target="_blank"
-                    >
-                        <Image
-                            src={'/IoWCoalitionLogoMark.png'}
-                            alt="Internet of Water Logo"
-                            width={35}
-                            height={50}
-                        />
-                    </a>
-                    <div className="flex flex-col gap-0">
-                        <Typography variant="h3" as="h1">
-                            Geoconnex Explorer
-                        </Typography>
-                        <Typography
-                            variant="h4"
-                            as="h2"
-                            className="!text-[--text-secondary-color]"
-                        >
-                            {mode === MODE.RiverRunner
-                                ? 'River Runner'
-                                : 'Mainstems'}
-                        </Typography>
-                    </div>
-                </div>
+                <Title mode={mode} />
                 <div className="flex justify-center items-center gap-4 mr-2 ">
                     <button
                         title="Show Help Modal"

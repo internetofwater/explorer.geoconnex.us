@@ -35,6 +35,7 @@ export enum SourceId {
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
     GeocoderResult = 'geocoder-result-source',
+    RiverRunnerFlowlines = 'river-runner-flowlines-source',
 }
 
 export enum LayerId {
@@ -46,6 +47,7 @@ export enum LayerId {
     MainstemsHighlight = 'mainstems-highlight',
     GeocoderResultLine = 'geocoder-result-line',
     GeocoderResultCircle = 'geocoder-result-circle',
+    RiverRunnerFlowlines = 'river-runner-flowlines',
 }
 
 export enum SubLayerId {
@@ -62,6 +64,9 @@ export enum SubLayerId {
     AssociatedDataUnclustered = 'associated-data-unclustered-point',
     SummaryPointsSiteName = 'summary-points-site-name',
     SummaryPointsTotal = 'summary-points-site-total',
+    RiverRunnerFlowlinesMain = 'river-runner-flowlines-main',
+    RiverRunnerFlowlinesOutline = 'river-runner-flowlines-outline',
+    RiverRunnerFlowlinesHighlight = 'river-runner-flowlines-highlight',
 }
 export const allLayerIds = [
     ...Object.values(LayerId),
@@ -203,6 +208,19 @@ export const sourceConfigs: SourceConfig[] = [
                 features: [],
             },
             cluster: false,
+        },
+    },
+    {
+        id: SourceId.RiverRunnerFlowlines,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: [],
+            },
+            cluster: false,
+            lineMetrics: true,
         },
     },
 ];
@@ -789,7 +807,68 @@ export const getLayerConfig = (
                     'circle-radius': 6,
                 },
             };
+        case SubLayerId.RiverRunnerFlowlinesMain:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesMain,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    'line-color': '#6BC5D2',
+                    'line-gradient': [
+                        'interpolate',
+                        ['linear'],
+                        ['line-progress'],
+                        0,
+                        '#6BC5D2',
+                        0.5,
+                        '#7AD1DB',
+                        1,
+                        '#5DAFBE',
+                    ],
+                    'line-width': 15,
 
+                    // 'line-width': 80,
+                    'line-blur': 0.5,
+                },
+            };
+        case SubLayerId.RiverRunnerFlowlinesOutline:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesOutline,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    // 'line-color': '#0F0',
+                    'line-color': '#4A7885',
+                    // 'line-width': 85,
+                    'line-width': 20,
+                    'line-opacity': 0.8,
+                    'line-blur': 1.25,
+                },
+            };
+        case SubLayerId.RiverRunnerFlowlinesHighlight:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesHighlight,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    'line-color': '#BCEBF2',
+                    // 'line-color': '#F00',
+                    'line-width': 8,
+                    'line-opacity': 0.6,
+                },
+            };
         default:
             return null;
     }
@@ -1377,5 +1456,33 @@ export const layerDefinitions: MainLayerDefinition[] = [
         controllable: false,
         legend: false,
         config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
+    },
+    {
+        id: LayerId.RiverRunnerFlowlines,
+        controllable: false,
+        legend: false,
+        config: null,
+        subLayers: [
+            {
+                id: SubLayerId.RiverRunnerFlowlinesOutline,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.RiverRunnerFlowlinesOutline),
+            },
+            {
+                id: SubLayerId.RiverRunnerFlowlinesMain,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.RiverRunnerFlowlinesMain),
+            },
+            {
+                id: SubLayerId.RiverRunnerFlowlinesHighlight,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(
+                    SubLayerId.RiverRunnerFlowlinesHighlight
+                ),
+            },
+        ],
     },
 ];

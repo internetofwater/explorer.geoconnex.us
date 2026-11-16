@@ -1,4 +1,7 @@
-import { TRunSettings } from '@/services/river-runner/types';
+import {
+    TRiverStoreProperties,
+    TRunSettings,
+} from '@/services/river-runner/types';
 import { LngLatBoundsLike } from 'mapbox-gl';
 
 export const STATUS_TYPE = {
@@ -44,6 +47,7 @@ export type TInitialState = {
     runs: TRunSettings[]; // This will be a simplified history of any runs already taken, TODO
     featureIndex: number | null; // What feature are we actively viewing
     phaseJump: number | null; // Allow users to jump ahead in the viewing
+    riverFeatures: TRiverStoreProperties[]; //
 };
 
 export const initialState: TInitialState = {
@@ -60,4 +64,5 @@ export const initialState: TInitialState = {
     runs: [],
     featureIndex: null,
     phaseJump: null,
+    riverFeatures: [],
 };

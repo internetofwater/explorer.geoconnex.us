@@ -2,7 +2,7 @@
 // This is temporary to allow a clean build
 'use client';
 
-import type { LngLatLike, Map } from 'mapbox-gl';
+import type { GeoJSONSource, LngLatLike, Map } from 'mapbox-gl';
 import {
     TMapInteraction,
     TNLDIVAAFeature,
@@ -14,15 +14,29 @@ import {
     TUSStateFeatureCollection,
     TRunSettings,
     TFrameSettings,
+    TFlowlineProperties,
+    TRiverProperties,
 } from '@/services/river-runner/types';
 import { RiverRunnerStateService } from '@/services/river-runner/river-runner.state';
 import LoadingManager from '@/managers/loading.manager';
 import NotificationManager from '@/managers/notification.manager';
 import { RiverRunnerDataService } from '@/services/river-runner/river-runner.data';
 import { applyVAAData } from '@/services/river-runner/utils/applyVAAData';
-import { Position } from 'geojson';
+import {
+    Feature,
+    Geometry,
+    LineString,
+    MultiLineString,
+    Position,
+} from 'geojson';
 import { CONFIG, TRiverRunnerConfig } from '@/services/river-runner/config';
-import { along, distance, featureCollection, lineString } from '@turf/turf';
+import {
+    along,
+    distance,
+    featureCollection,
+    geometry,
+    lineString,
+} from '@turf/turf';
 import { getFeatureGroups } from '@/services/river-runner/utils/getFeatureGroups';
 import { determineStoppingFeature } from '@/services/river-runner/utils/determineStoppingFeature';
 import { getElevationsMapQuery } from '@/services/river-runner/utils/getElevationsMapQuery';
@@ -41,10 +55,12 @@ import { InitialState as TMainInitialState } from '@/lib/state/main/slice';
 import {
     allLayerIds,
     LayerId,
+    SourceId,
     SubLayerId,
 } from '@/app/features/MainMap/config';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
+import { getDefaultGeojson } from '@/lib/state/utils';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -191,9 +207,12 @@ export class RiverRunnerService {
     }
 
     private reset() {
-        this.enableMapInteractions();
         this.deps.stateService.setFlag({ abort: false });
-        // TODO: this is incomplete
+        this.deps.stateService.setRiverFeatures([]);
+        this.clearFlowlineVisual();
+        this.enableMapInteractions();
+        this.enableLayers();
+        this.undoRiverRunnerStyle();
     }
 
     private disableMapInteractions() {
@@ -216,6 +235,82 @@ export class RiverRunnerService {
 
         this.map._interactive = true;
         this.map.scrollZoom.enable();
+    }
+
+    private setFlowlineVisual(feature: TFlowlineFeature) {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        const source = this.map.getSource<GeoJSONSource>(
+            SourceId.RiverRunnerFlowlines
+        );
+
+        if (source) {
+            let typedFeature:
+                | Feature<LineString, TFlowlineProperties>
+                | Feature<MultiLineString, TFlowlineProperties>;
+
+            if (Array.isArray(feature.geometry.coordinates[0][0])) {
+                typedFeature = {
+                    ...feature,
+                    geometry: {
+                        ...(feature.geometry as Geometry),
+                        type: 'MultiLineString',
+                    },
+                } as Feature<MultiLineString, TFlowlineProperties>;
+            } else {
+                typedFeature = {
+                    ...feature,
+                    geometry: {
+                        ...feature.geometry,
+                        type: 'LineString',
+                    },
+                } as Feature<LineString, TFlowlineProperties>;
+            }
+            // We may still be transitioning basemap styling
+            if (this.map.isStyleLoaded()) {
+                source.setData(featureCollection([typedFeature as Feature]));
+            } else {
+                this.map.on('style.load', () => {
+                    source.setData(
+                        featureCollection([typedFeature as Feature])
+                    );
+                });
+            }
+        }
+    }
+
+    private clearFlowlineVisual() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        const source = this.map.getSource<GeoJSONSource>(
+            SourceId.RiverRunnerFlowlines
+        );
+
+        if (source) {
+            source.setData(getDefaultGeojson());
+        }
+    }
+
+    private saveRiverFeatures(riverFeatures: TRiverProperties[]) {
+        this.deps.stateService.setRiverFeatures(
+            riverFeatures.map((r) => ({
+                feature_data_index: r.feature_data_index,
+                progress: r.progress,
+                name: r.name,
+                distance_from_destination: r.distance_from_destination,
+                stream_level: r.stream_level,
+                length_km: r.length_km,
+                stop_point: r.stop_point,
+            }))
+        );
     }
 
     private async addVAAData(
@@ -532,6 +627,14 @@ export class RiverRunnerService {
             await this.addVAAData(flowlinesData.features)
         );
 
+        // SL: Draw river lines from flowline features. Combining them avoids mapbox simplification on low zoom levels that creates a choppy looking flow path.
+        const combinedFlowlines = structuredClone(flowlinesData.features[0]);
+        combinedFlowlines.geometry.coordinates = flowlinesData.features
+            .map((a) => a.geometry.coordinates)
+            .flat();
+
+        this.setFlowlineVisual(combinedFlowlines);
+
         let flowRates: number[] = [],
             maxFlowRate: number;
         if (this.advanced) {
@@ -552,7 +655,6 @@ export class RiverRunnerService {
                 ? extendedFlowLines.features[0].properties.pathlength
                 : undefined;
         const riverFeatures = getFeatureGroups(extendedFlowLines);
-        const featureGroups = riverFeatures;
 
         // SL: Find start and end points
         const startRiver = extendedFlowLines.features[0];
@@ -591,11 +693,6 @@ export class RiverRunnerService {
             this.deps.stateService.setStop(pathStoppingFeature);
         }
 
-        // SL: Draw river lines from flowline features. Combining them avoids mapbox simplification on low zoom levels that creates a choppy looking flow path.
-        const combinedFlowlines = flowlinesData.features[0];
-        combinedFlowlines.geometry.coordinates = flowlinesData.features
-            .map((a) => a.geometry.coordinates)
-            .flat();
         // TODO: use better approach
         // drawFlowPath({ map, featureData: [combinedFlowlines], lineWidth: 3 });
 
@@ -712,6 +809,8 @@ export class RiverRunnerService {
             flowRates: flowRates,
             duration: animationDuration,
         };
+
+        this.saveRiverFeatures(riverFeatures);
 
         if (window?.innerWidth > 600) {
             this.deps.stateService.setStatus('overview');
@@ -1028,9 +1127,7 @@ export class RiverRunnerService {
             // TODO
             // postRun = true;
 
-            this.enableMapInteractions();
-            this.enableLayers();
-            this.undoRiverRunnerStyle();
+            this.reset();
         });
     }
 
@@ -1042,5 +1139,17 @@ export class RiverRunnerService {
         results.push(this.setMap(map));
 
         return results.every((r) => r);
+    }
+
+    toggle() {
+        this.deps.stateService.setFlag({
+            paused: !this.deps.stateService.hasPaused(),
+        });
+    }
+
+    abort() {
+        this.deps.stateService.setFlag({
+            abort: true,
+        });
     }
 }

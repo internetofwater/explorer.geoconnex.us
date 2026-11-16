@@ -34,7 +34,7 @@ const Transition: React.FC = () => {
     return (
         <>
             <div className=" absolute z-[99999] w-svw h-svh flex justify-center items-center">
-                <Card className=" m-auto">
+                <Card className="m-auto">
                     <div className="flex items-center gap-8">
                         <Spinner />
                         <Typography variant="body">
