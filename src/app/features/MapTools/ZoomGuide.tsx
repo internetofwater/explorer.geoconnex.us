@@ -48,7 +48,7 @@ const ZoomGuideMessage: React.FC<Props> = (props) => {
 
     return (
         <Typography variant="body-small">
-            Zoom in further to reveal mainstems.
+            <strong>Zoom in further to reveal mainstems!</strong>
         </Typography>
     );
 };
