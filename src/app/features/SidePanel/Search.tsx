@@ -60,7 +60,7 @@ const Search: React.FC<Props> = (props) => {
                 const queryString = new URLSearchParams(params).toString();
 
                 const response = await fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items?${queryString}`,
+                    `https://reference.geoconnex.us/collections/mainstems_v3/items?${queryString}`,
                     { signal: controller.current.signal }
                 );
 
