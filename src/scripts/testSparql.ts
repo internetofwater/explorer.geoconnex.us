@@ -32,13 +32,18 @@ const resultSchema = z.object({
 // a different graph
 const endpoint = process.env.SPARQL_ENDPOINT ?? GRAPH_SOURCE;
 
+// ANSI color codes for terminal output
+const PASS = '\x1b[32m✓\x1b[0m';
+const FAIL = '\x1b[31m✗\x1b[0m';
+
 // need to use async in a function since no top level await
 const main = async () => {
     let failed = false;
 
     for (const [name, query] of Object.entries(Queries)) {
-        const start = Date.now();
-        const elapsed = () => `${((Date.now() - start) / 1000).toFixed(1)}s`;
+        const start = performance.now();
+        const elapsed = () =>
+            `${((performance.now() - start) / 1000).toFixed(1)}s`;
 
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -51,7 +56,7 @@ const main = async () => {
 
         if (!response.ok) {
             console.error(
-                `❌ ${name}: HTTP ${response.status} in ${elapsed()}`
+                `${FAIL} ${name}: HTTP ${response.status} in ${elapsed()}`
             );
             failed = true;
             // if the query failed, we still continue since
@@ -70,12 +75,14 @@ const main = async () => {
             Object.values(rows[0]).every(({ value }) => value === '0');
 
         if (rows.length === 0 || isZeroCount) {
-            console.error(`❌ ${name}: no results in ${elapsed()}`);
+            console.error(`${FAIL} ${name}: no results in ${elapsed()}`);
             failed = true;
             continue;
         }
 
-        console.log(`✅ ${name}: ${rows.length} row(s) in ${elapsed()}`);
+        console.log(
+            `${PASS} ${name}: ${rows.length} row(s) in ${elapsed()}`
+        );
     }
 
     process.exit(failed ? 1 : 0);
