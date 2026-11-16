@@ -80,9 +80,7 @@ const main = async () => {
             continue;
         }
 
-        console.log(
-            `${PASS} ${name}: ${rows.length} row(s) in ${elapsed()}`
-        );
+        console.log(`${PASS} ${name}: ${rows.length} row(s) in ${elapsed()}`);
     }
 
     process.exit(failed ? 1 : 0);
