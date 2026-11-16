@@ -53,6 +53,24 @@ jobs:
             - name: Run unit tests with Jest + React Testing Library
               run: npm run jest
 
+    sparql:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run SPARQL statements against the graph endpoint
+              run: npm run sparql:test
+
     # e2e:
     #     runs-on: ubuntu-latest
     #     steps:
