@@ -151,9 +151,11 @@ export const App: React.FC<Props> = (props) => {
                 >
                     <SidePanel datasets={datasets} />
                 </div>
-                <div id="tools" className={`fixed top-3 right-2`}>
-                    {view === 'map' && <MapTools />}
-                </div>
+                {view === 'map' && (
+                    <div id="tools" className="fixed top-3 right-2">
+                        <MapTools />
+                    </div>
+                )}
 
                 <div
                     id="map"
@@ -165,12 +167,14 @@ export const App: React.FC<Props> = (props) => {
                         <Mainstem />
                         <Geocoder />
                     </div>
-                    <div
-                        id="zoom-guide"
-                        className={`absolute bottom-9 left-2 z-[3]`}
-                    >
-                        {view === 'map' && <ZoomGuide />}
-                    </div>
+                    {view === 'map' && (
+                        <div
+                            id="zoom-guide"
+                            className="absolute bottom-9 left-2 z-[3]"
+                        >
+                            {view === 'map' && <ZoomGuide />}
+                        </div>
+                    )}
                     <MainMap accessToken={accessToken} />
                 </div>
                 <div
