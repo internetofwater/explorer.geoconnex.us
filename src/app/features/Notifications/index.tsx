@@ -40,7 +40,7 @@ export const Notifications: React.FC = () => {
     }
 
     return (
-        <div className="fixed bottom-7 right-12 z-[9999]">
+        <div className="fixed bottom-16 right-12 z-[9999]">
             {!open && (
                 <div className="flex flex-col items-end max-h-[calc(100vh - 8.75rem)] gap-2 overflow-y-auto p-1">
                     {notifications
