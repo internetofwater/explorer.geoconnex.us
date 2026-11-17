@@ -45,6 +45,9 @@ export const Datasets = z.array(
 
 export type TDatasets = z.infer<typeof Datasets>;
 
+// Filters run in a subquery so attribute lookups only touch filtered rows.
+// Lookups like description, WKT and unit are large joins since nearly every feature has
+// them, so doing that after the variable/type filters skips rows that would be discarded.
 const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
     format(`
          ${
@@ -68,20 +71,32 @@ const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
                 ?distributionName 
                 ?wkt
             WHERE {
-                VALUES ?mainstem { <${uri}> }
-                ?monitoringLocation ${HYF}:HydroLocationType ?type .
-                ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
-                ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
+                {
+                    SELECT
+                        ?mainstem
+                        ?monitoringLocation
+                        ?type
+                        ?dataset
+                        ?var
+                        ?variableMeasured
+                        ?distributionName
+                    WHERE {
+                        VALUES ?mainstem { <${uri}> }
+                        ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
+                        ?monitoringLocation ${HYF}:HydroLocationType ?type .
+                        ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
+                        ?dataset ${SCHEMA}:variableMeasured ?var .
+                        ?var ${SCHEMA}:name ?variableMeasured .
+                        ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
+
+                        ${getQueryOptions(options)}
+                    }
+                }
                 ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
-                ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
-                ?dataset ${SCHEMA}:variableMeasured ?var .
                 ?dataset ${SCHEMA}:description ?datasetDescription .
                 ?dataset ${SCHEMA}:temporalCoverage ?temporalCoverage .
                 ?dataset ${SCHEMA}:name ?siteName .
-                ?var ${SCHEMA}:name ?variableMeasured .
                 ?var ${SCHEMA}:unitText ?variableUnit .
-                
-                ${getQueryOptions(options)}
             }
 
             ${options.limit ? `LIMIT ${options.limit}` : ''}`);
