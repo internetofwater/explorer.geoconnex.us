@@ -8,6 +8,7 @@
     --primary: theme('colors.primary.DEFAULT');
     --secondary: theme('colors.secondary.DEFAULT');
     --secondary-hover: theme('colors.secondary.hover');
+    --tertiary: theme('colors.tertiary.DEFAULT');
 
     --text-color: #000;
     --text-secondary-color: #3a3939;

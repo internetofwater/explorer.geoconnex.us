@@ -9,7 +9,7 @@ export const ProgressBar: React.FC<Props> = (props) => {
     const {
         percentage,
         background = '#e5e7eb',
-        foreground = 'var(--secondary)',
+        foreground = 'var(--tertiary)',
         orientation = 'horizontal',
     } = props;
 

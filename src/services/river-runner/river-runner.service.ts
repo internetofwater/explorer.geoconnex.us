@@ -209,6 +209,7 @@ export class RiverRunnerService {
     private reset() {
         this.deps.stateService.setFlag({ abort: false });
         this.deps.stateService.setRiverFeatures([]);
+        this.deps.stateService.setFrameSettings(null);
         this.clearFlowlineVisual();
         this.enableMapInteractions();
         this.enableLayers();
