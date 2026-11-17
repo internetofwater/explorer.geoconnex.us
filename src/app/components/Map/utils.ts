@@ -246,7 +246,10 @@ export const addControls = (
         if (scaleControl) {
             const scaleControlOptions =
                 typeof scaleControl === 'boolean' ? {} : scaleControl;
-            map.addControl(new ScaleControl(scaleControlOptions));
+            map.addControl(
+                new ScaleControl(scaleControlOptions),
+                'bottom-right'
+            );
         }
         if (navigationControl) {
             const navigationControlOptions =

@@ -22,7 +22,7 @@ const Card: React.FC<Props> = (props) => {
 
     return (
         <div className={`flex items-center text-black ${className}`}>
-            <div className="relative bg-primary-opaque rounded-lg shadow-lg p-6 w-[100%]">
+            <div className="relative bg-primary-opaque rounded-lg shadow-lg p-4 w-[100%]">
                 {handleClose && (
                     <span className="absolute top-2 right-2">
                         <CloseButton title="Close Card" onClick={handleClose} />
