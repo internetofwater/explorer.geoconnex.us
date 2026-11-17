@@ -1,6 +1,6 @@
 import Card from '@/app/components/common/Card';
 import { Typography } from '@/app/components/common/Typography';
-import { useAppSelector } from '@/lib/state/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 import { Title } from '../SidePanel/Title';
 import { MODE } from '@/lib/state/main/slice';
@@ -15,6 +15,7 @@ import Slider from '@/app/components/common/Slider';
 import Collapsible from '@/app/components/common/Collapsible';
 import Next from '@/app/assets/icons/Next';
 import Previous from '@/app/assets/icons/Previous';
+import { setPhaseJump } from '@/lib/state/river-runner/slice';
 
 const calculateFeatureWeightedProgress = (
     phase: number,
@@ -67,9 +68,12 @@ export const Guide: React.FC = () => {
     const riverFeatures = useAppSelector((s) => s.riverRunner.riverFeatures);
     const isPaused = useAppSelector((s) => s.riverRunner.flags.paused);
     const frameSettings = useAppSelector((s) => s.riverRunner.frameSettings);
+    const featureIndex = useAppSelector((s) => s.riverRunner.featureIndex);
     const altitudeMultiplier = useAppSelector(
         (s) => s.riverRunner.driver.altitudeMultiplier
     );
+
+    const dispatch = useAppDispatch();
 
     const handleToggle = () => {
         riverRunnerService.toggle();
@@ -89,6 +93,24 @@ export const Guide: React.FC = () => {
             .map((r) => r.progress)
             .filter((p): p is number => typeof p === 'number')
     );
+
+    const jumpIndex = (direction: 'next' | 'previous') => {
+        if (featureIndex === null) {
+            return;
+        }
+
+        const nextIndex =
+            direction === 'next' ? featureIndex + 1 : featureIndex - 1;
+
+        if (nextIndex < 0 || nextIndex >= riverFeatures.length) {
+            return;
+        }
+
+        dispatch(setPhaseJump(riverFeatures[nextIndex].progress));
+    };
+
+    const handleNext = () => jumpIndex('next');
+    const handlePrevious = () => jumpIndex('previous');
 
     const handleAltitudeChange = (altitudeMultiplier: number) => {
         riverRunnerService.setDriver({ altitudeMultiplier });
@@ -160,10 +182,18 @@ export const Guide: React.FC = () => {
                     </IconButton>
                 </div>
                 <div className="flex h-fit w-full -mx-2 -mb-2 border-t border-solid border-gray-500">
-                    <IconButton className="rounded-none" onClick={() => null}>
+                    <IconButton
+                        className="rounded-none"
+                        onClick={handlePrevious}
+                        disabled={featureIndex === 0}
+                    >
                         <Previous />
                     </IconButton>
-                    <IconButton className="rounded-none" onClick={() => null}>
+                    <IconButton
+                        className="rounded-none"
+                        onClick={handleNext}
+                        disabled={featureIndex === riverFeatures.length - 1}
+                    >
                         <Next />
                     </IconButton>
                     <Collapsible
@@ -172,7 +202,7 @@ export const Guide: React.FC = () => {
                         title={
                             <div className=" text-left mr-2">
                                 <Typography variant="body">
-                                    Speed/Detail
+                                    Detail / Speed
                                 </Typography>
                             </div>
                         }
@@ -180,8 +210,8 @@ export const Guide: React.FC = () => {
                         <div className="absolute top-[2.5rem] pb-2 pl-2 pt-2 w-4 bg-primary w-full min-h-48 h-full max-h-52 ">
                             <Slider
                                 orientation="vertical"
-                                className="w-full"
                                 invert
+                                className="w-full"
                                 value={altitudeMultiplier}
                                 min={0.6}
                                 max={5}
@@ -193,14 +223,19 @@ export const Guide: React.FC = () => {
                                             value: 0.6,
                                             label: (
                                                 <>
-                                                    High Speed /<br />
-                                                    Low Detail
+                                                    Low Detail /<br />
+                                                    High Speed
                                                 </>
                                             ),
                                         },
                                         {
                                             value: 5,
-                                            label: 'Low Speed / High Detail',
+                                            label: (
+                                                <>
+                                                    High Detail /<br />
+                                                    Low Speed
+                                                </>
+                                            ),
                                         },
                                     ] as const
                                 }

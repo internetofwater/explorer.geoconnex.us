@@ -57,7 +57,7 @@ export type TInitialState = {
     segment: TSegment;
     scale: TScale | null; // The current view in the minimap
     runs: TRunSettings[]; // This will be a simplified history of any runs already taken, TODO
-    featureIndex: number | null; // What feature are we actively viewing
+    featureIndex: number; // What feature are we actively viewing
     phaseJump: number | null; // Allow users to jump ahead in the viewing
     riverFeatures: TRiverStoreProperties[]; // Meta information that provides the stages of the run
     frameSettings: TFrameSettings | null;
@@ -76,7 +76,7 @@ export const initialState: TInitialState = {
     },
     scale: null,
     runs: [],
-    featureIndex: null,
+    featureIndex: -1,
     phaseJump: null,
     riverFeatures: [],
     frameSettings: null,

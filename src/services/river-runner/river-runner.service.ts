@@ -924,12 +924,25 @@ export class RiverRunnerService {
             // SL: If a user has clicked one of the features in the navigation box, we'll need to adjust the "phase" to jump to that feature
             const phaseJump = this.deps.stateService.getPhaseJump();
             if (phaseJump !== null) {
-                frameSettings.phase = phaseJump;
-                frameSettings.segment.start = startPoints[activeFeatureIndex];
-                frameSettings.segment.stop =
-                    stopPoints[activeFeatureIndex] ?? null;
+                // frameSettings.phase = phaseJump;
+                // frameSettings.segment.start = startPoints[activeFeatureIndex];
+                // frameSettings.segment.stop =
+                //     stopPoints[activeFeatureIndex] ?? null;
 
                 this.deps.stateService.setPhaseJump(null);
+                const nextIndex = this.deps.stateService
+                    .getRiverFeatures()
+                    .findIndex((r) => r.progress ?? 0 >= phaseJump);
+                if (nextIndex > -1) {
+                    this.deps.stateService.setActiveFeatureIndex(nextIndex);
+                    activeFeatureIndex =
+                        this.deps.stateService.getActiveFeatureIndex();
+                    frameSettings.phase = phaseJump;
+                    frameSettings.segment.start = startPoints[nextIndex];
+                    frameSettings.segment.stop = stopPoints[nextIndex] ?? null;
+
+                    this.deps.stateService.setPhaseJump(null);
+                }
             }
 
             if (lastAltitudeMultiplier !== driver.altitudeMultiplier) {
@@ -991,7 +1004,11 @@ export class RiverRunnerService {
                 frameSettings.segment.stop &&
                 frameSettings.phase >= frameSettings.segment.stop
             ) {
-                activeFeatureIndex += 1;
+                this.deps.stateService.setActiveFeatureIndex(
+                    activeFeatureIndex + 1
+                );
+                activeFeatureIndex =
+                    this.deps.stateService.getActiveFeatureIndex();
                 frameSettings.segment.start = frameSettings.segment.stop;
                 frameSettings.segment.stop =
                     stopPoints[activeFeatureIndex] ?? null;
@@ -1002,7 +1019,11 @@ export class RiverRunnerService {
                 frameSettings.segment.start &&
                 frameSettings.phase <= frameSettings.segment.start
             ) {
-                activeFeatureIndex -= 1;
+                this.deps.stateService.setActiveFeatureIndex(
+                    activeFeatureIndex - 1
+                );
+                activeFeatureIndex =
+                    this.deps.stateService.getActiveFeatureIndex();
                 frameSettings.segment.stop = frameSettings.segment.start;
                 frameSettings.segment.start = startPoints[activeFeatureIndex];
             }

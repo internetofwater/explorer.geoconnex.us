@@ -88,6 +88,9 @@ export class RiverRunnerStateService {
         this.store.dispatch(setPhaseJump(payload));
     }
 
+    getRiverFeatures() {
+        return this.store.getState().riverRunner.riverFeatures;
+    }
     setRiverFeatures(payload: TInitialState['riverFeatures']) {
         this.store.dispatch(setRiverFeatures(payload));
     }
