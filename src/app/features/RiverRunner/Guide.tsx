@@ -11,6 +11,10 @@ import Pause from '@/app/assets/icons/Pause';
 import Link from '@/app/assets/icons/Link';
 import CloseIcon from '@/app/assets/icons/Close';
 import { ProgressBar } from '@/app/components/common/Progress';
+import Slider from '@/app/components/common/Slider';
+import Collapsible from '@/app/components/common/Collapsible';
+import Next from '@/app/assets/icons/Next';
+import Previous from '@/app/assets/icons/Previous';
 
 const calculateFeatureWeightedProgress = (
     phase: number,
@@ -52,7 +56,7 @@ const Indicator: React.FC<Props> = (props) => {
             style={{
                 backgroundColor: hasBeenSelected
                     ? 'var(--tertiary)'
-                    : '#e5e7eb',
+                    : '#707070',
             }}
         />
     );
@@ -63,6 +67,9 @@ export const Guide: React.FC = () => {
     const riverFeatures = useAppSelector((s) => s.riverRunner.riverFeatures);
     const isPaused = useAppSelector((s) => s.riverRunner.flags.paused);
     const frameSettings = useAppSelector((s) => s.riverRunner.frameSettings);
+    const altitudeMultiplier = useAppSelector(
+        (s) => s.riverRunner.driver.altitudeMultiplier
+    );
 
     const handleToggle = () => {
         riverRunnerService.toggle();
@@ -83,38 +90,52 @@ export const Guide: React.FC = () => {
             .filter((p): p is number => typeof p === 'number')
     );
 
+    const handleAltitudeChange = (altitudeMultiplier: number) => {
+        riverRunnerService.setDriver({ altitudeMultiplier });
+    };
+
     return (
         <div className="absolute z-[99999] top-4 left-2 ">
-            <Card className="relative w-96 min-h-56 h-full flex-col !items-start">
-                <Title mode={MODE.RiverRunner} />
-                <div className="flex justify-start items-start gap-0 h-full">
-                    <div className="self-stretch">
-                        <ProgressBar
-                            orientation="vertical"
-                            percentage={weightedProgress / 100}
-                        />
-                    </div>
-                    <div className="flex flex-col justify-evenly items-start gap-1 -ml-3 z-20">
-                        {riverFeatures.map((r) => (
-                            <div
-                                className="flex items-center justify-start gap-2"
-                                key={r.feature_data_index}
-                            >
-                                <Indicator
-                                    hasBeenSelected={
-                                        typeof r.progress === 'number'
-                                            ? frameSettings.phase > r.progress
-                                            : false
-                                    }
-                                />
-                                <Typography variant="body-small">
-                                    {r.name ?? 'Unknown'}
-                                </Typography>
-                            </div>
-                        ))}
+            <Card className="relative w-[25rem] min-h- h-full flex-col !items-start !bg-[#ffffffbf] !bg-opacity-60 !p-2">
+                <div className="h-full flex-col !items-start">
+                    <Title mode={MODE.RiverRunner} />
+                    <div
+                        className="flex flex-grow justify-start items-stretch gap-0 h-full ml-8 mt-2 pb-10"
+                        style={{
+                            maxHeight: `${1.95 * riverFeatures.length}rem`,
+                        }}
+                    >
+                        <div className="self-stretch">
+                            <ProgressBar
+                                background="#707070"
+                                orientation="vertical"
+                                percentage={weightedProgress / 100}
+                            />
+                        </div>
+                        <div className="flex flex-col justify-between items-start gap-1 -ml-[0.65rem] z-20">
+                            {riverFeatures.map((r) => (
+                                <div
+                                    className="flex items-center justify-start gap-2"
+                                    key={r.feature_data_index}
+                                >
+                                    <Indicator
+                                        hasBeenSelected={
+                                            typeof r.progress === 'number'
+                                                ? frameSettings.phase >
+                                                  r.progress
+                                                : false
+                                        }
+                                    />
+                                    <Typography variant="body-small">
+                                        {r.name ?? 'Unknown'}
+                                    </Typography>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-                <div className="absolute top-0 -right-6 h-full w-fit py-4 flex flex-col justify-between gap-1">
+
+                <div className="absolute top-0 -right-6 h-full w-fit py-8 flex flex-col justify-between gap-1">
                     <IconButton
                         variant="alternative"
                         onClick={handleToggle}
@@ -137,6 +158,55 @@ export const Guide: React.FC = () => {
                     >
                         <CloseIcon className="w-8 h-8" />
                     </IconButton>
+                </div>
+                <div className="flex h-fit w-full -mx-2 -mb-2 border-t border-solid border-gray-500">
+                    <IconButton className="rounded-none" onClick={() => null}>
+                        <Previous />
+                    </IconButton>
+                    <IconButton className="rounded-none" onClick={() => null}>
+                        <Next />
+                    </IconButton>
+                    <Collapsible
+                        className="relative !bg-transparent"
+                        buttonClassname="min-w-0 border-x !py-[0.6rem] !border-y-0 border-solid enabled:hover:scale-105 border-[var(--border)]"
+                        title={
+                            <div className=" text-left mr-2">
+                                <Typography variant="body">
+                                    Speed/Detail
+                                </Typography>
+                            </div>
+                        }
+                    >
+                        <div className="absolute top-[2.5rem] pb-2 pl-2 pt-2 w-4 bg-primary w-full min-h-48 h-full max-h-52 ">
+                            <Slider
+                                orientation="vertical"
+                                className="w-full"
+                                invert
+                                value={altitudeMultiplier}
+                                min={0.6}
+                                max={5}
+                                step={0.01}
+                                onChange={handleAltitudeChange}
+                                labels={
+                                    [
+                                        {
+                                            value: 0.6,
+                                            label: (
+                                                <>
+                                                    High Speed /<br />
+                                                    Low Detail
+                                                </>
+                                            ),
+                                        },
+                                        {
+                                            value: 5,
+                                            label: 'Low Speed / High Detail',
+                                        },
+                                    ] as const
+                                }
+                            />
+                        </div>
+                    </Collapsible>
                 </div>
             </Card>
         </div>

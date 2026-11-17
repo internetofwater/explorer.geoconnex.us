@@ -61,6 +61,7 @@ import {
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
 import { getDefaultGeojson } from '@/lib/state/utils';
+import { DEFAULT_DRIVER, TDriver } from '@/lib/state/river-runner/types';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -69,24 +70,12 @@ export type TRiverRunnerDependencies = {
     dataService: RiverRunnerDataService;
 };
 
-// SL: Zoom level won't be adjustable on mobile, but it will be set slightly higher to avoid jiterriness
-// const DEFAULT_ALTITUDE_MULTIPLIER = window?.innerWidth < 600 ? 1.1 : 0.8;
-const DEFAULT_ALTITUDE_MULTIPLIER = 0.8;
-
-const DEFAULT_DRIVER = {
-    altitudeMultiplier: DEFAULT_ALTITUDE_MULTIPLIER,
-    playbackSpeed: 1,
-};
-
-type TDriver = typeof DEFAULT_DRIVER;
-
 export class RiverRunnerService {
     private deps: TRiverRunnerDependencies;
     protected map: Map | null = null;
     private advanced: boolean;
     private states: TUSStateFeatureCollection | null = null;
     private stoppingFeatures: TStoppingFeatureCollection | null = null;
-    public driver: TDriver;
     private visibleLayers: TMainInitialState['visibleLayers'] | null = null;
     private originalStyle: BasemapStyles | null = null;
 
@@ -97,7 +86,7 @@ export class RiverRunnerService {
     ) {
         this.deps = deps;
         this.advanced = advanced;
-        this.driver = structuredClone(driver);
+        this.deps.stateService.setDriver(structuredClone(driver));
     }
 
     async loadUSStates() {
@@ -204,6 +193,10 @@ export class RiverRunnerService {
 
     private hasMap(): this is this & { map: Map } {
         return this.map !== null;
+    }
+
+    setDriver(driver: Partial<TDriver>) {
+        this.deps.stateService.setDriver(driver);
     }
 
     private reset() {
@@ -523,8 +516,10 @@ export class RiverRunnerService {
             alongTarget = smoothedPath[1];
         }
 
+        const driver = this.deps.stateService.getDriver();
+
         const alongCamera = findArtificialCameraPoint({
-            distanceGap: this.driver.altitudeMultiplier * distanceGap,
+            distanceGap: driver.altitudeMultiplier * distanceGap,
             originPoint: smoothedPath[0],
             targetPoint: alongTarget,
         });
@@ -720,11 +715,13 @@ export class RiverRunnerService {
             typeof e === 'number' ? [e] : []
         );
 
+        const driver = this.deps.stateService.getDriver();
+
         // SL: Take base altitude and then adjust up based on the elevation of the first coordinate
         // The multiplier is necessary for higher elevations since they tend to be mountainous areas, as well, requiring additional height for the camera
         const initialElevation =
             cameraBaseAltitude +
-            this.driver.altitudeMultiplier *
+            driver.altitudeMultiplier *
                 terrainElevationMultiplier *
                 Math.round(safeElevations[0]);
 
@@ -737,7 +734,7 @@ export class RiverRunnerService {
         const smoothedPath = pathSmoother(
             coordinatePath,
             Math.min(
-                Math.floor(9 * this.driver.altitudeMultiplier),
+                Math.floor(9 * driver.altitudeMultiplier),
                 Math.floor(coordinatePath.length / 2)
             )
         );
@@ -754,7 +751,7 @@ export class RiverRunnerService {
             firstBearingPoint = smoothedPath[1];
         }
         const cameraStart = findArtificialCameraPoint({
-            distanceGap: this.driver.altitudeMultiplier * distanceGap,
+            distanceGap: driver.altitudeMultiplier * distanceGap,
             originPoint: smoothedPath[0],
             targetPoint: firstBearingPoint,
         });
@@ -839,7 +836,7 @@ export class RiverRunnerService {
         this.map.scrollZoom.disable();
 
         // Use default playback speed and altitude multiplier
-        this.driver = DEFAULT_DRIVER;
+        this.deps.stateService.setDriver(DEFAULT_DRIVER);
         this.deps.stateService.setFlag({ paused: false });
 
         // SL: Fly to clicked point and pitch camera (initial "raindrop" animation)
@@ -879,35 +876,37 @@ export class RiverRunnerService {
         const stop = stopPoints[0] ?? null; // reduce to just number or null
         this.deps.stateService.setActiveFeatureIndex(0);
 
-        const route = pathSmoother(
+        const driver = this.deps.stateService.getDriver();
+
+        // Letting this live outside so that we dont create new copies every frame
+        let route = pathSmoother(
             settings.paths.smoothed,
             Math.min(
-                Math.floor(9 * this.driver.altitudeMultiplier),
+                Math.floor(9 * driver.altitudeMultiplier),
                 Math.floor(settings.paths.coordinate.length / 2)
             )
         );
-        const routeDistance = pathDistance(route);
 
+        const distance = pathDistance(route);
         const frameSettings: TFrameSettings = {
             startTime: undefined,
             phase: 0,
             tick: 0,
             lastTime: undefined,
-            phaseGap: settings.gap / routeDistance,
+            phaseGap: settings.gap / distance,
             segment: {
                 start,
                 stop,
             },
+            distance,
             // SL: This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
             speedCoefficient:
                 1 /
-                Math.pow(
-                    1 + 1.1 * Math.log(this.driver.altitudeMultiplier),
-                    1.25
-                ),
+                Math.pow(1 + 1.1 * Math.log(driver.altitudeMultiplier), 1.25),
         };
 
         let lastStoreUpdate = 0;
+        let lastAltitudeMultiplier = driver.altitudeMultiplier;
         const frame = (time: number) => {
             if (frameSettings.startTime === undefined) {
                 frameSettings.startTime = frameSettings.lastTime = time;
@@ -920,6 +919,8 @@ export class RiverRunnerService {
                 return;
             }
 
+            const driver = this.deps.stateService.getDriver();
+
             // SL: If a user has clicked one of the features in the navigation box, we'll need to adjust the "phase" to jump to that feature
             const phaseJump = this.deps.stateService.getPhaseJump();
             if (phaseJump !== null) {
@@ -931,30 +932,33 @@ export class RiverRunnerService {
                 this.deps.stateService.setPhaseJump(null);
             }
 
-            // TODO:
-            // if (altitudeChange) {
-            //     route = pathSmoother(
-            //         coordinatePath,
-            //         Math.min(
-            //             Math.floor(9 * altitudeMultiplier),
-            //             Math.floor(coordinatePath.length / 2)
-            //         )
-            //     );
-            //     routeDistance = pathDistance(route);
+            if (lastAltitudeMultiplier !== driver.altitudeMultiplier) {
+                route = pathSmoother(
+                    settings.paths.coordinate,
+                    Math.min(
+                        Math.floor(9 * driver.altitudeMultiplier),
+                        Math.floor(settings.paths.coordinate.length / 2)
+                    )
+                );
+                frameSettings.distance = pathDistance(route);
 
-            //     phaseGap = distanceGap / routeDistance;
+                frameSettings.phaseGap = settings.gap / frameSettings.distance;
 
-            //     // This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
-            //     speedCoefficient =
-            //         1 / Math.pow(1 + 1.1 * Math.log(altitudeMultiplier), 1.25);
+                // SL: This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
+                frameSettings.speedCoefficient =
+                    1 /
+                    Math.pow(
+                        1 + 1.1 * Math.log(driver.altitudeMultiplier),
+                        1.25
+                    );
 
-            //     altitudeChange = false;
-            // }
+                lastAltitudeMultiplier = driver.altitudeMultiplier;
+            }
 
             // SL: phase determines how far through the animation we are
             if (!this.deps.stateService.hasPaused()) {
                 frameSettings.phase +=
-                    this.driver.playbackSpeed *
+                    driver.playbackSpeed *
                     ((time - (frameSettings.lastTime ?? 0)) /
                         (settings.duration * frameSettings.speedCoefficient));
             }
@@ -962,7 +966,7 @@ export class RiverRunnerService {
             // SL: If rewinding and user rewinds past the start, this will puase it and keep it from bugging out
             if (frameSettings.phase < 0) {
                 frameSettings.phase = 0;
-                this.driver.playbackSpeed = 1;
+                driver.playbackSpeed = 1;
 
                 this.deps.stateService.setFlag({ paused: true });
             }
@@ -1032,13 +1036,13 @@ export class RiverRunnerService {
                 (elevationNext - elevationLast) * elevationStepProgress;
             const tickElevation =
                 settings.cameraBaseAltitude +
-                this.driver.altitudeMultiplier *
+                driver.altitudeMultiplier *
                     settings.terrain.multiplier *
                     Math.round(elevationEstimate);
 
             let alongTarget = along(
                 lineString(route),
-                routeDistance *
+                frameSettings.distance *
                     (frameSettings.phase === 0 ? 0.000005 : frameSettings.phase)
             ).geometry.coordinates;
 
@@ -1048,19 +1052,18 @@ export class RiverRunnerService {
 
             const alongCamera =
                 frameSettings.phase -
-                    this.driver.altitudeMultiplier * frameSettings.phaseGap <
+                    driver.altitudeMultiplier * frameSettings.phaseGap <
                 0
                     ? findArtificialCameraPoint({
-                          distanceGap:
-                              this.driver.altitudeMultiplier * settings.gap,
+                          distanceGap: driver.altitudeMultiplier * settings.gap,
                           originPoint: route[0],
                           targetPoint: alongTarget,
                       })
                     : along(
                           lineString(route),
-                          routeDistance *
+                          frameSettings.distance *
                               (frameSettings.phase -
-                                  this.driver.altitudeMultiplier *
+                                  driver.altitudeMultiplier *
                                       frameSettings.phaseGap)
                       ).geometry.coordinates;
 

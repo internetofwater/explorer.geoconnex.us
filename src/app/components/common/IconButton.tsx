@@ -34,7 +34,7 @@ const IconButton: React.FC<Props> = (props) => {
         variant === 'filled'
             ? 'bg-primary-opaque enabled:hover:bg-gray-100 rounded-full shadow-md group-hover:opacity-65 enabled:hover:scale-110 disabled:opacity-50 '
             : variant === 'alternative'
-              ? 'bg-tertiary enabled:hover:bg-tertiary-hover rounded-md shadow-md disabled:fill-gray-600'
+              ? 'bg-tertiary enabled:hover:bg-tertiary-hover rounded-md shadow-md enabled:hover:scale-110 disabled:fill-gray-600'
               : 'bg-transparent enabled:hover:opacity-80 group-hover:opacity-65 enabled:hover:scale-110 disabled:opacity-50 ';
 
     return (

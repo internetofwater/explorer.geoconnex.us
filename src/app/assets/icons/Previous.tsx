@@ -1,0 +1,13 @@
+const Previous: React.FC = () => {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="inherit"
+        >
+            <path d="M5.5,18V6h2V18h-2Zm13,0l-9-6l9-6V18Zm-2-6Zm0,2.25V9.75L13.1,12l3.4,2.25Z" />
+        </svg>
+    );
+};
+
+export default Previous;

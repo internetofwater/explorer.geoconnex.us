@@ -16,12 +16,12 @@ export const ProgressBar: React.FC<Props> = (props) => {
     const classes =
         orientation === 'horizontal'
             ? {
-                  background: 'h-2 w-full',
+                  background: 'h-[0.35rem] w-full',
                   foreground: 'h-full w-full origin-left',
                   function: 'scaleX',
               }
             : {
-                  background: 'h-full w-2',
+                  background: 'h-full w-[0.35rem]',
                   foreground: 'h-full w-full origin-top',
                   function: 'scaleY',
               };

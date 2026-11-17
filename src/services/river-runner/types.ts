@@ -225,6 +225,7 @@ export type TRunSettings = {
  * segment.stop              <- stopPoint
  *
  * speedCoefficient          <- speedCoefficient
+ * distance                  <- routeDistance
  */
 export type TFrameSettings = {
     startTime?: number;
@@ -232,6 +233,7 @@ export type TFrameSettings = {
     phase: number;
     tick: number;
     phaseGap: number;
+    distance: number;
     segment: {
         start: number | null;
         stop: number | null;

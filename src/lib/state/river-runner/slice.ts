@@ -64,6 +64,15 @@ export const riverRunner = createSlice({
         ) => {
             state.frameSettings = action.payload;
         },
+        setDriver: (
+            state,
+            action: PayloadAction<Partial<TInitialState['driver']>>
+        ) => {
+            state.driver = {
+                ...state.driver,
+                ...action.payload,
+            };
+        },
     },
 });
 
@@ -78,6 +87,7 @@ export const {
     setPhaseJump,
     setRiverFeatures,
     setFrameSettings,
+    setDriver,
 } = riverRunner.actions;
 
 export default riverRunner.reducer;

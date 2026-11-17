@@ -3,6 +3,7 @@ import { TRunSettings } from '@/services/river-runner/types';
 import {
     addRun,
     setActiveFeatureIndex,
+    setDriver,
     setFlag,
     setFrameSettings,
     setPhaseJump,
@@ -93,5 +94,13 @@ export class RiverRunnerStateService {
 
     setFrameSettings(payload: TInitialState['frameSettings']) {
         this.store.dispatch(setFrameSettings(payload));
+    }
+
+    // Driver
+    getDriver() {
+        return this.store.getState().riverRunner.driver;
+    }
+    setDriver(payload: Partial<TInitialState['driver']>) {
+        this.store.dispatch(setDriver(payload));
     }
 }

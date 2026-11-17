@@ -40,6 +40,17 @@ type TSegment = {
     start: string | null; // This is the placename that we are starting from, result of mapbox reverse geocoding
 };
 
+// SL: Zoom level won't be adjustable on mobile, but it will be set slightly higher to avoid jiterriness
+// const DEFAULT_ALTITUDE_MULTIPLIER = window?.innerWidth < 600 ? 1.1 : 0.8;
+const DEFAULT_ALTITUDE_MULTIPLIER = 0.8;
+
+export const DEFAULT_DRIVER = {
+    altitudeMultiplier: DEFAULT_ALTITUDE_MULTIPLIER,
+    playbackSpeed: 1,
+};
+
+export type TDriver = typeof DEFAULT_DRIVER;
+
 export type TInitialState = {
     status: TStatusType;
     flags: TFlags;
@@ -50,6 +61,7 @@ export type TInitialState = {
     phaseJump: number | null; // Allow users to jump ahead in the viewing
     riverFeatures: TRiverStoreProperties[]; // Meta information that provides the stages of the run
     frameSettings: TFrameSettings | null;
+    driver: TDriver;
 };
 
 export const initialState: TInitialState = {
@@ -68,4 +80,5 @@ export const initialState: TInitialState = {
     phaseJump: null,
     riverFeatures: [],
     frameSettings: null,
+    driver: DEFAULT_DRIVER,
 };
