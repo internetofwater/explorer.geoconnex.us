@@ -26,7 +26,6 @@ import {
     MAINSTEM_DRAINAGE_PROPERTY,
     MAINSTEM_FILTER,
     MAINSTEM_GHOST_WIDTH_EXPRESSION,
-    MAINSTEM_OPACITY_EXPRESSION,
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
@@ -277,7 +276,6 @@ export const getLayerConfig = (
                     'line-sort-key': ['get', MAINSTEM_DRAINAGE_PROPERTY],
                 },
                 paint: {
-                    'line-opacity': MAINSTEM_OPACITY_EXPRESSION,
                     'line-color': MAINSTEM_COLOR_EXPRESSION,
                     'line-width': MAINSTEM_WIDTH_EXPRESSION,
                 },

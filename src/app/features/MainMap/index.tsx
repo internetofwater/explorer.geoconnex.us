@@ -41,7 +41,6 @@ import { Feature, Point } from 'geojson';
 import {
     CLUSTER_TRANSITION_ZOOM,
     MAINSTEM_COLOR_EXPRESSION,
-    MAINSTEM_OPACITY_EXPRESSION,
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
@@ -410,11 +409,7 @@ export const MainMap: React.FC<Props> = (props) => {
             );
             // Otherwise reset to original expression
         } else {
-            map.setPaintProperty(
-                LayerId.Mainstems,
-                'line-opacity',
-                MAINSTEM_OPACITY_EXPRESSION
-            );
+            map.setPaintProperty(LayerId.Mainstems, 'line-opacity', 1);
         }
 
         map.setPaintProperty(LayerId.Mainstems, 'line-color', [

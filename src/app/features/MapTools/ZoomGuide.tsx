@@ -31,7 +31,7 @@ const ZoomGuideMessage: React.FC<Props> = (props) => {
             <Typography variant="body-small">
                 <strong>Now Visible:</strong> Mainstems with
                 {' >'}
-                {formatNumber(600)} sqkm of Drainage.
+                {formatNumber(600)} km<sup>2</sup> of Drainage.
             </Typography>
         );
     }
@@ -41,14 +41,14 @@ const ZoomGuideMessage: React.FC<Props> = (props) => {
             <Typography variant="body-small">
                 <strong>Now Visible:</strong> Mainstems with
                 {' >'}
-                {formatNumber(1600)} sqkm of Drainage.
+                {formatNumber(1600)} km<sup>2</sup> of Drainage.
             </Typography>
         );
     }
 
     return (
         <Typography variant="body-small">
-            <strong>Zoom in further to reveal mainstems!</strong>
+            <strong>Zoom in to show mainstems.</strong>
         </Typography>
     );
 };
@@ -115,8 +115,11 @@ export const ZoomGuide: React.FC = () => {
 
             return {
                 ...section,
-                width: (length / max) * 100,
-                pct: clamp((zoom - section.start) / length),
+                // Limit the width to the proportion of this zoom section
+                width:
+                    (length / max) *
+                    100 *
+                    clamp((zoom - section.start) / length),
             };
         });
     }, [map, zoom]);
@@ -130,12 +133,12 @@ export const ZoomGuide: React.FC = () => {
         <Card className="w-96 [&>*]:p-3 max-w-[calc(100vw-3.5rem)]">
             <div className="flex flex-col gap-1">
                 <div className="h-4 w-full overflow-hidden rounded-full bg-black flex flex-row justify-start items-center gap-0 border-2 border-solid border-black">
-                    {sections.map(({ id, color, pct, width }) => (
+                    {sections.map(({ id, color, width }) => (
                         <div
                             key={id}
                             className={`h-full origin-left transition-transform duration-100 ease-out`}
                             style={{
-                                width: `${width * pct}%`,
+                                width: `${width}%`,
                                 backgroundColor: color,
                             }}
                         />

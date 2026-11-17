@@ -87,7 +87,7 @@ export const SMALL_MAINSTEM_VISIBLE_ZOOM = LARGE_MAINSTEM_VISIBLE_ZOOM + 4;
  */
 export const MAINSTEM_OPACITY_ZOOM = 6;
 
-// Widths of Mainstem line categoeis
+// Widths of Mainstem line categories
 export const MAINSTEM_SMALL_LINE_WIDTH = 3;
 export const MAINSTEM_MEDIUM_LINE_WIDTH = 4;
 export const MAINSTEM_LARGE_LINE_WIDTH = 6;
