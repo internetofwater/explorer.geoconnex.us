@@ -178,11 +178,23 @@ export const MainstemModal: React.FC = () => {
                         as="h3"
                         className="text-left flex-grow lg:pl-4"
                     >
-                        {target?.name_at_outlet ?? ''}
+                        {target?.name_at_outlet
+                            ? target.name_at_outlet
+                            : 'Unnamed Mainstem'}
                     </Typography>
-                    <Typography variant="body-small" className="lg:pb-1">
-                        {target?.uri ?? ''}
-                    </Typography>
+                    {target?.uri && (
+                        <>
+                            <div className="w-px self-stretch hidden lg:block bg-gray-300 mx-2 my-1" />
+                            <a
+                                href={target.uri}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="lg:pb-1"
+                            >
+                                {target.uri}
+                            </a>
+                        </>
+                    )}
                 </div>
             }
             open={overlay === EOverlay.Mainstem}

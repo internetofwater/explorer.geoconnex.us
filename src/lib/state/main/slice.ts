@@ -69,9 +69,6 @@ export type InitialState = {
         [LayerId.MajorRivers]: boolean;
         [LayerId.HUC2Boundaries]: boolean;
         [LayerId.Mainstems]: boolean;
-        [SubLayerId.MainstemsSmall]: boolean;
-        [SubLayerId.MainstemsMedium]: boolean;
-        [SubLayerId.MainstemsLarge]: boolean;
         [SubLayerId.HUC2BoundaryLabels]: boolean;
         [LayerId.AssociatedData]: boolean;
         [SubLayerId.AssociatedDataClusterCount]: boolean;
@@ -107,9 +104,6 @@ const initialState: InitialState = {
         [LayerId.MajorRivers]: true,
         [LayerId.HUC2Boundaries]: true,
         [LayerId.Mainstems]: true,
-        [SubLayerId.MainstemsSmall]: true,
-        [SubLayerId.MainstemsMedium]: true,
-        [SubLayerId.MainstemsLarge]: true,
         [SubLayerId.HUC2BoundaryLabels]: true,
         [LayerId.AssociatedData]: true,
         [SubLayerId.AssociatedDataClusterCount]: true,

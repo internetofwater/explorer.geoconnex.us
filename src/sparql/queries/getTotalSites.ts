@@ -1,10 +1,4 @@
-import {
-    GEO,
-    GEO_PREFIX,
-    HYF,
-    HYF_PREFIX,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { HYF, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -23,18 +17,14 @@ const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
                 options.prefix !== false
                     ? `
                         ${HYF_PREFIX}
-                        ${SCHEMA_PREFIX}
-                        ${GEO_PREFIX}`
+                        ${SCHEMA_PREFIX}`
                     : ''
             }
 
-            SELECT (COUNT(DISTINCT STR(?wkt)) AS ?count)
+            SELECT (COUNT(DISTINCT ?monitoringLocation) AS ?count)
             WHERE {
-                VALUES ?mainstem { <${uri}> }
-
                 ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
-                ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
+                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement <${uri}> .
             }`);
 
 export const getTotalSites: TMainstemQuery = Object.assign(build, {

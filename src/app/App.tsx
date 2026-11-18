@@ -31,6 +31,7 @@ import Transition from './features/Transition';
 import { useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 import { Guide } from './features/RiverRunner/Guide';
+import { ZoomGuide } from '@/app/features/MapTools/ZoomGuide';
 
 type Props = {
     accessToken: string;
@@ -176,9 +177,12 @@ export const App: React.FC<Props> = (props) => {
                 >
                     <SidePanel datasets={datasets} />
                 </div>
-                <div id="tools" className={`fixed top-3 right-2`}>
-                    {view === 'map' && <MapTools />}
-                </div>
+                {view === 'map' && (
+                    <div id="tools" className="fixed top-3 right-2">
+                        <MapTools />
+                    </div>
+                )}
+
                 <div
                     id="map"
                     className={`absolute  lg:relative
@@ -189,6 +193,14 @@ export const App: React.FC<Props> = (props) => {
                         <Mainstem />
                         <Geocoder />
                     </div>
+                    {view === 'map' && (
+                        <div
+                            id="zoom-guide"
+                            className="absolute bottom-9 left-2 z-[3]"
+                        >
+                            {view === 'map' && <ZoomGuide />}
+                        </div>
+                    )}
                     <MainMap accessToken={accessToken} />
                 </div>
                 <div
