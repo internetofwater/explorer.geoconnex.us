@@ -23,6 +23,7 @@ export const showPopup = (
     // Dont recreate the same popup for the same feature
     if (!checkIdentifier || identifier !== currentIdentifier) {
         container.setAttribute(LOCATION_IDENTIFIER, identifier);
+        container.setAttribute('data-custom-popup', 'true');
 
         const close = () => {
             persistentPopup.remove();

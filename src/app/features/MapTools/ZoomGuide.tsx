@@ -130,8 +130,8 @@ export const ZoomGuide: React.FC = () => {
 
     return (
         // TODO: update this child selector after adjusting card structure
-        <Card className="w-96 p-3 max-w-[calc(100vw-3.5rem)]">
-            <div className="flex flex-col gap-1">
+        <Card className="w-96 !p-3 max-w-[calc(100vw-3.5rem)]">
+            <div className="w-full flex flex-col gap-1">
                 <div className="h-4 w-full overflow-hidden rounded-full bg-black flex flex-row justify-start items-center gap-0 border-2 border-solid border-black">
                     {sections.map(({ id, color, width }) => (
                         <div

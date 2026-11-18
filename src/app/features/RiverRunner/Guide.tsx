@@ -118,7 +118,7 @@ export const Guide: React.FC = () => {
 
     return (
         <div className="absolute z-[99999] top-4 left-2 ">
-            <Card className="relative w-[25rem] min-h- h-full flex-col !items-start !bg-[#ffffffbf] !bg-opacity-60 !p-2">
+            <Card className="relative w-[22rem] min-h- h-full flex-col !items-start !bg-[#ffffffbf] !bg-opacity-60 !p-2">
                 <div className="h-full flex-col !items-start">
                     <Title mode={MODE.RiverRunner} />
                     <div

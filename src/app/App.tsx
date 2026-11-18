@@ -193,12 +193,12 @@ export const App: React.FC<Props> = (props) => {
                         <Mainstem />
                         <Geocoder />
                     </div>
-                    {view === 'map' && (
+                    {!inActiveRun && view === 'map' && (
                         <div
                             id="zoom-guide"
                             className="absolute bottom-9 left-2 z-[3]"
                         >
-                            {view === 'map' && <ZoomGuide />}
+                            <ZoomGuide />
                         </div>
                     )}
                     <MainMap accessToken={accessToken} />

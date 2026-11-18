@@ -261,7 +261,7 @@ a:active {
     visibility: visible;
 }
 
-div.mapboxgl-popup-content {
+div.mapboxgl-popup-content[data-custom-popup] {
     padding: 0;
 }
 
