@@ -23,6 +23,9 @@ export const DistributionNames = z.array(
 export type TDistributionNames = z.infer<typeof DistributionNames>;
 
 const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
+    // Tuned for QLever on the Geoconnex dataset: dedupe (dataset, provider)
+    // pairs before resolving provider names, so the large schema:name join
+    // runs on fewer rows
     format(`
             ${
                 options.prefix !== false
@@ -34,12 +37,18 @@ const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
 
             SELECT ?distributionName (COUNT(DISTINCT ?dataset) AS ?datasets)
             WHERE {
-                VALUES ?mainstem { <${uri}> }
-                ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
-                    ${HYF}:HydroLocationType ?type ;
-                    ${SCHEMA}:subjectOf ?dataset .
-                ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
+                {
+                    SELECT DISTINCT ?dataset ?provider
+                    WHERE {
+                        VALUES ?mainstem { <${uri}> }
+                        ?monitoringLocation
+                            ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
+                            ${HYF}:HydroLocationType ?type ;
+                            ${SCHEMA}:subjectOf ?dataset ;
+                            ${SCHEMA}:provider ?provider .
+                    }
+                }
+                ?provider ${SCHEMA}:name ?distributionName .
             }
             GROUP BY ?distributionName
             ORDER BY DESC(?datasets)
