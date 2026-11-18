@@ -46,6 +46,7 @@ const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
                             ${HYF}:HydroLocationType ?type ;
                             ${SCHEMA}:subjectOf ?dataset ;
                             ${SCHEMA}:provider ?provider .
+                        ?dataset schema:variableMeasured ?variableMeasured .
                     }
                 }
                 ?provider ${SCHEMA}:name ?distributionName .

@@ -37,6 +37,7 @@ const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
                     ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
                     ${HYF}:HydroLocationType ?type ;
                     ${SCHEMA}:subjectOf ?dataset .
+                ?dataset schema:variableMeasured ?variableMeasured .
             }
             GROUP BY ?type
             ORDER BY DESC(?datasets)`);
