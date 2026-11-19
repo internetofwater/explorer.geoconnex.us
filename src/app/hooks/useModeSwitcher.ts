@@ -11,11 +11,12 @@ import {
     LayerId,
     MAP_ID,
     SubLayerId,
-} from '../features/MainMap/config';
-import { useMap } from '../contexts/MapContexts';
+} from '@/app/features/MainMap/config';
+import { useMap } from '@/app/contexts/MapContexts';
 import { LngLatBoundsLike } from 'mapbox-gl';
-import { MainstemData } from '../types';
+import { MainstemData } from '@/app/types';
 import { setSelected } from '@/lib/state/mainstem/slice';
+import { MAX_BOUNDS } from '@/app/features/MainMap/consts';
 
 export const useModeSwitcher = () => {
     const mode = useAppSelector((s) => s.main.mode);
@@ -111,6 +112,8 @@ export const useModeSwitcher = () => {
                         0.6
                     );
                 }
+
+                map.setMaxBounds(MAX_BOUNDS);
 
                 map.on('style.load', persistRiverRunnerStyles);
             }

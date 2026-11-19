@@ -40,18 +40,16 @@ import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
 import { useRiverRunnerLoader } from '@/app/hooks/useRiverRunnerLoader';
-import { showPopup } from './Popup/showPopup';
+import { showPopup } from '@/app/features/MainMap/Popup/showPopup';
 import {
     CLUSTER_TRANSITION_ZOOM,
     MAINSTEM_COLOR_EXPRESSION,
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
+    EXTENT,
 } from '@/app/features/MainMap/consts';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
-
-const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
-const INITIAL_ZOOM = 4;
 
 type Props = {
     accessToken: string;
@@ -259,6 +257,8 @@ export const MainMap: React.FC<Props> = (props) => {
         map.on('zoom', debouncedCreateSummaryLayer);
 
         map.on('drag', debouncedCreateSummaryLayer);
+
+        map.on('moveend', () => console.log(map.getBounds()));
 
         map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
@@ -598,8 +598,7 @@ export const MainMap: React.FC<Props> = (props) => {
             options={{
                 style: BASEMAP,
                 projection: 'mercator',
-                center: INITIAL_CENTER,
-                zoom: INITIAL_ZOOM,
+                bounds: EXTENT,
                 maxZoom: 20,
             }}
             controls={{
