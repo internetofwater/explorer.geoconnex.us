@@ -4,6 +4,7 @@ import mainReducer from '@/lib/state/main/slice';
 import loadingReducer from '@/lib/state/loading/slice';
 import notificationsReducer from '@/lib/state/notifications/slice';
 import mainstemReducer from '@/lib/state/mainstem/slice';
+import riverRunnerReducer from '@/lib/state/river-runner/slice';
 
 const store = configureStore({
     reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
         mainstem: mainstemReducer,
         loading: loadingReducer,
         notifications: notificationsReducer,
+        riverRunner: riverRunnerReducer,
     },
 });
 

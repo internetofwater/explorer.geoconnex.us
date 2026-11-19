@@ -1,0 +1,112 @@
+import type { Store } from '@/lib/state/store';
+import { TRunSettings } from '@/services/river-runner/types';
+import {
+    addRun,
+    setActiveFeatureIndex,
+    setDriver,
+    setFlag,
+    setFrameSettings,
+    setPhaseJump,
+    setRiverFeatures,
+    setStart,
+    setStatus,
+    setStop,
+} from '@/lib/state/river-runner/slice';
+import { TInitialState } from '@/lib/state/river-runner/types';
+import {
+    setSelectedBasemap,
+    InitialState as TMainInitialState,
+} from '@/lib/state/main/slice';
+import { setLayerVisibility } from '@/lib/state/main/slice';
+import { BasemapStyles } from '@/app/components/Map/types';
+
+export class RiverRunnerStateService {
+    private store: Store;
+    constructor(store: Store) {
+        this.store = store;
+    }
+
+    getLayerVisiblity() {
+        return this.store.getState().main.visibleLayers;
+    }
+    setLayerVisiblity(payload: Partial<TMainInitialState['visibleLayers']>) {
+        this.store.dispatch(setLayerVisibility(payload));
+    }
+
+    getBasemap() {
+        return this.store.getState().main.selectedBasemap;
+    }
+    setBasemap(payload: BasemapStyles) {
+        return this.store.dispatch(setSelectedBasemap(payload));
+    }
+
+    // Flags
+    hasAborted() {
+        return this.store.getState().riverRunner.flags.abort;
+    }
+    hasPaused() {
+        return this.store.getState().riverRunner.flags.paused;
+    }
+    hasError() {
+        return this.store.getState().riverRunner.flags.error;
+    }
+    setFlag(payload: Partial<TInitialState['flags']>) {
+        this.store.dispatch(setFlag(payload));
+    }
+
+    // Status
+    getStatus() {
+        return this.store.getState().riverRunner.status;
+    }
+    setStatus(payload: Partial<TInitialState['status']>) {
+        this.store.dispatch(setStatus(payload));
+    }
+
+    setStart(payload: TInitialState['segment']['start']) {
+        this.store.dispatch(setStart(payload));
+    }
+    setStop(payload: TInitialState['segment']['stop']) {
+        this.store.dispatch(setStop(payload));
+    }
+
+    // Run History
+    // TODO: reduce object size here?
+    saveRun(payload: TRunSettings) {
+        this.store.dispatch(addRun(payload));
+    }
+
+    // Active Feature Index
+    getActiveFeatureIndex() {
+        return this.store.getState().riverRunner.featureIndex;
+    }
+    setActiveFeatureIndex(payload: TInitialState['featureIndex']) {
+        this.store.dispatch(setActiveFeatureIndex(payload));
+    }
+
+    // Phase Jump
+    getPhaseJump() {
+        return this.store.getState().riverRunner.phaseJump;
+    }
+    setPhaseJump(payload: TInitialState['phaseJump']) {
+        this.store.dispatch(setPhaseJump(payload));
+    }
+
+    getRiverFeatures() {
+        return this.store.getState().riverRunner.riverFeatures;
+    }
+    setRiverFeatures(payload: TInitialState['riverFeatures']) {
+        this.store.dispatch(setRiverFeatures(payload));
+    }
+
+    setFrameSettings(payload: TInitialState['frameSettings']) {
+        this.store.dispatch(setFrameSettings(payload));
+    }
+
+    // Driver
+    getDriver() {
+        return this.store.getState().riverRunner.driver;
+    }
+    setDriver(payload: Partial<TInitialState['driver']>) {
+        this.store.dispatch(setDriver(payload));
+    }
+}

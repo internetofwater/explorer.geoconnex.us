@@ -5,6 +5,7 @@ type Props = {
     children: React.ReactNode;
     className?: string;
     disabled?: boolean;
+    variant?: 'secondary' | 'tertiary'; // Reflecting tailwind config, need to distinguish action element colors from layout color
     onClick: MouseEventHandler<HTMLButtonElement>;
 };
 
@@ -20,13 +21,24 @@ type Props = {
  * @component
  */
 const Button: React.FC<Props> = (props) => {
-    const { title, onClick, className = '', disabled = false } = props;
+    const {
+        title,
+        onClick,
+        className = '',
+        variant = 'secondary',
+        disabled = false,
+    } = props;
+
+    const variantClasses =
+        variant === 'secondary'
+            ? 'bg-secondary enabled:hover:bg-secondary-hover text-white'
+            : 'bg-tertiary enabled:hover:bg-tertiary-hover text-black';
 
     return (
         <button
             title={title}
             onClick={onClick}
-            className={`py-2 px-4 bg-secondary enabled:hover:bg-secondary-hover disabled:opacity-50 shadow-md text-white font-bold rounded ${className}`}
+            className={`py-2 px-4 ${variantClasses} disabled:opacity-50 shadow-md font-bold rounded transition-all ${className}`}
             disabled={disabled}
         >
             {props.children}

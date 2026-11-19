@@ -10,6 +10,7 @@ jest.mock('uuid', () => ({
 import { v6 } from 'uuid';
 import LoadingManager from '@/managers/loading.manager';
 import { getTestTypeLabel, TestType } from '@/app/utils/__tests__/getTestType';
+import { TLoadingInstance } from '@/lib/state/loading/types';
 
 const TYPE = TestType.Service;
 
@@ -140,7 +141,7 @@ describe(`${LABEL}: LoadingManager`, () => {
 
             expect(
                 manager.has({
-                    type: 'metrics',
+                    type: 'metrics' as TLoadingInstance['type'],
                 })
             ).toBe(false);
         });

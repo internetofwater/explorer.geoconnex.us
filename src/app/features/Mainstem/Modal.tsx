@@ -1,7 +1,7 @@
 import Button from '@/app/components/common/Button';
 import Modal from '@/app/components/common/Modal';
 import { useAppDispatch, useAppSelector } from '@/lib/state/hooks';
-import { LoadingType } from '@/lib/state/loading/types';
+import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { EOverlay, setOverlay } from '@/lib/state/main/slice';
 import { setMetrics, setTarget } from '@/lib/state/mainstem/slice';
 import { fetchDatasets } from '@/lib/state/mainstem/thunks';
@@ -71,7 +71,7 @@ export const MainstemModal: React.FC = () => {
 
         const loadingInstance = loadingManager.add(
             'Fetching mainstem summary information',
-            LoadingType.FetchModalMetrics
+            LOADING_TYPE.FetchModalMetrics
         );
 
         const controller = new AbortController();
@@ -105,7 +105,7 @@ export const MainstemModal: React.FC = () => {
 
         const loadingInstance = loadingManager.add(
             'Updating dataset count',
-            LoadingType.DatasetCount
+            LOADING_TYPE.DatasetCount
         );
 
         let isMounted = true;

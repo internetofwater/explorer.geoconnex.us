@@ -23,6 +23,10 @@ export default {
                     DEFAULT: '#1C76CA',
                     hover: '#155A9A',
                 },
+                tertiary: {
+                    DEFAULT: '#10B0AD',
+                    hover: '#1BDCD8',
+                },
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
             },

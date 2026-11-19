@@ -12,7 +12,7 @@ import {
     removeNotification,
 } from '@/lib/state/notifications/slice';
 import {
-    NotificationType,
+    NOTIFICATION_TYPE,
     TNotification,
     TNotificationType,
 } from '@/lib/state/notifications/types';
@@ -60,7 +60,7 @@ class NotificationManager {
 
     show(
         message: string,
-        type: TNotificationType = NotificationType.Info,
+        type: TNotificationType = NOTIFICATION_TYPE.Info,
         duration: number = 3000
     ): TNotification['id'] {
         const id = this.createUUID();

@@ -1,4 +1,4 @@
-export const LoadingType = {
+export const LOADING_TYPE = {
     DatasetCount: 'dataset-count',
     Datasets: 'datasets',
     FetchModalMetrics: 'fetch-modal-metrics',
@@ -6,9 +6,13 @@ export const LoadingType = {
     ResultsHover: 'results-hover',
     SearchResults: 'search-results',
     SummaryPoints: 'summary-points',
-};
 
-type TLoadingType = (typeof LoadingType)[keyof typeof LoadingType];
+    // River Runner Types
+    RiverRunnerLoad: 'river-runner-load',
+    RiverRunnerInit: 'river-runner-init',
+} as const;
+
+type TLoadingType = (typeof LOADING_TYPE)[keyof typeof LOADING_TYPE];
 
 export type TLoadingInstance = {
     id: string;
