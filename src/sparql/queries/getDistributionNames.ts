@@ -1,9 +1,4 @@
-import {
-    HYF,
-    HYF_PREFIX,
-    SCHEMA,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -22,39 +17,22 @@ export const DistributionNames = z.array(
 
 export type TDistributionNames = z.infer<typeof DistributionNames>;
 
+// Reads from the `explorer-distribution-counts` QLever materialized view
 const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
-    // Tuned for QLever on the Geoconnex dataset: dedupe (dataset, provider)
-    // pairs before resolving provider names, so the large schema:name join
-    // runs on fewer rows
     format(`
-            ${
-                options.prefix !== false
-                    ? `
-                ${HYF_PREFIX}
-                ${SCHEMA_PREFIX}`
-                    : ''
-            }
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
 
-            SELECT ?distributionName (COUNT(DISTINCT ?dataset) AS ?datasets)
+            SELECT ?distributionName ?datasets
             WHERE {
-                {
-                    SELECT DISTINCT ?dataset ?provider
-                    WHERE {
-                        VALUES ?mainstem { <${uri}> }
-                        ?monitoringLocation
-                            ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
-                            ${HYF}:HydroLocationType ?type ;
-                            ${SCHEMA}:subjectOf ?dataset ;
-                            ${SCHEMA}:provider ?provider .
-
-                        ?dataset ${SCHEMA}:variableMeasured ?variableMeasured .
-                    }
+                SERVICE view:explorer-distribution-counts {
+                    [
+                        view:column-mainstem <${uri}> ;
+                        view:column-distributionName ?distributionName ;
+                        view:column-datasets ?datasets
+                    ]
                 }
-                ?provider ${SCHEMA}:name ?distributionName .
             }
-            GROUP BY ?distributionName
-            ORDER BY DESC(?datasets)
-`);
+            ORDER BY DESC(?datasets)`);
 
 export const getDistributionNames: TMainstemQuery = Object.assign(build, {
     example: () => build('https://geoconnex.us/ref/mainstems/1'),

@@ -45,3 +45,14 @@ export const XSD_PREFIX = `PREFIX ${XSD}: <http://www.w3.org/2001/XMLSchema#>`;
 
 export const HYF = 'hyf';
 export const HYF_PREFIX = `PREFIX ${HYF}: <https://www.opengis.net/def/schema/hy_features/hyf/>`;
+
+/*
+ * QLever materialized views (defined in https://github.com/internetofwater/scheduler/blob/main/assets/materialized_views.json ).
+ * A materialized view is a query whose result QLever has precomputed and stored, so the explorer queries
+ * read those stored rows via `SERVICE view:<name> { ... }` instead of re-running expensive joins and
+ * aggregations over the raw triples on every UI interaction.
+ * Because the results are stored, any filtering or aggregation (e.g. requiring a measured variable)
+ * has to be part of the view definition in the scheduler repo, and the views must be rebuilt for changes to take effect.
+ */
+export const VIEW = 'view';
+export const VIEW_PREFIX = `PREFIX ${VIEW}: <https://qlever.cs.uni-freiburg.de/materializedView/>`;

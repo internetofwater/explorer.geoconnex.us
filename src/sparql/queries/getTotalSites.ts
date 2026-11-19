@@ -1,4 +1,4 @@
-import { HYF, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -11,20 +11,20 @@ export const TotalSites = z.object({
 
 export type TTotalSites = z.infer<typeof TotalSites>;
 
+// Reads from the `explorer-site-counts` QLever materialized view.
+// SUM over the (at most one) row so a mainstem without sites still returns 0.
 const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
     format(`
-            ${
-                options.prefix !== false
-                    ? `
-                        ${HYF_PREFIX}
-                        ${SCHEMA_PREFIX}`
-                    : ''
-            }
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
 
-            SELECT (COUNT(DISTINCT ?monitoringLocation) AS ?count)
+            SELECT (SUM(?sites) AS ?count)
             WHERE {
-                ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement <${uri}> .
+                SERVICE view:explorer-site-counts {
+                    [
+                        view:column-mainstem <${uri}> ;
+                        view:column-count ?sites
+                    ]
+                }
             }`);
 
 export const getTotalSites: TMainstemQuery = Object.assign(build, {

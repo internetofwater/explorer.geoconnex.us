@@ -1,9 +1,4 @@
-import {
-    HYF,
-    HYF_PREFIX,
-    SCHEMA,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -25,30 +20,22 @@ export type TVariablesMeasured = z.infer<typeof VariablesMeasured>;
 // This field is used to query elsewhere, keeping naming consistent
 export const VARIABLE_MEASURED_URI = 'variableMeasuredURI';
 
+// Reads from the `explorer-variable-counts` QLever materialized view
 const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
     format(`
-            ${
-                options.prefix !== false
-                    ? `
-                ${HYF_PREFIX}
-                ${SCHEMA_PREFIX}`
-                    : ''
-            }
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
 
-            SELECT ?variableMeasured (COUNT(DISTINCT ?dataset) AS ?datasets)
+            SELECT ?variableMeasured ?datasets
             WHERE {
-                VALUES ?mainstem { <${uri}> }
-
-                ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
-                    ${SCHEMA}:subjectOf ?dataset .
-
-                ?dataset ${SCHEMA}:variableMeasured ?${VARIABLE_MEASURED_URI} .
-                ?${VARIABLE_MEASURED_URI} ${SCHEMA}:name ?variableMeasured .
+                SERVICE view:explorer-variable-counts {
+                    [
+                        view:column-mainstem <${uri}> ;
+                        view:column-variableMeasured ?variableMeasured ;
+                        view:column-datasets ?datasets
+                    ]
+                }
             }
-            GROUP BY ?variableMeasured
-            ORDER BY DESC(?datasets)
-`);
+            ORDER BY DESC(?datasets)`);
 
 export const getVariablesMeasured: TMainstemQuery = Object.assign(build, {
     example: () => build('https://geoconnex.us/ref/mainstems/1'),

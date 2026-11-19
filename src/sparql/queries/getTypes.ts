@@ -1,9 +1,4 @@
-import {
-    HYF,
-    HYF_PREFIX,
-    SCHEMA,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TBasicOptions, TMainstemQuery } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -19,28 +14,21 @@ export const Types = z.array(
 
 export type TTypes = z.infer<typeof Types>;
 
+// Reads from the `explorer-type-counts` QLever materialized view
 const build = (uri: string, options: TBasicOptions = { prefix: true }) =>
     format(`
-            ${
-                options.prefix !== false
-                    ? `
-                ${HYF_PREFIX}
-                ${SCHEMA_PREFIX}`
-                    : ''
-            }
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
 
-            SELECT ?type (COUNT(DISTINCT ?dataset) AS ?datasets)
+            SELECT ?type ?datasets
             WHERE {
-                VALUES ?mainstem { <${uri}> }
-
-                ?monitoringLocation
-                    ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem ;
-                    ${HYF}:HydroLocationType ?type ;
-                    ${SCHEMA}:subjectOf ?dataset .
-
-                ?dataset ${SCHEMA}:variableMeasured ?variableMeasured .
+                SERVICE view:explorer-type-counts {
+                    [
+                        view:column-mainstem <${uri}> ;
+                        view:column-type ?type ;
+                        view:column-datasets ?datasets
+                    ]
+                }
             }
-            GROUP BY ?type
             ORDER BY DESC(?datasets)`);
 
 export const getTypes: TMainstemQuery = Object.assign(build, {

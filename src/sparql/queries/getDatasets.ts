@@ -1,11 +1,4 @@
-import {
-    GEO,
-    GEO_PREFIX,
-    HYF,
-    HYF_PREFIX,
-    SCHEMA,
-    SCHEMA_PREFIX,
-} from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import { getQueryOptions } from '@/sparql/queries/utils/getQueryOptions';
@@ -45,58 +38,39 @@ export const Datasets = z.array(
 
 export type TDatasets = z.infer<typeof Datasets>;
 
-// Filters run in a subquery so attribute lookups only touch filtered rows.
-// Lookups like description, WKT and unit are large joins since nearly every feature has
-// them, so doing that after the variable/type filters skips rows that would be discarded.
+// Reads from the `explorer-datasets` QLever materialized view instead of joining raw triples at query time.
 const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
     format(`
-         ${
-             options.prefix !== false
-                 ? `
-                ${HYF_PREFIX}
-                ${SCHEMA_PREFIX}
-                ${GEO_PREFIX}`
-                 : ''
-         }
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
 
-            SELECT DISTINCT 
-                ?mainstem 
-                ?monitoringLocation 
-                ?datasetDescription 
-                ?type 
+            SELECT DISTINCT
+                ?mainstem
+                ?monitoringLocation
+                ?datasetDescription
+                ?type
                 ?siteName
                 ?variableMeasured
                 ?variableUnit
-                ?temporalCoverage 
-                ?distributionName 
+                ?temporalCoverage
+                ?distributionName
                 ?wkt
             WHERE {
-                {
-                    SELECT
-                        ?mainstem
-                        ?monitoringLocation
-                        ?type
-                        ?dataset
-                        ?var
-                        ?variableMeasured
-                        ?distributionName
-                    WHERE {
-                        VALUES ?mainstem { <${uri}> }
-                        ?monitoringLocation ${HYF}:referencedPosition/${HYF}:HY_IndirectPosition/${HYF}:linearElement ?mainstem .
-                        ?monitoringLocation ${HYF}:HydroLocationType ?type .
-                        ?monitoringLocation ${SCHEMA}:subjectOf ?dataset .
-                        ?dataset ${SCHEMA}:variableMeasured ?var .
-                        ?var ${SCHEMA}:name ?variableMeasured .
-                        ?monitoringLocation ${SCHEMA}:provider/${SCHEMA}:name ?distributionName .
-
-                        ${getQueryOptions(options)}
-                    }
+                VALUES ?mainstem { <${uri}> }
+                ${getQueryOptions(options)}
+                SERVICE view:explorer-datasets {
+                    [
+                        view:column-mainstem ?mainstem ;
+                        view:column-type ?type ;
+                        view:column-variableMeasured ?variableMeasured ;
+                        view:column-monitoringLocation ?monitoringLocation ;
+                        view:column-datasetDescription ?datasetDescription ;
+                        view:column-siteName ?siteName ;
+                        view:column-variableUnit ?variableUnit ;
+                        view:column-temporalCoverage ?temporalCoverage ;
+                        view:column-distributionName ?distributionName ;
+                        view:column-wkt ?wkt
+                    ]
                 }
-                ?monitoringLocation ${GEO}:hasGeometry/${GEO}:asWKT ?wkt .
-                ?dataset ${SCHEMA}:description ?datasetDescription .
-                ?dataset ${SCHEMA}:temporalCoverage ?temporalCoverage .
-                ?dataset ${SCHEMA}:name ?siteName .
-                ?var ${SCHEMA}:unitText ?variableUnit .
             }
 
             ${options.limit ? `LIMIT ${options.limit}` : ''}`);
