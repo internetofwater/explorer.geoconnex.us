@@ -1,4 +1,4 @@
-import { GEO_PREFIX, HYF_PREFIX, SCHEMA_PREFIX } from '@/sparql/queries/consts';
+import { VIEW_PREFIX } from '@/sparql/queries/consts';
 import { TMainstemQuery, TQueryOptions } from '@/sparql/queries/types';
 import { format } from '@/sparql/queries/utils/format';
 import * as z from 'zod';
@@ -14,15 +14,8 @@ export type TDatasetCount = z.infer<typeof DatasetCount>;
 
 const build = (uri: string, options: TQueryOptions = { prefix: true }) =>
     format(`
-            ${
-                options.prefix !== false
-                    ? `
-                ${HYF_PREFIX}
-                ${SCHEMA_PREFIX}
-                ${GEO_PREFIX}`
-                    : ''
-            }
-          
+            ${options.prefix !== false ? VIEW_PREFIX : ''}
+
             SELECT (COUNT(*) AS ?count)
             WHERE {
                 {
