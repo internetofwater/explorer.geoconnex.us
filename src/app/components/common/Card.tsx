@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import CloseButton from '@/app/components/common/CloseButton';
 
 type Props = {
     handleClose?: () => void;
     children: React.ReactNode;
     className?: string;
+    style?: CSSProperties;
 };
 
 /**
@@ -18,11 +19,12 @@ type Props = {
  * @component
  */
 const Card: React.FC<Props> = (props) => {
-    const { handleClose = null, className = '' } = props;
+    const { handleClose = null, className = '', style } = props;
 
     return (
         <div
             className={`flex items-center text-black relative bg-primary-opaque rounded-lg shadow-lg p-6 ${className}`}
+            style={style}
         >
             {handleClose && (
                 <span className="absolute top-2 right-2">

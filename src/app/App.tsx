@@ -27,11 +27,11 @@ import { Dataset, MainstemData } from '@/app/types';
 import { setTarget } from '@/lib/state/mainstem/slice';
 import { loadingManager } from '@/managers/init';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
-import Transition from './features/Transition';
 import { useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
-import { Guide } from './features/RiverRunner/Guide';
 import { ZoomGuide } from '@/app/features/MapTools/ZoomGuide';
+import RiverRunner from '@/app/features/RiverRunner';
+import { MINI_MAP_ID } from './features/RiverRunner/MiniMap/config';
 
 type Props = {
     accessToken: string;
@@ -134,8 +134,7 @@ export const App: React.FC<Props> = (props) => {
 
     return (
         <>
-            <Transition />
-            <Guide />
+            <RiverRunner accessToken={accessToken} />
             <MainstemModal />
             <HelpModal />
             <div className="flex">
@@ -244,7 +243,7 @@ export const AppProvider: React.FC<Props> = (props) => {
 
     return (
         <Provider store={store}>
-            <MapProvider mapIds={[MAIN_MAP_ID]}>
+            <MapProvider mapIds={[MAIN_MAP_ID, MINI_MAP_ID]}>
                 <App accessToken={accessToken} />
             </MapProvider>
         </Provider>

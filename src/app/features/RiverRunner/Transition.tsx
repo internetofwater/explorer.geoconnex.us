@@ -5,7 +5,7 @@ import { Typography } from '@/app/components/common/Typography';
 import { useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE, TStatusType } from '@/lib/state/river-runner/types';
 
-const Transition: React.FC = () => {
+export const Transition: React.FC = () => {
     const status = useAppSelector((s) => s.riverRunner.status);
 
     const getMessage = (status: TStatusType) => {
@@ -47,5 +47,3 @@ const Transition: React.FC = () => {
         </>
     );
 };
-
-export default Transition;

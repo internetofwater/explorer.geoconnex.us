@@ -2,7 +2,12 @@
 // This is temporary to allow a clean build
 'use client';
 
-import type { GeoJSONSource, LngLatLike, Map } from 'mapbox-gl';
+import type {
+    GeoJSONSource,
+    LngLatBoundsLike,
+    LngLatLike,
+    Map,
+} from 'mapbox-gl';
 import {
     TMapInteraction,
     TNLDIVAAFeature,
@@ -24,18 +29,22 @@ import { RiverRunnerDataService } from '@/services/river-runner/river-runner.dat
 import { applyVAAData } from '@/services/river-runner/utils/applyVAAData';
 import {
     Feature,
+    FeatureCollection,
     Geometry,
     LineString,
     MultiLineString,
+    Point,
     Position,
 } from 'geojson';
 import { CONFIG, TRiverRunnerConfig } from '@/services/river-runner/config';
 import {
     along,
+    bbox,
     distance,
     featureCollection,
     geometry,
     lineString,
+    point,
 } from '@turf/turf';
 import { getFeatureGroups } from '@/services/river-runner/utils/getFeatureGroups';
 import { determineStoppingFeature } from '@/services/river-runner/utils/determineStoppingFeature';
@@ -55,9 +64,11 @@ import { InitialState as TMainInitialState } from '@/lib/state/main/slice';
 import {
     allLayerIds,
     LayerId,
+    MAP_ID,
     SourceId,
     SubLayerId,
 } from '@/app/features/MainMap/config';
+import { SourceId as MiniMapSourceId } from '@/app/features/RiverRunner/MiniMap/config';
 import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
 import { getDefaultGeojson } from '@/lib/state/utils';
@@ -70,9 +81,17 @@ export type TRiverRunnerDependencies = {
     dataService: RiverRunnerDataService;
 };
 
+const MAPBOX_CTRL_CLASSES = [
+    '.mapboxgl-ctrl-zoom-in',
+    '.mapboxgl-ctrl-zoom-out',
+    '.mapboxgl-ctrl-compass',
+    '.mapboxgl-ctrl-scale',
+];
+
 export class RiverRunnerService {
     private deps: TRiverRunnerDependencies;
     protected map: Map | null = null;
+    protected miniMap: Map | null = null;
     private advanced: boolean;
     private states: TUSStateFeatureCollection | null = null;
     private stoppingFeatures: TStoppingFeatureCollection | null = null;
@@ -192,6 +211,16 @@ export class RiverRunnerService {
         return this.map !== null;
     }
 
+    setMiniMap(miniMap: Map) {
+        this.miniMap = miniMap;
+
+        return Boolean(this.miniMap);
+    }
+
+    private hasMiniMap(): this is this & { miniMap: Map } {
+        return this.miniMap !== null;
+    }
+
     setDriver(driver: Partial<TDriver>) {
         this.deps.stateService.setDriver(driver);
     }
@@ -206,11 +235,59 @@ export class RiverRunnerService {
         this.undoRiverRunnerStyle();
     }
 
+    private addCurrentPositionToMiniMap(
+        featureCollection: FeatureCollection<Point>
+    ) {
+        if (!this.hasMiniMap()) {
+            return;
+        }
+
+        const source = this.miniMap.getSource<GeoJSONSource>(
+            MiniMapSourceId.CurrentPosition
+        );
+
+        if (source) {
+            source.setData(featureCollection);
+        }
+    }
+
+    private addRiverToMiniMap(
+        featureCollection: FeatureCollection<LineString>
+    ) {
+        if (!this.hasMiniMap()) {
+            return;
+        }
+
+        const source = this.miniMap.getSource<GeoJSONSource>(
+            MiniMapSourceId.Flowlines
+        );
+
+        if (source) {
+            const bounds = bbox(featureCollection) as LngLatBoundsLike;
+
+            this.miniMap.fitBounds(bounds, { animate: false, padding: 10 });
+            source.setData(featureCollection);
+        }
+    }
+
     private disableMapInteractions() {
         if (!this.hasMap()) {
             // TODO: handling
             console.error('No map provided');
             return;
+        }
+
+        if (document) {
+            const mapElement = document.getElementById(
+                `map-container-${MAP_ID}`
+            );
+            if (mapElement) {
+                for (const ctrl of MAPBOX_CTRL_CLASSES) {
+                    mapElement
+                        .querySelector(ctrl)
+                        ?.setAttribute('style', 'display:none;');
+                }
+            }
         }
 
         this.map._interactive = false;
@@ -222,6 +299,17 @@ export class RiverRunnerService {
             // TODO: handling
             console.error('No map provided');
             return;
+        }
+
+        if (document) {
+            const mapElement = document.getElementById(
+                `map-container-${MAP_ID}`
+            );
+            if (mapElement) {
+                for (const ctrl of MAPBOX_CTRL_CLASSES) {
+                    mapElement.querySelector(ctrl)?.setAttribute('style', '');
+                }
+            }
         }
 
         this.map._interactive = true;
@@ -615,7 +703,7 @@ export class RiverRunnerService {
         );
 
         // SL: Append VAA data/flowrate data from firebase to flowline data
-        // SL: Leaving this commented out as this feature has been indicated to be unneeded
+        // Leaving this commented out as this feature has been indicated to be unneeded
         const extendedFlowLines = featureCollection(
             await this.addVAAData(flowlinesData.features)
         );
@@ -672,8 +760,12 @@ export class RiverRunnerService {
 
         // SL: Update props used by child components
         // TODO: emit these
-        const riverPath = [{ geometry: { coordinates: coordinatePath } }];
-        const currentLocation = originPoint;
+        const riverPath = featureCollection([lineString(coordinatePath)]);
+        const currentLocation = featureCollection([point(originPoint)]);
+
+        this.addRiverToMiniMap(riverPath);
+        this.addCurrentPositionToMiniMap(currentLocation);
+
         this.deps.stateService.setStatus('calculating');
 
         // SL: Determine stopping feature by finding closest feature in stopping feature dataset
@@ -1109,6 +1201,8 @@ export class RiverRunnerService {
                 this.deps.stateService.setFrameSettings(
                     structuredClone(frameSettings)
                 );
+                const currentLocation = featureCollection([point(alongTarget)]);
+                this.addCurrentPositionToMiniMap(currentLocation);
                 lastStoreUpdate = time;
             }
             frameSettings.tick = frameSettings.tick + 1;

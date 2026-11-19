@@ -47,6 +47,7 @@ import {
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -421,7 +422,10 @@ export const MainMap: React.FC<Props> = (props) => {
         }
 
         const handleClick = (e: MapMouseEvent) => {
-            if (!isInRiverRunnerMode()) {
+            if (
+                !isInRiverRunnerMode() ||
+                store.getState().riverRunner.status !== STATUS_TYPE.External
+            ) {
                 return;
             }
 
@@ -579,24 +583,22 @@ export const MainMap: React.FC<Props> = (props) => {
     }, [map, geocoderResult, reloadFlag]);
 
     return (
-        <>
-            <Map
-                accessToken={accessToken}
-                id={MAP_ID}
-                sources={sourceConfigs}
-                layers={layerDefinitions}
-                options={{
-                    style: BASEMAP,
-                    center: INITIAL_CENTER,
-                    zoom: INITIAL_ZOOM,
-                    maxZoom: 20,
-                }}
-                controls={{
-                    navigationControl: true,
-                    scaleControl: true,
-                }}
-            />
-        </>
+        <Map
+            accessToken={accessToken}
+            id={MAP_ID}
+            sources={sourceConfigs}
+            layers={layerDefinitions}
+            options={{
+                style: BASEMAP,
+                center: INITIAL_CENTER,
+                zoom: INITIAL_ZOOM,
+                maxZoom: 20,
+            }}
+            controls={{
+                navigationControl: true,
+                scaleControl: true,
+            }}
+        />
     );
 };
 
