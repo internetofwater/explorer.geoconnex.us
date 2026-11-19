@@ -47,6 +47,9 @@ export class RiverRunnerStateService {
     hasPaused() {
         return this.store.getState().riverRunner.flags.paused;
     }
+    hasError() {
+        return this.store.getState().riverRunner.flags.error;
+    }
     setFlag(payload: Partial<TInitialState['flags']>) {
         this.store.dispatch(setFlag(payload));
     }

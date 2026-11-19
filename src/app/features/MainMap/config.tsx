@@ -14,7 +14,6 @@ import {
     Map,
     Popup,
 } from 'mapbox-gl';
-import { defaultGeoJson } from '@/lib/state/consts';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
 import { getLineTracingEvent } from '@/app/features/MainMap/utils';
@@ -32,6 +31,7 @@ import {
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
+import { getDefaultGeojson } from '@/lib/state/utils';
 
 export const MAP_ID = 'main';
 
@@ -41,6 +41,7 @@ export enum SourceId {
     Mainstems = 'mainstems_v3',
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
+    States = 'states',
     AssociatedData = 'associated-data-source',
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
@@ -54,6 +55,7 @@ export enum LayerId {
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
     SummaryPoints = 'summary-points',
+    States = 'states-layer',
     MainstemsHighlight = 'mainstems-highlight',
     GeocoderResultLine = 'geocoder-result-line',
     GeocoderResultCircle = 'geocoder-result-circle',
@@ -97,7 +99,6 @@ export const sourceConfigs: SourceConfig[] = [
                 `https://reference.geoconnex.us/collections/mainstems_v3/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
-
             maxzoom: 10,
             tileSize: 512,
             bounds: [-124.707777, 25.190876, -67.05824, 49.376613],
@@ -108,7 +109,7 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: defaultGeoJson,
+            data: getDefaultGeojson(),
             cluster: true,
             clusterMaxZoom: 20, // Max zoom to cluster points on
             clusterRadius: 50,
@@ -123,7 +124,6 @@ export const sourceConfigs: SourceConfig[] = [
                 `https://reference.geoconnex.us/collections/hu02/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
-
             maxzoom: 10,
             tileSize: 512,
             bounds: [-179.229468, -14.42442, 179.856484, 71.439451],
@@ -134,11 +134,22 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+            data: getDefaultGeojson(),
             cluster: false,
+        },
+    },
+    {
+        id: SourceId.States,
+        type: Sources.VectorTile,
+        definition: {
+            type: 'vector',
+            tiles: [
+                `https://reference.geoconnex.us/collections/states/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
+            ],
+            minzoom: 0,
+            maxzoom: 16,
+            tileSize: 512,
+            bounds: [-179.148909, -14.548699, 179.77847011250077, 71.365162],
         },
     },
     {
@@ -155,10 +166,7 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+            data: getDefaultGeojson(),
             cluster: false,
         },
     },
@@ -167,10 +175,7 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+            data: getDefaultGeojson(),
             cluster: false,
             lineMetrics: true,
         },
@@ -671,6 +676,19 @@ export const getLayerConfig = (
                     'line-opacity': 0.6,
                 },
             };
+        case LayerId.States:
+            return {
+                id: LayerId.States,
+                type: LayerType.Fill,
+                source: SourceId.States,
+                'source-layer': SourceId.States,
+                layout: {
+                    visibility: 'none',
+                },
+                paint: {
+                    'fill-opacity': 0,
+                },
+            };
         default:
             return null;
     }
@@ -1109,6 +1127,12 @@ export const layerDefinitions: MainLayerDefinition[] = [
         controllable: false,
         legend: false,
         config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
+    },
+    {
+        id: LayerId.States,
+        controllable: false,
+        legend: false,
+        config: getLayerConfig(LayerId.States),
     },
     {
         id: LayerId.RiverRunnerFlowlines,

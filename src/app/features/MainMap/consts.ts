@@ -5,7 +5,7 @@ export const LOCATION_IDENTIFIER = 'data-identifier';
 export const FILTERED_HUC_02 = ['19', '20', '21', '22'];
 export const HUC_FILTER_EXPRESSION: ExpressionSpecification = [
     'match',
-    ['get', 'HUC2'],
+    ['get', 'id'],
     FILTERED_HUC_02,
     false,
     true,

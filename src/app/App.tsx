@@ -15,23 +15,20 @@ import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/Help/Modal';
 import { LoadingBar } from '@/app/features/Loading';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from '@/app/features/About';
 import { Notifications } from '@/app/features/Notifications';
 import { MainstemModal } from '@/app/features/Mainstem/Modal';
 import Geocoder from '@/app/features/Geocoder';
 import Mainstem from '@/app/features/Mainstem';
-import { Feature, LineString } from 'geojson';
-import { Dataset, MainstemData } from '@/app/types';
-import { setTarget } from '@/lib/state/mainstem/slice';
-import { loadingManager } from '@/managers/init';
-import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 import { ZoomGuide } from '@/app/features/MapTools/ZoomGuide';
 import RiverRunner from '@/app/features/RiverRunner';
-import { MINI_MAP_ID } from './features/RiverRunner/MiniMap/config';
+import { MINI_MAP_ID } from '@/app/features/RiverRunner/MiniMap/config';
+import { useMode } from '@/app/hooks/useMode';
+import { useModeSwitcher } from '@/app/hooks/useModeSwitcher';
+import { useRouting } from '@/app/hooks/useRouting';
 
 type Props = {
     accessToken: string;
@@ -51,7 +48,9 @@ export const App: React.FC<Props> = (props) => {
     const { view, showSidePanel } = useSelector(
         (state: RootState) => state.main
     );
-    const pathname = usePathname();
+    const { inMainstemsMode } = useMode();
+    useModeSwitcher();
+    useRouting();
 
     const dispatch: AppDispatch = useDispatch();
 
@@ -64,52 +63,6 @@ export const App: React.FC<Props> = (props) => {
     const datasets = useSelector((state: RootState) =>
         getFilteredDatasetsInBounds(state, map)
     );
-
-    useEffect(() => {
-        // Get the mainstem id on initial load and fetch data from geoconnex
-        const controller = new AbortController();
-        if (pathname && pathname.startsWith('/mainstems/')) {
-            const match = pathname.match(/\/mainstems\/(\d+)/);
-            const id = match ? match[1] : null;
-
-            if (id) {
-                const loadingInstance = loadingManager.add(
-                    'Fetching mainstem data for the id in the URL',
-                    LOADING_TYPE.Datasets
-                );
-                void fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
-                    {
-                        signal: controller.signal,
-                    }
-                )
-                    .then((r) => r.json())
-                    .then(
-                        (
-                            feature: Feature<
-                                LineString,
-                                MainstemData & { datasets: Dataset[] }
-                            >
-                        ) => {
-                            // TODO: update this when datasets is no longer returned on the feature
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { datasets: _, ...mainstemData } =
-                                feature.properties;
-
-                            dispatch(setTarget(mainstemData));
-                        }
-                    )
-                    .catch((error) => console.error(error))
-                    .finally(() => {
-                        loadingManager.remove(loadingInstance);
-                    });
-            }
-        }
-
-        return () => {
-            controller.abort('Component dismount');
-        };
-    }, []);
 
     useEffect(() => {
         if (!map) {
@@ -176,7 +129,7 @@ export const App: React.FC<Props> = (props) => {
                 >
                     <SidePanel datasets={datasets} />
                 </div>
-                {view === 'map' && (
+                {inMainstemsMode && view === 'map' && (
                     <div id="tools" className="fixed top-3 right-2">
                         <MapTools />
                     </div>
@@ -188,11 +141,13 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <LoadingBar />
-                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
-                        <Mainstem />
-                        <Geocoder />
-                    </div>
-                    {!inActiveRun && view === 'map' && (
+                    {inMainstemsMode && (
+                        <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
+                            <Mainstem />
+                            <Geocoder />
+                        </div>
+                    )}
+                    {inMainstemsMode && view === 'map' && (
                         <div
                             id="zoom-guide"
                             className="absolute bottom-9 left-2 z-[3]"
@@ -209,7 +164,7 @@ export const App: React.FC<Props> = (props) => {
                     } w-full`}
                 >
                     {/* Conserve memory, only render table on view */}
-                    {view === 'table' && (
+                    {inMainstemsMode && view === 'table' && (
                         <>
                             <LoadingBar />
                             <Table datasets={datasets} />

@@ -136,7 +136,7 @@ export const getLayerConfig = (
                 },
                 paint: {
                     'line-width': 4,
-                    'line-color': '#0db2ac', // TODO: get actual colors from IOW DG
+                    'line-color': '#00A087', // TODO: get actual colors from IOW DG
                 },
             };
         case LayerId.CurrentPosition:
@@ -145,10 +145,10 @@ export const getLayerConfig = (
                 type: LayerType.Circle,
                 source: SourceId.CurrentPosition,
                 paint: {
-                    'circle-color': '#22255b',
+                    'circle-color': '#a1c6d5',
                     'circle-radius': 4,
                     'circle-stroke-width': 2,
-                    'circle-stroke-color': '#ee3e41',
+                    'circle-stroke-color': '#e6000b',
                 },
             };
 

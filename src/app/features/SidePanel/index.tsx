@@ -3,8 +3,6 @@ import { AppDispatch, RootState } from '@/lib/state/store';
 import {
     getDatasetsLength,
     getSelectedSummary,
-    MODE,
-    setMode,
     InitialState,
     setSearchResultIds,
     setShowHelp,
@@ -26,6 +24,7 @@ import { FeatureCollection, Point } from 'geojson';
 import { useAppSelector } from '@/lib/state/hooks';
 import { Header } from '@/app/features/SidePanel/Header';
 import { Intro } from '@/app/features/Help/Intro';
+import { useMode } from '@/app/hooks/useMode';
 
 const hasSelectedAMainstem = (
     selected: MainstemData | null
@@ -48,8 +47,9 @@ const SidePanel: React.FC<Props> = (props) => {
 
     const { map } = useMap(MAIN_MAP_ID);
 
+    const { inMainstemsMode, inRiverRunnerMode } = useMode();
+
     const showResults = useAppSelector((s) => s.main.showResults);
-    const mode = useAppSelector((s) => s.main.mode);
 
     const selected = useAppSelector((s) => s.mainstem.selected);
 
@@ -77,14 +77,6 @@ const SidePanel: React.FC<Props> = (props) => {
         dispatch(setShowHelp(true));
     };
 
-    const handleModeChange = () => {
-        dispatch(
-            setMode(
-                mode === MODE.RiverRunner ? MODE.Mainstems : MODE.RiverRunner
-            )
-        );
-    };
-
     const handleViewChange = (view: InitialState['view']) => {
         dispatch(setView(view));
     };
@@ -97,35 +89,39 @@ const SidePanel: React.FC<Props> = (props) => {
         setSearchResults(results);
     };
 
-    const isResultsVisible = searchResults.length > 0;
-    const isSummaryVisible = hasSelectedAMainstem(selected);
-    const isTableEnabled = datasetsLength > 0;
-    const isFiltersVisible = isSummaryVisible && isTableEnabled;
+    const isResultsVisible = inMainstemsMode && searchResults.length > 0;
+    const isSummaryVisible = inMainstemsMode && hasSelectedAMainstem(selected);
+    const isTableEnabled = inMainstemsMode && datasetsLength > 0;
+    const isFiltersVisible =
+        inMainstemsMode && isSummaryVisible && isTableEnabled;
     const isIntroVisible =
-        !isResultsVisible && !isSummaryVisible && !isFiltersVisible;
+        inRiverRunnerMode ||
+        (!isResultsVisible && !isSummaryVisible && !isFiltersVisible);
 
     return (
         <div className="w-full">
             <div className="relative bg-primary-opaque z-[--z-side-panel]">
                 <Header
-                    mode={mode}
                     onHelpClick={handleHelpClick}
                     onViewChange={handleViewChange}
                     onHideSidePanel={handleHideSidePanel}
-                    onModeChange={handleModeChange}
                     isTableEnabled={isTableEnabled}
                 />
-                <div
-                    className={`
+                {inMainstemsMode && (
+                    <div
+                        className={`
                 w-full 
                 py-3 px-2 
                 flex flex-col justify-center 
                 bg-primary-opaque
                 text-black  
                 border-b border-gray-300`}
-                >
-                    <Search onSearchResultsChange={handleSearchResultsChange} />
-                </div>
+                    >
+                        <Search
+                            onSearchResultsChange={handleSearchResultsChange}
+                        />
+                    </div>
+                )}
             </div>
             <div id="scrollable-side-panel" className="overflow-y-auto">
                 {isIntroVisible && <Intro />}

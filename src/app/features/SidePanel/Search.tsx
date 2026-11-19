@@ -1,7 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-
-import debounce from 'lodash.debounce';
 import { FeatureCollection, Geometry } from 'geojson';
 import { AppDispatch } from '@/lib/state/store';
 import { setShowResults } from '@/lib/state/main/slice';
@@ -30,25 +28,26 @@ const Search: React.FC<Props> = (props) => {
 
     const dispatch: AppDispatch = useDispatch();
 
-    const controller = useRef<AbortController>(null);
-    const isMounted = useRef(true);
+    const requestIdRef = useRef(0);
 
-    const search = async (query: string) => {
-        const _query = query.toLowerCase();
+    useEffect(() => {
+        const requestId = ++requestIdRef.current;
+        const controller = new AbortController();
 
-        if (_query) {
+        if (!query.trim()) {
+            onSearchResultsChange([]);
+            return () => {
+                controller.abort();
+            };
+        }
+
+        const search = async () => {
             const loadingInstance = loadingManager.add(
                 `Search request for: ${query}`,
                 LOADING_TYPE.SearchResults
             );
-            try {
-                if (controller.current) {
-                    controller.current.abort(
-                        `New search request for: ${_query}`
-                    );
-                }
-                controller.current = new AbortController();
 
+            try {
                 const params = {
                     sortby: '-outlet_drainagearea_sqkm',
                     'filter-lang': 'cql2-text',
@@ -61,7 +60,7 @@ const Search: React.FC<Props> = (props) => {
 
                 const response = await fetch(
                     `https://reference.geoconnex.us/collections/mainstems_v3/items?${queryString}`,
-                    { signal: controller.current.signal }
+                    { signal: controller.signal }
                 );
 
                 if (!response.ok) {
@@ -74,6 +73,12 @@ const Search: React.FC<Props> = (props) => {
                     Geometry,
                     MainstemData
                 >;
+
+                // Ignore stale responses
+                if (requestId !== requestIdRef.current) {
+                    return;
+                }
+
                 const searchResults: MainstemData[] = data.features.map(
                     (feature) =>
                         ({
@@ -81,55 +86,33 @@ const Search: React.FC<Props> = (props) => {
                             id: feature.id,
                         }) as MainstemData
                 );
-                if (isMounted.current) {
-                    dispatch(setShowResults(true));
-                    onSearchResultsChange(searchResults);
-                }
+
+                dispatch(setShowResults(true));
+                onSearchResultsChange(searchResults);
             } catch (error) {
-                // Abort signals come in 2 variants
-                if (
-                    (error as Error)?.name === 'AbortError' ||
-                    (typeof error === 'string' &&
-                        error.includes('New search request for:')) ||
-                    error === 'Component unmount'
-                ) {
-                    console.log('Fetch request canceled');
-                } else {
-                    console.error('Error fetching mainstems: ', error);
+                if (requestId !== requestIdRef.current) {
+                    return;
                 }
+
+                if (error instanceof Error && error.name === 'AbortError') {
+                    return;
+                }
+
+                console.error('Error fetching mainstems:', error);
             } finally {
                 loadingManager.remove(loadingInstance);
             }
-        } else {
-            if (isMounted.current) {
-                onSearchResultsChange([]);
-            }
-        }
-    };
-
-    const debouncedSearch = useCallback(
-        debounce(async (query: string) => search(query), 800),
-        []
-    );
-
-    useEffect(() => {
-        return () => {
-            isMounted.current = false;
-            if (controller.current) {
-                controller.current.abort('Component unmount');
-            }
         };
-    }, []);
 
-    useEffect(() => {
+        const timeout = window.setTimeout(() => {
+            void search();
+        }, 800);
+
         return () => {
-            debouncedSearch.cancel();
+            window.clearTimeout(timeout);
+            controller.abort();
         };
-    }, [debouncedSearch]);
-
-    useEffect(() => {
-        void debouncedSearch(query);
-    }, [query]);
+    }, [query, dispatch]);
 
     return (
         <>

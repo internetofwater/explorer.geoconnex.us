@@ -33,7 +33,7 @@ import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
@@ -48,6 +48,7 @@ import {
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
 import { STATUS_TYPE } from '@/lib/state/river-runner/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 
 const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
 const INITIAL_ZOOM = 4;
@@ -176,9 +177,8 @@ export const MainMap: React.FC<Props> = (props) => {
         if (!map || !datasets) {
             return;
         }
-        const inRiverRunner =
-            store.getState().riverRunner.status !== 'external';
-        if (inRiverRunner) {
+
+        if (isInRiverRunnerMode()) {
             return;
         }
 
@@ -240,9 +240,8 @@ export const MainMap: React.FC<Props> = (props) => {
 
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
-            const outsideRiverRunner =
-                store.getState().riverRunner.status === 'external';
-            if (outsideRiverRunner && zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM) {
+
+            if (!isInRiverRunnerMode() && zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
                         [LayerId.Mainstems]: true,
@@ -300,11 +299,6 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        window.history.replaceState(
-                            {},
-                            '',
-                            `/mainstems/${feature.properties.id}`
-                        );
                         dispatch(setTarget(feature.properties as MainstemData));
                     }
                 }
@@ -426,6 +420,19 @@ export const MainMap: React.FC<Props> = (props) => {
                 !isInRiverRunnerMode() ||
                 store.getState().riverRunner.status !== STATUS_TYPE.External
             ) {
+                return;
+            }
+
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: [SubLayerId.HUC2BoundaryFill],
+            });
+
+            if (features.length === 0) {
+                notificationManager.show(
+                    'This area is not currently available for River Runner.',
+                    NOTIFICATION_TYPE.Error,
+                    5000
+                );
                 return;
             }
 
@@ -590,6 +597,7 @@ export const MainMap: React.FC<Props> = (props) => {
             layers={layerDefinitions}
             options={{
                 style: BASEMAP,
+                projection: 'mercator',
                 center: INITIAL_CENTER,
                 zoom: INITIAL_ZOOM,
                 maxZoom: 20,

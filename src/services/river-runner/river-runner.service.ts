@@ -59,7 +59,7 @@ import { calculatePitch } from '@/services/river-runner/utils/calculatePitch';
 import { positionCamera } from '@/services/river-runner/utils/positionCamera';
 import { getDataBounds } from '@/services/river-runner/utils/getDataBounds';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { InitialState as TMainInitialState } from '@/lib/state/main/slice';
 import {
     allLayerIds,
@@ -73,6 +73,7 @@ import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
 import { basemaps } from '@/app/components/Map/consts';
 import { getDefaultGeojson } from '@/lib/state/utils';
 import { DEFAULT_DRIVER, TDriver } from '@/lib/state/river-runner/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -217,6 +218,19 @@ export class RiverRunnerService {
         return Boolean(this.miniMap);
     }
 
+    private async manage<T>(fetcher: () => Promise<T>): Promise<T | undefined> {
+        try {
+            return await fetcher();
+        } catch (error) {
+            this.reset();
+            notificationManager.show(
+                'Critical data request failed. Cancelling river run.',
+                NOTIFICATION_TYPE.Error,
+                8000
+            );
+        }
+    }
+
     private hasMiniMap(): this is this & { miniMap: Map } {
         return this.miniMap !== null;
     }
@@ -226,7 +240,12 @@ export class RiverRunnerService {
     }
 
     private reset() {
-        this.deps.stateService.setFlag({ abort: false });
+        this.deps.stateService.setStatus('external');
+        this.deps.stateService.setFlag({
+            abort: false,
+            error: false,
+            paused: false,
+        });
         this.deps.stateService.setRiverFeatures([]);
         this.deps.stateService.setFrameSettings(null);
         this.clearFlowlineVisual();
@@ -678,8 +697,8 @@ export class RiverRunnerService {
             LOADING_TYPE.RiverRunnerInit
         );
 
-        const closestFeature = await this.deps.dataService.findClosestFeature(
-            e.lngLat
+        const closestFeature = await this.manage(() =>
+            this.deps.dataService.findClosestFeature(e.lngLat)
         );
 
         if (this.deps.stateService.hasAborted()) {
@@ -697,10 +716,14 @@ export class RiverRunnerService {
         const featureTypes = this.advanced
             ? CONFIG.advanced.featureTypes
             : CONFIG.simple.featureTypes;
-        const flowlinesData = await this.createNLDIFeatures(
-            closestFeature,
-            featureTypes
+        const flowlinesData = await this.manage(() =>
+            this.createNLDIFeatures(closestFeature, featureTypes)
         );
+
+        if (!flowlinesData) {
+            this.reset();
+            return;
+        }
 
         // SL: Append VAA data/flowrate data from firebase to flowline data
         // Leaving this commented out as this feature has been indicated to be unneeded

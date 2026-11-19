@@ -47,6 +47,11 @@ export class RiverRunnerDataService {
     private async fetch<T>(
         config: Omit<TSuperFetchArgs<T>, 'cache'>
     ): Promise<T | undefined> {
+        // Prevent unnecessary fetches in error state
+        if (this.deps.stateService.hasError()) {
+            return undefined;
+        }
+
         return superFetch<T>({
             ...config,
             cache: this.cache,
@@ -54,6 +59,7 @@ export class RiverRunnerDataService {
                 config.onCatch ??
                 ((error) => {
                     console.error(error);
+                    this.deps.stateService.setFlag({ error: true });
                     this.deps.notificationManager.show(
                         'An error occurred in the River Runner Data Service. Check the console for more details',
                         NOTIFICATION_TYPE.Error,
@@ -183,7 +189,7 @@ export class RiverRunnerDataService {
         FeatureCollection<Polygon | MultiPolygon, { name: string }> | undefined
     > {
         return await this.fetch({
-            url: 'data/us_states.json',
+            url: '/data/us_states.json',
             init: {
                 headers: {
                     'Content-Type': 'application/json',
@@ -211,7 +217,7 @@ export class RiverRunnerDataService {
         signal?: AbortSignal
     ): Promise<TStoppingFeatureCollection | undefined> {
         return await this.fetch({
-            url: 'data/stopping_features.json',
+            url: '/data/stopping_features.json',
             init: {
                 headers: {
                     'Content-Type': 'application/json',

@@ -79,7 +79,7 @@ div#tools {
 }
 
 div#scrollable-side-panel {
-    max-height: calc(100svh - 250px);
+    max-height: calc(100svh - 256px);
 }
 
 div#table-wrapper {
@@ -143,8 +143,8 @@ a:active {
 /* lg width */
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 206px);
-        max-height: calc(100svh - 206px);
+        height: calc(100svh - 214px);
+        max-height: calc(100svh - 214px);
     }
 
     div#table-wrapper {
@@ -267,7 +267,7 @@ a:active {
     visibility: visible;
 }
 
-div.mapboxgl-popup-content[data-custom-popup] {
+div.mapboxgl-popup-content:has(div[data-custom-popup]) {
     padding: 0;
 }
 

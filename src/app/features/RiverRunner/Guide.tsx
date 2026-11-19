@@ -83,12 +83,12 @@ export const Guide: React.FC = () => {
         riverRunnerService.abort();
     };
 
-    if (status !== STATUS_TYPE.Running || !frameSettings) {
+    if (status !== STATUS_TYPE.Running) {
         return null;
     }
 
     const weightedProgress = calculateFeatureWeightedProgress(
-        frameSettings.phase,
+        frameSettings?.phase ?? 0,
         riverFeatures
             .map((r) => r.progress)
             .filter((p): p is number => typeof p === 'number')
@@ -131,7 +131,9 @@ export const Guide: React.FC = () => {
                             <ProgressBar
                                 background="#707070"
                                 orientation="vertical"
-                                percentage={weightedProgress / 100}
+                                percentage={
+                                    frameSettings ? weightedProgress / 100 : 0
+                                }
                             />
                         </div>
                         <div className="flex flex-col justify-between items-start gap-1 -ml-[0.65rem] z-20">
@@ -143,7 +145,7 @@ export const Guide: React.FC = () => {
                                     <Indicator
                                         hasBeenSelected={
                                             typeof r.progress === 'number'
-                                                ? frameSettings.phase >
+                                                ? (frameSettings?.phase ?? -1) >
                                                   r.progress
                                                 : false
                                         }
@@ -157,92 +159,98 @@ export const Guide: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="absolute top-0 -right-6 h-full w-fit py-8 flex flex-col justify-between gap-1">
-                    <IconButton
-                        variant="alternative"
-                        onClick={handleToggle}
-                        className="!rounded-full"
-                    >
-                        {isPaused ? <Play /> : <Pause />}
-                    </IconButton>
-                    <IconButton
-                        variant="alternative"
-                        onClick={() => null}
-                        className="!rounded-full"
-                        disabled
-                    >
-                        <Link />
-                    </IconButton>
-                    <IconButton
-                        variant="alternative"
-                        onClick={handleAbort}
-                        className="!rounded-full"
-                    >
-                        <CloseIcon className="w-8 h-8" />
-                    </IconButton>
-                </div>
-                <div className="flex h-fit w-full -mx-2 -mb-2 border-t border-solid border-gray-500">
-                    <IconButton
-                        className="rounded-none"
-                        onClick={handlePrevious}
-                        disabled={featureIndex === 0}
-                    >
-                        <Previous />
-                    </IconButton>
-                    <IconButton
-                        className="rounded-none"
-                        onClick={handleNext}
-                        disabled={featureIndex === riverFeatures.length - 1}
-                    >
-                        <Next />
-                    </IconButton>
-                    <Collapsible
-                        className="relative !bg-transparent"
-                        buttonClassname="min-w-0 border-x !py-[0.6rem] !border-y-0 border-solid enabled:hover:scale-105 border-[var(--border)]"
-                        title={
-                            <div className=" text-left mr-2">
-                                <Typography variant="body">
-                                    Detail / Speed
-                                </Typography>
-                            </div>
-                        }
-                    >
-                        <div className="absolute top-[2.5rem] pb-2 pl-2 pt-2 w-4 bg-primary w-full min-h-48 h-full max-h-52 ">
-                            <Slider
-                                orientation="vertical"
-                                invert
-                                className="w-full"
-                                value={altitudeMultiplier}
-                                min={0.6}
-                                max={5}
-                                step={0.01}
-                                onChange={handleAltitudeChange}
-                                labels={
-                                    [
-                                        {
-                                            value: 0.6,
-                                            label: (
-                                                <>
-                                                    Low Detail /<br />
-                                                    High Speed
-                                                </>
-                                            ),
-                                        },
-                                        {
-                                            value: 5,
-                                            label: (
-                                                <>
-                                                    High Detail /<br />
-                                                    Low Speed
-                                                </>
-                                            ),
-                                        },
-                                    ] as const
-                                }
-                            />
+                {frameSettings && (
+                    <>
+                        <div className="absolute top-0 -right-6 h-full w-fit py-8 flex flex-col justify-between gap-1">
+                            <IconButton
+                                variant="alternative"
+                                onClick={handleToggle}
+                                className="!rounded-full"
+                            >
+                                {isPaused ? <Play /> : <Pause />}
+                            </IconButton>
+                            <IconButton
+                                variant="alternative"
+                                onClick={() => null}
+                                className="!rounded-full"
+                                disabled
+                            >
+                                <Link />
+                            </IconButton>
+                            <IconButton
+                                variant="alternative"
+                                onClick={handleAbort}
+                                className="!rounded-full"
+                            >
+                                <CloseIcon className="w-8 h-8" />
+                            </IconButton>
                         </div>
-                    </Collapsible>
-                </div>
+                        <div className="flex h-fit w-full -mx-2 -mb-2 border-t border-solid border-gray-500">
+                            <IconButton
+                                className="rounded-none"
+                                onClick={handlePrevious}
+                                disabled={featureIndex === 0}
+                            >
+                                <Previous />
+                            </IconButton>
+                            <IconButton
+                                className="rounded-none"
+                                onClick={handleNext}
+                                disabled={
+                                    featureIndex === riverFeatures.length - 1
+                                }
+                            >
+                                <Next />
+                            </IconButton>
+                            <Collapsible
+                                className="relative !bg-transparent"
+                                buttonClassname="min-w-0 border-x !py-[0.6rem] !border-y-0 border-solid enabled:hover:scale-105 border-[var(--border)]"
+                                title={
+                                    <div className=" text-left mr-2">
+                                        <Typography variant="body">
+                                            Detail / Speed
+                                        </Typography>
+                                    </div>
+                                }
+                            >
+                                <div className="absolute top-[2.5rem] pb-2 pl-2 pt-2 w-4 bg-primary w-full min-h-48 h-full max-h-52 ">
+                                    <Slider
+                                        orientation="vertical"
+                                        invert
+                                        className="w-full"
+                                        value={altitudeMultiplier}
+                                        min={0.6}
+                                        max={5}
+                                        step={0.01}
+                                        onChange={handleAltitudeChange}
+                                        labels={
+                                            [
+                                                {
+                                                    value: 0.6,
+                                                    label: (
+                                                        <>
+                                                            Low Detail /<br />
+                                                            High Speed
+                                                        </>
+                                                    ),
+                                                },
+                                                {
+                                                    value: 5,
+                                                    label: (
+                                                        <>
+                                                            High Detail /<br />
+                                                            Low Speed
+                                                        </>
+                                                    ),
+                                                },
+                                            ] as const
+                                        }
+                                    />
+                                </div>
+                            </Collapsible>
+                        </div>
+                    </>
+                )}
             </Card>
         </div>
     );

@@ -20,6 +20,7 @@ type TFlags = {
     abort: boolean; // Cancel the run
     // NOTE: this functionality continues to execute animation frames and create function contexts while paused
     paused: boolean; // Block animation frames
+    error: boolean; // Something went wrong
 };
 
 export const SCALE_TYPE = {
@@ -69,6 +70,7 @@ export const initialState: TInitialState = {
     flags: {
         abort: false,
         paused: false,
+        error: false,
     },
     segment: {
         stop: null,

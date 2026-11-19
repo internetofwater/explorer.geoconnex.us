@@ -1,30 +1,26 @@
 import Button from '@/app/components/common/Button';
 import CloseButton from '@/app/components/common/CloseButton';
 import HelpIcon from '@/app/assets/icons/Help';
-import { InitialState, MODE, TMode } from '@/lib/state/main/slice';
+import { InitialState } from '@/lib/state/main/slice';
 import IconButton from '@/app/components/common/IconButton';
 import DataSearchIcon from '@/app/assets/icons/DataSearch';
 import KayakIcon from '@/app/assets/icons/Kayak';
 import { Title } from './Title';
+import { useMode } from '@/app/hooks/useMode';
 
 type Props = {
-    mode: TMode;
     onHelpClick: () => void;
     onViewChange: (view: InitialState['view']) => void;
     onHideSidePanel: () => void;
-    onModeChange: () => void;
     isTableEnabled: boolean;
 };
 
 export const Header: React.FC<Props> = (props) => {
-    const {
-        mode,
-        onHelpClick,
-        onViewChange,
-        onHideSidePanel,
-        onModeChange,
-        isTableEnabled,
-    } = props;
+    const { onHelpClick, onViewChange, onHideSidePanel, isTableEnabled } =
+        props;
+
+    const { mode, inMainstemsMode, inRiverRunnerMode, toggleMode } = useMode();
+
     return (
         <div className="pt-2 flex flex-col justify-between bg-primary">
             <div className="flex justify-between" id="attribution">
@@ -49,20 +45,16 @@ export const Header: React.FC<Props> = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="flex justify-between mt-2 mb-1 ml-3 mr-3">
+            <div className={`flex justify-between my-2 mx-3`}>
                 <IconButton
-                    onClick={onModeChange}
+                    onClick={toggleMode}
                     variant="alternative"
-                    title={`Change application mode to ${mode === MODE.RiverRunner ? 'mainstem search' : 'river runner.'}`}
+                    title={`Change application mode to ${inRiverRunnerMode ? 'mainstem search' : 'river runner.'}`}
                 >
-                    {mode === MODE.RiverRunner ? (
-                        <DataSearchIcon />
-                    ) : (
-                        <KayakIcon />
-                    )}
+                    {inRiverRunnerMode ? <DataSearchIcon /> : <KayakIcon />}
                 </IconButton>
                 <div className="flex gap-x-2">
-                    {mode === MODE.Mainstems && (
+                    {inMainstemsMode && (
                         <>
                             <Button
                                 title="Switch to Map View"
