@@ -102,11 +102,15 @@ export const Guide: React.FC = () => {
         const nextIndex =
             direction === 'next' ? featureIndex + 1 : featureIndex - 1;
 
-        if (nextIndex < 0 || nextIndex >= riverFeatures.length) {
+        if (
+            nextIndex < 0 ||
+            nextIndex >= riverFeatures.length ||
+            !riverFeatures[nextIndex].progress
+        ) {
             return;
         }
 
-        dispatch(setPhaseJump(riverFeatures[nextIndex].progress));
+        dispatch(setPhaseJump(riverFeatures[nextIndex].progress + 0.000000001));
     };
 
     const handleNext = () => jumpIndex('next');
