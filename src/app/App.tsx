@@ -180,7 +180,7 @@ export const App: React.FC<Props> = (props) => {
                     <About />
                 </div>
             </div>
-            {inActiveRun && <Notifications />}
+            {!inActiveRun && <Notifications />}
         </>
     );
 };
