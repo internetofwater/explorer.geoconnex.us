@@ -2,6 +2,7 @@ import {
     TFlowRateResponseRaw,
     TNLDIFeature,
     TNLDIFeatureCollection,
+    TReverseGeocodeFeatureCollection,
     TStoppingFeatureCollection,
     TStoppingFeatureProperties,
     TVAAResponse,
@@ -66,6 +67,43 @@ export class RiverRunnerDataService {
                         5000
                     );
                 }),
+        });
+    }
+
+    async getPlaces(
+        coords: LngLat,
+        signal?: AbortSignal
+    ): Promise<TReverseGeocodeFeatureCollection | undefined> {
+        if (!this.hasAccessToken()) {
+            return;
+        }
+
+        const url = new URL('https://api.mapbox.com/search/geocode/v6/reverse');
+
+        const { lng: longitude, lat: latitude } = coords;
+
+        url.search = new URLSearchParams({
+            longitude: String(longitude),
+            latitude: String(latitude),
+            language: 'en', // Return results in english
+            country: 'us,ca,mx', // Return results for US, Canada, and Mexico
+            types: 'place', // Return only places
+            worldview: 'us', // Return results for a US audience
+            access_token: this.accessToken,
+        }).toString();
+
+        return await this.fetch({
+            url: url.toString(),
+            init: {
+                signal,
+            },
+            parse: async (r) => {
+                const result =
+                    (await r.json()) as TReverseGeocodeFeatureCollection;
+                console.log('Mapbox Geocoding API ' + result.attribution); // Include provided attribution
+                return result;
+            },
+            getKey: () => `geocode-api-places-${longitude}-${latitude}`,
         });
     }
 

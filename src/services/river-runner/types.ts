@@ -4,6 +4,7 @@ import {
     Geometry,
     LineString,
     MultiPolygon,
+    Point,
     Polygon,
     Position,
 } from 'geojson';
@@ -240,3 +241,61 @@ export type TFrameSettings = {
     };
     speedCoefficient: number;
 };
+
+/****************************************************************
+ * US State Data File
+ ****************************************************************/
+// TODO: theres a better place to put these
+
+type TTranslation = {
+    language: string;
+    name: string;
+};
+
+type TContextItem = {
+    mapbox_id: string;
+    name: string;
+    wikidata_id?: string;
+    translations?: Record<string, TTranslation>;
+};
+
+type TReverseGeocodeContext = {
+    country?: TContextItem & {
+        country_code: string;
+        country_code_alpha_3: string;
+    };
+    region?: TContextItem & {
+        region_code: string;
+        region_code_full: string;
+    };
+    district?: TContextItem;
+    place?: TContextItem;
+};
+
+type TReverseGeocodeProperties<T extends 'place' = 'place'> = {
+    mapbox_id: string;
+    feature_type: T;
+    name: string;
+    name_preferred: string;
+    full_address: string;
+    place_formatted: string;
+
+    coordinates: {
+        longitude: number;
+        latitude: number;
+    };
+
+    bbox?: [number, number, number, number];
+    wikidata_id?: string;
+    context: TReverseGeocodeContext;
+};
+
+export type TReverseGeocodeFeature<T extends 'place' = 'place'> = Feature<
+    Point,
+    TReverseGeocodeProperties<T>
+>;
+
+export type TReverseGeocodeFeatureCollection<T extends 'place' = 'place'> =
+    FeatureCollection<Point, TReverseGeocodeProperties<T>> & {
+        attribution: string;
+    };

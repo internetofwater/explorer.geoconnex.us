@@ -258,8 +258,6 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.on('drag', debouncedCreateSummaryLayer);
 
-        map.on('moveend', () => console.log(map.getBounds()));
-
         map.loadImage('/dot-marker.png', (error, image) => {
             if (error) throw error;
             if (!image) {
