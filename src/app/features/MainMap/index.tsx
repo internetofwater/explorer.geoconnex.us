@@ -1,6 +1,6 @@
 'use client';
 import Map from '@/app/components/Map';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     layerDefinitions,
     sourceConfigs,
@@ -11,6 +11,7 @@ import {
     BASEMAP,
     MAINSTEMS_SELECTED_COLOR,
     MAINSTEMS_SEARCH_COLOR,
+    REGISTERED_PREFIXES,
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
@@ -83,8 +84,6 @@ export const MainMap: React.FC<Props> = (props) => {
     const datasets = useSelector(getFilteredDatasets);
 
     useDatasetFit(map);
-
-    const [reloadFlag, setReloadFlag] = useState(0);
 
     const previousClusterIds = useRef('');
     const isMounted = useRef(true);
@@ -354,7 +353,6 @@ export const MainMap: React.FC<Props> = (props) => {
 
         // Temp hack to force Vector Tile layers to reload without breaking cache
         map.on('style.load', () => {
-            setReloadFlag(Date.now());
             if (!map.hasImage('observation-point')) {
                 map.loadImage('/dot-marker.png', (error, image) => {
                     if (error) throw error;
@@ -451,11 +449,11 @@ export const MainMap: React.FC<Props> = (props) => {
                 null,
             ]);
         }
-    }, [searchResultIds, selectedMainstemId, hoverId, reloadFlag]);
+    }, [searchResultIds, selectedMainstemId, hoverId]);
 
     useEffect(() => {
         loadDatasets();
-    }, [reloadFlag, datasets]);
+    }, [datasets]);
 
     useEffect(() => {
         if (!map) {
@@ -489,6 +487,31 @@ export const MainMap: React.FC<Props> = (props) => {
             return;
         }
 
+        const prevStyle = map.getStyle();
+
+        const customLayers = (prevStyle?.layers || []).filter((layer) =>
+            REGISTERED_PREFIXES.some((p) => layer.id.startsWith(p))
+        );
+
+        const customSources = Object.entries(prevStyle?.sources || {}).filter(
+            ([id]) => REGISTERED_PREFIXES.some((p) => id.startsWith(p))
+        );
+
+        // Copy over all existing layers and sources when changing basemaps
+        map.once('styledata', () => {
+            for (const [id, source] of customSources) {
+                if (!map.getSource(id)) {
+                    map.addSource(id, source);
+                }
+            }
+
+            for (const layer of customLayers) {
+                if (!map.getLayer(layer.id)) {
+                    map.addLayer(layer);
+                }
+            }
+        });
+
         map.setStyle(selectedBasemap);
     }, [selectedBasemap]);
 
@@ -512,7 +535,7 @@ export const MainMap: React.FC<Props> = (props) => {
                 }
             }
         });
-    }, [reloadFlag, visibleLayers]);
+    }, [visibleLayers]);
 
     useEffect(() => {
         if (!map) {
@@ -531,7 +554,7 @@ export const MainMap: React.FC<Props> = (props) => {
             type: 'FeatureCollection',
             features: feature ? [feature] : [],
         });
-    }, [map, geocoderResult, reloadFlag]);
+    }, [map, geocoderResult]);
 
     return (
         <>
