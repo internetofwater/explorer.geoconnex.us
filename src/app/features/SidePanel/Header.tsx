@@ -67,7 +67,7 @@ export const Header: React.FC<Props> = (props) => {
                     title="Switch to Table View"
                     onClick={() => onViewChange('table')}
                     className="min-w-24 min-h-10"
-                    disabled={isTableEnabled}
+                    disabled={!isTableEnabled}
                 >
                     Table
                 </Button>
