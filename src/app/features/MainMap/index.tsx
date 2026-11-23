@@ -14,7 +14,7 @@ import {
 } from '@/app/features/MainMap/config';
 import { useMap } from '@/app/contexts/MapContexts';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@/lib/state/store';
+import store, { AppDispatch } from '@/lib/state/store';
 import {
     ExpressionSpecification,
     GeoJSONSource,
@@ -24,6 +24,7 @@ import {
 } from 'mapbox-gl';
 import {
     getFilteredDatasets,
+    MODE,
     setFilter,
     setLayerVisibility,
     setMapMoved,
@@ -32,22 +33,23 @@ import { createSummaryPoints } from '@/app/features/MainMap/utils';
 import * as turf from '@turf/turf';
 import { MainstemData } from '@/app/types';
 import debounce from 'lodash.debounce';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
 import { useAppSelector } from '@/lib/state/hooks';
 import { setBBox, setTarget } from '@/lib/state/mainstem/slice';
 import { useDatasetFit } from '@/app/hooks/useDatasetFit';
 import { Feature, Point } from 'geojson';
 import { useRiverRunnerLoader } from '@/app/hooks/useRiverRunnerLoader';
+import { showPopup } from '@/app/features/MainMap/Popup/showPopup';
 import {
     CLUSTER_TRANSITION_ZOOM,
     MAINSTEM_COLOR_EXPRESSION,
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
+    EXTENT,
 } from '@/app/features/MainMap/consts';
-
-const INITIAL_CENTER: [number, number] = [-98.5795, 39.8282];
-const INITIAL_ZOOM = 4;
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 
 type Props = {
     accessToken: string;
@@ -65,7 +67,8 @@ type Props = {
 export const MainMap: React.FC<Props> = (props) => {
     const { accessToken } = props;
 
-    const { map, persistentPopup, hoverPopup } = useMap(MAP_ID);
+    const { map, persistentPopup, hoverPopup, root, container } =
+        useMap(MAP_ID);
     const dispatch: AppDispatch = useDispatch();
 
     const {
@@ -165,8 +168,15 @@ export const MainMap: React.FC<Props> = (props) => {
             check();
         });
 
+    const isInRiverRunnerMode = () =>
+        store.getState().main.mode === MODE.RiverRunner;
+
     const loadDatasets = () => {
         if (!map || !datasets) {
+            return;
+        }
+
+        if (isInRiverRunnerMode()) {
             return;
         }
 
@@ -180,7 +190,6 @@ export const MainMap: React.FC<Props> = (props) => {
         );
 
         if (clusterSource) {
-            clusterSource.setData(datasets);
             clusterSource.setData(datasets);
             void waitForClusters(map, SourceId.AssociatedData)
                 .then((features) => {
@@ -229,7 +238,8 @@ export const MainMap: React.FC<Props> = (props) => {
 
         const handleInitialZoom = () => {
             const zoom = map.getZoom();
-            if (zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM) {
+
+            if (!isInRiverRunnerMode() && zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM) {
                 dispatch(
                     setLayerVisibility({
                         [LayerId.Mainstems]: true,
@@ -268,6 +278,10 @@ export const MainMap: React.FC<Props> = (props) => {
         });
 
         map.on('click', [LayerId.Mainstems, SubLayerId.MainstemsGhost], (e) => {
+            if (isInRiverRunnerMode()) {
+                return;
+            }
+
             const zoom = map.getZoom();
             if (
                 zoom >= LARGE_MAINSTEM_VISIBLE_ZOOM &&
@@ -283,11 +297,6 @@ export const MainMap: React.FC<Props> = (props) => {
                 if (features.length) {
                     const feature = features[0];
                     if (feature.properties) {
-                        window.history.replaceState(
-                            {},
-                            '',
-                            `/mainstems/${feature.properties.id}`
-                        );
                         dispatch(setTarget(feature.properties as MainstemData));
                     }
                 }
@@ -301,6 +310,10 @@ export const MainMap: React.FC<Props> = (props) => {
                 SubLayerId.SummaryPointsTotal,
             ],
             (e) => {
+                if (isInRiverRunnerMode()) {
+                    return;
+                }
+
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: [LayerId.SummaryPoints],
                 });
@@ -341,6 +354,9 @@ export const MainMap: React.FC<Props> = (props) => {
 
         // Allow the user to zoom into a boundary once from page load
         const HUC2BoundaryClickListener = (e: MapMouseEvent) => {
+            if (isInRiverRunnerMode()) {
+                return;
+            }
             const feature = map.queryRenderedFeatures(e.point, {
                 layers: [SubLayerId.HUC2BoundaryFill],
             })?.[0];
@@ -386,11 +402,47 @@ export const MainMap: React.FC<Props> = (props) => {
 
         map.on('zoom', () => {
             const zoom = map.getZoom();
-            if (zoom < CLUSTER_TRANSITION_ZOOM) {
+            if (zoom < CLUSTER_TRANSITION_ZOOM && !isInRiverRunnerMode()) {
                 persistentPopup.remove();
             }
         });
     }, [map]);
+
+    useEffect(() => {
+        if (!map || !persistentPopup || !root || !container) {
+            return;
+        }
+
+        const handleClick = (e: MapMouseEvent) => {
+            if (
+                !isInRiverRunnerMode() ||
+                store.getState().riverRunner.status !== STATUS_TYPE.External
+            ) {
+                return;
+            }
+
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: [SubLayerId.HUC2BoundaryFill],
+            });
+
+            if (features.length === 0) {
+                notificationManager.show(
+                    'This area is not currently available for River Runner.',
+                    NOTIFICATION_TYPE.Error,
+                    5000
+                );
+                return;
+            }
+
+            showPopup(map, e, root, container, persistentPopup);
+        };
+
+        map.on('click', handleClick);
+
+        return () => {
+            map.off('click', handleClick);
+        };
+    }, [map, persistentPopup, root, container]);
 
     useEffect(() => {
         if (!map) {
@@ -503,7 +555,6 @@ export const MainMap: React.FC<Props> = (props) => {
         Object.entries(visibleLayers).forEach(([layerId, visible]) => {
             if (map.getLayer(layerId)) {
                 const newVisibility = visible ? 'visible' : 'none';
-
                 map.setLayoutProperty(layerId, 'visibility', newVisibility);
                 if ([LayerId.Mainstems].includes(layerId as LayerId)) {
                     const ghostLayerId = layerId + '-ghost';
@@ -537,24 +588,22 @@ export const MainMap: React.FC<Props> = (props) => {
     }, [map, geocoderResult, reloadFlag]);
 
     return (
-        <>
-            <Map
-                accessToken={accessToken}
-                id={MAP_ID}
-                sources={sourceConfigs}
-                layers={layerDefinitions}
-                options={{
-                    style: BASEMAP,
-                    center: INITIAL_CENTER,
-                    zoom: INITIAL_ZOOM,
-                    maxZoom: 20,
-                }}
-                controls={{
-                    navigationControl: true,
-                    scaleControl: true,
-                }}
-            />
-        </>
+        <Map
+            accessToken={accessToken}
+            id={MAP_ID}
+            sources={sourceConfigs}
+            layers={layerDefinitions}
+            options={{
+                style: BASEMAP,
+                projection: 'mercator',
+                bounds: EXTENT,
+                maxZoom: 20,
+            }}
+            controls={{
+                navigationControl: true,
+                scaleControl: true,
+            }}
+        />
     );
 };
 

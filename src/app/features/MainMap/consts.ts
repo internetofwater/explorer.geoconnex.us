@@ -1,10 +1,15 @@
-import { ExpressionSpecification, FilterSpecification } from 'mapbox-gl';
+import {
+    ExpressionSpecification,
+    FilterSpecification,
+    LngLatBoundsLike,
+} from 'mapbox-gl';
+export const LOCATION_IDENTIFIER = 'data-identifier';
 
 // HUC Ids for boundaries outside continental US
 export const FILTERED_HUC_02 = ['19', '20', '21', '22'];
 export const HUC_FILTER_EXPRESSION: ExpressionSpecification = [
     'match',
-    ['get', 'HUC2'],
+    ['get', 'id'],
     FILTERED_HUC_02,
     false,
     true,
@@ -173,4 +178,14 @@ export const MAINSTEM_COLOR_EXPRESSION: ExpressionSpecification = [
     getColor('medium'),
     MAINSTEM_DRAINAGE_MEDIUM,
     getColor('large'),
+];
+
+export const EXTENT: LngLatBoundsLike = [
+    [-131.64056316119957, 22.255464665830075], // SW
+    [-64.97552409869952, 53.97348384366967], // NE
+];
+
+export const MAX_BOUNDS: LngLatBoundsLike = [
+    [-152.6452743774137, 10.69262992896131], // SW
+    [-58.45279289234608, 59.31949812711758], // NE
 ];

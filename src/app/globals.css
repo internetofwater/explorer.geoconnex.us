@@ -8,8 +8,10 @@
     --primary: theme('colors.primary.DEFAULT');
     --secondary: theme('colors.secondary.DEFAULT');
     --secondary-hover: theme('colors.secondary.hover');
+    --tertiary: theme('colors.tertiary.DEFAULT');
 
     --text-color: #000;
+    --text-secondary-color: #3a3939;
     --z-select-menu: 999;
     --z-notification: 3;
     --z-side-panel: 4;
@@ -17,6 +19,8 @@
     --z-tools: 1;
     --z-modal-overlay: 5;
     --z-loading-bar: 4;
+
+    --default-spacing: 0.5rem; /* 16px * 0.5 = 8px */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +30,7 @@
     }
 }
 
+/* TODO: remove vw, vh styling */
 body {
     color: var(--foreground);
     background: black;
@@ -42,6 +47,11 @@ body {
     height: 100svh;
     max-width: 100%;
     max-height: 100svh;
+}
+
+#map-container-mini {
+    width: 100%;
+    height: 100%;
 }
 
 /* Z Indexes across app */
@@ -69,7 +79,7 @@ div#tools {
 }
 
 div#scrollable-side-panel {
-    max-height: calc(100svh - 250px);
+    max-height: calc(100svh - 256px);
 }
 
 div#table-wrapper {
@@ -86,11 +96,6 @@ thead#table-header {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
-}
-
-button.mapboxgl-popup-close-button {
-    font-size: x-large;
-    right: 3px;
 }
 
 input[type='checkbox'] {
@@ -138,8 +143,8 @@ a:active {
 /* lg width */
 @media (min-width: 1024px) {
     div#scrollable-side-panel {
-        height: calc(100svh - 206px);
-        max-height: calc(100svh - 206px);
+        height: calc(100svh - 214px);
+        max-height: calc(100svh - 214px);
     }
 
     div#table-wrapper {
@@ -260,6 +265,18 @@ a:active {
 .tooltip:hover .tooltip-text,
 .tooltip:focus .tooltip-text {
     visibility: visible;
+}
+
+div.mapboxgl-popup-content:has(div[data-custom-popup]) {
+    padding: 0;
+}
+
+input.mapboxgl-ctrl-geocoder--input {
+    user-select: none;
+}
+
+button.mapboxgl-popup-close-button {
+    display: none;
 }
 
 @keyframes linear {

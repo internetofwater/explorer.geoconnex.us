@@ -15,19 +15,20 @@ import IconButton from '@/app/components/common/IconButton';
 import HamburgerIcon from '@/app/assets/icons/Hamburger';
 import { HelpModal } from '@/app/features/Help/Modal';
 import { LoadingBar } from '@/app/features/Loading';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from '@/app/features/About';
 import { Notifications } from '@/app/features/Notifications';
 import { MainstemModal } from '@/app/features/Mainstem/Modal';
 import Geocoder from '@/app/features/Geocoder';
 import Mainstem from '@/app/features/Mainstem';
-import { Feature, LineString } from 'geojson';
-import { Dataset, MainstemData } from '@/app/types';
-import { setTarget } from '@/lib/state/mainstem/slice';
-import { loadingManager } from '@/managers/init';
-import { LOADING_TYPE } from '@/lib/state/loading/types';
+import { useAppSelector } from '@/lib/state/hooks';
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 import { ZoomGuide } from '@/app/features/MapTools/ZoomGuide';
+import RiverRunner from '@/app/features/RiverRunner';
+import { MINI_MAP_ID } from '@/app/features/RiverRunner/MiniMap/config';
+import { useMode } from '@/app/hooks/useMode';
+import { useModeSwitcher } from '@/app/hooks/useModeSwitcher';
+import { useRouting } from '@/app/hooks/useRouting';
 
 type Props = {
     accessToken: string;
@@ -47,61 +48,21 @@ export const App: React.FC<Props> = (props) => {
     const { view, showSidePanel } = useSelector(
         (state: RootState) => state.main
     );
-    const pathname = usePathname();
+    const { inMainstemsMode } = useMode();
+    useModeSwitcher();
+    useRouting();
 
     const dispatch: AppDispatch = useDispatch();
+
+    const inActiveRun = useAppSelector(
+        (s) => s.riverRunner.status !== STATUS_TYPE.External
+    );
 
     const { map } = useMap(MAIN_MAP_ID);
 
     const datasets = useSelector((state: RootState) =>
         getFilteredDatasetsInBounds(state, map)
     );
-
-    useEffect(() => {
-        // Get the mainstem id on initial load and fetch data from geoconnex
-        const controller = new AbortController();
-        if (pathname && pathname.startsWith('/mainstems/')) {
-            const match = pathname.match(/\/mainstems\/(\d+)/);
-            const id = match ? match[1] : null;
-
-            if (id) {
-                const loadingInstance = loadingManager.add(
-                    'Fetching mainstem data for the id in the URL',
-                    LOADING_TYPE.Datasets
-                );
-                void fetch(
-                    `https://reference.geoconnex.us/collections/mainstems/items/${id}`,
-                    {
-                        signal: controller.signal,
-                    }
-                )
-                    .then((r) => r.json())
-                    .then(
-                        (
-                            feature: Feature<
-                                LineString,
-                                MainstemData & { datasets: Dataset[] }
-                            >
-                        ) => {
-                            // TODO: update this when datasets is no longer returned on the feature
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { datasets: _, ...mainstemData } =
-                                feature.properties;
-
-                            dispatch(setTarget(mainstemData));
-                        }
-                    )
-                    .catch((error) => console.error(error))
-                    .finally(() => {
-                        loadingManager.remove(loadingInstance);
-                    });
-            }
-        }
-
-        return () => {
-            controller.abort('Component dismount');
-        };
-    }, []);
 
     useEffect(() => {
         if (!map) {
@@ -116,8 +77,17 @@ export const App: React.FC<Props> = (props) => {
         dispatch(setShowSidePanel(true));
     };
 
+    const handlePanelTransitionEnd = (
+        e: React.TransitionEvent<HTMLDivElement>
+    ) => {
+        if (e.propertyName === 'width') {
+            map?.resize();
+        }
+    };
+
     return (
         <>
+            <RiverRunner accessToken={accessToken} />
             <MainstemModal />
             <HelpModal />
             <div className="flex">
@@ -136,22 +106,30 @@ export const App: React.FC<Props> = (props) => {
                 </div>
                 <div
                     id="side-panel"
+                    onTransitionEnd={handlePanelTransitionEnd}
                     className={`
-                     w-full lg:w-[45vw] xl:w-[30vw] 2xl:w-[20vw] 
-                     min-w-[300px] sm:min-w-[400px]
-                     md:max-w-[400px]
-                     overflow-hidden bg-primary
-                     m-2 lg:m-0
-                     border lg:border-l-0 lg:border-t-0 lg:border-b-0
-                     rounded-lg lg:rounded-none
-                     shadow-lg
-                     overflow-hidden
-                     z-[--z-side-panel]
-                     ${showSidePanel ? 'flex' : 'hidden lg:flex'}`}
+                                min-w-[300px] sm:min-w-[400px]
+                                lg:max-w-[45vw]
+                                xl:max-w-[30vw]
+                                2xl:max-w-[20vw]
+                                bg-primary
+                                m-2 lg:m-0
+                                border lg:border-l-0 lg:border-t-0 lg:border-b-0
+                                rounded-lg lg:rounded-none
+                                shadow-lg
+                                overflow-hidden
+                                z-[--z-side-panel]
+                                transition-all
+                                ${showSidePanel ? 'flex' : 'hidden lg:flex'}
+                            `}
+                    style={{
+                        width: inActiveRun ? 0 : '100%',
+                        ...(inActiveRun ? { minWidth: 0 } : {}),
+                    }}
                 >
                     <SidePanel datasets={datasets} />
                 </div>
-                {view === 'map' && (
+                {inMainstemsMode && view === 'map' && (
                     <div id="tools" className="fixed top-3 right-2">
                         <MapTools />
                     </div>
@@ -163,16 +141,18 @@ export const App: React.FC<Props> = (props) => {
                         ${view === 'map' ? 'block' : 'hidden'}  w-full`}
                 >
                     <LoadingBar />
-                    <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
-                        <Mainstem />
-                        <Geocoder />
-                    </div>
-                    {view === 'map' && (
+                    {inMainstemsMode && (
+                        <div className="absolute top-16 lg:top-3 left-2 lg:left-3 flex flex-col 2xl:flex-row gap-2 z-[3]">
+                            <Mainstem />
+                            <Geocoder />
+                        </div>
+                    )}
+                    {inMainstemsMode && view === 'map' && (
                         <div
                             id="zoom-guide"
                             className="absolute bottom-9 left-2 z-[3]"
                         >
-                            {view === 'map' && <ZoomGuide />}
+                            <ZoomGuide />
                         </div>
                     )}
                     <MainMap accessToken={accessToken} />
@@ -184,7 +164,7 @@ export const App: React.FC<Props> = (props) => {
                     } w-full`}
                 >
                     {/* Conserve memory, only render table on view */}
-                    {view === 'table' && (
+                    {inMainstemsMode && view === 'table' && (
                         <>
                             <LoadingBar />
                             <Table datasets={datasets} />
@@ -200,7 +180,7 @@ export const App: React.FC<Props> = (props) => {
                     <About />
                 </div>
             </div>
-            <Notifications />
+            {!inActiveRun && <Notifications />}
         </>
     );
 };
@@ -218,7 +198,7 @@ export const AppProvider: React.FC<Props> = (props) => {
 
     return (
         <Provider store={store}>
-            <MapProvider mapIds={[MAIN_MAP_ID]}>
+            <MapProvider mapIds={[MAIN_MAP_ID, MINI_MAP_ID]}>
                 <App accessToken={accessToken} />
             </MapProvider>
         </Provider>

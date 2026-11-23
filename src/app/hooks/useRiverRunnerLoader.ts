@@ -22,9 +22,7 @@ export const useRiverRunnerLoader = (map: Map | null, accessToken: string) => {
             .load(map, accessToken)
             .then((success) => {
                 if (success && isMounted) {
-                    map.on('click', (e) => {
-                        void riverRunnerService.initialize(e);
-                    });
+                    // TODO: enable river running globally
                 }
             })
             .catch((error) => {

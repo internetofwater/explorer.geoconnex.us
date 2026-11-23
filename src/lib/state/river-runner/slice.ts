@@ -52,6 +52,27 @@ export const riverRunner = createSlice({
         ) => {
             state.phaseJump = action.payload;
         },
+        setRiverFeatures: (
+            state,
+            action: PayloadAction<TInitialState['riverFeatures']>
+        ) => {
+            state.riverFeatures = action.payload;
+        },
+        setFrameSettings: (
+            state,
+            action: PayloadAction<TInitialState['frameSettings']>
+        ) => {
+            state.frameSettings = action.payload;
+        },
+        setDriver: (
+            state,
+            action: PayloadAction<Partial<TInitialState['driver']>>
+        ) => {
+            state.driver = {
+                ...state.driver,
+                ...action.payload,
+            };
+        },
     },
 });
 
@@ -64,6 +85,9 @@ export const {
     addRun,
     setActiveFeatureIndex,
     setPhaseJump,
+    setRiverFeatures,
+    setFrameSettings,
+    setDriver,
 } = riverRunner.actions;
 
 export default riverRunner.reducer;

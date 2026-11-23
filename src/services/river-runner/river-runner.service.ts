@@ -2,7 +2,12 @@
 // This is temporary to allow a clean build
 'use client';
 
-import type { LngLatLike, Map } from 'mapbox-gl';
+import type {
+    GeoJSONSource,
+    LngLatBoundsLike,
+    LngLatLike,
+    Map,
+} from 'mapbox-gl';
 import {
     TMapInteraction,
     TNLDIVAAFeature,
@@ -14,15 +19,33 @@ import {
     TUSStateFeatureCollection,
     TRunSettings,
     TFrameSettings,
+    TFlowlineProperties,
+    TRiverProperties,
 } from '@/services/river-runner/types';
 import { RiverRunnerStateService } from '@/services/river-runner/river-runner.state';
 import LoadingManager from '@/managers/loading.manager';
 import NotificationManager from '@/managers/notification.manager';
 import { RiverRunnerDataService } from '@/services/river-runner/river-runner.data';
 import { applyVAAData } from '@/services/river-runner/utils/applyVAAData';
-import { Position } from 'geojson';
+import {
+    Feature,
+    FeatureCollection,
+    Geometry,
+    LineString,
+    MultiLineString,
+    Point,
+    Position,
+} from 'geojson';
 import { CONFIG, TRiverRunnerConfig } from '@/services/river-runner/config';
-import { along, distance, featureCollection, lineString } from '@turf/turf';
+import {
+    along,
+    bbox,
+    distance,
+    featureCollection,
+    geometry,
+    lineString,
+    point,
+} from '@turf/turf';
 import { getFeatureGroups } from '@/services/river-runner/utils/getFeatureGroups';
 import { determineStoppingFeature } from '@/services/river-runner/utils/determineStoppingFeature';
 import { getElevationsMapQuery } from '@/services/river-runner/utils/getElevationsMapQuery';
@@ -36,7 +59,21 @@ import { calculatePitch } from '@/services/river-runner/utils/calculatePitch';
 import { positionCamera } from '@/services/river-runner/utils/positionCamera';
 import { getDataBounds } from '@/services/river-runner/utils/getDataBounds';
 import { LOADING_TYPE } from '@/lib/state/loading/types';
-import { loadingManager } from '@/managers/init';
+import { loadingManager, notificationManager } from '@/managers/init';
+import { InitialState as TMainInitialState } from '@/lib/state/main/slice';
+import {
+    allLayerIds,
+    LayerId,
+    MAP_ID,
+    SourceId,
+    SubLayerId,
+} from '@/app/features/MainMap/config';
+import { SourceId as MiniMapSourceId } from '@/app/features/RiverRunner/MiniMap/config';
+import { BasemapId, BasemapStyles } from '@/app/components/Map/types';
+import { basemaps } from '@/app/components/Map/consts';
+import { getDefaultGeojson } from '@/lib/state/utils';
+import { DEFAULT_DRIVER, TDriver } from '@/lib/state/river-runner/types';
+import { NOTIFICATION_TYPE } from '@/lib/state/notifications/types';
 
 export type TRiverRunnerDependencies = {
     loadingManager: LoadingManager;
@@ -45,24 +82,22 @@ export type TRiverRunnerDependencies = {
     dataService: RiverRunnerDataService;
 };
 
-// SL: Zoom level won't be adjustable on mobile, but it will be set slightly higher to avoid jiterriness
-// const DEFAULT_ALTITUDE_MULTIPLIER = window?.innerWidth < 600 ? 1.1 : 0.8;
-const DEFAULT_ALTITUDE_MULTIPLIER = 0.8;
-
-const DEFAULT_DRIVER = {
-    altitudeMultiplier: DEFAULT_ALTITUDE_MULTIPLIER,
-    playbackSpeed: 1,
-};
-
-type TDriver = typeof DEFAULT_DRIVER;
+const MAPBOX_CTRL_CLASSES = [
+    '.mapboxgl-ctrl-zoom-in',
+    '.mapboxgl-ctrl-zoom-out',
+    '.mapboxgl-ctrl-compass',
+    '.mapboxgl-ctrl-scale',
+];
 
 export class RiverRunnerService {
     private deps: TRiverRunnerDependencies;
     protected map: Map | null = null;
+    protected miniMap: Map | null = null;
     private advanced: boolean;
     private states: TUSStateFeatureCollection | null = null;
     private stoppingFeatures: TStoppingFeatureCollection | null = null;
-    public driver: TDriver;
+    private visibleLayers: TMainInitialState['visibleLayers'] | null = null;
+    private originalStyle: BasemapStyles | null = null;
 
     constructor(
         deps: TRiverRunnerDependencies,
@@ -71,7 +106,7 @@ export class RiverRunnerService {
     ) {
         this.deps = deps;
         this.advanced = advanced;
-        this.driver = structuredClone(driver);
+        this.deps.stateService.setDriver(structuredClone(driver));
     }
 
     async loadUSStates() {
@@ -87,8 +122,88 @@ export class RiverRunnerService {
         return Boolean(this.stoppingFeatures);
     }
 
+    private disableLayers() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+        this.visibleLayers = this.deps.stateService.getLayerVisiblity();
+        this.deps.stateService.setLayerVisiblity({
+            [LayerId.MajorRivers]: false,
+            [LayerId.HUC2Boundaries]: false,
+            [LayerId.Mainstems]: false,
+            [SubLayerId.HUC2BoundaryLabels]: false,
+            [LayerId.AssociatedData]: false,
+            [SubLayerId.AssociatedDataClusterCount]: false,
+            [SubLayerId.AssociatedDataClusters]: false,
+            [SubLayerId.AssociatedDataUnclustered]: false,
+        });
+    }
+
+    private enableLayers() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        if (this.visibleLayers) {
+            this.deps.stateService.setLayerVisiblity(this.visibleLayers);
+            this.visibleLayers = null;
+        }
+    }
+
+    private setRiverRunnerStyle() {
+        const originalStyle = this.deps.stateService.getBasemap();
+        if (originalStyle !== basemaps[BasemapId.Satellite]) {
+            // Use optimize flag to reduce background tile size
+            this.deps.stateService.setBasemap(
+                (basemaps[BasemapId.Satellite] +
+                    '?optimize=true') as BasemapStyles
+            );
+            this.originalStyle = originalStyle;
+        }
+    }
+
+    private undoRiverRunnerStyle() {
+        if (this.originalStyle) {
+            this.deps.stateService.setBasemap(this.originalStyle);
+        }
+    }
+
+    private addTerrain(map: Map) {
+        map.addSource('mapbox-dem', {
+            type: 'raster-dem',
+            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            tileSize: 512,
+            maxzoom: 14,
+        });
+
+        // add the DEM source as a terrain layer with exaggerated height
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.7 });
+
+        map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+                'sky-type': 'atmosphere',
+                'sky-atmosphere-sun': [0.0, 0.0],
+                'sky-atmosphere-sun-intensity': 15,
+            },
+        });
+    }
+
     setMap(map: Map) {
         this.map = map;
+
+        if (this.map.loaded()) {
+            this.addTerrain(this.map);
+        } else {
+            this.map.on('load', () => {
+                this.addTerrain(this.map!);
+            });
+        }
 
         return Boolean(this.map);
     }
@@ -97,10 +212,81 @@ export class RiverRunnerService {
         return this.map !== null;
     }
 
+    setMiniMap(miniMap: Map) {
+        this.miniMap = miniMap;
+
+        return Boolean(this.miniMap);
+    }
+
+    private async manage<T>(fetcher: () => Promise<T>): Promise<T | undefined> {
+        try {
+            return await fetcher();
+        } catch (error) {
+            this.reset();
+            notificationManager.show(
+                'Critical data request failed. Cancelling river run.',
+                NOTIFICATION_TYPE.Error,
+                8000
+            );
+        }
+    }
+
+    private hasMiniMap(): this is this & { miniMap: Map } {
+        return this.miniMap !== null;
+    }
+
+    setDriver(driver: Partial<TDriver>) {
+        this.deps.stateService.setDriver(driver);
+    }
+
     private reset() {
+        this.deps.stateService.setStatus('external');
+        this.deps.stateService.setFlag({
+            abort: false,
+            error: false,
+            paused: false,
+        });
+        this.deps.stateService.setRiverFeatures([]);
+        this.deps.stateService.setFrameSettings(null);
+        this.clearFlowlineVisual();
         this.enableMapInteractions();
-        this.deps.stateService.setFlag({ abort: false });
-        // TODO: this is incomplete
+        this.enableLayers();
+        this.undoRiverRunnerStyle();
+    }
+
+    private addCurrentPositionToMiniMap(
+        featureCollection: FeatureCollection<Point>
+    ) {
+        if (!this.hasMiniMap()) {
+            return;
+        }
+
+        const source = this.miniMap.getSource<GeoJSONSource>(
+            MiniMapSourceId.CurrentPosition
+        );
+
+        if (source) {
+            source.setData(featureCollection);
+        }
+    }
+
+    private addRiverToMiniMap(
+        featureCollection: FeatureCollection<LineString>
+    ) {
+        if (!this.hasMiniMap()) {
+            return;
+        }
+
+        const source = this.miniMap.getSource<GeoJSONSource>(
+            MiniMapSourceId.Flowlines
+        );
+
+        if (source) {
+            const bounds = bbox(featureCollection) as LngLatBoundsLike;
+
+            this.miniMap.fitBounds(bounds, { animate: false, padding: 10 });
+            source.setData(featureCollection);
+        }
     }
 
     private disableMapInteractions() {
@@ -108,6 +294,19 @@ export class RiverRunnerService {
             // TODO: handling
             console.error('No map provided');
             return;
+        }
+
+        if (document) {
+            const mapElement = document.getElementById(
+                `map-container-${MAP_ID}`
+            );
+            if (mapElement) {
+                for (const ctrl of MAPBOX_CTRL_CLASSES) {
+                    mapElement
+                        .querySelector(ctrl)
+                        ?.setAttribute('style', 'display:none;');
+                }
+            }
         }
 
         this.map._interactive = false;
@@ -121,8 +320,95 @@ export class RiverRunnerService {
             return;
         }
 
+        if (document) {
+            const mapElement = document.getElementById(
+                `map-container-${MAP_ID}`
+            );
+            if (mapElement) {
+                for (const ctrl of MAPBOX_CTRL_CLASSES) {
+                    mapElement.querySelector(ctrl)?.setAttribute('style', '');
+                }
+            }
+        }
+
         this.map._interactive = true;
         this.map.scrollZoom.enable();
+    }
+
+    private setFlowlineVisual(feature: TFlowlineFeature) {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        const source = this.map.getSource<GeoJSONSource>(
+            SourceId.RiverRunnerFlowlines
+        );
+
+        if (source) {
+            let typedFeature:
+                | Feature<LineString, TFlowlineProperties>
+                | Feature<MultiLineString, TFlowlineProperties>;
+
+            if (Array.isArray(feature.geometry.coordinates[0][0])) {
+                typedFeature = {
+                    ...feature,
+                    geometry: {
+                        ...(feature.geometry as Geometry),
+                        type: 'MultiLineString',
+                    },
+                } as Feature<MultiLineString, TFlowlineProperties>;
+            } else {
+                typedFeature = {
+                    ...feature,
+                    geometry: {
+                        ...feature.geometry,
+                        type: 'LineString',
+                    },
+                } as Feature<LineString, TFlowlineProperties>;
+            }
+            // We may still be transitioning basemap styling
+            if (this.map.isStyleLoaded()) {
+                source.setData(featureCollection([typedFeature as Feature]));
+            } else {
+                this.map.on('style.load', () => {
+                    source.setData(
+                        featureCollection([typedFeature as Feature])
+                    );
+                });
+            }
+        }
+    }
+
+    private clearFlowlineVisual() {
+        if (!this.hasMap()) {
+            // TODO: handling
+            console.error('No map provided');
+            return;
+        }
+
+        const source = this.map.getSource<GeoJSONSource>(
+            SourceId.RiverRunnerFlowlines
+        );
+
+        if (source) {
+            source.setData(getDefaultGeojson());
+        }
+    }
+
+    private saveRiverFeatures(riverFeatures: TRiverProperties[]) {
+        this.deps.stateService.setRiverFeatures(
+            riverFeatures.map((r) => ({
+                feature_data_index: r.feature_data_index,
+                progress: r.progress,
+                name: r.name,
+                distance_from_destination: r.distance_from_destination,
+                stream_level: r.stream_level,
+                length_km: r.length_km,
+                stop_point: r.stop_point,
+            }))
+        );
     }
 
     private async addVAAData(
@@ -334,8 +620,10 @@ export class RiverRunnerService {
             alongTarget = smoothedPath[1];
         }
 
+        const driver = this.deps.stateService.getDriver();
+
         const alongCamera = findArtificialCameraPoint({
-            distanceGap: this.driver.altitudeMultiplier * distanceGap,
+            distanceGap: driver.altitudeMultiplier * distanceGap,
             originPoint: smoothedPath[0],
             targetPoint: alongTarget,
         });
@@ -368,6 +656,7 @@ export class RiverRunnerService {
     }
 
     async initialize(e: TMapInteraction) {
+        this.deps.stateService.setStatus('unitialized');
         if (!this.hasMap()) {
             // TODO: handling
             console.error('No map provided');
@@ -400,14 +689,16 @@ export class RiverRunnerService {
         }
 
         this.disableMapInteractions();
+        this.disableLayers();
+        this.setRiverRunnerStyle();
 
         const loadingInstance = this.deps.loadingManager.add(
             'Initializing River Run',
             LOADING_TYPE.RiverRunnerInit
         );
 
-        const closestFeature = await this.deps.dataService.findClosestFeature(
-            e.lngLat
+        const closestFeature = await this.manage(() =>
+            this.deps.dataService.findClosestFeature(e.lngLat)
         );
 
         if (this.deps.stateService.hasAborted()) {
@@ -425,16 +716,28 @@ export class RiverRunnerService {
         const featureTypes = this.advanced
             ? CONFIG.advanced.featureTypes
             : CONFIG.simple.featureTypes;
-        const flowlinesData = await this.createNLDIFeatures(
-            closestFeature,
-            featureTypes
+        const flowlinesData = await this.manage(() =>
+            this.createNLDIFeatures(closestFeature, featureTypes)
         );
 
+        if (!flowlinesData) {
+            this.reset();
+            return;
+        }
+
         // SL: Append VAA data/flowrate data from firebase to flowline data
-        // SL: Leaving this commented out as this feature has been indicated to be unneeded
+        // Leaving this commented out as this feature has been indicated to be unneeded
         const extendedFlowLines = featureCollection(
             await this.addVAAData(flowlinesData.features)
         );
+
+        // SL: Draw river lines from flowline features. Combining them avoids mapbox simplification on low zoom levels that creates a choppy looking flow path.
+        const combinedFlowlines = structuredClone(flowlinesData.features[0]);
+        combinedFlowlines.geometry.coordinates = flowlinesData.features
+            .map((a) => a.geometry.coordinates)
+            .flat();
+
+        this.setFlowlineVisual(combinedFlowlines);
 
         let flowRates: number[] = [],
             maxFlowRate: number;
@@ -456,7 +759,6 @@ export class RiverRunnerService {
                 ? extendedFlowLines.features[0].properties.pathlength
                 : undefined;
         const riverFeatures = getFeatureGroups(extendedFlowLines);
-        const featureGroups = riverFeatures;
 
         // SL: Find start and end points
         const startRiver = extendedFlowLines.features[0];
@@ -481,8 +783,12 @@ export class RiverRunnerService {
 
         // SL: Update props used by child components
         // TODO: emit these
-        const riverPath = [{ geometry: { coordinates: coordinatePath } }];
-        const currentLocation = originPoint;
+        const riverPath = featureCollection([lineString(coordinatePath)]);
+        const currentLocation = featureCollection([point(originPoint)]);
+
+        this.addRiverToMiniMap(riverPath);
+        this.addCurrentPositionToMiniMap(currentLocation);
+
         this.deps.stateService.setStatus('calculating');
 
         // SL: Determine stopping feature by finding closest feature in stopping feature dataset
@@ -495,11 +801,6 @@ export class RiverRunnerService {
             this.deps.stateService.setStop(pathStoppingFeature);
         }
 
-        // SL: Draw river lines from flowline features. Combining them avoids mapbox simplification on low zoom levels that creates a choppy looking flow path.
-        const combinedFlowlines = flowlinesData.features[0];
-        combinedFlowlines.geometry.coordinates = flowlinesData.features
-            .map((a) => a.geometry.coordinates)
-            .flat();
         // TODO: use better approach
         // drawFlowPath({ map, featureData: [combinedFlowlines], lineWidth: 3 });
 
@@ -526,11 +827,13 @@ export class RiverRunnerService {
             typeof e === 'number' ? [e] : []
         );
 
+        const driver = this.deps.stateService.getDriver();
+
         // SL: Take base altitude and then adjust up based on the elevation of the first coordinate
         // The multiplier is necessary for higher elevations since they tend to be mountainous areas, as well, requiring additional height for the camera
         const initialElevation =
             cameraBaseAltitude +
-            this.driver.altitudeMultiplier *
+            driver.altitudeMultiplier *
                 terrainElevationMultiplier *
                 Math.round(safeElevations[0]);
 
@@ -543,7 +846,7 @@ export class RiverRunnerService {
         const smoothedPath = pathSmoother(
             coordinatePath,
             Math.min(
-                Math.floor(9 * this.driver.altitudeMultiplier),
+                Math.floor(9 * driver.altitudeMultiplier),
                 Math.floor(coordinatePath.length / 2)
             )
         );
@@ -560,7 +863,7 @@ export class RiverRunnerService {
             firstBearingPoint = smoothedPath[1];
         }
         const cameraStart = findArtificialCameraPoint({
-            distanceGap: this.driver.altitudeMultiplier * distanceGap,
+            distanceGap: driver.altitudeMultiplier * distanceGap,
             originPoint: smoothedPath[0],
             targetPoint: firstBearingPoint,
         });
@@ -617,6 +920,8 @@ export class RiverRunnerService {
             duration: animationDuration,
         };
 
+        this.saveRiverFeatures(riverFeatures);
+
         if (window?.innerWidth > 600) {
             this.deps.stateService.setStatus('overview');
             this.map.scrollZoom.enable();
@@ -643,7 +948,7 @@ export class RiverRunnerService {
         this.map.scrollZoom.disable();
 
         // Use default playback speed and altitude multiplier
-        this.driver = DEFAULT_DRIVER;
+        this.deps.stateService.setDriver(DEFAULT_DRIVER);
         this.deps.stateService.setFlag({ paused: false });
 
         // SL: Fly to clicked point and pitch camera (initial "raindrop" animation)
@@ -683,34 +988,37 @@ export class RiverRunnerService {
         const stop = stopPoints[0] ?? null; // reduce to just number or null
         this.deps.stateService.setActiveFeatureIndex(0);
 
-        const route = pathSmoother(
+        const driver = this.deps.stateService.getDriver();
+
+        // Letting this live outside so that we dont create new copies every frame
+        let route = pathSmoother(
             settings.paths.smoothed,
             Math.min(
-                Math.floor(9 * this.driver.altitudeMultiplier),
+                Math.floor(9 * driver.altitudeMultiplier),
                 Math.floor(settings.paths.coordinate.length / 2)
             )
         );
-        const routeDistance = pathDistance(route);
 
+        const distance = pathDistance(route);
         const frameSettings: TFrameSettings = {
             startTime: undefined,
             phase: 0,
             tick: 0,
             lastTime: undefined,
-            phaseGap: settings.gap / routeDistance,
+            phaseGap: settings.gap / distance,
             segment: {
                 start,
                 stop,
             },
+            distance,
             // SL: This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
             speedCoefficient:
                 1 /
-                Math.pow(
-                    1 + 1.1 * Math.log(this.driver.altitudeMultiplier),
-                    1.25
-                ),
+                Math.pow(1 + 1.1 * Math.log(driver.altitudeMultiplier), 1.25),
         };
 
+        let lastStoreUpdate = 0;
+        let lastAltitudeMultiplier = driver.altitudeMultiplier;
         const frame = (time: number) => {
             if (frameSettings.startTime === undefined) {
                 frameSettings.startTime = frameSettings.lastTime = time;
@@ -723,41 +1031,59 @@ export class RiverRunnerService {
                 return;
             }
 
+            const driver = this.deps.stateService.getDriver();
+
             // SL: If a user has clicked one of the features in the navigation box, we'll need to adjust the "phase" to jump to that feature
             const phaseJump = this.deps.stateService.getPhaseJump();
             if (phaseJump !== null) {
-                frameSettings.phase = phaseJump;
-                frameSettings.segment.start = startPoints[activeFeatureIndex];
-                frameSettings.segment.stop =
-                    stopPoints[activeFeatureIndex] ?? null;
+                // frameSettings.phase = phaseJump;
+                // frameSettings.segment.start = startPoints[activeFeatureIndex];
+                // frameSettings.segment.stop =
+                //     stopPoints[activeFeatureIndex] ?? null;
 
                 this.deps.stateService.setPhaseJump(null);
+                const nextIndex = this.deps.stateService
+                    .getRiverFeatures()
+                    .findIndex((r) => r.progress ?? 0 >= phaseJump);
+                if (nextIndex > -1) {
+                    this.deps.stateService.setActiveFeatureIndex(nextIndex);
+                    activeFeatureIndex =
+                        this.deps.stateService.getActiveFeatureIndex();
+                    frameSettings.phase = phaseJump;
+                    frameSettings.segment.start = startPoints[nextIndex];
+                    frameSettings.segment.stop = stopPoints[nextIndex] ?? null;
+
+                    this.deps.stateService.setPhaseJump(null);
+                }
             }
 
-            // TODO:
-            // if (altitudeChange) {
-            //     route = pathSmoother(
-            //         coordinatePath,
-            //         Math.min(
-            //             Math.floor(9 * altitudeMultiplier),
-            //             Math.floor(coordinatePath.length / 2)
-            //         )
-            //     );
-            //     routeDistance = pathDistance(route);
+            if (lastAltitudeMultiplier !== driver.altitudeMultiplier) {
+                route = pathSmoother(
+                    settings.paths.coordinate,
+                    Math.min(
+                        Math.floor(9 * driver.altitudeMultiplier),
+                        Math.floor(settings.paths.coordinate.length / 2)
+                    )
+                );
+                frameSettings.distance = pathDistance(route);
 
-            //     phaseGap = distanceGap / routeDistance;
+                frameSettings.phaseGap = settings.gap / frameSettings.distance;
 
-            //     // This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
-            //     speedCoefficient =
-            //         1 / Math.pow(1 + 1.1 * Math.log(altitudeMultiplier), 1.25);
+                // SL: This adjusts the run speed based on the altitude. It seems *very* complicated, but it's the closest I've come to keeping perceptual speed consistent.
+                frameSettings.speedCoefficient =
+                    1 /
+                    Math.pow(
+                        1 + 1.1 * Math.log(driver.altitudeMultiplier),
+                        1.25
+                    );
 
-            //     altitudeChange = false;
-            // }
+                lastAltitudeMultiplier = driver.altitudeMultiplier;
+            }
 
             // SL: phase determines how far through the animation we are
             if (!this.deps.stateService.hasPaused()) {
                 frameSettings.phase +=
-                    this.driver.playbackSpeed *
+                    driver.playbackSpeed *
                     ((time - (frameSettings.lastTime ?? 0)) /
                         (settings.duration * frameSettings.speedCoefficient));
             }
@@ -765,7 +1091,7 @@ export class RiverRunnerService {
             // SL: If rewinding and user rewinds past the start, this will puase it and keep it from bugging out
             if (frameSettings.phase < 0) {
                 frameSettings.phase = 0;
-                this.driver.playbackSpeed = 1;
+                driver.playbackSpeed = 1;
 
                 this.deps.stateService.setFlag({ paused: true });
             }
@@ -790,7 +1116,11 @@ export class RiverRunnerService {
                 frameSettings.segment.stop &&
                 frameSettings.phase >= frameSettings.segment.stop
             ) {
-                activeFeatureIndex += 1;
+                this.deps.stateService.setActiveFeatureIndex(
+                    activeFeatureIndex + 1
+                );
+                activeFeatureIndex =
+                    this.deps.stateService.getActiveFeatureIndex();
                 frameSettings.segment.start = frameSettings.segment.stop;
                 frameSettings.segment.stop =
                     stopPoints[activeFeatureIndex] ?? null;
@@ -801,7 +1131,11 @@ export class RiverRunnerService {
                 frameSettings.segment.start &&
                 frameSettings.phase <= frameSettings.segment.start
             ) {
-                activeFeatureIndex -= 1;
+                this.deps.stateService.setActiveFeatureIndex(
+                    activeFeatureIndex - 1
+                );
+                activeFeatureIndex =
+                    this.deps.stateService.getActiveFeatureIndex();
                 frameSettings.segment.stop = frameSettings.segment.start;
                 frameSettings.segment.start = startPoints[activeFeatureIndex];
             }
@@ -835,13 +1169,13 @@ export class RiverRunnerService {
                 (elevationNext - elevationLast) * elevationStepProgress;
             const tickElevation =
                 settings.cameraBaseAltitude +
-                this.driver.altitudeMultiplier *
+                driver.altitudeMultiplier *
                     settings.terrain.multiplier *
                     Math.round(elevationEstimate);
 
             let alongTarget = along(
                 lineString(route),
-                routeDistance *
+                frameSettings.distance *
                     (frameSettings.phase === 0 ? 0.000005 : frameSettings.phase)
             ).geometry.coordinates;
 
@@ -851,19 +1185,18 @@ export class RiverRunnerService {
 
             const alongCamera =
                 frameSettings.phase -
-                    this.driver.altitudeMultiplier * frameSettings.phaseGap <
+                    driver.altitudeMultiplier * frameSettings.phaseGap <
                 0
                     ? findArtificialCameraPoint({
-                          distanceGap:
-                              this.driver.altitudeMultiplier * settings.gap,
+                          distanceGap: driver.altitudeMultiplier * settings.gap,
                           originPoint: route[0],
                           targetPoint: alongTarget,
                       })
                     : along(
                           lineString(route),
-                          routeDistance *
+                          frameSettings.distance *
                               (frameSettings.phase -
-                                  this.driver.altitudeMultiplier *
+                                  driver.altitudeMultiplier *
                                       frameSettings.phaseGap)
                       ).geometry.coordinates;
 
@@ -886,11 +1219,16 @@ export class RiverRunnerService {
             // };
 
             // SL: This will update the location of the marker on the locator map
-            // JS TODO: this can be improved
-            // if (tick % 5 === 0) {
-            //     currentLocation = alongTarget;
-            // }
-            // tick += 1;
+            // Update tracked settings 4 times per sec (every 250ms)
+            if (time - lastStoreUpdate > 250) {
+                this.deps.stateService.setFrameSettings(
+                    structuredClone(frameSettings)
+                );
+                const currentLocation = featureCollection([point(alongTarget)]);
+                this.addCurrentPositionToMiniMap(currentLocation);
+                lastStoreUpdate = time;
+            }
+            frameSettings.tick = frameSettings.tick + 1;
 
             window?.requestAnimationFrame(frame);
         };
@@ -928,11 +1266,11 @@ export class RiverRunnerService {
         });
 
         this.map.once('moveend', () => {
-            this.deps.stateService.setStatus('overview');
+            this.deps.stateService.setStatus('external');
             // TODO
             // postRun = true;
 
-            this.enableMapInteractions();
+            this.reset();
         });
     }
 
@@ -944,5 +1282,17 @@ export class RiverRunnerService {
         results.push(this.setMap(map));
 
         return results.every((r) => r);
+    }
+
+    toggle() {
+        this.deps.stateService.setFlag({
+            paused: !this.deps.stateService.hasPaused(),
+        });
+    }
+
+    abort() {
+        this.deps.stateService.setFlag({
+            abort: true,
+        });
     }
 }

@@ -3,18 +3,41 @@ import { TRunSettings } from '@/services/river-runner/types';
 import {
     addRun,
     setActiveFeatureIndex,
+    setDriver,
     setFlag,
+    setFrameSettings,
     setPhaseJump,
+    setRiverFeatures,
     setStart,
     setStatus,
     setStop,
 } from '@/lib/state/river-runner/slice';
 import { TInitialState } from '@/lib/state/river-runner/types';
+import {
+    setSelectedBasemap,
+    InitialState as TMainInitialState,
+} from '@/lib/state/main/slice';
+import { setLayerVisibility } from '@/lib/state/main/slice';
+import { BasemapStyles } from '@/app/components/Map/types';
 
 export class RiverRunnerStateService {
     private store: Store;
     constructor(store: Store) {
         this.store = store;
+    }
+
+    getLayerVisiblity() {
+        return this.store.getState().main.visibleLayers;
+    }
+    setLayerVisiblity(payload: Partial<TMainInitialState['visibleLayers']>) {
+        this.store.dispatch(setLayerVisibility(payload));
+    }
+
+    getBasemap() {
+        return this.store.getState().main.selectedBasemap;
+    }
+    setBasemap(payload: BasemapStyles) {
+        return this.store.dispatch(setSelectedBasemap(payload));
     }
 
     // Flags
@@ -23,6 +46,9 @@ export class RiverRunnerStateService {
     }
     hasPaused() {
         return this.store.getState().riverRunner.flags.paused;
+    }
+    hasError() {
+        return this.store.getState().riverRunner.flags.error;
     }
     setFlag(payload: Partial<TInitialState['flags']>) {
         this.store.dispatch(setFlag(payload));
@@ -63,5 +89,24 @@ export class RiverRunnerStateService {
     }
     setPhaseJump(payload: TInitialState['phaseJump']) {
         this.store.dispatch(setPhaseJump(payload));
+    }
+
+    getRiverFeatures() {
+        return this.store.getState().riverRunner.riverFeatures;
+    }
+    setRiverFeatures(payload: TInitialState['riverFeatures']) {
+        this.store.dispatch(setRiverFeatures(payload));
+    }
+
+    setFrameSettings(payload: TInitialState['frameSettings']) {
+        this.store.dispatch(setFrameSettings(payload));
+    }
+
+    // Driver
+    getDriver() {
+        return this.store.getState().riverRunner.driver;
+    }
+    setDriver(payload: Partial<TInitialState['driver']>) {
+        this.store.dispatch(setDriver(payload));
     }
 }

@@ -2,6 +2,7 @@ import {
     TFlowRateResponseRaw,
     TNLDIFeature,
     TNLDIFeatureCollection,
+    TReverseGeocodeFeatureCollection,
     TStoppingFeatureCollection,
     TStoppingFeatureProperties,
     TVAAResponse,
@@ -47,6 +48,11 @@ export class RiverRunnerDataService {
     private async fetch<T>(
         config: Omit<TSuperFetchArgs<T>, 'cache'>
     ): Promise<T | undefined> {
+        // Prevent unnecessary fetches in error state
+        if (this.deps.stateService.hasError()) {
+            return undefined;
+        }
+
         return superFetch<T>({
             ...config,
             cache: this.cache,
@@ -54,12 +60,50 @@ export class RiverRunnerDataService {
                 config.onCatch ??
                 ((error) => {
                     console.error(error);
+                    this.deps.stateService.setFlag({ error: true });
                     this.deps.notificationManager.show(
                         'An error occurred in the River Runner Data Service. Check the console for more details',
                         NOTIFICATION_TYPE.Error,
                         5000
                     );
                 }),
+        });
+    }
+
+    async getPlaces(
+        coords: LngLat,
+        signal?: AbortSignal
+    ): Promise<TReverseGeocodeFeatureCollection | undefined> {
+        if (!this.hasAccessToken()) {
+            return;
+        }
+
+        const url = new URL('https://api.mapbox.com/search/geocode/v6/reverse');
+
+        const { lng: longitude, lat: latitude } = coords;
+
+        url.search = new URLSearchParams({
+            longitude: String(longitude),
+            latitude: String(latitude),
+            language: 'en', // Return results in english
+            country: 'us,ca,mx', // Return results for US, Canada, and Mexico
+            types: 'place', // Return only places
+            worldview: 'us', // Return results for a US audience
+            access_token: this.accessToken,
+        }).toString();
+
+        return await this.fetch({
+            url: url.toString(),
+            init: {
+                signal,
+            },
+            parse: async (r) => {
+                const result =
+                    (await r.json()) as TReverseGeocodeFeatureCollection;
+                console.log('Mapbox Geocoding API ' + result.attribution); // Include provided attribution
+                return result;
+            },
+            getKey: () => `geocode-api-places-${longitude}-${latitude}`,
         });
     }
 
@@ -183,7 +227,7 @@ export class RiverRunnerDataService {
         FeatureCollection<Polygon | MultiPolygon, { name: string }> | undefined
     > {
         return await this.fetch({
-            url: 'data/us_states.json',
+            url: '/data/us_states.json',
             init: {
                 headers: {
                     'Content-Type': 'application/json',
@@ -211,7 +255,7 @@ export class RiverRunnerDataService {
         signal?: AbortSignal
     ): Promise<TStoppingFeatureCollection | undefined> {
         return await this.fetch({
-            url: 'data/stopping_features.json',
+            url: '/data/stopping_features.json',
             init: {
                 headers: {
                     'Content-Type': 'application/json',

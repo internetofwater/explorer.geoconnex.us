@@ -14,10 +14,12 @@ import {
     Map,
     Popup,
 } from 'mapbox-gl';
-import { defaultGeoJson } from '@/lib/state/consts';
 import { basemaps } from '@/app/components/Map/consts';
 import { huc02Centers } from '@/data/huc02Centers';
 import { getLineTracingEvent } from '@/app/features/MainMap/utils';
+import { Root } from 'react-dom/client';
+// import store from '@/lib/state/store';
+// import { MODE } from '@/lib/state/main/slice';
 import {
     CLUSTER_TRANSITION_ZOOM,
     GHOST_SUFFIX,
@@ -29,6 +31,7 @@ import {
     LARGE_MAINSTEM_VISIBLE_ZOOM,
     MAINSTEM_WIDTH_EXPRESSION,
 } from '@/app/features/MainMap/consts';
+import { getDefaultGeojson } from '@/lib/state/utils';
 
 export const MAP_ID = 'main';
 
@@ -38,10 +41,12 @@ export enum SourceId {
     Mainstems = 'mainstems_v3',
     MajorRivers = 'major-rivers-source',
     HUC2Boundaries = 'hu02',
+    States = 'states',
     AssociatedData = 'associated-data-source',
     HUC2GeoJSON = 'huc-02-geojson',
     SummaryPoints = 'summary-points',
     GeocoderResult = 'geocoder-result-source',
+    RiverRunnerFlowlines = 'river-runner-flowlines-source',
 }
 
 export enum LayerId {
@@ -50,9 +55,11 @@ export enum LayerId {
     MajorRivers = 'major-rivers',
     AssociatedData = 'associated-data',
     SummaryPoints = 'summary-points',
+    States = 'states-layer',
     MainstemsHighlight = 'mainstems-highlight',
     GeocoderResultLine = 'geocoder-result-line',
     GeocoderResultCircle = 'geocoder-result-circle',
+    RiverRunnerFlowlines = 'river-runner-flowlines',
 }
 
 export enum SubLayerId {
@@ -64,6 +71,9 @@ export enum SubLayerId {
     AssociatedDataUnclustered = 'associated-data-unclustered-point',
     SummaryPointsSiteName = 'summary-points-site-name',
     SummaryPointsTotal = 'summary-points-site-total',
+    RiverRunnerFlowlinesMain = 'river-runner-flowlines-main',
+    RiverRunnerFlowlinesOutline = 'river-runner-flowlines-outline',
+    RiverRunnerFlowlinesHighlight = 'river-runner-flowlines-highlight',
 }
 export const allLayerIds = [
     ...Object.values(LayerId),
@@ -89,9 +99,9 @@ export const sourceConfigs: SourceConfig[] = [
                 `https://reference.geoconnex.us/collections/mainstems_v3/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
-
             maxzoom: 10,
             tileSize: 512,
+            // Bounds from Reference Collection Metadata
             bounds: [-124.707777, 25.190876, -67.05824, 49.376613],
         },
     },
@@ -100,7 +110,7 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: defaultGeoJson,
+            data: getDefaultGeojson(),
             cluster: true,
             clusterMaxZoom: 20, // Max zoom to cluster points on
             clusterRadius: 50,
@@ -115,9 +125,9 @@ export const sourceConfigs: SourceConfig[] = [
                 `https://reference.geoconnex.us/collections/hu02/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
             ],
             minzoom: 0,
-
             maxzoom: 10,
             tileSize: 512,
+            // Bounds from Reference Collection Metadata
             bounds: [-179.229468, -14.42442, 179.856484, 71.439451],
         },
     },
@@ -126,11 +136,23 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+            data: getDefaultGeojson(),
             cluster: false,
+        },
+    },
+    {
+        id: SourceId.States,
+        type: Sources.VectorTile,
+        definition: {
+            type: 'vector',
+            tiles: [
+                `https://reference.geoconnex.us/collections/states/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt`,
+            ],
+            minzoom: 0,
+            maxzoom: 16,
+            tileSize: 512,
+            // Bounds from Reference Collection Metadata
+            bounds: [-179.148909, -14.548699, 179.77847011250077, 71.365162],
         },
     },
     {
@@ -147,11 +169,18 @@ export const sourceConfigs: SourceConfig[] = [
         type: Sources.GeoJSON,
         definition: {
             type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+            data: getDefaultGeojson(),
             cluster: false,
+        },
+    },
+    {
+        id: SourceId.RiverRunnerFlowlines,
+        type: Sources.GeoJSON,
+        definition: {
+            type: 'geojson',
+            data: getDefaultGeojson(),
+            cluster: false,
+            lineMetrics: true,
         },
     },
 ];
@@ -588,7 +617,81 @@ export const getLayerConfig = (
                     'circle-radius': 6,
                 },
             };
+        case SubLayerId.RiverRunnerFlowlinesMain:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesMain,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    'line-color': '#6BC5D2',
+                    'line-gradient': [
+                        'interpolate',
+                        ['linear'],
+                        ['line-progress'],
+                        0,
+                        '#6BC5D2',
+                        0.5,
+                        '#7AD1DB',
+                        1,
+                        '#5DAFBE',
+                    ],
+                    'line-width': 15,
 
+                    // 'line-width': 80,
+                    'line-blur': 0.5,
+                },
+            };
+        case SubLayerId.RiverRunnerFlowlinesOutline:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesOutline,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    // 'line-color': '#0F0',
+                    'line-color': '#4A7885',
+                    // 'line-width': 85,
+                    'line-width': 20,
+                    'line-opacity': 0.8,
+                    'line-blur': 1.25,
+                },
+            };
+        case SubLayerId.RiverRunnerFlowlinesHighlight:
+            return {
+                id: SubLayerId.RiverRunnerFlowlinesHighlight,
+                type: LayerType.Line,
+                source: SourceId.RiverRunnerFlowlines,
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    'line-color': '#BCEBF2',
+                    // 'line-color': '#F00',
+                    'line-width': 8,
+                    'line-opacity': 0.6,
+                },
+            };
+        case LayerId.States:
+            return {
+                id: LayerId.States,
+                type: LayerType.Fill,
+                source: SourceId.States,
+                'source-layer': SourceId.States,
+                layout: {
+                    visibility: 'none',
+                },
+                paint: {
+                    'fill-opacity': 0,
+                },
+            };
         default:
             return null;
     }
@@ -600,7 +703,13 @@ let hoverOnCluster = false;
 export const getLayerHoverFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.MainstemsGhost:
                 return (e) =>
@@ -656,6 +765,8 @@ export const getLayerHoverFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
 
                     map.getCanvas().style.cursor = 'pointer';
                 };
@@ -678,7 +789,13 @@ export const getLayerHoverFunction = (
 export const getLayerCustomHoverExitFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return () => {
@@ -709,6 +826,8 @@ export const getLayerCustomHoverExitFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };
@@ -729,7 +848,13 @@ export const getLayerCustomHoverExitFunction = (
 export const getLayerMouseMoveFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return () => {
@@ -760,6 +885,8 @@ export const getLayerMouseMoveFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };
@@ -779,10 +906,20 @@ export const getLayerMouseMoveFunction = (
 export const getLayerClickFunction = (
     id: LayerId | SubLayerId
 ): CustomListenerFunction => {
-    return (map: Map, hoverPopup: Popup, persistentPopup: Popup) => {
+    return (
+        map: Map,
+        hoverPopup: Popup,
+        persistentPopup: Popup,
+        root: Root,
+        container: HTMLDivElement
+    ) => {
         switch (id) {
             case SubLayerId.AssociatedDataClusters:
                 return (e) => {
+                    // if (store.getState().main.mode === MODE.RiverRunner) {
+                    //     return;
+                    // }
+
                     const features = map.queryRenderedFeatures(e.point, {
                         layers: [SubLayerId.AssociatedDataClusters],
                     });
@@ -823,6 +960,8 @@ export const getLayerClickFunction = (
                     console.log('Available Popups: ');
                     console.log('Hover: ', hoverPopup);
                     console.log('Persistent: ', persistentPopup);
+                    console.log('Content Root: ', root);
+                    console.log('Content Container: ', container);
                 };
         }
     };
@@ -991,5 +1130,39 @@ export const layerDefinitions: MainLayerDefinition[] = [
         controllable: false,
         legend: false,
         config: getLayerConfig(SubLayerId.HUC2BoundaryLabels),
+    },
+    {
+        id: LayerId.States,
+        controllable: false,
+        legend: false,
+        config: getLayerConfig(LayerId.States),
+    },
+    {
+        id: LayerId.RiverRunnerFlowlines,
+        controllable: false,
+        legend: false,
+        config: null,
+        subLayers: [
+            {
+                id: SubLayerId.RiverRunnerFlowlinesOutline,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.RiverRunnerFlowlinesOutline),
+            },
+            {
+                id: SubLayerId.RiverRunnerFlowlinesMain,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(SubLayerId.RiverRunnerFlowlinesMain),
+            },
+            {
+                id: SubLayerId.RiverRunnerFlowlinesHighlight,
+                controllable: false,
+                legend: false,
+                config: getLayerConfig(
+                    SubLayerId.RiverRunnerFlowlinesHighlight
+                ),
+            },
+        ],
     },
 ];

@@ -14,12 +14,18 @@ import CloseIcon from '@/app/assets/icons/Close';
 
 import type { AppDispatch } from '@/lib/state/store';
 import type { GeocoderResultGroups } from '@/app/hooks/useGeocoder';
+import { useAppSelector } from '@/lib/state/hooks';
+import { STATUS_TYPE } from '@/lib/state/river-runner/types';
 
 /**
  * Renders the geocoder search input and results, when applicable. The search
  * request lifecycle is managed by useGeocoder.
  */
 export const GeocoderInput: React.FC = () => {
+    const inActiveRun = useAppSelector(
+        (s) => s.riverRunner.status !== STATUS_TYPE.External
+    );
+
     const [results, setResults] = useState<GeocoderResultGroups | null>(null);
 
     const dispatch: AppDispatch = useDispatch();
@@ -46,6 +52,10 @@ export const GeocoderInput: React.FC = () => {
         results && Object.values(results).some((group) => group.length > 0);
 
     const isLoading = state.status === 'searching';
+
+    if (inActiveRun) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col gap-1">
