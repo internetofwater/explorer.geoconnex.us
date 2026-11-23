@@ -34,37 +34,44 @@ export const MAP_ID = 'main';
 
 export const BASEMAP = basemaps[BasemapId.Dark];
 
+const APPLICATION_PREFIX = 'expl-application';
+
+export const REGISTERED_PREFIXES = [APPLICATION_PREFIX] as const;
+
 export enum SourceId {
-    Mainstems = 'mainstems_v3',
-    MajorRivers = 'major-rivers-source',
-    HUC2Boundaries = 'hu02',
-    AssociatedData = 'associated-data-source',
-    HUC2GeoJSON = 'huc-02-geojson',
-    SummaryPoints = 'summary-points',
-    GeocoderResult = 'geocoder-result-source',
+    Mainstems = `${APPLICATION_PREFIX}-mainstems_v3`,
+    MajorRivers = `${APPLICATION_PREFIX}-major-rivers-source`,
+    HUC2Boundaries = `${APPLICATION_PREFIX}-hu02`,
+    AssociatedData = `${APPLICATION_PREFIX}-associated-data-source`,
+    HUC2GeoJSON = `${APPLICATION_PREFIX}-huc-02-geojson`,
+    SummaryPoints = `${APPLICATION_PREFIX}-summary-points`,
+    GeocoderResult = `${APPLICATION_PREFIX}-geocoder-result-source`,
 }
 
 export enum LayerId {
-    Mainstems = 'mainstems-layer',
-    HUC2Boundaries = 'huc-2-boundaries',
-    MajorRivers = 'major-rivers',
-    AssociatedData = 'associated-data',
-    SummaryPoints = 'summary-points',
-    MainstemsHighlight = 'mainstems-highlight',
-    GeocoderResultLine = 'geocoder-result-line',
-    GeocoderResultCircle = 'geocoder-result-circle',
+    Mainstems = `${APPLICATION_PREFIX}-mainstems-layer`,
+    HUC2Boundaries = `${APPLICATION_PREFIX}-huc-2-boundaries`,
+    MajorRivers = `${APPLICATION_PREFIX}-major-rivers`,
+    AssociatedData = `${APPLICATION_PREFIX}-associated-data`,
+    SummaryPoints = `${APPLICATION_PREFIX}-summary-points`,
+    MainstemsHighlight = `${APPLICATION_PREFIX}-mainstems-highlight`,
+    GeocoderResultLine = `${APPLICATION_PREFIX}-geocoder-result-line`,
+    GeocoderResultCircle = `${APPLICATION_PREFIX}-geocoder-result-circle`,
 }
 
 export enum SubLayerId {
-    MainstemsGhost = LayerId.Mainstems + GHOST_SUFFIX,
-    HUC2BoundaryLabels = 'huc-2-boundaries-labels',
-    HUC2BoundaryFill = 'huc-2-boundaries-Fill',
-    AssociatedDataClusters = 'associated-data-clusters',
-    AssociatedDataClusterCount = 'associated-data-cluster-count',
-    AssociatedDataUnclustered = 'associated-data-unclustered-point',
-    SummaryPointsSiteName = 'summary-points-site-name',
-    SummaryPointsTotal = 'summary-points-site-total',
+    MainstemsGhost = `${APPLICATION_PREFIX}-` +
+        LayerId.Mainstems +
+        GHOST_SUFFIX,
+    HUC2BoundaryLabels = `${APPLICATION_PREFIX}-huc-2-boundaries-labels`,
+    HUC2BoundaryFill = `${APPLICATION_PREFIX}-huc-2-boundaries-Fill`,
+    AssociatedDataClusters = `${APPLICATION_PREFIX}-associated-data-clusters`,
+    AssociatedDataClusterCount = `${APPLICATION_PREFIX}-associated-data-cluster-count`,
+    AssociatedDataUnclustered = `${APPLICATION_PREFIX}-associated-data-unclustered-point`,
+    SummaryPointsSiteName = `${APPLICATION_PREFIX}-summary-points-site-name`,
+    SummaryPointsTotal = `${APPLICATION_PREFIX}-summary-points-site-total`,
 }
+
 export const allLayerIds = [
     ...Object.values(LayerId),
     ...Object.values(SubLayerId),
@@ -267,7 +274,7 @@ export const getLayerConfig = (
                 id: LayerId.Mainstems,
                 type: LayerType.Line,
                 source: SourceId.Mainstems,
-                'source-layer': SourceId.Mainstems,
+                'source-layer': 'mainstems_v3',
                 filter: MAINSTEM_FILTER,
                 layout: {
                     'line-cap': 'round',
@@ -286,7 +293,7 @@ export const getLayerConfig = (
                 id: SubLayerId.MainstemsGhost,
                 type: LayerType.Line,
                 source: SourceId.Mainstems,
-                'source-layer': SourceId.Mainstems,
+                'source-layer': 'mainstems_v3',
                 filter: MAINSTEM_FILTER,
                 layout: {
                     'line-cap': 'round',
@@ -306,7 +313,7 @@ export const getLayerConfig = (
                 id: LayerId.MainstemsHighlight,
                 type: LayerType.Line,
                 source: SourceId.Mainstems,
-                'source-layer': SourceId.Mainstems,
+                'source-layer': 'mainstems_v3',
                 // Filter all features out by default
                 filter: ['==', ['get', 'id'], null],
                 layout: {
@@ -325,7 +332,7 @@ export const getLayerConfig = (
                 id: LayerId.MajorRivers,
                 type: LayerType.Line,
                 source: SourceId.Mainstems,
-                'source-layer': SourceId.Mainstems,
+                'source-layer': 'mainstems_v3',
                 filter: ['>=', ['get', 'outlet_drainagearea_sqkm'], 50000],
                 layout: {
                     'line-cap': 'round',
@@ -342,7 +349,7 @@ export const getLayerConfig = (
                 id: LayerId.HUC2Boundaries,
                 type: LayerType.Line,
                 source: SourceId.HUC2Boundaries,
-                'source-layer': SourceId.HUC2Boundaries,
+                'source-layer': 'hu02',
                 layout: {
                     'line-cap': 'round',
                     'line-join': 'round',
@@ -379,7 +386,7 @@ export const getLayerConfig = (
                 id: SubLayerId.HUC2BoundaryFill,
                 type: LayerType.Fill,
                 source: SourceId.HUC2Boundaries,
-                'source-layer': SourceId.HUC2Boundaries,
+                'source-layer': 'hu02',
                 paint: {
                     'fill-color': '#000',
                     'fill-opacity': 0,
