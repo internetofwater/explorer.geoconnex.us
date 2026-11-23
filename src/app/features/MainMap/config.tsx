@@ -101,6 +101,7 @@ export const sourceConfigs: SourceConfig[] = [
             minzoom: 0,
             maxzoom: 10,
             tileSize: 512,
+            // Bounds from Reference Collection Metadata
             bounds: [-124.707777, 25.190876, -67.05824, 49.376613],
         },
     },
@@ -126,6 +127,7 @@ export const sourceConfigs: SourceConfig[] = [
             minzoom: 0,
             maxzoom: 10,
             tileSize: 512,
+            // Bounds from Reference Collection Metadata
             bounds: [-179.229468, -14.42442, 179.856484, 71.439451],
         },
     },
@@ -149,6 +151,7 @@ export const sourceConfigs: SourceConfig[] = [
             minzoom: 0,
             maxzoom: 16,
             tileSize: 512,
+            // Bounds from Reference Collection Metadata
             bounds: [-179.148909, -14.548699, 179.77847011250077, 71.365162],
         },
     },

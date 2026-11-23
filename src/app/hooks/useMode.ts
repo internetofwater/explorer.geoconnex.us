@@ -17,7 +17,7 @@ export const useMode = () => {
     };
 
     const changeToRiverRunnerMode = () => {
-        dispatch(setMode(MODE.Mainstems));
+        dispatch(setMode(MODE.RiverRunner));
     };
 
     return {

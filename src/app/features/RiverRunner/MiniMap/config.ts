@@ -81,6 +81,10 @@ export const sourceConfigs: SourceConfig[] = [
  */
 export const getLayerName = (layerId: LayerId | SubLayerId): string => {
     switch (layerId) {
+        case LayerId.Flowlines:
+            return 'River Runner Flowlines';
+        case LayerId.CurrentPosition:
+            return 'River Runner Mini-Map Position';
         default:
             return '';
     }
@@ -102,6 +106,10 @@ export const getLayerColor = (
     id: LayerId | SubLayerId
 ): DataDrivenPropertyValueSpecification<string> => {
     switch (id) {
+        case LayerId.Flowlines:
+            return '#00A087';
+        case LayerId.CurrentPosition:
+            return '#a1c6d5';
         default:
             return '#FFF';
     }
@@ -136,7 +144,7 @@ export const getLayerConfig = (
                 },
                 paint: {
                     'line-width': 4,
-                    'line-color': '#00A087', // TODO: get actual colors from IOW DG
+                    'line-color': getLayerColor(LayerId.Flowlines),
                 },
             };
         case LayerId.CurrentPosition:
@@ -145,7 +153,7 @@ export const getLayerConfig = (
                 type: LayerType.Circle,
                 source: SourceId.CurrentPosition,
                 paint: {
-                    'circle-color': '#a1c6d5',
+                    'circle-color': getLayerColor(LayerId.CurrentPosition),
                     'circle-radius': 4,
                     'circle-stroke-width': 2,
                     'circle-stroke-color': '#e6000b',
